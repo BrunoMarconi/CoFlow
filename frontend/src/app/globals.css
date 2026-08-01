@@ -11,6 +11,29 @@
   --line: #e3e9e5;
   --danger: #dc2626;
   --warning: #d97706;
+
+  /* Safe areas (iOS/Android con viewport-fit=cover). Se usan como
+     var(--safe-*) en vez de repetir env(...) en cada componente. */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  /* Alturas de la "chrome" móvil, compartidas entre el layout que
+     reserva espacio (padding) y los componentes que la ocupan
+     realmente (Navbar, BottomNavigation), para que no diverjan. */
+  --mobile-header-height: 4rem;
+  --mobile-bottom-nav-height: 4rem;
+
+  /* Escala de z-index única para toda la app. No renombra literales
+     que nunca compiten entre sí (FAB, barras de progreso puntuales). */
+  --z-content: 1;
+  --z-sticky-header: 40;
+  --z-bottom-nav: 50;
+  --z-backdrop: 55;
+  --z-drawer: 60;
+  --z-modal: 70;
+  --z-toast: 80;
 }
 
 @theme inline {
@@ -35,6 +58,12 @@
 html {
   scroll-behavior: smooth;
   background: var(--background);
+  /* Guard final contra scroll horizontal accidental. Se aplica en
+     html (no en body) para no crear un contexto de scroll que rompa
+     `position: sticky` en los descendientes (Navbar, tabs). Las
+     causas reales de overflow (p. ej. CommunityHeader) se corrigen
+     aparte; esto es una red de seguridad, no un parche que las oculte. */
+  overflow-x: hidden;
 }
 
 body {
@@ -100,6 +129,26 @@ summary::-webkit-details-marker {
   display: inline-block;
   transform-origin: 70% 70%;
   animation: wave 2.2s ease-in-out infinite;
+}
+
+/* Desvanecido en los bordes de contenedores con scroll horizontal
+   (tabs). Insinúa que hay más contenido sin depender de JS ni de una
+   scrollbar visible. */
+.scroll-fade-x {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 20px,
+    black calc(100% - 20px),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 20px,
+    black calc(100% - 20px),
+    transparent
+  );
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -15,7 +15,7 @@ export default function Hero() {
             Encuentra personas, no solo habitaciones
           </div>
 
-          <h1 className="mt-6 max-w-3xl text-5xl font-black leading-[1.02] tracking-[-0.045em] text-brand-dark sm:text-6xl lg:text-[4.6rem]">
+          <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[1.05] tracking-[-0.035em] text-brand-dark min-[375px]:text-5xl min-[375px]:leading-[1.02] min-[375px]:tracking-[-0.045em] sm:text-6xl lg:text-[4.6rem]">
             No busques solo una habitación.
             <span className="block text-brand">
               Encuentra una convivencia que encaje contigo.

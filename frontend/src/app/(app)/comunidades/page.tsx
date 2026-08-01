@@ -298,7 +298,10 @@ export default function ComunidadesPage() {
         )}
 
         {!loading && !error && (
-          <CommunityGrid communities={visibleCommunities} />
+          <CommunityGrid
+            communities={visibleCommunities}
+            ownCommunityId={myCommunity?.id}
+          />
         )}
       </section>
 

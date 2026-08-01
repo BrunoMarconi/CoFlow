@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useMobileChrome } from "@/providers/MobileChromeProvider";
+import { useKeyboardVisible } from "@/hooks/useKeyboardVisible";
 import {
   CompassIcon,
   HomeIcon,
@@ -22,6 +24,8 @@ const LINKS: {
 
 export default function BottomNavigation() {
   const pathname = usePathname();
+  const { isChatActive } = useMobileChrome();
+  const isKeyboardVisible = useKeyboardVisible();
 
   function isActive(href: string) {
     if (href === "/comunidades") {
@@ -34,10 +38,14 @@ export default function BottomNavigation() {
     return pathname.startsWith(href);
   }
 
+  // Nunca debe competir con el compositor de un chat activo ni con el
+  // teclado virtual abierto en cualquier formulario.
+  if (isChatActive || isKeyboardVisible) return null;
+
   return (
     <nav
       aria-label="Navegación principal"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_10px_rgba(18,56,44,0.06)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-(--z-bottom-nav) border-t border-line bg-surface pb-(--safe-bottom) shadow-[0_-2px_10px_rgba(18,56,44,0.06)] md:hidden"
     >
       <div className="mx-auto flex max-w-md items-stretch">
         {LINKS.map((link) => {

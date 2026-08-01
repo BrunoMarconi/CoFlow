@@ -71,12 +71,12 @@ export default function UsuariosPage() {
         Encuentra gente compatible para compartir vivienda.
       </p>
 
-      <div className="mt-6">
+      <div className="mt-4">
         <PersonasTabs />
       </div>
 
-      <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-        <div className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-2xl border border-line bg-surface px-4 shadow-sm">
+      <div className="mt-4 flex flex-row gap-2">
+        <div className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-2xl border border-line bg-surface px-4 shadow-sm">
           <SearchIcon />
 
           <input
@@ -91,14 +91,15 @@ export default function UsuariosPage() {
           type="button"
           onClick={() => setFiltersOpen((current) => !current)}
           aria-expanded={filtersOpen}
-          className={`flex h-14 shrink-0 items-center justify-center gap-2 rounded-2xl border px-5 text-sm font-bold transition ${
+          aria-label="Filtros"
+          className={`flex h-12 shrink-0 items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-bold transition sm:px-5 ${
             filtersOpen || isUserFiltersActive(filters)
               ? "border-brand bg-brand/10 text-brand-dark"
               : "border-line bg-surface text-foreground hover:bg-surface-soft"
           }`}
         >
           <FilterIcon />
-          Filtros
+          <span className="hidden sm:inline">Filtros</span>
         </button>
       </div>
 

@@ -4,8 +4,10 @@ import type { Community } from "@/types/community";
 
 export default function CommunityGrid({
   communities,
+  ownCommunityId,
 }: {
   communities: Community[];
+  ownCommunityId?: number;
 }) {
   if (communities.length === 0) {
     return (
@@ -24,6 +26,7 @@ export default function CommunityGrid({
         <CommunityCard
           key={community.id}
           community={community}
+          isOwn={community.id === ownCommunityId}
         />
       ))}
     </div>

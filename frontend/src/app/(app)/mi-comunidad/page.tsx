@@ -16,14 +16,23 @@ import CommunityInvitationsManager from "@/components/comunidad/CommunityInvitat
 import CommunityApplicationsManager from "@/components/comunidad/CommunityApplicationsManager";
 import { SettingsRow, SettingsSection } from "@/components/comunidad/SettingsRow";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
+import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import type { Community } from "@/types/community";
 
 type Tab = "resumen" | "chat" | "miembros" | "solicitudes" | "gestion";
 
 export default function MiComunidadPage() {
   const { user, community, communityLoading } = useAuth();
+  const { setChatActive } = useMobileChrome();
 
   const [tab, setTab] = useState<Tab>("resumen");
+
+  // Con el chat de la comunidad activo en móvil, se libera el espacio de
+  // BottomNavigation igual que en el chat 1:1 dedicado.
+  useEffect(() => {
+    setChatActive(tab === "chat");
+    return () => setChatActive(false);
+  }, [tab, setChatActive]);
 
   if (communityLoading) {
     return (
@@ -224,7 +233,7 @@ function CommunityTabs({
     <div
       role="tablist"
       aria-label="Secciones de tu comunidad"
-      className="mt-4 flex gap-1 overflow-x-auto border-b border-line [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="mt-4 flex gap-1 overflow-x-auto snap-x snap-proximity scroll-fade-x border-b border-line [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {tabs.map((item) => {
         const active = tab === item.key;

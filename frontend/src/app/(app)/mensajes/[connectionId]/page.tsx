@@ -7,11 +7,13 @@ import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
 import PrivateChat from "@/components/mensajes/PrivateChat";
 import { getConnections } from "@/services/connections";
+import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import type { UserConnection } from "@/types/connection";
 
 export default function MensajesPage() {
   const params = useParams<{ connectionId: string }>();
   const { user } = useAuth();
+  const { setChatActive } = useMobileChrome();
 
   const [connection, setConnection] = useState<UserConnection | null>(
     null
@@ -20,6 +22,11 @@ export default function MensajesPage() {
   const [notFound, setNotFound] = useState(false);
 
   const connectionId = Number(params.connectionId);
+
+  useEffect(() => {
+    setChatActive(true);
+    return () => setChatActive(false);
+  }, [setChatActive]);
 
   useEffect(() => {
     let active = true;
@@ -99,26 +106,26 @@ export default function MensajesPage() {
     .toUpperCase();
 
   return (
-    <div className="mx-auto w-full max-w-3xl">
-      <Link
-        href="/conexiones"
-        className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-gray-500 transition hover:text-[#163B2E]"
-      >
-        <ArrowLeftIcon />
-        Volver a conexiones
-      </Link>
+    <div className="mx-auto flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top)-var(--safe-bottom))] w-full max-w-3xl flex-col sm:h-auto sm:block">
+      <div className="mb-3 flex shrink-0 items-center gap-3 sm:mb-4">
+        <Link
+          href="/conexiones"
+          aria-label="Volver a conexiones"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-gray-500 transition hover:bg-gray-100 hover:text-[#163B2E]"
+        >
+          <ArrowLeftIcon />
+        </Link>
 
-      <div className="mb-4 flex items-center gap-3">
         <Link
           href={`/personas/${other.id}`}
-          className="flex items-center gap-3"
+          className="flex min-w-0 items-center gap-3"
         >
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-green-500 text-sm font-bold text-white">
             {initials || "CF"}
           </div>
 
-          <div>
-            <p className="text-base font-bold text-[#163B2E]">
+          <div className="min-w-0">
+            <p className="truncate text-base font-bold text-[#163B2E]">
               {fullName || "Persona de CoFlow"}
             </p>
             <p className="text-xs font-semibold text-gray-400">
@@ -128,7 +135,13 @@ export default function MensajesPage() {
         </Link>
       </div>
 
-      <PrivateChat connectionId={connection.id} currentUserId={user.id} />
+      <div className="min-h-0 flex-1 sm:flex-none">
+        <PrivateChat
+          connectionId={connection.id}
+          currentUserId={user.id}
+          variant="full"
+        />
+      </div>
     </div>
   );
 }

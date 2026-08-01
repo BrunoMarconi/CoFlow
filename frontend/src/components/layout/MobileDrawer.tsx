@@ -52,6 +52,24 @@ export default function MobileDrawer({
 
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousPathnameRef = useRef(pathname);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  // Red de seguridad además de los onClick por enlace: si la ruta
+  // cambia mientras el drawer está abierto (por cualquier navegación,
+  // incluida una que olvide pasar onClick), se cierra igualmente. Se usa
+  // un ref para onClose para no depender de su identidad de función.
+  useEffect(() => {
+    if (open && pathname !== previousPathnameRef.current) {
+      onCloseRef.current();
+    }
+
+    previousPathnameRef.current = pathname;
+  }, [open, pathname]);
 
   useEffect(() => {
     if (open) {
@@ -154,7 +172,7 @@ export default function MobileDrawer({
   }
 
   return (
-    <div className="fixed inset-0 z-[60] md:hidden">
+    <div className="fixed inset-0 z-(--z-drawer) md:hidden">
       <button
         type="button"
         aria-label="Cerrar menú"
@@ -169,12 +187,12 @@ export default function MobileDrawer({
         role="dialog"
         aria-modal="true"
         aria-label="Menú de navegación"
-        className={`absolute inset-y-0 left-0 flex h-screen w-[90vw] max-w-[360px] flex-col bg-surface shadow-2xl transition-transform duration-200 ease-out ${
+        className={`absolute inset-y-0 left-0 flex h-dvh w-[90vw] max-w-[360px] flex-col bg-surface shadow-2xl transition-transform duration-200 ease-out ${
           visible ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-line px-4 py-4">
+        <div className="flex items-center justify-between border-b border-line px-4 pb-4 pt-[calc(1rem+var(--safe-top))]">
           <span className="text-lg font-bold tracking-tight text-foreground">
             CoFlow
           </span>
@@ -322,7 +340,7 @@ export default function MobileDrawer({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-line px-3 py-3">
+        <div className="border-t border-line px-3 pt-3 pb-[calc(0.75rem+var(--safe-bottom))]">
           <button
             type="button"
             onClick={() => {

@@ -16,7 +16,7 @@ export default function PersonasTabs() {
     <div
       role="tablist"
       aria-label="Secciones de personas"
-      className="flex gap-5 overflow-x-auto border-b border-line [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="flex gap-5 overflow-x-auto snap-x snap-proximity scroll-fade-x border-b border-line [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {TABS.map((tab) => {
         const active =

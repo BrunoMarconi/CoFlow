@@ -58,13 +58,13 @@ export default function CommunityHeader({
           <div className="absolute bottom-8 right-16 h-24 w-24 rounded-full bg-white/5 blur-sm" />
 
           <div className="relative flex h-full flex-col justify-between gap-6 sm:gap-12">
-            <div className="flex items-start justify-between gap-3">
-              <span className="inline-flex max-w-[75%] items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold text-white backdrop-blur sm:px-4 sm:py-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+              <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold text-white backdrop-blur sm:max-w-[75%] sm:px-4 sm:py-2">
                 <LocationIcon />
                 <span className="truncate">{location}</span>
               </span>
 
-              <div className="flex shrink-0 flex-wrap justify-end gap-2">
+              <div className="flex flex-wrap gap-2 sm:shrink-0 sm:justify-end">
                 {isLookingForMembers && (
                   <span
                     className={`rounded-full px-3 py-1.5 text-xs font-bold sm:px-4 sm:py-2 ${urgencyData.heroClass}`}

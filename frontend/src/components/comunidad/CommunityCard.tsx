@@ -9,8 +9,10 @@ import type {
 
 export default function CommunityCard({
   community,
+  isOwn = false,
 }: {
   community: Community;
+  isOwn?: boolean;
 }) {
   const location = community.neighborhood
     ? `${community.neighborhood}, ${community.city}`
@@ -101,9 +103,9 @@ export default function CommunityCard({
             </p>
           )}
 
-          <div className="mt-4 flex items-center gap-2">
+          <div className="mt-4 flex min-w-0 items-center gap-2">
             {visibleMembers.length > 0 ? (
-              <div className="flex -space-x-2">
+              <div className="flex shrink-0 -space-x-2">
                 {visibleMembers.map((member) => (
                   <UserAvatar
                     key={member.id}
@@ -117,7 +119,7 @@ export default function CommunityCard({
               </div>
             ) : null}
 
-            <span className="text-xs font-semibold text-muted">
+            <span className="min-w-0 truncate text-xs font-semibold text-muted">
               {community.member_count} de {community.max_members} miembros
               actuales
             </span>
@@ -131,13 +133,13 @@ export default function CommunityCard({
           )}
 
           {traits.length > 0 && (
-            <p className="mt-3 truncate text-xs font-semibold text-brand-dark">
+            <p className="mt-3 line-clamp-2 text-xs font-semibold text-brand-dark">
               {traits.join(" · ")}
             </p>
           )}
 
-          <div className="mt-auto flex items-center gap-1.5 pt-4 text-sm font-bold text-brand-dark">
-            Ver comunidad
+          <div className="-mx-4 mt-auto flex items-center justify-between gap-1.5 border-t border-line px-4 pt-3 text-sm font-bold text-brand-dark sm:-mx-5 sm:px-5">
+            {isOwn ? "Mi comunidad" : "Ver comunidad"}
             <ArrowIcon />
           </div>
         </div>
