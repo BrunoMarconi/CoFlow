@@ -14,31 +14,41 @@ export default function HowItWorks() {
           description="Un proceso sencillo para entender qué busca cada persona antes de compartir vivienda."
         />
 
-        <div className="mt-8 grid gap-5 sm:mt-12 lg:grid-cols-3">
-          {howItWorksSteps.map((step, index) => (
-            <article
-              key={step.number}
-              className="relative overflow-hidden rounded-[2rem] border border-line bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl sm:p-8"
-            >
-              <span className="absolute -right-3 -top-8 text-[7rem] font-black leading-none text-brand/10">
-                {step.number}
-              </span>
+        <div className="relative mt-10 sm:mt-14">
+          {/* Vertical connector (mobile/tablet) */}
+          <div
+            aria-hidden="true"
+            className="absolute left-6 top-6 bottom-6 w-px bg-brand/20 lg:hidden"
+          />
 
-              <div className="relative">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-dark text-sm font-bold text-white">
+          {/* Horizontal connector (desktop) */}
+          <div
+            aria-hidden="true"
+            className="absolute left-[16.666%] right-[16.666%] top-6 hidden h-px bg-brand/20 lg:block"
+          />
+
+          <div className="flex flex-col gap-10 lg:flex-row lg:gap-6">
+            {howItWorksSteps.map((step, index) => (
+              <div
+                key={step.number}
+                className="relative flex gap-5 lg:flex-1 lg:flex-col lg:items-center lg:gap-0 lg:text-center"
+              >
+                <span className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-dark text-sm font-bold text-white">
                   {index + 1}
                 </span>
 
-                <h3 className="mt-6 text-xl font-bold text-brand-dark sm:text-2xl">
-                  {step.title}
-                </h3>
+                <div className="lg:mt-6">
+                  <h3 className="text-xl font-bold text-brand-dark sm:text-2xl">
+                    {step.title}
+                  </h3>
 
-                <p className="mt-3 text-base leading-7 text-muted">
-                  {step.description}
-                </p>
+                  <p className="mt-2 text-base leading-7 text-muted lg:mx-auto lg:max-w-60">
+                    {step.description}
+                  </p>
+                </div>
               </div>
-            </article>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
