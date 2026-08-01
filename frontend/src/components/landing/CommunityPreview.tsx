@@ -10,7 +10,7 @@ const infoItems = [
 
 export default function CommunityPreview() {
   return (
-    <section className="bg-brand/5 px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
+    <section className="bg-brand/5 px-4 py-12 sm:px-6 sm:py-24 lg:py-28">
       <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-brand">
@@ -43,7 +43,7 @@ export default function CommunityPreview() {
               <div className="absolute -right-12 -top-14 h-48 w-48 rounded-full bg-white/10" />
               <div className="absolute -bottom-16 -left-10 h-52 w-52 rounded-full bg-green-100/10" />
 
-              <div className="relative flex items-start justify-between gap-3">
+              <div className="relative flex flex-wrap items-start gap-2">
                 <span className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold text-white">
                   Teatinos, Málaga
                 </span>

@@ -5,7 +5,7 @@ export default function CommunityTypes() {
   return (
     <section
       id="comunidades"
-      className="scroll-mt-24 px-4 py-16 sm:px-6 sm:py-24 lg:py-28"
+      className="scroll-mt-24 px-4 py-12 sm:px-6 sm:py-24 lg:py-28"
     >
       <div className="mx-auto max-w-7xl">
         <SectionHeader
@@ -14,7 +14,7 @@ export default function CommunityTypes() {
           description="Cada comunidad elige cómo entran nuevos miembros según el nivel de control que necesite."
         />
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-2">
+        <div className="mt-8 grid gap-6 sm:mt-12 lg:grid-cols-2">
           <article className="relative overflow-hidden rounded-[2rem] border border-brand/25 bg-brand/5 p-7 sm:p-9">
             <div className="absolute -right-14 -top-14 h-44 w-44 rounded-full bg-brand/15" />
 

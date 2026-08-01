@@ -7,7 +7,7 @@ export default function Cities() {
   return (
     <section
       id="ciudades"
-      className="scroll-mt-24 px-4 py-16 sm:px-6 sm:py-24 lg:py-28"
+      className="scroll-mt-24 px-4 py-12 sm:px-6 sm:py-24 lg:py-28"
     >
       <div className="mx-auto max-w-7xl">
         <SectionHeader
@@ -16,7 +16,7 @@ export default function Cities() {
           description="Descubre personas y comunidades que buscan una forma más compatible de compartir hogar."
         />
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3">
           {cities.map((city) => (
             <article
               key={city.name}
@@ -35,7 +35,7 @@ export default function Cities() {
 
               <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/25 to-black/5" />
 
-              <div className="absolute inset-x-0 top-0 flex items-center justify-between p-5">
+              <div className="absolute inset-x-0 top-0 flex flex-wrap items-center gap-2 p-5">
                 <span className="rounded-full border border-white/25 bg-black/20 px-3 py-2 text-xs font-bold text-white backdrop-blur">
                   {city.region}
                 </span>

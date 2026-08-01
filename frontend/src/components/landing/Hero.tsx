@@ -8,7 +8,7 @@ export default function Hero() {
       <div className="pointer-events-none absolute left-[-8rem] top-10 h-80 w-80 rounded-full bg-brand/15 blur-3xl" />
       <div className="pointer-events-none absolute right-[-10rem] top-24 h-96 w-96 rounded-full bg-emerald-100/60 blur-3xl" />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-10">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-10">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.13em] text-brand-dark">
             <span className="h-2 w-2 rounded-full bg-brand" />
@@ -60,20 +60,37 @@ export default function Hero() {
 
 function HeroProductMockup() {
   return (
-    <div className="relative mx-auto w-full max-w-[820px] pb-10 sm:pb-12">
-      <div className="absolute bottom-0 right-0 top-0 w-[94%] overflow-hidden rounded-[2.5rem] shadow-[0_25px_70px_rgba(22,59,46,0.18)]">
+    <div className="relative mx-auto w-full max-w-[820px] pb-6 sm:pb-12">
+      <div className="absolute bottom-0 right-0 top-0 hidden w-[94%] overflow-hidden rounded-[2.5rem] shadow-[0_25px_70px_rgba(22,59,46,0.18)] sm:block">
         <Image
           src="/images/hero/madrid.webp"
           alt="Gran Vía de Madrid"
           fill
           priority
-          sizes="(max-width: 1024px) 92vw, 42vw"
+          sizes="42vw"
           className="object-cover object-center"
         />
 
         <div className="absolute inset-0 bg-linear-to-l from-transparent via-brand-dark/5 to-brand-dark/45" />
 
         <div className="absolute bottom-5 right-5 rounded-full border border-white/30 bg-black/30 px-4 py-2 text-xs font-bold text-white backdrop-blur">
+          Madrid · Encuentra dónde encajar
+        </div>
+      </div>
+
+      <div className="relative mb-4 h-40 overflow-hidden rounded-[1.75rem] shadow-[0_16px_40px_rgba(22,59,46,0.16)] sm:hidden">
+        <Image
+          src="/images/hero/madrid.webp"
+          alt="Gran Vía de Madrid"
+          fill
+          priority
+          sizes="92vw"
+          className="object-cover object-center"
+        />
+
+        <div className="absolute inset-0 bg-linear-to-t from-brand-dark/55 via-transparent to-transparent" />
+
+        <div className="absolute bottom-3 left-3 rounded-full border border-white/30 bg-black/30 px-3.5 py-1.5 text-xs font-bold text-white backdrop-blur">
           Madrid · Encuentra dónde encajar
         </div>
       </div>
@@ -93,21 +110,21 @@ function HeroProductMockup() {
         </div>
       </div>
 
-      <div className="relative z-10 w-[78%] -rotate-[1deg] rounded-[2.25rem] border border-white/80 bg-white p-3 shadow-[0_30px_90px_rgba(22,59,46,0.24)] sm:w-[76%]">
-        <div className="overflow-hidden rounded-[1.75rem] border border-line bg-surface-soft">
-          <div className="flex items-center justify-between border-b border-line bg-white px-5 py-4">
-            <div className="flex items-center gap-3">
+      <div className="relative z-10 w-full rounded-[1.75rem] border border-white/80 bg-white p-3 shadow-[0_20px_55px_rgba(22,59,46,0.18)] sm:w-[76%] sm:-rotate-1 sm:rounded-[2.25rem] sm:shadow-[0_30px_90px_rgba(22,59,46,0.24)]">
+        <div className="overflow-hidden rounded-[1.35rem] border border-line bg-surface-soft sm:rounded-[1.75rem]">
+          <div className="flex items-center justify-between border-b border-line bg-white px-4 py-3.5 sm:px-5 sm:py-4">
+            <div className="flex min-w-0 items-center gap-3">
               <Logo size="sm" />
 
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-semibold text-muted">Descubrir</p>
-                <p className="text-sm font-bold text-brand-dark">
+                <p className="truncate text-sm font-bold text-brand-dark">
                   Comunidades y personas
                 </p>
               </div>
             </div>
 
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-white">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand text-white">
               <CommunityIcon />
             </span>
           </div>
@@ -120,7 +137,7 @@ function HeroProductMockup() {
               </span>
             </div>
 
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div className="mt-4 grid gap-4 sm:mt-5 sm:grid-cols-2">
               <MockCommunityCard
                 name="Casa Teatinos"
                 location="Teatinos, Málaga"
@@ -129,27 +146,29 @@ function HeroProductMockup() {
                 capacity="3 de 4"
               />
 
-              <MockCommunityCard
-                name="Piso Alameda"
-                location="Centro, Málaga"
-                initials="PA"
-                type="Con solicitud"
-                capacity="2 de 4"
-              />
+              <div className="hidden sm:block">
+                <MockCommunityCard
+                  name="Piso Alameda"
+                  location="Centro, Málaga"
+                  initials="PA"
+                  type="Con solicitud"
+                  capacity="2 de 4"
+                />
+              </div>
             </div>
 
-            <div className="mt-4 rounded-2xl bg-white p-5">
-              <div className="flex items-center justify-between">
-                <div>
+            <div className="mt-4 rounded-2xl bg-white p-4 sm:p-5">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
                   <p className="text-xs font-bold uppercase tracking-wider text-brand">
                     Preferencias
                   </p>
-                  <p className="mt-2 text-base font-bold text-brand-dark">
+                  <p className="mt-2 truncate text-base font-bold text-brand-dark">
                     Cómo queremos convivir
                   </p>
                 </div>
 
-                <span className="rounded-full bg-brand/10 px-3 py-2 text-xs font-bold text-brand-dark">
+                <span className="shrink-0 rounded-full bg-brand/10 px-3 py-2 text-xs font-bold text-brand-dark">
                   8 respuestas
                 </span>
               </div>

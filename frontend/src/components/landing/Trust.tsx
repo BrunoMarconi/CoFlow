@@ -11,7 +11,7 @@ const ICONS = {
 
 export default function Trust() {
   return (
-    <section className="px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
+    <section className="px-4 py-12 sm:px-6 sm:py-24 lg:py-28">
       <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] bg-brand-dark px-6 py-12 text-white sm:px-12 sm:py-16">
         <SectionHeader
           eyebrow="Antes de decidir"
@@ -19,7 +19,7 @@ export default function Trust() {
           tone="dark"
         />
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2 lg:grid-cols-4">
           {trustPoints.map((point) => {
             const Icon = ICONS[point.icon as keyof typeof ICONS];
 
