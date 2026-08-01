@@ -5,13 +5,13 @@ import { ArrowRightIcon, CommunityIcon, PlayIcon, SearchIcon, SparklesIcon } fro
 export default function Hero() {
   return (
     <section className="relative px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-14 lg:pb-24">
-      <div className="pointer-events-none absolute left-[-8rem] top-10 h-80 w-80 rounded-full bg-brand/15 blur-3xl" />
-      <div className="pointer-events-none absolute right-[-10rem] top-24 h-96 w-96 rounded-full bg-emerald-100/60 blur-3xl" />
+      <div className="pointer-events-none absolute left-[-8rem] top-10 h-56 w-56 rounded-full bg-brand/10 blur-2xl sm:h-80 sm:w-80 sm:bg-brand/15 sm:blur-3xl" />
+      <div className="pointer-events-none absolute right-[-10rem] top-24 hidden h-96 w-96 rounded-full bg-emerald-100/60 blur-3xl sm:block" />
 
       <div className="relative mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-10">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.13em] text-brand-dark">
-            <span className="h-2 w-2 rounded-full bg-brand" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-brand/25 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.13em] text-brand-dark shadow-sm">
+            <span className="h-2 w-2 shrink-0 rounded-full bg-brand" />
             Encuentra personas, no solo habitaciones
           </div>
 
