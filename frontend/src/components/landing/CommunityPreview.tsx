@@ -1,11 +1,30 @@
 import { ChatIcon } from "./icons";
 
-const infoItems = [
-  { label: "Miembros actuales", value: "3 de 4" },
-  { label: "Plazas abiertas", value: "1 disponible" },
-  { label: "Aportación mensual", value: "320€ / persona" },
-  { label: "Fecha de entrada", value: "Disponible ya" },
-  { label: "Tipo de acceso", value: "Entrada directa" },
+const previewMessages = [
+  {
+    id: "m1",
+    own: false,
+    name: "Marta",
+    initials: "M",
+    text: "¡Hola! Bienvenido a Casa Teatinos 👋",
+    time: "10:24",
+  },
+  {
+    id: "m2",
+    own: true,
+    name: "Tú",
+    initials: "Tú",
+    text: "¡Genial, gracias! ¿Cuándo puedo pasar a conocer el piso?",
+    time: "10:26",
+  },
+  {
+    id: "m3",
+    own: false,
+    name: "Marta",
+    initials: "M",
+    text: "Este finde tenemos hueco, te paso la ubicación por aquí.",
+    time: "10:27",
+  },
 ] as const;
 
 export default function CommunityPreview() {
@@ -38,67 +57,96 @@ export default function CommunityPreview() {
         </div>
 
         <div className="rounded-[2.25rem] border border-white bg-white p-3 shadow-[0_25px_70px_rgba(22,59,46,0.12)]">
-          <div className="overflow-hidden rounded-[1.75rem] border border-line">
-            <div className="relative min-h-56 bg-linear-to-br from-brand-dark via-brand to-green-400 p-7">
-              <div className="absolute -right-12 -top-14 h-48 w-48 rounded-full bg-white/10" />
-              <div className="absolute -bottom-16 -left-10 h-52 w-52 rounded-full bg-green-100/10" />
+          <div className="overflow-hidden rounded-[1.75rem] border border-line bg-surface-soft">
+            <div className="flex items-center gap-3 border-b border-line bg-white px-5 py-4">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-brand-dark to-brand text-sm font-black text-white">
+                CT
+              </span>
 
-              <div className="relative flex flex-wrap items-start gap-2">
-                <span className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold text-white">
-                  Teatinos, Málaga
-                </span>
-
-                <span className="rounded-full border border-white/20 bg-black/10 px-4 py-2 text-xs font-bold text-white">
-                  Comunidad abierta
-                </span>
-              </div>
-
-              <div className="relative mt-16 flex items-end gap-4">
-                <span className="flex h-20 w-20 items-center justify-center rounded-2xl border border-white/20 bg-white/15 text-2xl font-black text-white backdrop-blur">
-                  CT
-                </span>
-
-                <div>
-                  <p className="text-sm font-semibold text-green-100">
-                    Comunidad de CoFlow
-                  </p>
-                  <p className="mt-2 text-3xl font-black text-white">
-                    Casa Teatinos
-                  </p>
-                </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-bold text-brand-dark">
+                  Casa Teatinos
+                </p>
+                <p className="text-xs font-semibold text-muted">
+                  4 miembros · Chat grupal
+                </p>
               </div>
             </div>
 
-            <div className="p-6">
-              <p className="text-xs font-bold uppercase tracking-wider text-brand">
-                Sobre la comunidad
-              </p>
+            <div className="space-y-3 p-4 sm:p-5">
+              {previewMessages.map((message) => (
+                <PreviewMessageBubble key={message.id} message={message} />
+              ))}
+            </div>
 
-              <p className="mt-3 text-sm leading-7 text-muted">
-                Somos una comunidad tranquila de estudiantes y trabajadores.
-                Buscamos una persona organizada, respetuosa y con ganas de
-                crear un buen ambiente en casa.
-              </p>
+            <div className="flex items-center gap-2 border-t border-line bg-white p-3 sm:p-4">
+              <div className="h-11 flex-1 rounded-2xl bg-surface-soft" />
 
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                {infoItems.map((item) => (
-                  <div
-                    key={item.label}
-                    className="rounded-xl bg-surface-soft p-4"
-                  >
-                    <p className="text-xs font-semibold text-muted">
-                      {item.label}
-                    </p>
-                    <p className="mt-1 text-sm font-bold text-brand-dark">
-                      {item.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand text-white">
+                <SendIcon />
+              </span>
             </div>
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function PreviewMessageBubble({
+  message,
+}: {
+  message: (typeof previewMessages)[number];
+}) {
+  return (
+    <div
+      className={`flex items-end gap-2 ${
+        message.own ? "flex-row-reverse" : "flex-row"
+      }`}
+    >
+      <div
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+          message.own ? "bg-brand text-white" : "bg-brand-dark text-white"
+        }`}
+      >
+        {message.initials}
+      </div>
+
+      <div
+        className={`max-w-[78%] rounded-2xl px-4 py-2.5 ${
+          message.own
+            ? "rounded-br-md bg-brand text-white"
+            : "rounded-bl-md bg-white text-brand-dark"
+        }`}
+      >
+        <p className="text-sm leading-6">{message.text}</p>
+
+        <p
+          className={`mt-1 text-[10px] font-semibold ${
+            message.own ? "text-white/70" : "text-muted"
+          }`}
+        >
+          {message.time}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function SendIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5"
+      aria-hidden="true"
+    >
+      <path d="m22 2-7 20-4-9-9-4Z" />
+      <path d="M22 2 11 13" />
+    </svg>
   );
 }

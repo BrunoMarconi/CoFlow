@@ -111,27 +111,27 @@ export const cities = [
 export const trustPoints = [
   {
     title: "Conoce cómo conviven",
+    without: "Entras a ciegas, sin saber cómo vive la gente",
     description:
       "Cada comunidad muestra sus preferencias de convivencia antes de que hables con nadie.",
-    icon: "eye",
   },
   {
     title: "Habla antes de entrar",
+    without: "Hablas por primera vez ya viviendo allí",
     description:
       "Usa el chat para resolver dudas con la comunidad antes de solicitar una plaza.",
-    icon: "chat",
   },
   {
     title: "Comprueba si el presupuesto encaja",
+    without: "El precio real se aclara cuando ya es tarde",
     description:
       "La aportación mensual y el depósito están visibles desde el primer momento.",
-    icon: "clipboard",
   },
   {
     title: "Controla tu privacidad",
+    without: "No decides qué compartes ni cuándo",
     description:
       "Decides qué información de tu perfil es pública antes de compartirla.",
-    icon: "lock",
   },
 ] as const;
 

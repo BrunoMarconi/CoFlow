@@ -1,13 +1,6 @@
 import { SectionHeader } from "./shared";
-import { ChatIcon, ClipboardIcon, EyeIcon, LockIcon } from "./icons";
+import { CheckIcon, CloseIcon } from "./icons";
 import { trustPoints } from "./content";
-
-const ICONS = {
-  eye: EyeIcon,
-  chat: ChatIcon,
-  clipboard: ClipboardIcon,
-  lock: LockIcon,
-} as const;
 
 export default function Trust() {
   return (
@@ -19,26 +12,44 @@ export default function Trust() {
           tone="dark"
         />
 
-        <div className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2 lg:grid-cols-4">
-          {trustPoints.map((point) => {
-            const Icon = ICONS[point.icon as keyof typeof ICONS];
+        <div className="mt-8 overflow-hidden rounded-[1.75rem] border border-white/10 sm:mt-12">
+          <div className="grid sm:grid-cols-2">
+            <p className="border-b border-white/10 bg-white/4 px-5 py-3 text-xs font-bold uppercase tracking-wider text-white/50 sm:border-b-0 sm:border-r">
+              Sin CoFlow
+            </p>
+            <p className="border-b border-white/10 bg-green-400/10 px-5 py-3 text-xs font-bold uppercase tracking-wider text-green-300">
+              Con CoFlow
+            </p>
+          </div>
 
+          {trustPoints.map((point) => {
             return (
               <div
                 key={point.title}
-                className="rounded-[1.75rem] border border-white/10 bg-white/[0.07] p-6 backdrop-blur"
+                className="grid border-t border-white/10 sm:grid-cols-2"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-400 text-brand-dark">
-                  <Icon />
-                </span>
+                <div className="flex items-start gap-3 border-b border-white/10 px-5 py-5 sm:border-b-0 sm:border-r">
+                  <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-white/50">
+                    <CloseIcon />
+                  </span>
+                  <p className="text-sm leading-6 text-white/50">
+                    {point.without}
+                  </p>
+                </div>
 
-                <p className="mt-5 text-lg font-bold text-white">
-                  {point.title}
-                </p>
-
-                <p className="mt-2 text-sm leading-6 text-green-50/75">
-                  {point.description}
-                </p>
+                <div className="flex items-start gap-3 px-5 py-5">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-400 text-brand-dark">
+                    <CheckIcon />
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-white">
+                      {point.title}
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-green-50/75">
+                      {point.description}
+                    </p>
+                  </div>
+                </div>
               </div>
             );
           })}
