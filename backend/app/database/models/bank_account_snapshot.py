@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime, timezone
+from decimal import Decimal
 
 from sqlalchemy import DateTime, ForeignKey, Numeric, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
@@ -42,11 +43,11 @@ class BankAccountSnapshot(Base):
     display_name: Mapped[str | None] = mapped_column(String(150), nullable=True)
     currency: Mapped[str] = mapped_column(String(3), nullable=False)
 
-    current_balance: Mapped[float | None] = mapped_column(
+    current_balance: Mapped[Decimal | None] = mapped_column(
         Numeric(14, 2),
         nullable=True,
     )
-    available_balance: Mapped[float | None] = mapped_column(
+    available_balance: Mapped[Decimal | None] = mapped_column(
         Numeric(14, 2),
         nullable=True,
     )

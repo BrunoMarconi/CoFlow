@@ -9,6 +9,7 @@ from app.api.routes import (
     bank_connections,
     communities,
     connections,
+    financial_analysis,
     invitations,
     notifications,
     onboarding,
@@ -105,6 +106,11 @@ app.include_router(
     bank_connections.router,
     prefix="/bank-connections",
     tags=["Bank Connections"],
+)
+app.include_router(
+    financial_analysis.router,
+    prefix="/financial-analysis",
+    tags=["Financial Analysis"],
 )
 
 # Almacenamiento de imágenes SOLO para desarrollo local (ver

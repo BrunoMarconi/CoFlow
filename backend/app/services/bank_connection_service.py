@@ -1,6 +1,7 @@
 import hashlib
 import secrets
 from datetime import date, datetime, timedelta, timezone
+from decimal import Decimal, InvalidOperation
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -55,6 +56,15 @@ def _sanitize_description(raw: str | None) -> str:
 
 def _parse_timestamp(raw: str) -> datetime:
     return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+
+
+def _to_decimal(raw: object, default: str = "0") -> Decimal:
+    if raw is None:
+        return Decimal(default)
+    try:
+        return Decimal(str(raw))
+    except InvalidOperation:
+        return Decimal(default)
 
 
 class BankConnectionService:
@@ -399,8 +409,16 @@ class BankConnectionService:
                     account_type=account.get("account_type"),
                     display_name=account.get("display_name"),
                     currency=account.get("currency", "GBP"),
-                    current_balance=balance.get("current"),
-                    available_balance=balance.get("available"),
+                    current_balance=(
+                        _to_decimal(balance["current"])
+                        if balance.get("current") is not None
+                        else None
+                    ),
+                    available_balance=(
+                        _to_decimal(balance["available"])
+                        if balance.get("available") is not None
+                        else None
+                    ),
                     collected_at=collected_at,
                 )
             )
@@ -422,7 +440,7 @@ class BankConnectionService:
                         bank_connection_id=connection.id,
                         external_account_id=external_account_id,
                         external_transaction_id=external_transaction_id,
-                        amount=txn.get("amount", 0),
+                        amount=_to_decimal(txn.get("amount")),
                         currency=txn.get("currency", "GBP"),
                         description=_sanitize_description(txn.get("description")),
                         transaction_type=txn.get("transaction_type"),

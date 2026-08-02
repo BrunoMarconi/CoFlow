@@ -3,13 +3,26 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Spinner from "@/components/ui/Spinner";
+import FinancialAnalysisResult from "@/components/pasaporte/FinancialAnalysisResult";
+import HowWeCalculateIt from "@/components/pasaporte/HowWeCalculateIt";
+import MonthlyBreakdown from "@/components/pasaporte/MonthlyBreakdown";
 import {
   disconnectBankConnection,
   getMyBankConnection,
   startBankConnection,
   syncBankConnection,
 } from "@/services/bankConnections";
+import {
+  getMyFinancialAnalysis,
+  getMyFinancialAnalysisMonthly,
+  refreshFinancialAnalysis,
+  runFinancialAnalysis,
+} from "@/services/financialAnalysis";
 import type { BankConnectionSummary } from "@/types/bankConnection";
+import type {
+  FinancialAnalysis,
+  FinancialMonthlySummary,
+} from "@/types/financialAnalysis";
 
 function formatDate(value: string | null) {
   if (!value) return null;
@@ -41,6 +54,12 @@ export default function PasaportePage() {
   const [syncing, setSyncing] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
   const [actionError, setActionError] = useState("");
+
+  const [analysis, setAnalysis] = useState<FinancialAnalysis | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState("");
+  const [monthly, setMonthly] = useState<FinancialMonthlySummary[]>([]);
 
   const loadSummary = useCallback(async () => {
     try {
@@ -94,6 +113,41 @@ export default function PasaportePage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (summary?.status !== "CONNECTED") return;
+
+    let active = true;
+
+    Promise.resolve()
+      .then(() => {
+        if (active) setAnalysisLoading(true);
+        return getMyFinancialAnalysis();
+      })
+      .then(async (data) => {
+        if (!active) return;
+        setAnalysis(data);
+        if (data.status === "COMPLETED") {
+          const months = await getMyFinancialAnalysisMonthly();
+          if (active) setMonthly(months);
+        } else {
+          setMonthly([]);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setAnalysis(null);
+          setMonthly([]);
+        }
+      })
+      .finally(() => {
+        if (active) setAnalysisLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [summary?.status]);
+
   async function handleConnect() {
     if (connecting) return;
 
@@ -144,6 +198,8 @@ export default function PasaportePage() {
     try {
       await disconnectBankConnection(summary.connection_id);
       await loadSummary();
+      setAnalysis(null);
+      setMonthly([]);
     } catch (error) {
       setActionError(
         extractErrorMessage(
@@ -153,6 +209,58 @@ export default function PasaportePage() {
       );
     } finally {
       setDisconnecting(false);
+    }
+  }
+
+  async function handleRunAnalysis() {
+    if (analyzing) return;
+
+    setAnalyzing(true);
+    setAnalysisError("");
+
+    try {
+      const data = await runFinancialAnalysis();
+      setAnalysis(data);
+      if (data.status === "COMPLETED") {
+        const months = await getMyFinancialAnalysisMonthly();
+        setMonthly(months);
+      }
+    } catch (error) {
+      setAnalysisError(
+        extractErrorMessage(
+          error,
+          "No pudimos analizar tus datos bancarios. Inténtalo de nuevo."
+        )
+      );
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  async function handleRefreshAnalysis() {
+    if (analyzing) return;
+
+    setAnalyzing(true);
+    setAnalysisError("");
+
+    try {
+      const data = await refreshFinancialAnalysis();
+      setAnalysis(data);
+      if (data.status === "COMPLETED") {
+        const months = await getMyFinancialAnalysisMonthly();
+        setMonthly(months);
+      } else {
+        setMonthly([]);
+      }
+    } catch (error) {
+      setAnalysisError(
+        extractErrorMessage(
+          error,
+          "No pudimos actualizar tu análisis. Inténtalo de nuevo."
+        )
+      );
+    } finally {
+      setAnalyzing(false);
     }
   }
 
@@ -232,70 +340,137 @@ export default function PasaportePage() {
               </button>
             </div>
           ) : (
-            <div className="rounded-2xl border border-line bg-surface p-6">
-              <h2 className="text-lg font-bold text-foreground">
-                Banco conectado
-                {summary.provider_name ? `: ${summary.provider_name}` : ""}
-              </h2>
+            <>
+              <div className="rounded-2xl border border-line bg-surface p-6">
+                <h2 className="text-lg font-bold text-foreground">
+                  Banco conectado
+                  {summary.provider_name ? `: ${summary.provider_name}` : ""}
+                </h2>
 
-              <dl className="mt-4 space-y-2 text-sm">
-                <div className="flex justify-between gap-4">
-                  <dt className="font-semibold text-muted">Conectado desde</dt>
-                  <dd className="font-bold text-foreground">
-                    {formatDate(summary.connected_at) ?? "—"}
-                  </dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="font-semibold text-muted">
-                    Última sincronización
-                  </dt>
-                  <dd className="font-bold text-foreground">
-                    {formatDate(summary.last_synced_at) ?? "—"}
-                  </dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="font-semibold text-muted">Cuentas</dt>
-                  <dd className="font-bold text-foreground">
-                    {summary.accounts_count}
-                  </dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="font-semibold text-muted">Movimientos</dt>
-                  <dd className="font-bold text-foreground">
-                    {summary.transactions_count}
-                  </dd>
-                </div>
-              </dl>
+                <dl className="mt-4 space-y-2 text-sm">
+                  <div className="flex justify-between gap-4">
+                    <dt className="font-semibold text-muted">
+                      Conectado desde
+                    </dt>
+                    <dd className="font-bold text-foreground">
+                      {formatDate(summary.connected_at) ?? "—"}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt className="font-semibold text-muted">
+                      Última sincronización
+                    </dt>
+                    <dd className="font-bold text-foreground">
+                      {formatDate(summary.last_synced_at) ?? "—"}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt className="font-semibold text-muted">Cuentas</dt>
+                    <dd className="font-bold text-foreground">
+                      {summary.accounts_count}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt className="font-semibold text-muted">Movimientos</dt>
+                    <dd className="font-bold text-foreground">
+                      {summary.transactions_count}
+                    </dd>
+                  </div>
+                </dl>
 
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <button
-                  type="button"
-                  disabled
-                  title="Disponible en una próxima fase"
-                  className="flex h-12 w-full items-center justify-center rounded-2xl bg-brand text-sm font-bold text-white opacity-60 sm:flex-1"
-                >
-                  Continuar análisis (próximamente)
-                </button>
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={handleSync}
+                    disabled={syncing}
+                    className="flex h-12 w-full items-center justify-center rounded-2xl border border-line bg-white text-sm font-bold text-foreground transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
+                  >
+                    {syncing ? "Actualizando…" : "Actualizar datos"}
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={handleSync}
-                  disabled={syncing}
-                  className="flex h-12 w-full items-center justify-center rounded-2xl border border-line bg-white text-sm font-bold text-foreground transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
-                >
-                  {syncing ? "Actualizando…" : "Actualizar datos"}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleDisconnect}
-                  disabled={disconnecting}
-                  className="flex h-12 w-full items-center justify-center rounded-2xl border border-red-100 bg-white text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
-                >
-                  {disconnecting ? "Desconectando…" : "Desconectar"}
-                </button>
+                  <button
+                    type="button"
+                    onClick={handleDisconnect}
+                    disabled={disconnecting}
+                    className="flex h-12 w-full items-center justify-center rounded-2xl border border-red-100 bg-white text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
+                  >
+                    {disconnecting ? "Desconectando…" : "Desconectar"}
+                  </button>
+                </div>
               </div>
-            </div>
+
+              <div className="mt-6">
+                {analysisError && (
+                  <p
+                    role="alert"
+                    className="mb-5 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
+                  >
+                    {analysisError}
+                  </p>
+                )}
+
+                {analysisLoading ? (
+                  <div className="flex min-h-[20vh] items-center justify-center">
+                    <Spinner />
+                  </div>
+                ) : analyzing ? (
+                  <div className="rounded-2xl border border-line bg-surface p-6 text-center">
+                    <Spinner className="mx-auto" />
+                    <p className="mt-4 text-sm font-semibold text-muted">
+                      Estamos analizando tus datos bancarios
+                    </p>
+                  </div>
+                ) : analysis ? (
+                  <>
+                    <FinancialAnalysisResult analysis={analysis} />
+
+                    {analysis.status === "COMPLETED" && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={handleRefreshAnalysis}
+                          className="mt-4 flex h-12 w-full items-center justify-center rounded-2xl border border-line bg-white text-sm font-bold text-foreground transition hover:bg-gray-50 sm:w-auto sm:px-8"
+                        >
+                          Actualizar análisis
+                        </button>
+
+                        <HowWeCalculateIt />
+                        <MonthlyBreakdown months={monthly} />
+                      </>
+                    )}
+
+                    {analysis.status !== "COMPLETED" && (
+                      <button
+                        type="button"
+                        onClick={handleRunAnalysis}
+                        className="mt-4 flex h-12 w-full items-center justify-center rounded-2xl bg-brand text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark sm:w-auto sm:px-8"
+                      >
+                        Reintentar análisis
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div className="rounded-2xl border border-line bg-surface p-6">
+                    <h2 className="text-lg font-bold text-foreground">
+                      Analiza tus datos
+                    </h2>
+                    <p className="mt-2 text-sm leading-6 text-muted">
+                      Analizaremos los últimos meses para estimar ingresos
+                      recurrentes, estabilidad y capacidad orientativa de
+                      alquiler.
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={handleRunAnalysis}
+                      className="mt-6 flex h-14 w-full items-center justify-center rounded-2xl bg-brand text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark sm:w-auto sm:px-8"
+                    >
+                      Analizar mis datos
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
       )}

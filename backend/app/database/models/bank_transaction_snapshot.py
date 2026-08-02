@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime, timezone
+from decimal import Decimal
 
 from sqlalchemy import (
     Boolean,
@@ -53,7 +54,7 @@ class BankTransactionSnapshot(Base):
     )
     external_transaction_id: Mapped[str] = mapped_column(String(255), nullable=False)
 
-    amount: Mapped[float] = mapped_column(Numeric(14, 2), nullable=False)
+    amount: Mapped[Decimal] = mapped_column(Numeric(14, 2), nullable=False)
     currency: Mapped[str] = mapped_column(String(3), nullable=False)
 
     # Sanitizada: recortada a una longitud razonable, sin HTML/control chars.

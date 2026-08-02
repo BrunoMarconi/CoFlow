@@ -19,3 +19,5 @@ from app.database.models.bank_auth_state import BankAuthState
 from app.database.models.bank_connection import BankConnection
 from app.database.models.bank_account_snapshot import BankAccountSnapshot
 from app.database.models.bank_transaction_snapshot import BankTransactionSnapshot
+from app.database.models.financial_analysis import FinancialAnalysis
+from app.database.models.financial_monthly_summary import FinancialMonthlySummary
