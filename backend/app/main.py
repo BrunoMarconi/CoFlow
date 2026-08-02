@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api.auth import router as auth_router
 from app.api.routes import (
     applications,
+    bank_connections,
     communities,
     connections,
     invitations,
@@ -99,6 +100,11 @@ app.include_router(
     property_amenities.router,
     prefix="/property-amenities",
     tags=["Property Amenities"],
+)
+app.include_router(
+    bank_connections.router,
+    prefix="/bank-connections",
+    tags=["Bank Connections"],
 )
 
 # Almacenamiento de imágenes SOLO para desarrollo local (ver

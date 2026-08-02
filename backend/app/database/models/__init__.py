@@ -15,3 +15,7 @@ from app.database.models.saved_user_profile import SavedUserProfile
 from app.database.models.user_connection import UserConnection
 from app.database.models.private_message import PrivateMessage
 from app.database.models.notification import Notification
+from app.database.models.bank_auth_state import BankAuthState
+from app.database.models.bank_connection import BankConnection
+from app.database.models.bank_account_snapshot import BankAccountSnapshot
+from app.database.models.bank_transaction_snapshot import BankTransactionSnapshot

@@ -84,6 +84,11 @@ Repite `alembic upgrade head` manualmente cada vez que añadas una migración nu
    | `BACKEND_PUBLIC_URL` | La URL que Render te asigne al servicio, ej. `https://coflow-api.onrender.com` (la sabrás tras el primer deploy; actualízala después si hace falta) |
    | `PROPERTY_MARKETPLACE_ENABLED` | `false` |
    | `ALLOW_LOCAL_MEDIA_IN_PRODUCTION` | `true` — **solo para este despliegue de pruebas temporal** (ver advertencia de la sección 8) |
+   | `TRUELAYER_CLIENT_ID` | El Client ID de tu app en [console.truelayer.com](https://console.truelayer.com) |
+   | `TRUELAYER_CLIENT_SECRET` | El Client Secret de esa misma app |
+   | `TRUELAYER_REDIRECT_URI` | La URL de callback del frontend, ej. `https://co-flow-eight.vercel.app/pasaporte/callback` — debe coincidir EXACTAMENTE con la configurada en la consola de TrueLayer |
+   | `TRUELAYER_ENVIRONMENT` | `sandbox` — no cambiar a `live` en este despliegue de pruebas |
+   | `BANK_TOKEN_ENCRYPTION_KEY` | Genera una nueva: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
 
 6. Despliega. Aplica las migraciones (paso 2, opción B) tras el primer despliegue exitoso.
 
