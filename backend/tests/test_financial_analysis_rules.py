@@ -8,9 +8,11 @@ from app.services.financial_analysis_rules import (
     IncomeStability,
     RawTransaction,
     build_monthly_summaries,
+    build_recurring_income_diagnostics,
     calculate_analysis_confidence,
     calculate_income_stability,
     calculate_recommended_rent,
+    classify_transaction,
     classify_transactions,
     detect_internal_transfers,
     detect_recurring_groups,
@@ -335,3 +337,132 @@ def test_detect_recurring_groups_requires_at_least_three_months():
     ]
     recurrence = detect_recurring_groups(txns, excluded_ids=set())
     assert recurrence == {}
+
+
+# --- Diagnóstico: como máximo una contribución recurrente por grupo y mes -----
+
+
+def test_duplicate_within_same_month_does_not_double_count_recurring_income():
+    txns = [
+        _txn("sal-1", "1500.00", "ACME LTD SALARY", "CREDIT", _dt(2026, 1, 25)),
+        _txn("sal-2", "1500.00", "ACME LTD SALARY", "CREDIT", _dt(2026, 2, 25)),
+        # Marzo: la misma "nómina" aparece dos veces el mismo mes (artefacto
+        # de sandbox o error de sincronización) — no debe contar doble.
+        _txn("sal-3a", "1500.00", "ACME LTD SALARY", "CREDIT", _dt(2026, 3, 25)),
+        _txn("sal-3b", "1500.00", "ACME LTD SALARY", "CREDIT", _dt(2026, 3, 26)),
+    ]
+
+    classified = classify_transactions(txns)
+    months = [(2026, 1), (2026, 2), (2026, 3)]
+    summaries = build_monthly_summaries(classified, months)
+
+    march = next(s for s in summaries if s.month == 3)
+    assert march.recurring_income == Decimal("1500.00")
+    # El importe total sí refleja las dos transacciones reales (ambas son
+    # dinero real que entró), pero solo una cuenta como "recurrente".
+    assert march.total_income == Decimal("3000.00")
+
+    recurring_flags = {c.txn.id: c.is_recurring for c in classified}
+    assert sum(recurring_flags.values()) == 3  # una por mes, nunca dos en marzo
+
+
+def test_recurring_group_diagnostics_reports_duplicate_and_contribution():
+    txns = [
+        _txn("sal-1", "1500.00", "ACME LTD SALARY", "CREDIT", _dt(2026, 1, 25)),
+        _txn("sal-2", "1500.00", "ACME LTD SALARY", "CREDIT", _dt(2026, 2, 25)),
+        _txn("sal-3a", "1500.00", "ACME LTD SALARY", "CREDIT", _dt(2026, 3, 25)),
+        _txn("sal-3b", "1500.00", "ACME LTD SALARY", "CREDIT", _dt(2026, 3, 26)),
+    ]
+
+    classified = classify_transactions(txns)
+    diagnostics = build_recurring_income_diagnostics(classified)
+
+    assert len(diagnostics) == 1
+    group = diagnostics[0]
+    assert group.classification == "SALARY"
+    assert group.transaction_count == 3
+    assert group.duplicate_in_month_count == 1
+    assert group.monthly_contribution == Decimal("1500.00")
+    # Anonimizado: no debe filtrarse la descripción original ni el id.
+    assert "ACME" not in group.group_alias
+    assert "SALARY" not in group.group_alias
+
+
+def test_recurring_group_diagnostics_excludes_outflows():
+    txns = [
+        _txn(f"rent-{m}", "-650.00", "ALQUILER PISO", "DIRECT_DEBIT", _dt(2026, m, 1))
+        for m in (1, 2, 3)
+    ]
+    classified = classify_transactions(txns)
+    diagnostics = build_recurring_income_diagnostics(classified)
+
+    assert diagnostics == []
+
+
+def test_recurring_group_diagnostics_flags_zero_contribution_for_loans_and_refunds():
+    loan_txns = [
+        _txn(f"loan-{m}", "800.00", "QUICKCASH LOANS LTD", "TRANSFER", _dt(2026, m, 10))
+        for m in (1, 2, 3)
+    ]
+    classified = classify_transactions(loan_txns)
+    diagnostics = build_recurring_income_diagnostics(classified)
+
+    assert len(diagnostics) == 1
+    assert diagnostics[0].classification == "LOAN"
+    assert diagnostics[0].monthly_contribution == Decimal("0")
+
+
+def test_internal_transfer_between_accounts_excluded_before_recurrence():
+    txns = [
+        _txn(
+            f"out-{m}",
+            "-300.00",
+            "MR JOHN SMITH",
+            "TRANSFER",
+            _dt(2026, m, 10),
+            account="acc-1",
+        )
+        for m in (1, 2, 3)
+    ] + [
+        _txn(
+            f"in-{m}",
+            "300.00",
+            "MR JOHN SMITH",
+            "TRANSFER",
+            _dt(2026, m, 10),
+            account="acc-2",
+        )
+        for m in (1, 2, 3)
+    ]
+
+    internal_ids = detect_internal_transfers(txns)
+    assert len(internal_ids) == 6  # las 3 parejas completas
+
+    recurrence = detect_recurring_groups(txns, excluded_ids=internal_ids)
+    assert recurrence == {}  # excluidas antes de calcular recurrencia
+
+    classified = classify_transactions(txns)
+    diagnostics = build_recurring_income_diagnostics(classified)
+    assert diagnostics == []  # no hay grupos de ingreso recurrente
+
+
+def test_classify_transaction_uses_is_recurring_flag_not_mere_presence():
+    from app.services.financial_analysis_rules import RecurrenceInfo
+
+    txn = _txn("t1", "200.00", "MR JOHN SMITH", "CREDIT", _dt(2026, 3, 10))
+
+    demoted = classify_transaction(
+        txn,
+        internal_transfer_ids=set(),
+        recurrence={"t1": RecurrenceInfo(is_recurring=False, recurrence_group="g", months_seen=3)},
+    )
+    assert demoted.is_recurring is False
+    assert demoted.classification == "ONE_OFF_INCOME"
+
+    primary = classify_transaction(
+        txn,
+        internal_transfer_ids=set(),
+        recurrence={"t1": RecurrenceInfo(is_recurring=True, recurrence_group="g", months_seen=3)},
+    )
+    assert primary.is_recurring is True
+    assert primary.classification == "RECURRING_TRANSFER"

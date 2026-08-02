@@ -15,6 +15,7 @@ testearlo sin infraestructura.
 from __future__ import annotations
 
 import enum
+import hashlib
 import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass
@@ -362,12 +363,45 @@ def detect_recurring_groups(
                 continue
 
             group_id = f"{direction.value}:{normalized_desc}"
+
+            # Como máximo una contribución agregada por grupo y mes: si
+            # varias entradas del mismo grupo caen en el mismo mes (pago
+            # duplicado, artefacto de sandbox, etc.), solo la más cercana
+            # al día habitual del grupo cuenta como recurrente; el resto
+            # se marca explícitamente como NO recurrente (pero conserva
+            # el recurrence_group para poder auditarlo en diagnóstico) y
+            # sigue contando como ingreso puntual normal, nunca dos veces
+            # como recurrente.
+            by_month: dict[tuple[int, int], list[RawTransaction]] = defaultdict(list)
             for t in within_tolerance:
-                result[t.id] = RecurrenceInfo(
+                by_month[(t.occurred_at.year, t.occurred_at.month)].append(t)
+
+            for month_txns in by_month.values():
+                if len(month_txns) == 1:
+                    primary = month_txns[0]
+                    duplicates: list[RawTransaction] = []
+                else:
+                    primary = min(
+                        month_txns,
+                        key=lambda t: (
+                            abs(t.occurred_at.day - modal_day),
+                            -abs(t.amount),
+                            t.id,
+                        ),
+                    )
+                    duplicates = [t for t in month_txns if t.id != primary.id]
+
+                result[primary.id] = RecurrenceInfo(
                     is_recurring=True,
                     recurrence_group=group_id,
                     months_seen=len(months_within_tolerance),
                 )
+                for dup in duplicates:
+                    result[dup.id] = RecurrenceInfo(
+                        is_recurring=False,
+                        recurrence_group=group_id,
+                        months_seen=len(months_within_tolerance),
+                    )
 
     return result
 
@@ -462,6 +496,7 @@ def classify_transaction(
     normalized = normalize_description(txn.description)
     category = (txn.category or "").upper()
     recurrence_info = recurrence.get(txn.id)
+    is_recurring = recurrence_info.is_recurring if recurrence_info else False
 
     if txn.id in internal_transfer_ids:
         classification = (
@@ -470,9 +505,7 @@ def classify_transaction(
             else InflowClassification.INTERNAL_TRANSFER.value
         )
     elif direction == Direction.INFLOW:
-        classification = _classify_inflow(
-            category, normalized, recurrence_info is not None
-        )
+        classification = _classify_inflow(category, normalized, is_recurring)
     elif direction == Direction.OUTFLOW:
         classification = _classify_outflow(category, normalized)
     else:
@@ -482,7 +515,7 @@ def classify_transaction(
         txn=txn,
         direction=direction,
         classification=classification,
-        is_recurring=recurrence_info is not None,
+        is_recurring=is_recurring,
         recurrence_group=recurrence_info.recurrence_group if recurrence_info else None,
     )
 
@@ -746,3 +779,135 @@ def calculate_recommended_rent(
 
     floored = (recommended // ROUND_STEP) * ROUND_STEP
     return floored if floored > 0 else None
+
+
+# --- Diagnóstico (solo desarrollo) ------------------------------------------
+#
+# Todo lo de aquí es de solo lectura y no debe usarse en ningún cálculo del
+# análisis en sí. Sirve únicamente para auditar por qué recurring_monthly_income
+# sale como sale. Nunca incluye tokens, IBAN, números de cuenta, ids
+# completos ni descripciones completas — solo alias anonimizados (hash) y
+# agregados.
+
+
+@dataclass(frozen=True)
+class RecurringGroupDiagnostic:
+    group_alias: str
+    classification: str
+    confidence: str
+    months: list[str]
+    transaction_count: int
+    average_amount: Decimal
+    minimum_amount: Decimal
+    maximum_amount: Decimal
+    monthly_contribution: Decimal
+    account_alias: str
+    looks_like_internal_transfer: bool
+    duplicate_in_month_count: int
+    reason: str
+
+
+def _anonymize(value: str, length: int = 8) -> str:
+    return hashlib.sha256(value.encode()).hexdigest()[:length].upper()
+
+
+def build_recurring_income_diagnostics(
+    classified: Sequence[ClassifiedTransaction],
+) -> list[RecurringGroupDiagnostic]:
+    """Agrupa las transacciones ya clasificadas por `recurrence_group` y
+    construye un informe anonimizado por grupo, restringido a movimientos
+    de dirección INFLOW (es un diagnóstico de *ingresos* recurrentes).
+
+    Incluye también grupos cuya clasificación final es REFUND, LOAN o
+    INTERNAL_TRANSFER si llegaron a acumular un patrón recurrente, para
+    poder detectar justo el tipo de artefacto que el sandbox puede
+    producir (un reembolso o una transferencia interna que por casualidad
+    se repite varios meses) — su `monthly_contribution` sale en 0 porque
+    esas clasificaciones están excluidas de INCOME_COUNTING_CLASSIFICATIONS,
+    lo cual es visible y auditable en el propio informe.
+    """
+    by_group: dict[str, list[ClassifiedTransaction]] = defaultdict(list)
+    for c in classified:
+        if c.recurrence_group is not None and c.direction == Direction.INFLOW:
+            by_group[c.recurrence_group].append(c)
+
+    diagnostics: list[RecurringGroupDiagnostic] = []
+
+    for group_id, members in by_group.items():
+        primaries = [m for m in members if m.is_recurring]
+        if not primaries:
+            continue
+
+        duplicates = [m for m in members if not m.is_recurring]
+        amounts = [m.amount for m in primaries]
+        months = sorted(
+            {
+                f"{m.txn.occurred_at.year:04d}-{m.txn.occurred_at.month:02d}"
+                for m in primaries
+            }
+        )
+        months_seen = len(months)
+
+        if months_seen >= 5:
+            confidence = "HIGH"
+        elif months_seen >= 3:
+            confidence = "MEDIUM"
+        else:
+            confidence = "LOW"
+
+        accounts = {m.txn.external_account_id for m in members}
+        account_alias = (
+            _anonymize(next(iter(accounts)))
+            if len(accounts) == 1
+            else f"{len(accounts)} cuentas distintas"
+        )
+
+        classification = primaries[0].classification
+        monthly_contribution = (
+            mean_decimal(amounts)
+            if classification in INCOME_COUNTING_CLASSIFICATIONS
+            else Decimal("0")
+        )
+        looks_like_internal_transfer = (
+            classification == InflowClassification.INTERNAL_TRANSFER.value
+            or len(accounts) > 1
+        )
+
+        reason = (
+            f"Aparece en {months_seen} meses distintos del periodo analizado, "
+            f"con importes dentro de tolerancia (mayor de 15% o 10€) y en "
+            f"fechas a +/-{DAY_OF_MONTH_TOLERANCE} días del día habitual del "
+            "grupo."
+        )
+        if duplicates:
+            reason += (
+                f" Había {len(duplicates)} movimiento(s) adicional(es) del "
+                "mismo grupo en el mismo mes: no se sumaron dos veces, solo "
+                "el más cercano al día habitual cuenta como recurrente."
+            )
+        if classification not in INCOME_COUNTING_CLASSIFICATIONS:
+            reason += (
+                f" Clasificado como {classification}: excluido de "
+                "recurring_monthly_income aunque el patrón sea recurrente."
+            )
+
+        diagnostics.append(
+            RecurringGroupDiagnostic(
+                group_alias=_anonymize(group_id),
+                classification=classification,
+                confidence=confidence,
+                months=months,
+                transaction_count=len(primaries),
+                average_amount=mean_decimal(amounts),
+                minimum_amount=min(amounts),
+                maximum_amount=max(amounts),
+                monthly_contribution=monthly_contribution,
+                account_alias=account_alias,
+                looks_like_internal_transfer=looks_like_internal_transfer,
+                duplicate_in_month_count=len(duplicates),
+                reason=reason,
+            )
+        )
+
+    diagnostics.sort(key=lambda d: d.monthly_contribution, reverse=True)
+    return diagnostics

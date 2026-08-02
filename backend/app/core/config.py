@@ -60,3 +60,14 @@ else:
 #   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 # Se valida (RuntimeError) al usarse, en app/core/token_encryption.py.
 BANK_TOKEN_ENCRYPTION_KEY = os.getenv("BANK_TOKEN_ENCRYPTION_KEY", "")
+
+# Habilita endpoints de diagnóstico del análisis financiero
+# (/financial-analysis/debug/*). Estos endpoints solo exponen agregados
+# anonimizados (nunca tokens, IBAN, ni movimientos completos), pero son
+# una herramienta de desarrollo, no una funcionalidad de producto: están
+# activos automáticamente si ENVIRONMENT != "production", y en
+# producción permanecen desactivados salvo que se active esta variable
+# explícitamente. Preferencia: no activarla en el despliegue real.
+ENABLE_FINANCIAL_DEBUG = (
+    os.getenv("ENABLE_FINANCIAL_DEBUG", "false").lower() == "true"
+)

@@ -15,7 +15,12 @@ from app.database.models.user import User
 from app.services.truelayer_client import TrueLayerClient, TrueLayerError
 
 STATE_TTL_MINUTES = 10
-TRANSACTIONS_LOOKBACK_DAYS = 90
+# El análisis financiero mira hasta 6 meses completos hacia atrás
+# (financial_analysis_rules.resolve_analysis_period). 90 días se quedaba
+# corto (solo ~3 meses), lo que dejaba fuera 3 de los 6 meses del periodo
+# y bajaba la confianza del análisis a MEDIA. 200 días cubre el mes en
+# curso + 6 meses completos con margen.
+TRANSACTIONS_LOOKBACK_DAYS = 200
 MAX_DESCRIPTION_LENGTH = 500
 TOKEN_REFRESH_MARGIN = timedelta(minutes=2)
 

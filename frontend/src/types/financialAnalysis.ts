@@ -44,6 +44,7 @@ export interface FinancialAnalysis {
 
   calculated_at: string | null;
   created_at: string;
+  is_sandbox: boolean;
 }
 
 export interface FinancialMonthlySummary {

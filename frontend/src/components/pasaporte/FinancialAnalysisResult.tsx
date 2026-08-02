@@ -37,6 +37,15 @@ function formatPeriod(start: string | null, end: string | null) {
   return `${startLabel} – ${endLabel}`;
 }
 
+function SandboxNotice() {
+  return (
+    <p className="mb-4 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-700">
+      Datos bancarios de prueba. Este resultado no representa una
+      evaluación financiera real.
+    </p>
+  );
+}
+
 export default function FinancialAnalysisResult({
   analysis,
 }: {
@@ -44,27 +53,33 @@ export default function FinancialAnalysisResult({
 }) {
   if (analysis.status === "INSUFFICIENT_DATA") {
     return (
-      <div className="rounded-2xl border border-amber-100 bg-amber-50 p-6">
-        <h2 className="text-lg font-bold text-foreground">
-          Datos insuficientes
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-muted">
-          {analysis.failure_reason ??
-            "Todavía no hay suficiente historial de movimientos para un análisis fiable."}
-        </p>
+      <div>
+        {analysis.is_sandbox && <SandboxNotice />}
+        <div className="rounded-2xl border border-amber-100 bg-amber-50 p-6">
+          <h2 className="text-lg font-bold text-foreground">
+            Datos insuficientes
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-muted">
+            {analysis.failure_reason ??
+              "Todavía no hay suficiente historial de movimientos para un análisis fiable."}
+          </p>
+        </div>
       </div>
     );
   }
 
   if (analysis.status === "FAILED") {
     return (
-      <div className="rounded-2xl border border-red-100 bg-red-50 p-6">
-        <h2 className="text-lg font-bold text-foreground">
-          No pudimos completar el análisis
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-muted">
-          {analysis.failure_reason ?? "Inténtalo de nuevo en unos minutos."}
-        </p>
+      <div>
+        {analysis.is_sandbox && <SandboxNotice />}
+        <div className="rounded-2xl border border-red-100 bg-red-50 p-6">
+          <h2 className="text-lg font-bold text-foreground">
+            No pudimos completar el análisis
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-muted">
+            {analysis.failure_reason ?? "Inténtalo de nuevo en unos minutos."}
+          </p>
+        </div>
       </div>
     );
   }
@@ -80,7 +95,9 @@ export default function FinancialAnalysisResult({
   const calculatedAt = formatDate(analysis.calculated_at);
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-6">
+    <div>
+      {analysis.is_sandbox && <SandboxNotice />}
+      <div className="rounded-2xl border border-line bg-surface p-6">
       <h2 className="text-lg font-bold text-foreground">
         Tu análisis financiero
       </h2>
@@ -141,6 +158,7 @@ export default function FinancialAnalysisResult({
       <p className="mt-5 text-xs leading-5 text-muted">
         {analysis.result_summary}
       </p>
+      </div>
     </div>
   );
 }

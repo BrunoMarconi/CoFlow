@@ -49,6 +49,52 @@ class FinancialAnalysisResponse(BaseModel):
     calculated_at: datetime | None = None
     created_at: datetime
 
+    # No es un campo del modelo: se rellena en la ruta a partir de
+    # TRUELAYER_ENVIRONMENT para que el frontend pueda avisar de que los
+    # datos son de sandbox, no una evaluación financiera real.
+    is_sandbox: bool = False
+
+
+class RecurringGroupDiagnosticResponse(BaseModel):
+    """Solo desarrollo. Todo aquí es anonimizado/agregado — nunca ids
+    completos, tokens, IBAN, números de cuenta ni descripciones."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    group_alias: str
+    classification: str
+    confidence: str
+    months: list[str]
+    transaction_count: int
+    average_amount: Decimal
+    minimum_amount: Decimal
+    maximum_amount: Decimal
+    monthly_contribution: Decimal
+    account_alias: str
+    looks_like_internal_transfer: bool
+    duplicate_in_month_count: int
+    reason: str
+
+
+class ConfidenceBreakdownResponse(BaseModel):
+    months_available: int
+    classified_ratio: Decimal
+    ambiguous_ratio: Decimal
+    recurring_income_coverage: Decimal
+    historical_balances_available: bool
+    internal_transfers_detected: int
+    data_quality_score: int
+    resulting_confidence: AnalysisConfidence
+
+
+class RecurringIncomeDebugResponse(BaseModel):
+    period_start: date
+    period_end: date
+    months_with_data: list[str]
+    recurring_monthly_income: Decimal
+    groups: list[RecurringGroupDiagnosticResponse]
+    confidence_breakdown: ConfidenceBreakdownResponse
+
 
 class FinancialMonthlySummaryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
