@@ -6,6 +6,7 @@ import Spinner from "@/components/ui/Spinner";
 import FinancialAnalysisResult from "@/components/pasaporte/FinancialAnalysisResult";
 import HowWeCalculateIt from "@/components/pasaporte/HowWeCalculateIt";
 import MonthlyBreakdown from "@/components/pasaporte/MonthlyBreakdown";
+import SolvencyPassportSection from "@/components/pasaporte/SolvencyPassportSection";
 import {
   disconnectBankConnection,
   getMyBankConnection,
@@ -18,11 +19,13 @@ import {
   refreshFinancialAnalysis,
   runFinancialAnalysis,
 } from "@/services/financialAnalysis";
+import { getMySolvencyPassport } from "@/services/solvencyPassports";
 import type { BankConnectionSummary } from "@/types/bankConnection";
 import type {
   FinancialAnalysis,
   FinancialMonthlySummary,
 } from "@/types/financialAnalysis";
+import type { SolvencyPassport } from "@/types/solvencyPassport";
 
 function formatDate(value: string | null) {
   if (!value) return null;
@@ -60,6 +63,8 @@ export default function PasaportePage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState("");
   const [monthly, setMonthly] = useState<FinancialMonthlySummary[]>([]);
+
+  const [passport, setPassport] = useState<SolvencyPassport | null>(null);
 
   const loadSummary = useCallback(async () => {
     try {
@@ -147,6 +152,24 @@ export default function PasaportePage() {
       active = false;
     };
   }, [summary?.status]);
+
+  useEffect(() => {
+    if (analysis?.status !== "COMPLETED") return;
+
+    let active = true;
+
+    getMySolvencyPassport()
+      .then((data) => {
+        if (active) setPassport(data);
+      })
+      .catch(() => {
+        if (active) setPassport(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [analysis?.status]);
 
   async function handleConnect() {
     if (connecting) return;
@@ -436,6 +459,12 @@ export default function PasaportePage() {
 
                         <HowWeCalculateIt />
                         <MonthlyBreakdown months={monthly} />
+
+                        <SolvencyPassportSection
+                          passport={passport}
+                          onChange={setPassport}
+                          canIssue={analysis.status === "COMPLETED"}
+                        />
                       </>
                     )}
 

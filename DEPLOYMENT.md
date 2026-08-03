@@ -89,8 +89,15 @@ Repite `alembic upgrade head` manualmente cada vez que añadas una migración nu
    | `TRUELAYER_REDIRECT_URI` | La URL de callback del frontend, ej. `https://co-flow-eight.vercel.app/pasaporte/callback` — debe coincidir EXACTAMENTE con la configurada en la consola de TrueLayer |
    | `TRUELAYER_ENVIRONMENT` | `sandbox` — no cambiar a `live` en este despliegue de pruebas |
    | `BANK_TOKEN_ENCRYPTION_KEY` | Genera una nueva: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
+   | `PASSPORT_SHARE_SECRET` | Genera una nueva (distinta de las anteriores): `python -c "import secrets; print(secrets.token_hex(32))"` |
+   | `ENABLE_FINANCIAL_DEBUG` | `false` (déjalo así salvo que necesites auditar el análisis financiero en este despliegue) |
 
 6. Despliega. Aplica las migraciones (paso 2, opción B) tras el primer despliegue exitoso.
+
+7. **Paso obligatorio antes de compartir enlaces públicos de pasaportes**: el endpoint `GET /public/solvency-passports/{public_id}` recibe el token de verificación por query string (diseño explícito de esta funcionalidad). Los access logs por defecto de uvicorn/Render registran la ruta completa, incluida la query string — eso significa que el token quedaría en esos logs en texto plano. Antes de considerar esta función lista para tráfico real:
+   - Desactiva el access log de uvicorn en el *Start Command*: `uvicorn app.main:app --host 0.0.0.0 --port $PORT --no-access-log`, o
+   - Si necesitas los logs por otro motivo, filtra/redacta la query string antes de que lleguen a cualquier sistema de logging persistente (Render logs, servicio externo, etc.).
+   - No hay rate-limiting en `/public/solvency-passports/*` en este MVP (no existía infraestructura de rate-limiting en el proyecto); si vas a exponer esto a tráfico real, añade uno antes.
 
 ## 4. Frontend — Vercel
 

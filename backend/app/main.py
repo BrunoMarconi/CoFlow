@@ -16,6 +16,8 @@ from app.api.routes import (
     owner_properties,
     owners,
     property_amenities,
+    public_solvency_passports,
+    solvency_passports,
     users,
 )
 from app.core.config import CORS_ALLOWED_ORIGINS, FRONTEND_URL
@@ -111,6 +113,16 @@ app.include_router(
     financial_analysis.router,
     prefix="/financial-analysis",
     tags=["Financial Analysis"],
+)
+app.include_router(
+    solvency_passports.router,
+    prefix="/solvency-passports",
+    tags=["Solvency Passports"],
+)
+app.include_router(
+    public_solvency_passports.router,
+    prefix="/public/solvency-passports",
+    tags=["Solvency Passports (Public)"],
 )
 
 # Almacenamiento de imágenes SOLO para desarrollo local (ver
