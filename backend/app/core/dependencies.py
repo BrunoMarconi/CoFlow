@@ -35,3 +35,23 @@ def get_current_user(
         )
 
     return user
+
+
+def require_verified_email(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    """Igual que get_current_user, pero además exige email verificado.
+    Úsala en acciones sensibles (crear comunidad, conectar banco,
+    ejecutar análisis financiero, emitir pasaporte, etc.) — nunca en
+    login/logout/ver perfil propio/reenviar verificación/confirmar
+    correo."""
+    if not current_user.is_email_verified:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "EMAIL_NOT_VERIFIED",
+                "message": "Confirma tu correo para continuar.",
+            },
+        )
+
+    return current_user

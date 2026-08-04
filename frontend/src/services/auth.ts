@@ -3,11 +3,29 @@ import {
   RegisterRequest,
   LoginRequest,
   LoginResponse,
+  RegisterResponse,
+  GenericMessageResponse,
   User,
 } from "@/types/auth";
 
-export async function register(data: RegisterRequest) {
+export async function register(
+  data: RegisterRequest
+): Promise<RegisterResponse> {
   const response = await api.post("/auth/register", data);
+  return response.data;
+}
+
+export async function verifyEmail(
+  token: string
+): Promise<GenericMessageResponse> {
+  const response = await api.post("/auth/verify-email", { token });
+  return response.data;
+}
+
+export async function resendVerification(
+  email: string
+): Promise<GenericMessageResponse> {
+  const response = await api.post("/auth/resend-verification", { email });
   return response.data;
 }
 

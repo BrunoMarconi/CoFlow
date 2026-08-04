@@ -1,17 +1,26 @@
-from fastapi import HTTPException
+from fastapi import BackgroundTasks, HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.core.config import ENVIRONMENT, EMAIL_VERIFICATION_TEST_MODE
 from app.core.jwt import create_access_token
 from app.core.security import hash_password, verify_password
 from app.database.models.user import User
 from app.schemas.auth import LoginRequest, RegisterRequest
 from app.schemas.user import UpdateProfileRequest
+from app.services.email_verification_service import request_verification_email
 
 
 class AuthService:
 
-    def register(self, data: RegisterRequest, db: Session):
+    def register(
+        self,
+        data: RegisterRequest,
+        db: Session,
+        background_tasks: BackgroundTasks,
+        *,
+        ip_hash: str | None = None,
+    ):
 
         normalized_email = data.email.strip().lower()
 
@@ -32,15 +41,24 @@ class AuthService:
             last_name=data.last_name.strip(),
             email=normalized_email,
             password_hash=hash_password(data.password),
+            is_email_verified=False,
         )
 
         db.add(user)
         db.commit()
         db.refresh(user)
 
-        return {
-            "message": "User created successfully"
+        raw_token = request_verification_email(
+            db, user, background_tasks, ip_hash=ip_hash
+        )
+
+        response = {
+            "message": "Cuenta creada. Revisa tu correo para verificarla."
         }
+        if EMAIL_VERIFICATION_TEST_MODE and ENVIRONMENT != "production":
+            response["debug_token"] = raw_token
+
+        return response
 
     def login(self, data: LoginRequest, db: Session):
 
@@ -68,7 +86,8 @@ class AuthService:
 
         return {
             "access_token": token,
-            "token_type": "bearer"
+            "token_type": "bearer",
+            "is_email_verified": user.is_email_verified,
         }
 
     def update_profile(

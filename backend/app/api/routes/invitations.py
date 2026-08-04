@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_verified_email
 from app.database.models.user import User
 from app.database.session import get_db
 from app.schemas.community_invitation import (
@@ -38,7 +38,7 @@ def get_invitation(
 )
 def accept_invitation(
     token: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_verified_email),
     db: Session = Depends(get_db),
 ):
     return community_invitation_service.accept_invitation(

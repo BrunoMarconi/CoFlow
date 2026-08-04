@@ -27,3 +27,4 @@ class UserResponse(BaseModel):
     onboarding_completed: bool
     rental_budget: int | None = None
     is_looking_for_roommates: bool
+    is_email_verified: bool

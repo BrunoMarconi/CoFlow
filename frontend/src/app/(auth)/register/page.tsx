@@ -40,7 +40,7 @@ export default function RegisterPage() {
       setToken(data.access_token);
       await refresh();
 
-      router.push("/onboarding");
+      router.push("/verificacion-pendiente");
     } catch {
       setError("No pudimos crear tu cuenta. Intenta de nuevo.");
     } finally {

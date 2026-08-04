@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.config import ENABLE_FINANCIAL_DEBUG, ENVIRONMENT, TRUELAYER_ENVIRONMENT
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_verified_email
 from app.database.session import get_db
 from app.database.models.user import User
 from app.schemas.financial_analysis import (
@@ -38,7 +38,7 @@ def require_financial_debug_enabled() -> None:
 
 @router.post("/run", response_model=FinancialAnalysisResponse)
 def run_financial_analysis(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_verified_email),
     db: Session = Depends(get_db),
 ):
     analysis = financial_analysis_service.run_analysis(db=db, current_user=current_user)
@@ -47,7 +47,7 @@ def run_financial_analysis(
 
 @router.post("/refresh", response_model=FinancialAnalysisResponse)
 def refresh_financial_analysis(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_verified_email),
     db: Session = Depends(get_db),
 ):
     analysis = financial_analysis_service.refresh_analysis(

@@ -81,3 +81,30 @@ ENABLE_FINANCIAL_DEBUG = (
 #   python -c "import secrets; print(secrets.token_hex(32))"
 # Se valida (RuntimeError) al usarse.
 PASSPORT_SHARE_SECRET = os.getenv("PASSPORT_SHARE_SECRET", "")
+
+# --- Verificación de email (Resend) -----------------------------------
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+# Remitente transaccional, ej. "CoFlow <verificacion@coflow.app>". Debe
+# ser un dominio verificado en Resend en producción.
+EMAIL_FROM = os.getenv("EMAIL_FROM", "CoFlow <onboarding@resend.dev>")
+
+# "resend" envía de verdad vía Resend. "console" solo deja constancia en
+# el log de que se generó un enlace (sin token ni URL) — útil en local
+# sin API key real.
+EMAIL_DELIVERY_MODE = os.getenv("EMAIL_DELIVERY_MODE", "resend")
+
+_EMAIL_VERIFICATION_EXPIRY_RAW = os.getenv("EMAIL_VERIFICATION_EXPIRY_MINUTES", "30")
+try:
+    EMAIL_VERIFICATION_EXPIRY_MINUTES = int(_EMAIL_VERIFICATION_EXPIRY_RAW)
+except ValueError:
+    EMAIL_VERIFICATION_EXPIRY_MINUTES = 30
+
+# Cuando está activo Y ENVIRONMENT != "production" (doble candado, igual
+# que ENABLE_FINANCIAL_DEBUG), /auth/register y /auth/resend-verification
+# devuelven además "debug_token" en la respuesta, solo para que los
+# tests automatizados puedan verificar el email sin leer Resend. Nunca
+# se activa en producción aunque esta variable se ponga en true por
+# error.
+EMAIL_VERIFICATION_TEST_MODE = (
+    os.getenv("EMAIL_VERIFICATION_TEST_MODE", "false").lower() == "true"
+)

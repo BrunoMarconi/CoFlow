@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, File, Query, UploadFile
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_verified_email
 from app.database.models.property import Property
 from app.database.models.user import User
 from app.database.session import get_db
@@ -52,7 +52,7 @@ def _to_summary(property_obj: Property) -> PropertySummaryResponse:
 )
 def create_property(
     data: PropertyCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_verified_email),
     db: Session = Depends(get_db),
 ):
     return property_service.create_property(
@@ -143,7 +143,7 @@ def update_property(
 )
 def mark_property_ready(
     property_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_verified_email),
     db: Session = Depends(get_db),
 ):
     return property_service.mark_ready(

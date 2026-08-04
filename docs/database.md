@@ -50,7 +50,8 @@ No almacena información sobre hábitos ni preferencias de búsqueda.
 | password_hash | TEXT         | Contraseña cifrada.                         |
 | phone         | VARCHAR(30)  | Número de teléfono.                         |
 | role          | ENUM         | Rol del usuario (`USER`, `OWNER`, `ADMIN`). |
-| is_verified   | BOOLEAN      | Indica si el email ha sido verificado.      |
+| is_email_verified | BOOLEAN  | Indica si el email ha sido verificado.      |
+| email_verified_at | TIMESTAMP NULL | Fecha en la que se verificó el email. |
 | created_at    | TIMESTAMP    | Fecha de creación de la cuenta.             |
 | updated_at    | TIMESTAMP    | Última modificación de la cuenta.           |
 

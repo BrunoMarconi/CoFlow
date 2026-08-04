@@ -91,6 +91,19 @@ Repite `alembic upgrade head` manualmente cada vez que añadas una migración nu
    | `BANK_TOKEN_ENCRYPTION_KEY` | Genera una nueva: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
    | `PASSPORT_SHARE_SECRET` | Genera una nueva (distinta de las anteriores): `python -c "import secrets; print(secrets.token_hex(32))"` |
    | `ENABLE_FINANCIAL_DEBUG` | `false` (déjalo así salvo que necesites auditar el análisis financiero en este despliegue) |
+   | `RESEND_API_KEY` | La API key de tu cuenta en [resend.com/api-keys](https://resend.com/api-keys) |
+   | `EMAIL_FROM` | `CoFlow <verificacion@tudominio.com>` — usa un dominio verificado en Resend (ver sección 3.1 más abajo); mientras no tengas uno, `onboarding@resend.dev` funciona en pruebas |
+   | `EMAIL_DELIVERY_MODE` | `resend` (en Render, nunca `console`) |
+   | `EMAIL_VERIFICATION_EXPIRY_MINUTES` | `30` |
+   | `EMAIL_VERIFICATION_TEST_MODE` | `false` — **nunca la pongas en `true` en este servicio**, expondría tokens de verificación en las respuestas de la API |
+
+### 3.1 Verificar un dominio en Resend (recomendado antes de tráfico real)
+
+Mientras no verifiques un dominio propio, Resend solo te deja enviar desde `onboarding@resend.dev` (válido para pruebas, pero identifica el envío como no verificado). Para producción real:
+1. En el dashboard de Resend → *Domains* → añade tu dominio.
+2. Añade los registros DNS (SPF/DKIM) que te indique Resend en tu proveedor de DNS.
+3. Espera a que el dominio quede verificado (puede tardar unos minutos).
+4. Actualiza `EMAIL_FROM` en Render a una dirección de ese dominio, ej. `CoFlow <verificacion@coflow.app>`.
 
 6. Despliega. Aplica las migraciones (paso 2, opción B) tras el primer despliegue exitoso.
 

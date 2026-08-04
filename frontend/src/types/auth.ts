@@ -13,6 +13,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   access_token: string;
   token_type: string;
+  is_email_verified: boolean;
 }
 
 export interface User {
@@ -25,4 +26,15 @@ export interface User {
   onboarding_completed: boolean;
   rental_budget: number | null;
   is_looking_for_roommates: boolean;
+  is_email_verified: boolean;
+}
+
+export interface RegisterResponse {
+  message: string;
+  debug_token?: string | null;
+}
+
+export interface GenericMessageResponse {
+  message: string;
+  debug_token?: string | null;
 }

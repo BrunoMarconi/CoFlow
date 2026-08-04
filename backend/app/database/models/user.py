@@ -42,10 +42,14 @@ class User(Base):
         nullable=False,
         default="USER"
     )
-    is_verified: Mapped[bool] = mapped_column(
+    is_email_verified: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,
         default=False
+    )
+    email_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
     )
     onboarding_completed: Mapped[bool] = mapped_column(
         Boolean,

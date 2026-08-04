@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_verified_email
 from app.database.session import get_db
 from app.database.models.user import User
 from app.schemas.solvency_passport import SolvencyPassportResponse
@@ -21,7 +21,7 @@ def _to_response(passport) -> SolvencyPassportResponse:
 
 @router.post("/issue", response_model=SolvencyPassportResponse)
 def issue_solvency_passport(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_verified_email),
     db: Session = Depends(get_db),
 ):
     passport = solvency_passport_service.issue(db=db, current_user=current_user)

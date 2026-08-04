@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_verified_email
 from app.database.models.community import CommunityProfileType
 from app.database.models.user import User
 from app.database.session import get_db
@@ -88,7 +88,7 @@ def get_my_community(
 )
 def join_open_community(
     community_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_verified_email),
     db: Session = Depends(get_db),
 ):
     return community_service.join_open_community(
@@ -141,7 +141,7 @@ def list_community_messages(
 def create_community_message(
     community_id: int,
     data: CommunityMessageCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_verified_email),
     db: Session = Depends(get_db),
 ):
     return community_message_service.create_message(
@@ -243,7 +243,7 @@ def cancel_community_invitation(
 def create_community_application(
     community_id: int,
     data: CommunityApplicationCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_verified_email),
     db: Session = Depends(get_db),
 ):
     return community_application_service.create_application(
@@ -292,7 +292,7 @@ def get_community(
 )
 def create_community(
     data: CommunityCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_verified_email),
     db: Session = Depends(get_db),
 ):
     return community_service.create_community(

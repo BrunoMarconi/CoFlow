@@ -25,6 +25,15 @@ api.interceptors.response.use(
       clearToken();
     }
 
+    if (
+      error.response?.status === 403 &&
+      error.response?.data?.detail?.code === "EMAIL_NOT_VERIFIED" &&
+      typeof window !== "undefined" &&
+      window.location.pathname !== "/verificacion-pendiente"
+    ) {
+      window.location.href = "/verificacion-pendiente";
+    }
+
     return Promise.reject(error);
   }
 );
