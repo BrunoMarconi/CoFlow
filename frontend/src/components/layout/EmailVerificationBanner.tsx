@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { resendVerification } from "@/services/auth";
 
@@ -8,6 +9,7 @@ const COOLDOWN_SECONDS = 60;
 
 export default function EmailVerificationBanner() {
   const { user } = useAuth();
+  const pathname = usePathname();
   const [sending, setSending] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [sent, setSent] = useState(false);
@@ -21,6 +23,7 @@ export default function EmailVerificationBanner() {
   }, [cooldown]);
 
   if (!user || user.is_email_verified) return null;
+  if (pathname === "/verificacion-pendiente") return null;
 
   async function handleResend() {
     if (sending || cooldown > 0) return;
