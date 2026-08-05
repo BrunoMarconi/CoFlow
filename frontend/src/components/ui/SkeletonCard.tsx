@@ -2,11 +2,15 @@ import { cn } from "@/lib/utils";
 
 export default function SkeletonCard({
   withCover = false,
+  coverClassName = "h-28 sm:h-32",
   className,
 }: {
   /** Reserva una franja superior, para imitar cards con imagen de
    * cabecera (ej. CommunityCard). */
   withCover?: boolean;
+  /** Alto de la franja de portada, para adaptarse a cards con cover
+   * más grande (ej. CommunityCard rediseñada). */
+  coverClassName?: string;
   className?: string;
 }) {
   return (
@@ -16,7 +20,7 @@ export default function SkeletonCard({
         className
       )}
     >
-      {withCover && <div className="h-28 bg-surface-muted sm:h-32" />}
+      {withCover && <div className={cn("bg-surface-muted", coverClassName)} />}
 
       <div className="space-y-3 p-5 sm:p-6">
         <div className="h-3 w-1/3 rounded-full bg-surface-muted" />

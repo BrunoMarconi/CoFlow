@@ -13,7 +13,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const { isChatActive } = useMobileChrome();
 
   return (
-    <div className="min-h-dvh bg-[var(--background)]">
+    <div className="min-h-dvh bg-background">
       <Navbar />
 
       <div className="mx-auto flex w-full max-w-[1600px]">
@@ -31,7 +31,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         >
           <div
             className={cn(
-              "mx-auto w-full max-w-[1440px] sm:px-6 sm:py-6 lg:px-8",
+              "mx-auto w-full max-w-330 sm:px-6 sm:py-6 lg:px-8",
               isChatActive ? "px-0 py-0" : "px-4 py-6"
             )}
           >

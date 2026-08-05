@@ -49,12 +49,13 @@ export default function CommunityCard({
         <CommunityCover
           communityId={community.id}
           name={community.name}
-          className={`h-28 sm:h-32 ${
+          profileType={community.profile_type}
+          className={`h-44 sm:h-52 ${
             !isLookingForMembers ? "grayscale" : ""
           }`}
         />
 
-        <div className="flex flex-1 flex-col p-4 sm:p-5">
+        <div className="flex flex-1 flex-col p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             {isLookingForMembers ? (
               <>
@@ -130,7 +131,7 @@ export default function CommunityCard({
             </p>
           )}
 
-          <div className="-mx-4 mt-auto flex items-center justify-between gap-1.5 border-t border-border px-4 pt-3 text-sm font-bold text-brand-dark sm:-mx-5 sm:px-5">
+          <div className="mt-4 flex h-11 items-center justify-center gap-2 rounded-14 bg-primary text-sm font-bold text-white transition-colors duration-180 group-hover:bg-primary-hover">
             {isOwn ? "Mi comunidad" : "Ver comunidad"}
             <ArrowIcon />
           </div>

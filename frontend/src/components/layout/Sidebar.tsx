@@ -89,15 +89,17 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface/90 px-3 py-6 backdrop-blur-xl md:flex">
+    <aside className="hidden w-60 shrink-0 flex-col bg-[#0d3b2a] px-3 py-6 md:flex">
       <Link
         href="/comunidades"
         className="mb-6 flex items-center gap-2.5 px-4"
         aria-label="CoFlow"
       >
-        <Logo size="sm" />
+        <span className="flex h-9 w-9 items-center justify-center rounded-10 bg-white/95">
+          <Logo size="sm" />
+        </span>
 
-        <span className="text-xl font-black tracking-[-0.01em] text-brand-dark">
+        <span className="text-xl font-black tracking-[-0.01em] text-white">
           CoFlow
         </span>
       </Link>
@@ -125,7 +127,7 @@ export default function Sidebar() {
       </nav>
 
       {user && (
-        <div className="mt-4 flex items-center gap-3 rounded-18 border border-border bg-mint-50 p-3">
+        <div className="mt-4 flex items-center gap-3 rounded-18 border border-white/10 bg-white/10 p-3">
           <Link href="/perfil" className="flex min-w-0 flex-1 items-center gap-3">
             <Avatar
               name={`${user.first_name} ${user.last_name}`}
@@ -133,10 +135,10 @@ export default function Sidebar() {
             />
 
             <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-foreground">
+              <p className="truncate text-sm font-bold text-white">
                 {user.first_name} {user.last_name}
               </p>
-              <p className="truncate text-xs text-muted">
+              <p className="truncate text-xs text-white/60">
                 {user.email}
               </p>
             </div>
@@ -147,7 +149,7 @@ export default function Sidebar() {
             onClick={logout}
             aria-label="Cerrar sesión"
             title="Cerrar sesión"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-10 text-muted transition duration-180 hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-10 text-white/60 transition duration-180 hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mint-200"
           >
             <LogoutIcon />
           </button>
@@ -166,7 +168,7 @@ function NavGroup({
 }) {
   return (
     <div>
-      <p className="px-4 text-xs font-bold uppercase tracking-[0.14em] text-muted">
+      <p className="px-4 text-xs font-bold uppercase tracking-[0.14em] text-white/40">
         {label}
       </p>
 
@@ -189,23 +191,23 @@ function SidebarLink({
       href={link.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+        "relative flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mint-200",
         active
-          ? "bg-mint-50 text-primary-dark"
-          : "text-muted hover:bg-surface-soft hover:text-foreground"
+          ? "bg-white/10 text-white"
+          : "text-white/60 hover:bg-white/5 hover:text-white"
       )}
     >
       {active && (
         <span
           aria-hidden="true"
-          className="absolute left-0 top-1/2 h-5 w-0.75 -translate-y-1/2 rounded-full bg-primary"
+          className="absolute left-0 top-1/2 h-5 w-0.75 -translate-y-1/2 rounded-full bg-mint-200"
         />
       )}
 
       <Icon
         className={cn(
           "h-5 w-5 shrink-0",
-          active ? "text-primary" : "text-muted"
+          active ? "text-mint-200" : "text-white/50"
         )}
       />
       <span className="truncate">{link.label}</span>

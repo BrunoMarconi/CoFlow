@@ -19,13 +19,18 @@ export default function CommunityGrid({
   }
 
   return (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-      {communities.map((community) => (
-        <CommunityCard
+    <div className="grid gap-6 lg:grid-cols-2">
+      {communities.map((community, index) => (
+        <div
           key={community.id}
-          community={community}
-          isOwn={community.id === ownCommunityId}
-        />
+          className="h-full animate-fade-in-up"
+          style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
+        >
+          <CommunityCard
+            community={community}
+            isOwn={community.id === ownCommunityId}
+          />
+        </div>
       ))}
     </div>
   );

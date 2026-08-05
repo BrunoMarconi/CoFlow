@@ -2,14 +2,15 @@
 
 import { useMemo, useState } from "react";
 import { useUsers } from "@/hooks/useUsers";
+import { useAuth } from "@/hooks/useAuth";
 import UserGrid from "@/components/usuario/UserGrid";
 import PersonasTabs from "@/components/usuario/PersonasTabs";
+import PeopleHero from "@/components/usuario/PeopleHero";
 import UserFilters, {
   defaultUserFilters,
   isUserFiltersActive,
   type UserFilterState,
 } from "@/components/usuario/UserFilters";
-import PageHeader from "@/components/ui/PageHeader";
 import SectionHeader from "@/components/ui/SectionHeader";
 import SearchInput from "@/components/ui/SearchInput";
 import SoftButton from "@/components/ui/SoftButton";
@@ -22,9 +23,21 @@ export default function UsuariosPage() {
   );
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  const { user: currentUser } = useAuth();
+
   const maxBudget = filters.maxBudget ? Number(filters.maxBudget) : undefined;
 
   const { users, loading } = useUsers({ max_budget: maxBudget });
+
+  const lookingUsers = useMemo(
+    () => users.filter((u) => u.is_looking_for_roommates && !u.community),
+    [users]
+  );
+
+  const inCommunityUsers = useMemo(
+    () => users.filter((u) => Boolean(u.community)),
+    [users]
+  );
 
   const visibleUsers = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -65,14 +78,25 @@ export default function UsuariosPage() {
     });
   }, [users, search, filters]);
 
+  const visibleLooking = useMemo(
+    () => visibleUsers.filter((u) => u.is_looking_for_roommates && !u.community),
+    [visibleUsers]
+  );
+
+  const visibleInCommunity = useMemo(
+    () => visibleUsers.filter((u) => Boolean(u.community)),
+    [visibleUsers]
+  );
+
   return (
     <div>
-      <PageHeader
-        title="Personas"
-        subtitle="Encuentra gente compatible para compartir vivienda."
+      <PeopleHero
+        firstName={currentUser?.first_name}
+        lookingCount={lookingUsers.length}
+        inCommunityCount={inCommunityUsers.length}
       />
 
-      <div className="mt-4">
+      <div className="mt-6">
         <PersonasTabs />
       </div>
 
@@ -109,32 +133,41 @@ export default function UsuariosPage() {
         </div>
       )}
 
-      <section className="mt-6">
-        <SectionHeader
-          title="Recomendadas para ti"
-          subtitle={
-            !loading
-              ? `${visibleUsers.length} ${
-                  visibleUsers.length === 1
-                    ? "persona compatible"
-                    : "personas compatibles"
-                }`
-              : undefined
-          }
-        />
-
-        <div className="mt-4">
-          {loading ? (
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <SkeletonCard key={index} />
-              ))}
-            </div>
-          ) : (
-            <UserGrid users={visibleUsers} />
-          )}
+      {loading ? (
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <SkeletonCard key={index} />
+          ))}
         </div>
-      </section>
+      ) : (
+        <>
+          <section className="mt-8">
+            <SectionHeader
+              title="Buscando compañeros de piso"
+              subtitle={`${visibleLooking.length} ${
+                visibleLooking.length === 1 ? "persona" : "personas"
+              }`}
+            />
+
+            <div className="mt-4">
+              <UserGrid users={visibleLooking} />
+            </div>
+          </section>
+
+          <section className="mt-10">
+            <SectionHeader
+              title="Ya en una comunidad"
+              subtitle={`${visibleInCommunity.length} ${
+                visibleInCommunity.length === 1 ? "persona" : "personas"
+              }`}
+            />
+
+            <div className="mt-4">
+              <UserGrid users={visibleInCommunity} />
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }

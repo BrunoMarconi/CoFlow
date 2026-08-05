@@ -48,20 +48,6 @@ export default function Navbar() {
               CoFlow
             </span>
           </Link>
-
-          {user && (
-            <p className="hidden items-center gap-2 text-lg font-bold tracking-tight text-foreground md:flex">
-              <span className="animate-wave text-2xl" aria-hidden="true">
-                👋
-              </span>
-              <span>
-                Bienvenido,{" "}
-                <span className="bg-gradient-to-r from-brand to-brand-dark bg-clip-text text-transparent">
-                  {user.first_name}
-                </span>
-              </span>
-            </p>
-          )}
         </div>
 
         {user && (

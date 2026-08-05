@@ -14,8 +14,14 @@ export default function UserGrid({ users }: { users: UserPublicProfile[] }) {
 
   return (
     <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-      {users.map((user) => (
-        <UserCard key={user.id} user={user} />
+      {users.map((user, index) => (
+        <div
+          key={user.id}
+          className="animate-fade-in-up"
+          style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
+        >
+          <UserCard user={user} />
+        </div>
       ))}
     </div>
   );

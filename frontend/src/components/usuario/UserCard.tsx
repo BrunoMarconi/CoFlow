@@ -55,46 +55,42 @@ export default function UserCard({ user }: { user: UserPublicProfile }) {
   }
 
   return (
-    <article className="flex h-full flex-col rounded-18 border border-border bg-surface p-4 shadow-soft transition-all duration-180 ease-out sm:hover:-translate-y-0.5 sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)] sm:p-5">
+    <article className="flex h-full flex-col items-center rounded-18 border border-border bg-surface p-6 text-center shadow-soft transition-all duration-180 ease-out sm:hover:-translate-y-0.5 sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]">
       <Link
         href={`/personas/${user.id}`}
-        className="flex items-start gap-3 active:scale-[0.99]"
+        className="flex flex-col items-center active:scale-[0.99]"
       >
         <UserAvatar
           firstName={user.first_name}
           lastName={user.last_name}
           userId={user.id}
-          size="lg"
+          size="xl"
         />
 
-        <div className="min-w-0 flex-1 pt-1">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <h3 className="truncate text-lg font-bold text-foreground">
-              {fullName || "Persona de CoFlow"}
-            </h3>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
+          <h3 className="truncate text-lg font-bold text-foreground">
+            {fullName || "Persona de CoFlow"}
+          </h3>
 
-            {user.is_owner && (
-              <StatusBadge variant="info" className="shrink-0">
-                Propietario
-              </StatusBadge>
-            )}
-          </div>
-
-          {user.community && (
-            <p className="truncate text-sm font-medium text-secondary">
-              {user.community.city}
-            </p>
-          )}
-
-          {connectionLabel && (
-            <span className="mt-1 inline-flex items-center rounded-full bg-mint-100 px-2 py-0.5 text-[11px] font-bold text-brand-dark">
-              {connectionLabel}
-            </span>
+          {user.is_owner && (
+            <StatusBadge variant="info" className="shrink-0">
+              Propietario
+            </StatusBadge>
           )}
         </div>
+
+        <p className="truncate text-sm font-medium text-secondary">
+          {user.community ? user.community.city : "Buscando comunidad"}
+        </p>
+
+        {connectionLabel && (
+          <span className="mt-2 inline-flex items-center rounded-full bg-mint-100 px-2 py-0.5 text-[11px] font-bold text-brand-dark">
+            {connectionLabel}
+          </span>
+        )}
       </Link>
 
-      <span className="mt-3 inline-flex w-fit items-center rounded-full bg-surface-muted px-3 py-1 text-xs font-bold text-brand-dark">
+      <span className="mt-4 inline-flex w-fit items-center rounded-full bg-surface-muted px-3 py-1 text-xs font-bold text-brand-dark">
         {budgetLabel}
       </span>
 
@@ -104,7 +100,7 @@ export default function UserCard({ user }: { user: UserPublicProfile }) {
         </p>
       )}
 
-      <div className="mt-auto flex items-center gap-2 pt-4">
+      <div className="mt-auto flex w-full items-center gap-2 pt-5">
         <Link
           href={`/personas/${user.id}`}
           className="flex h-11 flex-1 items-center justify-center rounded-14 bg-brand-dark text-sm font-bold text-white transition-colors duration-180 hover:bg-brand-dark/90"
