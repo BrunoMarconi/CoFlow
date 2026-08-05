@@ -89,7 +89,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r border-line bg-surface px-3 py-6 md:flex">
+    <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface/90 px-3 py-6 backdrop-blur-xl md:flex">
       <Link
         href="/comunidades"
         className="mb-6 flex items-center gap-2.5 px-4"
@@ -97,7 +97,7 @@ export default function Sidebar() {
       >
         <Logo size="sm" />
 
-        <span className="text-xl font-black tracking-tight text-brand-dark">
+        <span className="text-xl font-black tracking-[-0.01em] text-brand-dark">
           CoFlow
         </span>
       </Link>
@@ -125,7 +125,7 @@ export default function Sidebar() {
       </nav>
 
       {user && (
-        <div className="mt-4 flex items-center gap-3 rounded-2xl border border-line bg-surface-soft p-3">
+        <div className="mt-4 flex items-center gap-3 rounded-18 border border-border bg-mint-50 p-3">
           <Link href="/perfil" className="flex min-w-0 flex-1 items-center gap-3">
             <Avatar
               name={`${user.first_name} ${user.last_name}`}
@@ -147,7 +147,7 @@ export default function Sidebar() {
             onClick={logout}
             aria-label="Cerrar sesión"
             title="Cerrar sesión"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-muted transition hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-10 text-muted transition duration-180 hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400"
           >
             <LogoutIcon />
           </button>
@@ -189,16 +189,23 @@ function SidebarLink({
       href={link.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+        "relative flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
         active
-          ? "bg-surface-soft text-brand-dark"
+          ? "bg-mint-50 text-primary-dark"
           : "text-muted hover:bg-surface-soft hover:text-foreground"
       )}
     >
+      {active && (
+        <span
+          aria-hidden="true"
+          className="absolute left-0 top-1/2 h-5 w-0.75 -translate-y-1/2 rounded-full bg-primary"
+        />
+      )}
+
       <Icon
         className={cn(
           "h-5 w-5 shrink-0",
-          active ? "text-brand" : "text-muted"
+          active ? "text-primary" : "text-muted"
         )}
       />
       <span className="truncate">{link.label}</span>

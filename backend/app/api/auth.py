@@ -20,7 +20,11 @@ from app.services.email_verification_service import (
     verify as verify_email_token,
 )
 
-from app.core.config import ENVIRONMENT, EMAIL_VERIFICATION_TEST_MODE
+from app.core.config import (
+    ENVIRONMENT,
+    EMAIL_VERIFICATION_ENABLED,
+    EMAIL_VERIFICATION_TEST_MODE,
+)
 from app.core.dependencies import get_current_user
 from app.database.models.user import User
 from app.schemas.user import UpdateProfileRequest, UserResponse
@@ -43,6 +47,26 @@ _VERIFY_ERROR_MESSAGES = {
 def _client_ip_hash(request: Request) -> str | None:
     client = request.client
     return hash_ip(client.host if client else None)
+
+
+def _require_email_verification_enabled() -> None:
+    """La verificación de email es una feature flag temporal
+    (EMAIL_VERIFICATION_ENABLED). Desactivada: estos dos endpoints
+    devuelven 404 con code=FEATURE_DISABLED en vez de ejecutar nada."""
+    if not EMAIL_VERIFICATION_ENABLED:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "FEATURE_DISABLED",
+                "message": "La verificación de email no está activa.",
+            },
+        )
+
+
+def _to_user_response(user: User) -> UserResponse:
+    response = UserResponse.model_validate(user)
+    response.email_verification_enabled = EMAIL_VERIFICATION_ENABLED
+    return response
 
 
 @router.post("/register", response_model=RegisterResponse)
@@ -70,7 +94,7 @@ def login(
 def me(
     current_user: User = Depends(get_current_user)
 ):
-    return current_user
+    return _to_user_response(current_user)
 
 @router.put("/me")
 def update_profile(
@@ -85,7 +109,11 @@ def update_profile(
     )
 
 
-@router.post("/verify-email", response_model=GenericMessageResponse)
+@router.post(
+    "/verify-email",
+    response_model=GenericMessageResponse,
+    dependencies=[Depends(_require_email_verification_enabled)],
+)
 def verify_email(
     data: VerifyEmailRequest,
     response: Response,
@@ -109,7 +137,11 @@ def verify_email(
     return {"message": "Correo verificado correctamente."}
 
 
-@router.post("/resend-verification", response_model=GenericMessageResponse)
+@router.post(
+    "/resend-verification",
+    response_model=GenericMessageResponse,
+    dependencies=[Depends(_require_email_verification_enabled)],
+)
 def resend_verification_email(
     data: ResendVerificationRequest,
     background_tasks: BackgroundTasks,

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import CommunityCover from "@/components/ui/CommunityCover";
-import UserAvatar from "@/components/ui/UserAvatar";
+import AvatarGroup from "@/components/ui/AvatarGroup";
+import StatusBadge from "@/components/ui/StatusBadge";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
 import type {
   Community,
@@ -39,10 +40,10 @@ export default function CommunityCard({
       className="group block h-full active:scale-[0.99]"
     >
       <article
-        className={`flex h-full flex-col overflow-hidden rounded-[1.5rem] border shadow-sm transition duration-300 sm:hover:-translate-y-1 sm:hover:shadow-[0_18px_40px_rgba(18,56,44,0.12)] ${
+        className={`flex h-full flex-col overflow-hidden rounded-18 border shadow-soft transition-all duration-180 ease-out sm:hover:-translate-y-0.5 sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)] ${
           isLookingForMembers
-            ? "border-line bg-surface"
-            : "border-line bg-surface-soft opacity-85"
+            ? "border-border bg-surface"
+            : "border-border bg-surface-muted opacity-85"
         }`}
       >
         <CommunityCover
@@ -57,39 +58,37 @@ export default function CommunityCard({
           <div className="flex flex-wrap items-center gap-2">
             {isLookingForMembers ? (
               <>
-                <span className="rounded-full bg-brand/10 px-2.5 py-1 text-xs font-bold text-brand-dark">
+                <StatusBadge variant="success">
                   {community.open_spots}{" "}
                   {community.open_spots === 1
                     ? "plaza abierta"
                     : "plazas abiertas"}
-                </span>
+                </StatusBadge>
 
                 {community.urgency !== "NORMAL" && (
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-bold ${urgency.badgeClass}`}
-                  >
+                  <StatusBadge variant={urgency.variant}>
                     {urgency.label}
-                  </span>
+                  </StatusBadge>
                 )}
               </>
             ) : (
-              <span className="rounded-full bg-gray-200 px-2.5 py-1 text-xs font-bold text-gray-600">
+              <StatusBadge variant="neutral">
                 {community.is_full
                   ? capacityReachedLabel
                   : notLookingLabel}
-              </span>
+              </StatusBadge>
             )}
           </div>
 
-          <h3 className="mt-3 truncate text-lg font-bold tracking-tight text-foreground transition group-hover:text-brand-dark sm:text-xl">
+          <h3 className="mt-3 truncate text-lg font-bold tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark sm:text-xl">
             {community.name}
           </h3>
 
-          <span className="mt-1.5 inline-flex w-fit items-center rounded-full bg-surface-soft px-2.5 py-1 text-xs font-bold text-brand-dark">
+          <span className="mt-1.5 inline-flex w-fit items-center rounded-full bg-surface-muted px-2.5 py-1 text-xs font-bold text-brand-dark">
             {getProfileTypeLabel(community.profile_type)}
           </span>
 
-          <div className="mt-1 flex items-center gap-1.5 text-sm font-medium text-muted">
+          <div className="mt-1 flex items-center gap-1.5 text-sm font-medium text-secondary">
             <LocationIcon />
             <span className="truncate">{location}</span>
           </div>
@@ -104,20 +103,13 @@ export default function CommunityCard({
           )}
 
           <div className="mt-4 flex min-w-0 items-center gap-2">
-            {visibleMembers.length > 0 ? (
-              <div className="flex shrink-0 -space-x-2">
-                {visibleMembers.map((member) => (
-                  <UserAvatar
-                    key={member.id}
-                    firstName={member.user.first_name}
-                    lastName={member.user.last_name}
-                    userId={member.user_id}
-                    size="sm"
-                    className="border-2 border-surface"
-                  />
-                ))}
-              </div>
-            ) : null}
+            <AvatarGroup
+              members={visibleMembers.map((member) => ({
+                id: member.id.toString(),
+                firstName: member.user.first_name,
+                lastName: member.user.last_name,
+              }))}
+            />
 
             <span className="min-w-0 truncate text-xs font-semibold text-muted">
               {community.member_count} de {community.max_members} miembros
@@ -138,7 +130,7 @@ export default function CommunityCard({
             </p>
           )}
 
-          <div className="-mx-4 mt-auto flex items-center justify-between gap-1.5 border-t border-line px-4 pt-3 text-sm font-bold text-brand-dark sm:-mx-5 sm:px-5">
+          <div className="-mx-4 mt-auto flex items-center justify-between gap-1.5 border-t border-border px-4 pt-3 text-sm font-bold text-brand-dark sm:-mx-5 sm:px-5">
             {isOwn ? "Mi comunidad" : "Ver comunidad"}
             <ArrowIcon />
           </div>
@@ -148,25 +140,18 @@ export default function CommunityCard({
   );
 }
 
-function getUrgencyData(urgency: CommunityUrgency) {
+function getUrgencyData(
+  urgency: CommunityUrgency
+): { label: string; variant: "warning" | "info" | "neutral" } {
   switch (urgency) {
     case "URGENT":
-      return {
-        label: "Urgente",
-        badgeClass: "bg-red-100 text-red-700",
-      };
+      return { label: "Urgente", variant: "warning" };
 
     case "SOON":
-      return {
-        label: "Próximamente",
-        badgeClass: "bg-amber-100 text-amber-800",
-      };
+      return { label: "Próximamente", variant: "info" };
 
     default:
-      return {
-        label: "Sin prisa",
-        badgeClass: "bg-gray-100 text-gray-600",
-      };
+      return { label: "Sin prisa", variant: "neutral" };
   }
 }
 

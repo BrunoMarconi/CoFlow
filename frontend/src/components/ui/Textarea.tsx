@@ -32,7 +32,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={textareaId}
-            className="mb-2 block text-sm font-semibold text-[#163B2E]"
+            className="mb-2 block text-sm font-semibold text-foreground"
           >
             {label}
 
@@ -57,15 +57,15 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                 : undefined
           }
           className={clsx(
-            "min-h-32 w-full resize-none rounded-2xl border bg-white px-4 py-4",
-            "text-base leading-6 text-[#163B2E] outline-none",
-            "placeholder:text-gray-500",
-            "transition-all duration-200",
-            "hover:border-gray-300",
-            "focus:border-green-500 focus:ring-4 focus:ring-green-500/10",
+            "min-h-32 w-full resize-none rounded-14 border bg-surface px-4 py-4",
+            "text-[15px] leading-6 text-foreground outline-none",
+            "placeholder:text-muted",
+            "transition-all duration-180",
+            "hover:border-secondary/40",
+            "focus:border-primary focus:ring-4 focus:ring-mint-100",
             error
               ? "border-red-400 focus:border-red-500 focus:ring-red-500/10"
-              : "border-gray-200",
+              : "border-border",
             className
           )}
           {...props}
@@ -81,7 +81,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         ) : helperText ? (
           <p
             id={`${textareaId}-helper`}
-            className="mt-2 text-sm leading-5 text-gray-500"
+            className="mt-2 text-sm leading-5 text-muted"
           >
             {helperText}
           </p>

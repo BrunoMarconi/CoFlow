@@ -17,6 +17,13 @@ import CommunityFilters, {
   isCommunityFiltersActive,
   type CommunityFilterState,
 } from "@/components/comunidad/CommunityFilters";
+import PageHeader from "@/components/ui/PageHeader";
+import SectionHeader from "@/components/ui/SectionHeader";
+import SearchInput from "@/components/ui/SearchInput";
+import PrimaryButton from "@/components/ui/PrimaryButton";
+import SecondaryButton from "@/components/ui/SecondaryButton";
+import SoftButton from "@/components/ui/SoftButton";
+import SkeletonCard from "@/components/ui/SkeletonCard";
 
 export default function ComunidadesPage() {
   const [cityInput, setCityInput] = useState("");
@@ -141,30 +148,21 @@ export default function ComunidadesPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl">
-      <header className="flex items-start justify-between gap-5">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Comunidades
-          </h1>
-
-          <p className="mt-2 max-w-lg text-base leading-7 text-muted">
-            Encuentra una casa y personas con las que encajes.
-          </p>
-        </div>
-
-        {!loadingMyCommunity && (
-          <Link
-            href={actionHref}
-            className="hidden shrink-0 items-center gap-2 rounded-2xl bg-brand px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark sm:inline-flex"
-          >
-            {myCommunity ? <UsersIcon /> : <PlusIcon />}
-            {actionLabel}
-          </Link>
-        )}
-      </header>
+      <PageHeader
+        title="Comunidades"
+        subtitle="Encuentra una casa y personas con las que encajes."
+        action={
+          !loadingMyCommunity && (
+            <PrimaryButton href={actionHref} className="hidden sm:inline-flex">
+              {myCommunity ? <UsersIcon /> : <PlusIcon />}
+              {actionLabel}
+            </PrimaryButton>
+          )
+        }
+      />
 
       {justLeft && (
-        <p className="mt-5 rounded-2xl border border-green-100 bg-green-50 px-5 py-4 text-sm font-semibold text-green-700">
+        <p className="mt-5 rounded-14 border border-green-100 bg-green-50 px-5 py-4 text-sm font-semibold text-green-700">
           Has abandonado la comunidad correctamente.
         </p>
       )}
@@ -173,49 +171,29 @@ export default function ComunidadesPage() {
         onSubmit={handleFilterSubmit}
         className="mt-7 flex flex-col gap-2 sm:flex-row"
       >
-        <div className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-2xl border border-line bg-surface px-4 shadow-sm">
-          <SearchIcon />
-
-          <input
-            value={cityInput}
-            onChange={(event) => setCityInput(event.target.value)}
-            placeholder="Buscar ciudad, barrio o comunidad"
-            className="h-full min-w-0 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted"
-          />
-
-          {cityInput && (
-            <button
-              type="button"
-              onClick={clearCitySearch}
-              aria-label="Borrar búsqueda"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-soft"
-            >
-              <CloseIcon />
-            </button>
-          )}
-        </div>
+        <SearchInput
+          value={cityInput}
+          onChange={(event) => setCityInput(event.target.value)}
+          onClear={clearCitySearch}
+          placeholder="Buscar ciudad, barrio o comunidad"
+          className="flex-1"
+        />
 
         <div className="flex gap-2">
-          <button
-            type="submit"
-            className="h-14 flex-1 shrink-0 rounded-2xl bg-brand-dark px-5 text-sm font-bold text-white transition hover:bg-brand-dark/90 active:scale-95 sm:flex-none"
-          >
+          <PrimaryButton type="submit" className="flex-1 sm:flex-none">
             Buscar
-          </button>
+          </PrimaryButton>
 
-          <button
+          <SoftButton
             type="button"
             onClick={() => setFiltersOpen((current) => !current)}
             aria-expanded={filtersOpen}
-            className={`flex h-14 flex-1 shrink-0 items-center justify-center gap-2 rounded-2xl border px-5 text-sm font-bold transition sm:flex-none ${
-              filtersOpen || isCommunityFiltersActive(filters)
-                ? "border-brand bg-brand/10 text-brand-dark"
-                : "border-line bg-surface text-foreground hover:bg-surface-soft"
-            }`}
+            active={filtersOpen || isCommunityFiltersActive(filters)}
+            className="flex-1 sm:flex-none"
           >
             <FilterIcon />
             Filtros
-          </button>
+          </SoftButton>
         </div>
       </form>
 
@@ -258,27 +236,34 @@ export default function ComunidadesPage() {
       )}
 
       <section className="mt-6">
-        <div className="mb-4">
-          <h2 className="text-xl font-bold text-foreground">
-            {cityFilter
+        <SectionHeader
+          title={
+            cityFilter
               ? `Comunidades en ${cityFilter}`
-              : "Comunidades recomendadas"}
-          </h2>
+              : "Comunidades recomendadas"
+          }
+          subtitle={
+            !loading && !error
+              ? `${visibleCommunities.length} ${
+                  visibleCommunities.length === 1
+                    ? "comunidad compatible"
+                    : "comunidades compatibles"
+                }`
+              : undefined
+          }
+          className="mb-4"
+        />
 
-          {!loading && !error && (
-            <p className="mt-1 text-sm text-muted">
-              {visibleCommunities.length}{" "}
-              {visibleCommunities.length === 1
-                ? "comunidad compatible"
-                : "comunidades compatibles"}
-            </p>
-          )}
-        </div>
-
-        {loading && <CommunityGridSkeleton />}
+        {loading && (
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <SkeletonCard key={index} withCover />
+            ))}
+          </div>
+        )}
 
         {!loading && error && (
-          <div className="rounded-2xl border border-red-100 bg-red-50 p-8 text-center">
+          <div className="rounded-18 border border-red-100 bg-red-50 p-8 text-center">
             <p className="font-bold text-red-700">
               No hemos podido cargar las comunidades
             </p>
@@ -287,13 +272,9 @@ export default function ComunidadesPage() {
               {error}
             </p>
 
-            <button
-              type="button"
-              onClick={refetch}
-              className="mt-5 rounded-xl bg-surface px-5 py-3 text-sm font-bold text-red-700 shadow-sm transition hover:shadow-md"
-            >
+            <SecondaryButton onClick={refetch} className="mt-5">
               Volver a intentarlo
-            </button>
+            </SecondaryButton>
           </div>
         )}
 
@@ -383,46 +364,6 @@ function buildActiveChips(
   }
 
   return chips;
-}
-
-function CommunityGridSkeleton() {
-  return (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-      {Array.from({ length: 6 }).map((_, index) => (
-        <div
-          key={index}
-          className="animate-pulse overflow-hidden rounded-[1.5rem] border border-line bg-surface shadow-sm"
-        >
-          <div className="h-28 bg-surface-soft sm:h-32" />
-
-          <div className="space-y-3 p-4 sm:p-5">
-            <div className="h-3 w-1/3 rounded-full bg-surface-soft" />
-            <div className="h-5 w-2/3 rounded-full bg-surface-soft" />
-            <div className="h-3 w-full rounded-full bg-surface-soft" />
-            <div className="h-3 w-4/5 rounded-full bg-surface-soft" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-5 w-5 shrink-0 text-muted"
-      aria-hidden="true"
-    >
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" />
-    </svg>
-  );
 }
 
 function FilterIcon() {

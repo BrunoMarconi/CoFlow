@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Inter } from "next/font/google";
 
 import AuthProvider from "@/providers/AuthProvider";
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -62,8 +62,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f7f4" },
-    { media: "(prefers-color-scheme: dark)", color: "#12382c" },
+    { media: "(prefers-color-scheme: light)", color: "#f5f7f3" },
+    { media: "(prefers-color-scheme: dark)", color: "#102d22" },
   ],
 };
 
@@ -75,9 +75,9 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      className={`${inter.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="min-h-full bg-white font-sans text-brand-dark">
+      <body className="min-h-full bg-background font-sans text-brand-dark">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

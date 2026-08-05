@@ -22,7 +22,9 @@ export default function EmailVerificationBanner() {
     return () => clearInterval(interval);
   }, [cooldown]);
 
-  if (!user || user.is_email_verified) return null;
+  if (!user || !user.email_verification_enabled || user.is_email_verified) {
+    return null;
+  }
   if (pathname === "/verificacion-pendiente") return null;
 
   async function handleResend() {

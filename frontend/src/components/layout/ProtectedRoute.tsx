@@ -18,6 +18,7 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
 
   const needsVerification =
     !!user &&
+    user.email_verification_enabled &&
     !user.is_email_verified &&
     !ALLOWED_WHILE_UNVERIFIED.includes(pathname);
 

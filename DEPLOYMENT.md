@@ -91,6 +91,7 @@ Repite `alembic upgrade head` manualmente cada vez que añadas una migración nu
    | `BANK_TOKEN_ENCRYPTION_KEY` | Genera una nueva: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
    | `PASSPORT_SHARE_SECRET` | Genera una nueva (distinta de las anteriores): `python -c "import secrets; print(secrets.token_hex(32))"` |
    | `ENABLE_FINANCIAL_DEBUG` | `false` (déjalo así salvo que necesites auditar el análisis financiero en este despliegue) |
+   | `EMAIL_VERIFICATION_ENABLED` | `true` — interruptor temporal: en `false` nadie necesita verificar el email para usar CoFlow (útil si Resend da problemas y quieres desactivar la verificación sin quitar código) |
    | `RESEND_API_KEY` | La API key de tu cuenta en [resend.com/api-keys](https://resend.com/api-keys) |
    | `EMAIL_FROM` | `CoFlow <verificacion@tudominio.com>` — usa un dominio verificado en Resend (ver sección 3.1 más abajo); mientras no tengas uno, `onboarding@resend.dev` funciona en pruebas |
    | `EMAIL_DELIVERY_MODE` | `resend` (en Render, nunca `console`) |

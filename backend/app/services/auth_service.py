@@ -2,7 +2,11 @@ from fastapi import BackgroundTasks, HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.core.config import ENVIRONMENT, EMAIL_VERIFICATION_TEST_MODE
+from app.core.config import (
+    ENVIRONMENT,
+    EMAIL_VERIFICATION_ENABLED,
+    EMAIL_VERIFICATION_TEST_MODE,
+)
 from app.core.jwt import create_access_token
 from app.core.security import hash_password, verify_password
 from app.database.models.user import User
@@ -41,12 +45,15 @@ class AuthService:
             last_name=data.last_name.strip(),
             email=normalized_email,
             password_hash=hash_password(data.password),
-            is_email_verified=False,
+            is_email_verified=not EMAIL_VERIFICATION_ENABLED,
         )
 
         db.add(user)
         db.commit()
         db.refresh(user)
+
+        if not EMAIL_VERIFICATION_ENABLED:
+            return {"message": "Cuenta creada correctamente."}
 
         raw_token = request_verification_email(
             db, user, background_tasks, ip_hash=ip_hash
@@ -88,6 +95,7 @@ class AuthService:
             "access_token": token,
             "token_type": "bearer",
             "is_email_verified": user.is_email_verified,
+            "email_verification_enabled": EMAIL_VERIFICATION_ENABLED,
         }
 
     def update_profile(

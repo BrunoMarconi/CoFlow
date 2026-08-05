@@ -28,3 +28,6 @@ class UserResponse(BaseModel):
     rental_budget: int | None = None
     is_looking_for_roommates: bool
     is_email_verified: bool
+    # No es un campo del modelo: se rellena en la ruta a partir de la
+    # feature flag EMAIL_VERIFICATION_ENABLED.
+    email_verification_enabled: bool = True

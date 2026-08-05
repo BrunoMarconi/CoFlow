@@ -24,6 +24,9 @@ class LoginResponse(BaseModel):
     access_token: str
     token_type: str
     is_email_verified: bool
+    # Refleja la feature flag EMAIL_VERIFICATION_ENABLED del backend, para
+    # que el frontend nunca tenga que adivinar/duplicar ese estado.
+    email_verification_enabled: bool
 
 
 class VerifyEmailRequest(BaseModel):

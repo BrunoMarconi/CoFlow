@@ -27,7 +27,7 @@ export default function Avatar({ name, imageUrl, size = 40 }: AvatarProps) {
   return (
     <div
       style={{ width: size, height: size }}
-      className="flex items-center justify-center rounded-full bg-green-500 font-semibold text-white"
+      className="flex items-center justify-center rounded-full bg-primary font-semibold text-white"
     >
       {initials || "?"}
     </div>

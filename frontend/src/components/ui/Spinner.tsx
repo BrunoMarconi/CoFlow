@@ -4,7 +4,7 @@ export default function Spinner({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-green-500",
+        "h-8 w-8 animate-spin rounded-full border-4 border-surface-muted border-t-primary",
         className
       )}
     />

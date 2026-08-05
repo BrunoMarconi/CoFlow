@@ -1,14 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f5f7f4;
-  --foreground: #12382c;
+  /* --- Design system "soft premium living" -------------------------- */
+  --background: #f5f7f3;
+  --foreground: #102d22; /* text-primary */
   --surface: #ffffff;
-  --surface-soft: #f0f5f1;
-  --muted: #66756f;
-  --brand: #16a34a;
-  --brand-dark: #15543e;
-  --line: #e3e9e5;
+  --surface-soft: #f0f4ef; /* = surface-muted */
+  --muted: #7a8981; /* text-muted */
+  --secondary: #52645c; /* text-secondary */
+  --brand: #16a05d; /* = primary */
+  --brand-hover: #12834c; /* = primary-hover */
+  --brand-dark: #0d3b2a; /* = primary-dark */
+  --line: #dde5dd; /* = border */
+  --mint-50: #f0fbf5;
+  --mint-100: #ddf6e8;
+  --mint-200: #bdecd2;
   --danger: #dc2626;
   --warning: #d97706;
 
@@ -41,13 +47,37 @@
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
   --color-surface-soft: var(--surface-soft);
+  --color-surface-muted: var(--surface-soft);
   --color-muted: var(--muted);
+  --color-secondary: var(--secondary);
   --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
   --color-brand-dark: var(--brand-dark);
+  --color-primary: var(--brand);
+  --color-primary-hover: var(--brand-hover);
+  --color-primary-dark: var(--brand-dark);
   --color-line: var(--line);
+  --color-border: var(--line);
+  --color-mint-50: var(--mint-50);
+  --color-mint-100: var(--mint-100);
+  --color-mint-200: var(--mint-200);
   --color-danger: var(--danger);
   --color-warning: var(--warning);
-  --font-sans: var(--font-geist-sans);
+
+  /* Radios nuevos del design system — no tocan la escala por defecto
+     de Tailwind (rounded-lg/xl/2xl/3xl), que ya usan ~24 archivos. */
+  --radius-10: 10px;
+  --radius-14: 14px;
+  --radius-18: 18px;
+  --radius-24: 24px;
+  --radius-control: 14px;
+  --radius-card: 18px;
+
+  /* Sombras suaves, tono verde oscuro / verde marca, baja opacidad. */
+  --shadow-soft: 0 8px 24px -8px rgb(13 59 42 / 0.12);
+  --shadow-button: 0 10px 24px -8px rgb(22 160 93 / 0.35);
+
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -72,7 +102,7 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
 }
 
 img,
@@ -94,8 +124,8 @@ a {
 }
 
 ::selection {
-  background: #bbf7d0;
-  color: #163b2e;
+  background: var(--mint-200);
+  color: var(--brand-dark);
 }
 
 summary::-webkit-details-marker {

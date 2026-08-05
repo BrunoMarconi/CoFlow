@@ -83,6 +83,17 @@ ENABLE_FINANCIAL_DEBUG = (
 PASSPORT_SHARE_SECRET = os.getenv("PASSPORT_SHARE_SECRET", "")
 
 # --- Verificación de email (Resend) -----------------------------------
+# Interruptor temporal de toda la funcionalidad de verificación de
+# email. Con "false": los usuarios nuevos se crean ya verificados, no se
+# genera ni envía ningún token, require_verified_email deja pasar a
+# todo el mundo, y /auth/verify-email y /auth/resend-verification
+# devuelven 404 (FEATURE_DISABLED). El código de verificación no se
+# borra ni se modifica — solo se deja de ejecutar. Por defecto "true"
+# (el comportamiento normal, con Resend activo).
+EMAIL_VERIFICATION_ENABLED = (
+    os.getenv("EMAIL_VERIFICATION_ENABLED", "true").lower() == "true"
+)
+
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
 # Remitente transaccional, ej. "CoFlow <verificacion@coflow.app>". Debe
 # ser un dominio verificado en Resend en producción.

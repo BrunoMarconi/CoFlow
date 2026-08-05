@@ -19,7 +19,7 @@ export default function VerificacionPendientePage() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (!loading && user?.is_email_verified) {
+    if (!loading && (user?.is_email_verified || !user?.email_verification_enabled)) {
       router.replace("/");
     }
   }, [loading, user, router]);

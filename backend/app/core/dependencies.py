@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
+from app.core.config import EMAIL_VERIFICATION_ENABLED
 from app.core.jwt import decode_access_token
 from app.database.models.user import User
 from app.database.session import get_db
@@ -44,7 +45,11 @@ def require_verified_email(
     Úsala en acciones sensibles (crear comunidad, conectar banco,
     ejecutar análisis financiero, emitir pasaporte, etc.) — nunca en
     login/logout/ver perfil propio/reenviar verificación/confirmar
-    correo."""
+    correo. Si EMAIL_VERIFICATION_ENABLED está desactivado (feature flag
+    temporal), deja pasar a todo el mundo sin comprobar nada."""
+    if not EMAIL_VERIFICATION_ENABLED:
+        return current_user
+
     if not current_user.is_email_verified:
         raise HTTPException(
             status_code=403,

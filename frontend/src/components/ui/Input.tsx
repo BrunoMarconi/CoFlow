@@ -35,7 +35,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="mb-2 block text-sm font-semibold text-[#163B2E]"
+            className="mb-2 block text-sm font-semibold text-foreground"
           >
             {label}
 
@@ -49,7 +49,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
         <div className="relative">
           {leftElement && (
-            <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-gray-400">
+            <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-muted">
               {leftElement}
             </div>
           )}
@@ -67,15 +67,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                   : undefined
             }
             className={clsx(
-              "h-14 w-full rounded-2xl border bg-white px-4 text-base text-[#163B2E]",
-              "outline-none transition-all duration-200",
-              "placeholder:text-gray-500",
-              "hover:border-gray-300",
-              "focus:border-green-500 focus:ring-4 focus:ring-green-500/10",
+              "h-11.5 w-full rounded-14 border bg-surface px-4 text-[15px] text-foreground",
+              "outline-none transition-all duration-180",
+              "placeholder:text-muted",
+              "hover:border-secondary/40",
+              "focus:border-primary focus:ring-4 focus:ring-mint-100",
               leftElement && "pl-11",
               error
                 ? "border-red-400 focus:border-red-500 focus:ring-red-500/10"
-                : "border-gray-200",
+                : "border-border",
               className
             )}
             {...props}
@@ -92,7 +92,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         ) : helperText ? (
           <p
             id={`${inputId}-helper`}
-            className="mt-2 text-sm leading-5 text-gray-500"
+            className="mt-2 text-sm leading-5 text-muted"
           >
             {helperText}
           </p>

@@ -9,7 +9,11 @@ import UserFilters, {
   isUserFiltersActive,
   type UserFilterState,
 } from "@/components/usuario/UserFilters";
-import Spinner from "@/components/ui/Spinner";
+import PageHeader from "@/components/ui/PageHeader";
+import SectionHeader from "@/components/ui/SectionHeader";
+import SearchInput from "@/components/ui/SearchInput";
+import SoftButton from "@/components/ui/SoftButton";
+import SkeletonCard from "@/components/ui/SkeletonCard";
 
 export default function UsuariosPage() {
   const [search, setSearch] = useState("");
@@ -63,44 +67,35 @@ export default function UsuariosPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-        Personas
-      </h1>
-
-      <p className="mt-2 max-w-lg text-base leading-7 text-muted">
-        Encuentra gente compatible para compartir vivienda.
-      </p>
+      <PageHeader
+        title="Personas"
+        subtitle="Encuentra gente compatible para compartir vivienda."
+      />
 
       <div className="mt-4">
         <PersonasTabs />
       </div>
 
       <div className="mt-4 flex flex-row gap-2">
-        <div className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-2xl border border-line bg-surface px-4 shadow-sm">
-          <SearchIcon />
+        <SearchInput
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          onClear={() => setSearch("")}
+          placeholder="Buscar por nombre o ciudad"
+          className="flex-1"
+        />
 
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Buscar por nombre o ciudad"
-            className="h-full min-w-0 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted"
-          />
-        </div>
-
-        <button
+        <SoftButton
           type="button"
           onClick={() => setFiltersOpen((current) => !current)}
           aria-expanded={filtersOpen}
           aria-label="Filtros"
-          className={`flex h-12 shrink-0 items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-bold transition sm:px-5 ${
-            filtersOpen || isUserFiltersActive(filters)
-              ? "border-brand bg-brand/10 text-brand-dark"
-              : "border-line bg-surface text-foreground hover:bg-surface-soft"
-          }`}
+          active={filtersOpen || isUserFiltersActive(filters)}
+          className="px-4 sm:px-5"
         >
           <FilterIcon />
           <span className="hidden sm:inline">Filtros</span>
-        </button>
+        </SoftButton>
       </div>
 
       {filtersOpen && (
@@ -115,23 +110,25 @@ export default function UsuariosPage() {
       )}
 
       <section className="mt-6">
-        <h2 className="text-xl font-bold text-foreground">
-          Recomendadas para ti
-        </h2>
-
-        {!loading && (
-          <p className="mt-1 text-sm text-muted">
-            {visibleUsers.length}{" "}
-            {visibleUsers.length === 1
-              ? "persona compatible"
-              : "personas compatibles"}
-          </p>
-        )}
+        <SectionHeader
+          title="Recomendadas para ti"
+          subtitle={
+            !loading
+              ? `${visibleUsers.length} ${
+                  visibleUsers.length === 1
+                    ? "persona compatible"
+                    : "personas compatibles"
+                }`
+              : undefined
+          }
+        />
 
         <div className="mt-4">
           {loading ? (
-            <div className="flex min-h-40 items-center justify-center">
-              <Spinner />
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <SkeletonCard key={index} />
+              ))}
             </div>
           ) : (
             <UserGrid users={visibleUsers} />
@@ -139,24 +136,6 @@ export default function UsuariosPage() {
         </div>
       </section>
     </div>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-5 w-5 shrink-0 text-muted"
-      aria-hidden="true"
-    >
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" />
-    </svg>
   );
 }
 

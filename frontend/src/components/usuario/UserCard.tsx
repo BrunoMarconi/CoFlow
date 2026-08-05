@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Badge from "@/components/ui/Badge";
+import StatusBadge from "@/components/ui/StatusBadge";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { saveUserProfile, unsaveUserProfile } from "@/services/users";
 import type { UserPublicProfile } from "@/types/userPublic";
@@ -55,7 +55,7 @@ export default function UserCard({ user }: { user: UserPublicProfile }) {
   }
 
   return (
-    <article className="flex h-full flex-col rounded-[1.5rem] border border-line bg-surface p-4 shadow-sm transition duration-300 sm:hover:-translate-y-1 sm:hover:shadow-[0_18px_40px_rgba(18,56,44,0.1)] sm:p-5">
+    <article className="flex h-full flex-col rounded-18 border border-border bg-surface p-4 shadow-soft transition-all duration-180 ease-out sm:hover:-translate-y-0.5 sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)] sm:p-5">
       <Link
         href={`/personas/${user.id}`}
         className="flex items-start gap-3 active:scale-[0.99]"
@@ -74,27 +74,27 @@ export default function UserCard({ user }: { user: UserPublicProfile }) {
             </h3>
 
             {user.is_owner && (
-              <Badge variant="info" className="shrink-0">
+              <StatusBadge variant="info" className="shrink-0">
                 Propietario
-              </Badge>
+              </StatusBadge>
             )}
           </div>
 
           {user.community && (
-            <p className="truncate text-sm font-medium text-muted">
+            <p className="truncate text-sm font-medium text-secondary">
               {user.community.city}
             </p>
           )}
 
           {connectionLabel && (
-            <span className="mt-1 inline-flex items-center rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-bold text-brand-dark">
+            <span className="mt-1 inline-flex items-center rounded-full bg-mint-100 px-2 py-0.5 text-[11px] font-bold text-brand-dark">
               {connectionLabel}
             </span>
           )}
         </div>
       </Link>
 
-      <span className="mt-3 inline-flex w-fit items-center rounded-full bg-surface-soft px-3 py-1 text-xs font-bold text-brand-dark">
+      <span className="mt-3 inline-flex w-fit items-center rounded-full bg-surface-muted px-3 py-1 text-xs font-bold text-brand-dark">
         {budgetLabel}
       </span>
 
@@ -107,7 +107,7 @@ export default function UserCard({ user }: { user: UserPublicProfile }) {
       <div className="mt-auto flex items-center gap-2 pt-4">
         <Link
           href={`/personas/${user.id}`}
-          className="flex h-11 flex-1 items-center justify-center rounded-xl bg-brand-dark text-sm font-bold text-white transition hover:bg-brand-dark/90"
+          className="flex h-11 flex-1 items-center justify-center rounded-14 bg-brand-dark text-sm font-bold text-white transition-colors duration-180 hover:bg-brand-dark/90"
         >
           Ver perfil
         </Link>
@@ -119,10 +119,10 @@ export default function UserCard({ user }: { user: UserPublicProfile }) {
           aria-label={saved ? "Quitar de guardados" : "Guardar perfil"}
           aria-pressed={saved}
           title={saved ? "Quitar de guardados" : "Guardar perfil"}
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition disabled:cursor-not-allowed disabled:opacity-60 ${
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-14 border transition-colors duration-180 disabled:cursor-not-allowed disabled:opacity-60 ${
             saved
-              ? "border-brand bg-brand/10 text-brand-dark"
-              : "border-line bg-surface text-muted hover:border-brand/40"
+              ? "border-primary bg-mint-100 text-brand-dark"
+              : "border-border bg-surface text-muted hover:border-primary/40"
           }`}
         >
           <BookmarkIcon filled={saved} />
