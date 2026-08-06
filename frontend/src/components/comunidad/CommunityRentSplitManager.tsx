@@ -81,7 +81,7 @@ export default function CommunityRentSplitManager({
 
   if (loadError || !split) {
     return (
-      <div className="m-3 rounded-xl border border-red-100 bg-red-50 p-4 text-center text-sm font-semibold text-red-600">
+      <div className="m-3 rounded-14 border border-red-100 bg-red-50 p-4 text-center text-sm font-semibold text-red-600">
         {loadError || "No pudimos cargar el reparto del alquiler."}
       </div>
     );
@@ -169,7 +169,7 @@ export default function CommunityRentSplitManager({
                 setSaveSuccess(false);
               }}
               placeholder="Ej. 1500"
-              className="h-11 w-full rounded-xl border border-line bg-surface pl-9 pr-4 text-base text-foreground outline-none transition focus:border-brand"
+              className="h-11 w-full rounded-14 border border-line bg-surface pl-9 pr-4 text-base text-foreground outline-none transition focus:border-brand"
             />
           </div>
         </div>
@@ -182,13 +182,13 @@ export default function CommunityRentSplitManager({
           {split.contributions.map((contribution) => (
             <div
               key={contribution.member_id}
-              className="flex flex-col gap-2 rounded-xl border border-line bg-surface-soft p-3 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-2 rounded-14 border border-line bg-surface-soft p-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold text-foreground">
                   {contribution.first_name} {contribution.last_name}
                   {contribution.role === "OWNER" && (
-                    <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold uppercase text-green-800">
+                    <span className="ml-2 rounded-full bg-mint-100 px-2 py-0.5 text-[10px] font-bold uppercase text-primary-dark">
                       Administrador
                     </span>
                   )}
@@ -228,14 +228,14 @@ export default function CommunityRentSplitManager({
                     setSaveSuccess(false);
                   }}
                   placeholder="Ej. 500"
-                  className="h-11 w-full rounded-xl border border-line bg-surface pl-9 pr-4 text-base text-foreground outline-none transition focus:border-brand"
+                  className="h-11 w-full rounded-14 border border-line bg-surface pl-9 pr-4 text-base text-foreground outline-none transition focus:border-brand"
                 />
               </div>
             </div>
           ))}
         </div>
 
-        <div className="rounded-2xl bg-surface-soft p-4 text-sm">
+        <div className="rounded-18 bg-surface-soft p-4 text-sm">
           <div className="flex items-center justify-between">
             <span className="text-muted">Alquiler total</span>
             <span className="font-bold text-foreground">
@@ -274,7 +274,7 @@ export default function CommunityRentSplitManager({
           </div>
 
           {mismatch && (
-            <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold leading-5 text-amber-700">
+            <p className="mt-3 rounded-14 bg-amber-50 px-3 py-2 text-xs font-semibold leading-5 text-amber-700">
               Las aportaciones no coinciden con el alquiler total. Revisa
               el reparto antes de guardarlo como definitivo.
             </p>
@@ -284,7 +284,7 @@ export default function CommunityRentSplitManager({
         <button
           type="submit"
           disabled={saving}
-          className="flex h-11 w-full items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex h-11 w-full items-center justify-center rounded-14 bg-brand px-5 text-sm font-bold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
           {saving ? "Guardando..." : "Guardar cambios"}
         </button>

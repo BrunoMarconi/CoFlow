@@ -113,7 +113,7 @@ export default function CommunityApplicationAction({
       <button
         type="button"
         disabled
-        className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-gray-100 px-5 text-sm font-bold text-gray-400"
+        className="flex h-14 items-center justify-center gap-2 rounded-18 bg-surface-soft px-5 text-sm font-bold text-muted"
       >
         Comprobando...
       </button>
@@ -123,8 +123,8 @@ export default function CommunityApplicationAction({
   if (application?.status === "PENDING") {
     return (
       <div className="sm:col-span-2">
-        <div className="flex h-14 items-center justify-between gap-3 rounded-2xl border border-green-200 bg-green-50 px-5">
-          <span className="text-sm font-bold text-green-800">
+        <div className="flex h-14 items-center justify-between gap-3 rounded-18 border border-primary/30 bg-mint-50 px-5">
+          <span className="text-sm font-bold text-primary-dark">
             Tu solicitud está pendiente de revisión.
           </span>
 
@@ -153,13 +153,13 @@ export default function CommunityApplicationAction({
       <div className="sm:col-span-2">
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl border border-gray-200 bg-white p-5"
+          className="rounded-18 border border-border bg-surface p-5"
         >
-          <p className="text-sm font-bold text-[#163B2E]">
+          <p className="text-sm font-bold text-brand-dark">
             Cuéntale a la comunidad quién eres
           </p>
 
-          <p className="mt-1 text-xs leading-5 text-gray-500">
+          <p className="mt-1 text-xs leading-5 text-muted">
             Esta solicitud es para ocupar una plaza abierta. El
             administrador revisará tu perfil y tu mensaje antes de decidir.
           </p>
@@ -168,11 +168,11 @@ export default function CommunityApplicationAction({
             user?.rental_budget !== undefined) && (
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               {community.monthly_rent !== null && (
-                <div className="rounded-xl bg-[#F8FAFC] px-3 py-2">
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                <div className="rounded-14 bg-surface-muted px-3 py-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-muted">
                     Aportación mensual esperada
                   </p>
-                  <p className="mt-0.5 text-sm font-bold text-[#163B2E]">
+                  <p className="mt-0.5 text-sm font-bold text-brand-dark">
                     {community.monthly_rent.toLocaleString("es-ES")} €/mes
                   </p>
                 </div>
@@ -180,11 +180,11 @@ export default function CommunityApplicationAction({
 
               {user?.rental_budget !== null &&
                 user?.rental_budget !== undefined && (
-                  <div className="rounded-xl bg-[#F8FAFC] px-3 py-2">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                  <div className="rounded-14 bg-surface-muted px-3 py-2">
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-muted">
                       Tu presupuesto
                     </p>
-                    <p className="mt-0.5 text-sm font-bold text-[#163B2E]">
+                    <p className="mt-0.5 text-sm font-bold text-brand-dark">
                       Hasta {user.rental_budget.toLocaleString("es-ES")} €/mes
                     </p>
                   </div>
@@ -199,10 +199,10 @@ export default function CommunityApplicationAction({
             maxLength={MAX_MESSAGE_LENGTH}
             rows={4}
             disabled={submitting}
-            className="mt-3 w-full resize-none rounded-2xl border border-gray-200 bg-[#F8FAFC] px-4 py-3 text-sm leading-6 text-[#163B2E] outline-none transition focus:border-green-400 disabled:opacity-60"
+            className="mt-3 w-full resize-none rounded-18 border border-border bg-surface-muted px-4 py-3 text-sm leading-6 text-brand-dark outline-none transition focus:border-primary disabled:opacity-60"
           />
 
-          <p className="mt-1 text-right text-xs text-gray-400">
+          <p className="mt-1 text-right text-xs text-muted">
             {message.length}/{MAX_MESSAGE_LENGTH}
           </p>
 
@@ -216,7 +216,7 @@ export default function CommunityApplicationAction({
             <button
               type="submit"
               disabled={submitting}
-              className="flex h-12 flex-1 items-center justify-center rounded-xl bg-green-500 text-sm font-bold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-12 flex-1 items-center justify-center rounded-14 bg-primary text-sm font-bold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting ? "Enviando..." : "Enviar solicitud"}
             </button>
@@ -228,7 +228,7 @@ export default function CommunityApplicationAction({
                 setError("");
               }}
               disabled={submitting}
-              className="flex h-12 flex-1 items-center justify-center rounded-xl border border-gray-200 bg-white text-sm font-bold text-[#163B2E] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-12 flex-1 items-center justify-center rounded-14 border border-border bg-surface text-sm font-bold text-brand-dark transition hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60"
             >
               Cancelar
             </button>
@@ -241,7 +241,7 @@ export default function CommunityApplicationAction({
   return (
     <div className={previousOutcome ? "sm:col-span-2" : undefined}>
       {previousOutcome && (
-        <p className="mb-2 text-xs font-semibold text-gray-400">
+        <p className="mb-2 text-xs font-semibold text-muted">
           {previousOutcome}
         </p>
       )}
@@ -249,7 +249,7 @@ export default function CommunityApplicationAction({
       <button
         type="button"
         onClick={() => setShowForm(true)}
-        className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-green-500 px-5 text-sm font-bold text-white shadow-lg shadow-green-500/20 transition hover:-translate-y-0.5 hover:bg-green-600"
+        className="flex h-14 w-full items-center justify-center gap-2 rounded-18 bg-primary px-5 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-primary-hover"
       >
         <SendIcon />
         Enviar solicitud

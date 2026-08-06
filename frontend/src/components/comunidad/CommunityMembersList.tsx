@@ -8,7 +8,7 @@ export default function CommunityMembersList({
 }) {
   if (members.length === 0) {
     return (
-      <p className="rounded-2xl border border-dashed border-gray-200 bg-[#F8FAFC] p-6 text-center text-sm text-gray-500">
+      <p className="rounded-18 border border-dashed border-border bg-surface-muted p-6 text-center text-sm text-muted">
         Todavía no hay miembros registrados.
       </p>
     );
@@ -40,13 +40,13 @@ function CommunityMemberRow({ member }: { member: CommunityMember }) {
   return (
     <Link
       href={`/personas/${member.user_id}`}
-      className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-[#F8FAFC] p-4 transition active:scale-[0.98] hover:border-green-200"
+      className="flex items-center gap-4 rounded-18 border border-border bg-surface-muted p-4 transition active:scale-[0.98] hover:border-primary/30"
     >
       <div
-        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-bold ${
+        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-18 text-sm font-bold ${
           member.role === "OWNER"
-            ? "bg-[#163B2E] text-white"
-            : "bg-white text-green-700 shadow-sm"
+            ? "bg-brand-dark text-white"
+            : "bg-surface text-primary-dark shadow-soft"
         }`}
       >
         {initials || "CF"}
@@ -54,22 +54,22 @@ function CommunityMemberRow({ member }: { member: CommunityMember }) {
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="truncate text-sm font-bold text-[#163B2E]">
+          <p className="truncate text-sm font-bold text-brand-dark">
             {fullName || "Miembro de CoFlow"}
           </p>
 
           <span
             className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
               member.role === "OWNER"
-                ? "bg-green-100 text-green-800"
-                : "bg-white text-gray-500"
+                ? "bg-mint-100 text-primary-dark"
+                : "bg-surface text-muted"
             }`}
           >
             {member.role === "OWNER" ? "Administrador" : "Miembro"}
           </span>
         </div>
 
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-muted">
           {member.role === "OWNER"
             ? "Creador de la comunidad"
             : `Se unió ${joinedDate}`}
@@ -90,7 +90,7 @@ function ChevronIcon() {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="h-4 w-4 shrink-0 text-gray-300"
+      className="h-4 w-4 shrink-0 text-muted"
       aria-hidden="true"
     >
       <path d="m9 18 6-6-6-6" />

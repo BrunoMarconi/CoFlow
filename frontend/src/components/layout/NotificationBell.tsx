@@ -110,7 +110,7 @@ export default function NotificationBell() {
         onClick={() => setOpen((current) => !current)}
         aria-label="Notificaciones"
         aria-expanded={open}
-        className="relative flex h-11 w-11 items-center justify-center rounded-xl text-gray-500 transition hover:bg-gray-100 hover:text-[#163B2E] active:scale-95"
+        className="relative flex h-11 w-11 items-center justify-center rounded-xl text-muted transition hover:bg-surface-soft hover:text-brand-dark active:scale-95"
       >
         <BellIcon />
 
@@ -122,9 +122,9 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="fixed inset-x-4 top-[calc(var(--safe-top)+4rem)] z-(--z-modal) max-h-[70dvh] overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl sm:absolute sm:inset-x-auto sm:right-0 sm:top-14 sm:w-96">
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-            <p className="text-sm font-bold text-[#163B2E]">
+        <div className="fixed inset-x-4 top-[calc(var(--safe-top)+4.5rem)] z-(--z-modal) max-h-[70dvh] overflow-hidden rounded-18 border border-border bg-surface shadow-soft sm:absolute sm:inset-x-auto sm:right-0 sm:top-16 sm:w-96">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <p className="text-sm font-bold text-brand-dark">
               Notificaciones
             </p>
 
@@ -132,7 +132,7 @@ export default function NotificationBell() {
               <button
                 type="button"
                 onClick={handleMarkAllRead}
-                className="text-xs font-bold text-green-700 hover:text-green-800"
+                className="text-xs font-bold text-primary-dark hover:text-brand-dark"
               >
                 Marcar todas como leídas
               </button>
@@ -141,7 +141,7 @@ export default function NotificationBell() {
 
           <div className="max-h-[calc(70dvh-3rem)] overflow-y-auto sm:max-h-96">
             {loading ? (
-              <p className="p-6 text-center text-sm text-gray-400">
+              <p className="p-6 text-center text-sm text-muted">
                 Cargando...
               </p>
             ) : error ? (
@@ -149,7 +149,7 @@ export default function NotificationBell() {
                 {error}
               </p>
             ) : notifications.length === 0 ? (
-              <p className="p-6 text-center text-sm text-gray-400">
+              <p className="p-6 text-center text-sm text-muted">
                 Todavía no tienes notificaciones.
               </p>
             ) : (
@@ -159,25 +159,25 @@ export default function NotificationBell() {
                     <button
                       type="button"
                       onClick={() => handleOpenNotification(notification)}
-                      className={`flex w-full flex-col items-start gap-1 border-b border-gray-50 px-4 py-3 text-left transition hover:bg-gray-50 ${
-                        notification.is_read ? "" : "bg-green-50/50"
+                      className={`flex w-full flex-col items-start gap-1 border-b border-border px-4 py-3 text-left transition hover:bg-surface-soft ${
+                        notification.is_read ? "" : "bg-mint-50"
                       }`}
                     >
                       <div className="flex w-full items-start justify-between gap-2">
-                        <p className="text-sm font-bold text-[#163B2E]">
+                        <p className="text-sm font-bold text-brand-dark">
                           {notification.title}
                         </p>
 
                         {!notification.is_read && (
-                          <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-green-500" />
+                          <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
                         )}
                       </div>
 
-                      <p className="text-xs leading-5 text-gray-500">
+                      <p className="text-xs leading-5 text-secondary">
                         {notification.message}
                       </p>
 
-                      <p className="text-[11px] text-gray-400">
+                      <p className="text-[11px] text-muted">
                         {formatNotificationDate(notification.created_at)}
                       </p>
                     </button>

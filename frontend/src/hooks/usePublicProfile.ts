@@ -13,6 +13,12 @@ export function usePublicProfile(id: string) {
     let active = true;
 
     function fetchProfile() {
+      if (!id) {
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setNotFound(false);
 

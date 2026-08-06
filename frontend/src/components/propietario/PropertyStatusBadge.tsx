@@ -6,7 +6,7 @@ const STATUS_META: Record<
 > = {
   DRAFT: {
     label: "Borrador",
-    className: "bg-gray-100 text-gray-600",
+    className: "bg-surface-soft text-secondary",
   },
   READY: {
     label: "Preparado para el lanzamiento",
@@ -26,7 +26,7 @@ const STATUS_META: Record<
   },
   ARCHIVED: {
     label: "Archivado",
-    className: "bg-gray-200 text-gray-500",
+    className: "bg-surface-soft text-muted",
   },
 };
 

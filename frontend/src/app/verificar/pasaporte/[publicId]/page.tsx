@@ -80,8 +80,8 @@ export default function VerificarPasaportePage() {
   }, [params.publicId]);
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-gray-50 px-4 py-10 sm:items-center">
-      <div className="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
+    <div className="flex min-h-screen items-start justify-center bg-surface-soft px-4 py-10 sm:items-center">
+      <div className="w-full max-w-md rounded-18 border border-border bg-surface p-6 shadow-soft sm:p-8">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand">
           CoFlow
         </p>
@@ -94,7 +94,7 @@ export default function VerificarPasaportePage() {
         )}
 
         {view === "not-found" && (
-          <p className="mt-6 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-600">
+          <p className="mt-6 rounded-18 border border-border bg-surface-soft px-4 py-3 text-sm font-semibold text-secondary">
             Documento no encontrado o enlace no válido.
           </p>
         )}
@@ -108,7 +108,7 @@ export default function VerificarPasaportePage() {
               <span
                 className={`rounded-full px-3 py-1 text-xs font-bold ${
                   passport.status === "ISSUED"
-                    ? "bg-green-100 text-green-700"
+                    ? "bg-mint-100 text-primary-dark"
                     : "bg-red-100 text-red-700"
                 }`}
               >
@@ -117,13 +117,13 @@ export default function VerificarPasaportePage() {
             </div>
 
             {passport.status !== "ISSUED" && (
-              <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-700">
+              <p className="mt-4 rounded-14 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-700">
                 Este documento ya no es válido. No debe considerarse
                 vigente.
               </p>
             )}
 
-            <div className="mt-5 rounded-2xl bg-brand/5 p-5">
+            <div className="mt-5 rounded-18 bg-brand/5 p-5">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand">
                 Capacidad orientativa
               </p>
@@ -158,7 +158,7 @@ export default function VerificarPasaportePage() {
             </dl>
 
             {passport.sandbox_notice && (
-              <p className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-700">
+              <p className="mt-5 rounded-14 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-700">
                 {passport.sandbox_notice}
               </p>
             )}

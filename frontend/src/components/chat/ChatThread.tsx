@@ -241,10 +241,10 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   return (
     <div
       className={cn(
-        "flex flex-col overflow-hidden bg-white shadow-sm",
+        "flex flex-col overflow-hidden bg-surface shadow-soft",
         variant === "full"
-          ? "h-full min-h-0 rounded-none border-0 sm:h-[min(72dvh,640px)] sm:min-h-[420px] sm:rounded-[1.75rem] sm:border sm:border-gray-100"
-          : "h-[min(78dvh,640px)] min-h-[420px] rounded-[1.75rem] border border-gray-100 sm:h-[min(72dvh,640px)]"
+          ? "h-full min-h-0 rounded-none border-0 sm:h-[min(72dvh,640px)] sm:min-h-[420px] sm:rounded-18 sm:border sm:border-border"
+          : "h-[min(78dvh,640px)] min-h-[420px] rounded-18 border border-border sm:h-[min(72dvh,640px)]"
       )}
     >
       <div className="relative min-h-0 flex-1">
@@ -265,10 +265,10 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
             </div>
           ) : messages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-1.5 px-6 text-center">
-              <p className="text-sm font-semibold text-[#163B2E]">
+              <p className="text-sm font-semibold text-brand-dark">
                 Todavía no hay mensajes.
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted">
                 Escribe el primero para empezar la conversación.
               </p>
             </div>
@@ -288,7 +288,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           <button
             type="button"
             onClick={scrollToRecent}
-            className="absolute bottom-3 left-1/2 flex h-10 -translate-x-1/2 items-center gap-2 rounded-full bg-[#163B2E] px-4 text-xs font-bold text-white shadow-lg transition active:scale-95"
+            className="absolute bottom-3 left-1/2 flex h-10 -translate-x-1/2 items-center gap-2 rounded-full bg-primary px-4 text-xs font-bold text-white shadow-soft transition active:scale-95"
           >
             <DownArrowIcon />
             {newArrivals > 0
@@ -302,7 +302,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
 
       <form
         onSubmit={handleSubmit}
-        className="flex items-end gap-2 border-t border-gray-100 p-3 pb-[max(0.75rem,var(--safe-bottom))] sm:gap-3 sm:p-4"
+        className="flex items-end gap-2 border-t border-border p-3 pb-[max(0.75rem,var(--safe-bottom))] sm:gap-3 sm:p-4"
       >
         <textarea
           ref={textareaRef}
@@ -316,14 +316,14 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           maxLength={2000}
           disabled={sending}
           rows={1}
-          className="max-h-[120px] min-h-11 min-w-0 flex-1 resize-none rounded-2xl border border-gray-200 bg-[#F8FAFC] px-4 py-2.5 text-base leading-6 text-[#163B2E] outline-none transition focus:border-green-400 disabled:opacity-60"
+          className="max-h-[120px] min-h-11 min-w-0 flex-1 resize-none rounded-14 border border-border bg-surface-muted px-4 py-2.5 text-base leading-6 text-foreground outline-none transition focus:border-primary disabled:opacity-60"
         />
 
         <button
           type="submit"
           disabled={sending || !content.trim()}
           aria-label="Enviar mensaje"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-green-500 text-white transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:gap-2 sm:px-5"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 bg-primary text-white transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:gap-2 sm:px-5"
         >
           {sending ? <LoadingIcon /> : <SendIcon />}
           <span className="hidden text-sm font-bold sm:inline">Enviar</span>
@@ -372,21 +372,21 @@ const MessageBubble = memo(function MessageBubble({
     >
       <div
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-          isOwn ? "bg-green-500 text-white" : "bg-[#163B2E] text-white"
+          isOwn ? "bg-primary text-white" : "bg-brand-dark text-white"
         }`}
       >
         {initials || "CF"}
       </div>
 
       <div
-        className={`max-w-[82%] min-w-0 rounded-2xl px-4 py-3 ${
+        className={`max-w-[82%] min-w-0 rounded-18 px-4 py-3 ${
           isOwn
-            ? "rounded-br-md bg-green-500 text-white"
-            : "rounded-bl-md bg-[#F8FAFC] text-[#163B2E]"
+            ? "rounded-br-md bg-primary text-white"
+            : "rounded-bl-md border border-border bg-surface text-foreground"
         }`}
       >
         {!isOwn && showSenderName && (
-          <p className="truncate text-xs font-bold text-green-700">
+          <p className="truncate text-xs font-bold text-primary-dark">
             {fullName || "Miembro de CoFlow"}
           </p>
         )}
@@ -397,7 +397,7 @@ const MessageBubble = memo(function MessageBubble({
 
         <p
           className={`mt-1 text-[10px] font-semibold ${
-            isOwn ? "text-white/70" : "text-gray-400"
+            isOwn ? "text-white/70" : "text-muted"
           }`}
         >
           {time}
@@ -422,7 +422,7 @@ function formatMessageTime(value: string) {
 
 function Spinner() {
   return (
-    <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-green-500" />
+    <div className="h-8 w-8 animate-spin rounded-full border-4 border-surface-muted border-t-primary" />
   );
 }
 

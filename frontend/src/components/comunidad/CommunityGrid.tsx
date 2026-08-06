@@ -19,7 +19,7 @@ export default function CommunityGrid({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
       {communities.map((community, index) => (
         <div
           key={community.id}

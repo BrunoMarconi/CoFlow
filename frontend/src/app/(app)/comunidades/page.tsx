@@ -10,27 +10,19 @@ import { useSearchParams } from "next/navigation";
 
 import { useCommunities } from "@/hooks/useCommunities";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  getProfileTypeLabel,
-  COMMUNITY_PROFILE_TYPE_OPTIONS,
-} from "@/lib/communityProfileType";
+import { getProfileTypeLabel } from "@/lib/communityProfileType";
 import CommunityGrid from "@/components/comunidad/CommunityGrid";
-import CommunitiesHero from "@/components/comunidad/CommunitiesHero";
-import LifestyleChips from "@/components/comunidad/LifestyleChips";
-import PopularCityChips from "@/components/comunidad/PopularCityChips";
-import PeopleTeaserStrip from "@/components/comunidad/PeopleTeaserStrip";
 import CommunityFilters, {
   defaultCommunityFilters,
   isCommunityFiltersActive,
   type CommunityFilterState,
 } from "@/components/comunidad/CommunityFilters";
+import PageHeader from "@/components/ui/PageHeader";
 import SectionHeader from "@/components/ui/SectionHeader";
 import SearchInput from "@/components/ui/SearchInput";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SecondaryButton from "@/components/ui/SecondaryButton";
-import SoftButton from "@/components/ui/SoftButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
-import type { CommunityProfileType } from "@/types/community";
 
 export default function ComunidadesPage() {
   const [cityInput, setCityInput] = useState("");
@@ -44,7 +36,6 @@ export default function ComunidadesPage() {
   const justLeft = searchParams.get("left") === "1";
 
   const {
-    user,
     community: myCommunity,
     communityLoading: loadingMyCommunity,
   } = useAuth();
@@ -59,29 +50,6 @@ export default function ComunidadesPage() {
     profile_type:
       filters.profileType !== "ALL" ? filters.profileType : undefined,
   });
-
-  const communitiesWithSpots = useMemo(
-    () => communities.filter((c) => c.open_spots > 0 && !c.is_full),
-    [communities]
-  );
-
-  const totalOpenSpots = useMemo(
-    () => communitiesWithSpots.reduce((sum, c) => sum + c.open_spots, 0),
-    [communitiesWithSpots]
-  );
-
-  const popularCities = useMemo(() => {
-    const counts = new Map<string, number>();
-
-    for (const community of communities) {
-      counts.set(community.city, (counts.get(community.city) ?? 0) + 1);
-    }
-
-    return Array.from(counts.entries())
-      .map(([city, count]) => ({ city, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 6);
-  }, [communities]);
 
   const matchesFilters = useMemo(() => {
     const maxBudgetValue = filters.maxBudget
@@ -147,9 +115,10 @@ export default function ComunidadesPage() {
     [communities, matchesFilters]
   );
 
-  const visibleCommunities = filters.showNoSpots
-    ? [...withSpots, ...withoutSpots]
-    : withSpots;
+  const visibleCommunities = useMemo(
+    () => (filters.showNoSpots ? [...withSpots, ...withoutSpots] : withSpots),
+    [filters.showNoSpots, withSpots, withoutSpots]
+  );
 
   function handleFilterSubmit(
     event: FormEvent<HTMLFormElement>
@@ -179,82 +148,63 @@ export default function ComunidadesPage() {
 
   return (
     <div>
-      <div className="relative">
-        <CommunitiesHero
-          firstName={user?.first_name}
-          communitiesWithSpots={communitiesWithSpots.length}
-          totalOpenSpots={totalOpenSpots}
-          cityCount={popularCities.length}
-        />
-
-        {!loadingMyCommunity && (
-          <div className="absolute right-6 top-6 hidden sm:block">
-            <PrimaryButton
-              href={actionHref}
-              className="bg-white text-brand-dark shadow-none hover:bg-white/90 hover:text-brand-dark"
-            >
+      <PageHeader
+        title="Encuentra tu próxima comunidad"
+        subtitle="Descubre casas y personas con las que de verdad encajes."
+        action={
+          !loadingMyCommunity && (
+            <PrimaryButton href={actionHref} className="hidden sm:inline-flex">
               {myCommunity ? <UsersIcon /> : <PlusIcon />}
               {actionLabel}
             </PrimaryButton>
-          </div>
-        )}
-
-        <form
-          onSubmit={handleFilterSubmit}
-          className="relative z-10 mx-4 -mt-8 flex flex-col gap-2 rounded-24 border border-border bg-surface p-4 shadow-soft sm:mx-8 sm:flex-row sm:items-center"
-        >
-          <SearchInput
-            value={cityInput}
-            onChange={(event) => setCityInput(event.target.value)}
-            onClear={clearCitySearch}
-            placeholder="Ciudad, barrio o comunidad"
-            className="flex-1"
-          />
-
-          <select
-            value={filters.profileType}
-            onChange={(event) =>
-              setFilters((current) => ({
-                ...current,
-                profileType: event.target.value as
-                  | CommunityProfileType
-                  | "ALL",
-              }))
-            }
-            className="h-11.5 shrink-0 rounded-14 border border-border bg-surface px-4 text-sm font-semibold text-foreground focus:border-primary focus:outline-none"
-          >
-            <option value="ALL">Cualquier tipo</option>
-            {COMMUNITY_PROFILE_TYPE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-
-          <div className="flex gap-2">
-            <PrimaryButton type="submit" className="flex-1 sm:flex-none">
-              Buscar
-            </PrimaryButton>
-
-            <SoftButton
-              type="button"
-              onClick={() => setFiltersOpen((current) => !current)}
-              aria-expanded={filtersOpen}
-              active={filtersOpen || isCommunityFiltersActive(filters)}
-              className="flex-1 sm:flex-none"
-            >
-              <FilterIcon />
-              Filtros
-            </SoftButton>
-          </div>
-        </form>
-      </div>
+          )
+        }
+      />
 
       {justLeft && (
-        <p className="mt-6 rounded-14 border border-green-100 bg-green-50 px-5 py-4 text-sm font-semibold text-green-700">
+        <p className="mt-5 rounded-14 border border-primary/30 bg-mint-50 px-5 py-4 text-sm font-semibold text-primary-dark">
           Has abandonado la comunidad correctamente.
         </p>
       )}
+
+      <form
+        onSubmit={handleFilterSubmit}
+        className="mt-7 flex h-14 items-center gap-1 rounded-full border border-border bg-surface py-1 pl-5 pr-1.5 shadow-soft transition-all duration-180 focus-within:border-primary focus-within:ring-4 focus-within:ring-mint-100"
+      >
+        <SearchInput
+          bare
+          value={cityInput}
+          onChange={(event) => setCityInput(event.target.value)}
+          onClear={clearCitySearch}
+          placeholder="Buscar ciudad, barrio o comunidad"
+        />
+
+        <span
+          aria-hidden="true"
+          className="hidden h-7 w-px shrink-0 bg-border sm:block"
+        />
+
+        <button
+          type="button"
+          onClick={() => setFiltersOpen((current) => !current)}
+          aria-expanded={filtersOpen}
+          className={`flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-sm font-bold transition-colors duration-180 sm:px-4 ${
+            filtersOpen || isCommunityFiltersActive(filters)
+              ? "bg-mint-100 text-primary-dark"
+              : "text-secondary hover:bg-surface-soft"
+          }`}
+        >
+          <FilterIcon />
+          <span className="hidden sm:inline">Filtros</span>
+        </button>
+
+        <button
+          type="submit"
+          className="flex h-11 shrink-0 items-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-white transition-all duration-180 hover:-translate-y-0.5 hover:bg-primary-hover"
+        >
+          Buscar
+        </button>
+      </form>
 
       {(cityFilter || activeChips.length > 0) && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -262,7 +212,7 @@ export default function ComunidadesPage() {
             <button
               type="button"
               onClick={clearCitySearch}
-              className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-bold text-green-700 transition hover:bg-green-100"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-mint-50 px-4 py-2 text-sm font-bold text-primary-dark transition hover:bg-mint-100"
             >
               {cityFilter}
               <CloseIcon />
@@ -274,7 +224,7 @@ export default function ComunidadesPage() {
               key={chip.key}
               type="button"
               onClick={chip.onRemove}
-              className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-bold text-green-700 transition hover:bg-green-100"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-mint-50 px-4 py-2 text-sm font-bold text-primary-dark transition hover:bg-mint-100"
             >
               {chip.label}
               <CloseIcon />
@@ -294,26 +244,7 @@ export default function ComunidadesPage() {
         </div>
       )}
 
-      <div className="mt-10 flex flex-col gap-10">
-        <LifestyleChips
-          active={filters.profileType}
-          onSelect={(value) =>
-            setFilters((current) => ({ ...current, profileType: value }))
-          }
-        />
-
-        <PopularCityChips
-          cities={popularCities}
-          onSelect={(city) => {
-            setCityInput(city);
-            setCityFilter(city);
-          }}
-        />
-
-        <PeopleTeaserStrip />
-      </div>
-
-      <section className="mt-10">
+      <section className="mt-8">
         <SectionHeader
           title={
             cityFilter
@@ -329,17 +260,13 @@ export default function ComunidadesPage() {
                 }`
               : undefined
           }
-          className="mb-4"
+          className="mb-5"
         />
 
         {loading && (
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
             {Array.from({ length: 4 }).map((_, index) => (
-              <SkeletonCard
-                key={index}
-                withCover
-                coverClassName="h-44 sm:h-52"
-              />
+              <SkeletonCard key={index} withCover coverClassName="h-32 sm:h-36" />
             ))}
           </div>
         )}
@@ -372,7 +299,7 @@ export default function ComunidadesPage() {
         <Link
           href={actionHref}
           aria-label={actionLabel}
-          className="fixed bottom-24 right-5 z-30 flex h-14 items-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-white shadow-[0_12px_35px_rgba(34,197,94,0.35)] transition active:scale-95 sm:hidden"
+          className="fixed bottom-24 right-5 z-30 flex h-14 items-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-white shadow-soft transition active:scale-95 sm:hidden"
         >
           {myCommunity ? <UsersIcon /> : <PlusIcon />}
           {myCommunity ? "Mi comunidad" : "Crear"}

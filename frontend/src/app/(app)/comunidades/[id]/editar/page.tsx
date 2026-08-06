@@ -114,11 +114,11 @@ export default function EditarComunidadPage() {
           Acceso denegado
         </p>
 
-        <h1 className="mt-3 text-3xl font-bold text-[#163B2E]">
+        <h1 className="mt-3 text-3xl font-bold text-brand-dark">
           No puedes editar esta comunidad
         </h1>
 
-        <p className="mt-4 text-gray-500">
+        <p className="mt-4 text-muted">
           Solo el administrador que creó la comunidad
           puede modificarla.
         </p>
@@ -128,7 +128,7 @@ export default function EditarComunidadPage() {
           onClick={() =>
             router.push(`/comunidades/${params.id}`)
           }
-          className="mt-7 rounded-2xl bg-green-500 px-6 py-3 text-sm font-bold text-white"
+          className="mt-7 rounded-18 bg-primary px-6 py-3 text-sm font-bold text-white"
         >
           Volver a la comunidad
         </button>
@@ -139,11 +139,11 @@ export default function EditarComunidadPage() {
   if (!community || !community.preferences) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center text-center">
-        <h1 className="text-2xl font-bold text-[#163B2E]">
+        <h1 className="text-2xl font-bold text-brand-dark">
           No podemos editar esta comunidad
         </h1>
 
-        <p className="mt-3 text-gray-500">
+        <p className="mt-3 text-muted">
           La comunidad no existe o todavía no tiene sus
           preferencias configuradas.
         </p>
@@ -159,7 +159,7 @@ export default function EditarComunidadPage() {
           onClick={() =>
             router.push("/comunidades")
           }
-          className="mt-7 rounded-2xl bg-green-500 px-6 py-3 text-sm font-bold text-white"
+          className="mt-7 rounded-18 bg-primary px-6 py-3 text-sm font-bold text-white"
         >
           Volver a comunidades
         </button>

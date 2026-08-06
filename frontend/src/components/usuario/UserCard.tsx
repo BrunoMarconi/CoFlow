@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import StatusBadge from "@/components/ui/StatusBadge";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { saveUserProfile, unsaveUserProfile } from "@/services/users";
 import type { UserPublicProfile } from "@/types/userPublic";
@@ -30,6 +29,12 @@ export default function UserCard({ user }: { user: UserPublicProfile }) {
     user.preferences?.smoking,
   ].filter((trait): trait is string => Boolean(trait));
 
+  const cityLabel = user.community
+    ? user.community.city
+    : user.is_owner
+      ? "Propietario"
+      : "Buscando comunidad";
+
   const connectionLabel = CONNECTION_LABELS[user.connection_status];
 
   async function handleToggleSave(event: React.MouseEvent) {
@@ -55,10 +60,10 @@ export default function UserCard({ user }: { user: UserPublicProfile }) {
   }
 
   return (
-    <article className="flex h-full flex-col items-center rounded-18 border border-border bg-surface p-6 text-center shadow-soft transition-all duration-180 ease-out sm:hover:-translate-y-0.5 sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]">
+    <article className="relative flex h-full flex-col overflow-hidden rounded-18 border border-border bg-surface shadow-soft transition-all duration-180 ease-out sm:hover:-translate-y-0.5 sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]">
       <Link
         href={`/personas/${user.id}`}
-        className="flex flex-col items-center active:scale-[0.99]"
+        className="flex items-center justify-center bg-mint-50 py-8 active:scale-[0.99]"
       >
         <UserAvatar
           firstName={user.first_name}
@@ -66,65 +71,83 @@ export default function UserCard({ user }: { user: UserPublicProfile }) {
           userId={user.id}
           size="xl"
         />
+      </Link>
 
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
-          <h3 className="truncate text-lg font-bold text-foreground">
-            {fullName || "Persona de CoFlow"}
-          </h3>
+      <button
+        type="button"
+        onClick={handleToggleSave}
+        disabled={saving}
+        aria-label={saved ? "Quitar de guardados" : "Guardar perfil"}
+        aria-pressed={saved}
+        title={saved ? "Quitar de guardados" : "Guardar perfil"}
+        className={`absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border transition-colors duration-180 disabled:cursor-not-allowed disabled:opacity-60 ${
+          saved
+            ? "border-primary bg-mint-100 text-brand-dark"
+            : "border-border bg-surface text-muted hover:border-primary/40"
+        }`}
+      >
+        <BookmarkIcon filled={saved} />
+      </button>
 
-          {user.is_owner && (
-            <StatusBadge variant="info" className="shrink-0">
-              Propietario
-            </StatusBadge>
-          )}
-        </div>
+      <div className="flex flex-1 flex-col p-4 text-center sm:p-5">
+        <h3 className="truncate text-lg font-bold text-foreground">
+          {fullName || "Persona de CoFlow"}
+        </h3>
 
         <p className="truncate text-sm font-medium text-secondary">
-          {user.community ? user.community.city : "Buscando comunidad"}
+          {cityLabel}
         </p>
 
         {connectionLabel && (
-          <span className="mt-2 inline-flex items-center rounded-full bg-mint-100 px-2 py-0.5 text-[11px] font-bold text-brand-dark">
+          <span className="mx-auto mt-2 inline-flex items-center rounded-full bg-mint-100 px-2 py-0.5 text-[11px] font-bold text-brand-dark">
             {connectionLabel}
           </span>
         )}
-      </Link>
 
-      <span className="mt-4 inline-flex w-fit items-center rounded-full bg-surface-muted px-3 py-1 text-xs font-bold text-brand-dark">
-        {budgetLabel}
-      </span>
+        <span className="mx-auto mt-3 inline-flex w-fit items-center rounded-full bg-surface-muted px-3 py-1 text-xs font-bold text-brand-dark">
+          {budgetLabel}
+        </span>
 
-      {traits.length > 0 && (
-        <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted">
-          {traits.join(" · ")}
-        </p>
-      )}
+        {traits.length > 0 && (
+          <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+            {traits.slice(0, 3).map((trait) => (
+              <span
+                key={trait}
+                className="inline-flex items-center rounded-full bg-mint-50 px-2.5 py-1 text-[11px] font-bold text-primary-dark"
+              >
+                {trait}
+              </span>
+            ))}
+          </div>
+        )}
 
-      <div className="mt-auto flex w-full items-center gap-2 pt-5">
         <Link
           href={`/personas/${user.id}`}
-          className="flex h-11 flex-1 items-center justify-center rounded-14 bg-brand-dark text-sm font-bold text-white transition-colors duration-180 hover:bg-brand-dark/90"
+          className="-mx-4 mt-auto flex items-center justify-center gap-2 border-t border-border pt-3 text-sm font-bold text-brand-dark transition-colors duration-180 hover:text-primary sm:-mx-5"
         >
           Ver perfil
+          <ArrowIcon />
         </Link>
-
-        <button
-          type="button"
-          onClick={handleToggleSave}
-          disabled={saving}
-          aria-label={saved ? "Quitar de guardados" : "Guardar perfil"}
-          aria-pressed={saved}
-          title={saved ? "Quitar de guardados" : "Guardar perfil"}
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-14 border transition-colors duration-180 disabled:cursor-not-allowed disabled:opacity-60 ${
-            saved
-              ? "border-primary bg-mint-100 text-brand-dark"
-              : "border-border bg-surface text-muted hover:border-primary/40"
-          }`}
-        >
-          <BookmarkIcon filled={saved} />
-        </button>
       </div>
     </article>
+  );
+}
+
+function ArrowIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4"
+      aria-hidden="true"
+    >
+      <path d="M5 12h14" />
+      <path d="m13 6 6 6-6 6" />
+    </svg>
   );
 }
 

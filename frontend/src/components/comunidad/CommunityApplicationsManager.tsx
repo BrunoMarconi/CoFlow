@@ -104,20 +104,20 @@ export default function CommunityApplicationsManager({
   }
 
   return (
-    <section className="rounded-[1.75rem] border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-18 border border-border bg-surface p-5 shadow-soft sm:p-6">
       <div className="flex items-center gap-2">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
           Solicitudes
         </p>
 
         {pendingCount > 0 && (
-          <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-bold text-green-800">
+          <span className="rounded-full bg-mint-100 px-2.5 py-0.5 text-xs font-bold text-primary-dark">
             {pendingCount}
           </span>
         )}
       </div>
 
-      <p className="mt-2 text-sm leading-6 text-gray-500">
+      <p className="mt-2 text-sm leading-6 text-muted">
         Esta solicitud es para ocupar una plaza abierta en la comunidad.
         El administrador revisa el perfil antes de decidir.
       </p>
@@ -130,13 +130,13 @@ export default function CommunityApplicationsManager({
 
       <div className="mt-5 space-y-3">
         {loading ? (
-          <p className="text-center text-sm text-gray-400">Cargando...</p>
+          <p className="text-center text-sm text-muted">Cargando...</p>
         ) : loadError ? (
           <p className="text-center text-sm font-semibold text-red-600">
             {loadError}
           </p>
         ) : applications.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-gray-200 bg-[#F8FAFC] p-6 text-center text-sm text-gray-500">
+          <p className="rounded-18 border border-dashed border-border bg-surface-muted p-6 text-center text-sm text-muted">
             Todavía no habéis recibido solicitudes.
           </p>
         ) : (
@@ -206,9 +206,9 @@ function ApplicationRow({
       : "Presupuesto no indicado";
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-[#F8FAFC] p-4">
+    <div className="rounded-18 border border-border bg-surface-muted p-4">
       <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-sm font-bold text-green-700 shadow-sm">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-18 bg-surface text-sm font-bold text-primary-dark shadow-soft">
           {initials || "CF"}
         </div>
 
@@ -216,7 +216,7 @@ function ApplicationRow({
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href={`/personas/${application.applicant.id}`}
-              className="truncate text-sm font-bold text-[#163B2E] hover:text-green-700"
+              className="truncate text-sm font-bold text-brand-dark hover:text-primary-dark"
             >
               {fullName || "Persona de CoFlow"}
             </Link>
@@ -224,15 +224,15 @@ function ApplicationRow({
             <span
               className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
                 application.status === "PENDING"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-white text-gray-500"
+                  ? "bg-mint-100 text-primary-dark"
+                  : "bg-surface text-muted"
               }`}
             >
               {STATUS_LABELS[application.status] ?? application.status}
             </span>
           </div>
 
-          <p className="mt-1 text-xs font-semibold text-gray-500">
+          <p className="mt-1 text-xs font-semibold text-muted">
             {budgetLabel}
           </p>
 
@@ -245,7 +245,7 @@ function ApplicationRow({
               ).map((key) => (
                 <span
                   key={key}
-                  className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-gray-500"
+                  className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-bold text-muted"
                 >
                   {PREFERENCE_LABELS[key]}:{" "}
                   {application.applicant.preferences?.[key]}
@@ -254,11 +254,11 @@ function ApplicationRow({
             </div>
           )}
 
-          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-gray-600">
+          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-secondary">
             {application.message}
           </p>
 
-          <p className="mt-2 text-xs text-gray-400">
+          <p className="mt-2 text-xs text-muted">
             {formatDate(application.created_at)}
           </p>
         </div>
@@ -270,7 +270,7 @@ function ApplicationRow({
             type="button"
             onClick={() => setConfirming("accept")}
             disabled={actioning}
-            className="flex h-11 flex-1 items-center justify-center rounded-xl bg-green-500 text-sm font-bold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex h-11 flex-1 items-center justify-center rounded-14 bg-primary text-sm font-bold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             Aceptar
           </button>
@@ -279,7 +279,7 @@ function ApplicationRow({
             type="button"
             onClick={() => setConfirming("reject")}
             disabled={actioning}
-            className="flex h-11 flex-1 items-center justify-center rounded-xl border border-red-200 bg-white text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex h-11 flex-1 items-center justify-center rounded-14 border border-red-200 bg-surface text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Rechazar
           </button>
@@ -287,12 +287,12 @@ function ApplicationRow({
       )}
 
       {application.status === "PENDING" && confirming === "accept" && (
-        <div className="mt-4 rounded-xl border border-green-200 bg-white p-3.5">
-          <p className="text-sm font-bold text-[#163B2E]">
+        <div className="mt-4 rounded-14 border border-primary/30 bg-surface p-3.5">
+          <p className="text-sm font-bold text-brand-dark">
             ¿Quieres aceptar a esta persona?
           </p>
 
-          <p className="mt-1 text-xs leading-5 text-gray-500">
+          <p className="mt-1 text-xs leading-5 text-muted">
             Se convertirá en miembro, podrá acceder al chat grupal y se
             reducirá una plaza abierta.
           </p>
@@ -302,7 +302,7 @@ function ApplicationRow({
               type="button"
               onClick={onAccept}
               disabled={actioning}
-              className="flex h-11 flex-1 items-center justify-center rounded-xl bg-green-500 text-sm font-bold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-11 flex-1 items-center justify-center rounded-14 bg-primary text-sm font-bold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
               {actioning ? "Procesando..." : "Sí, aceptar"}
             </button>
@@ -311,7 +311,7 @@ function ApplicationRow({
               type="button"
               onClick={() => setConfirming(null)}
               disabled={actioning}
-              className="flex h-11 flex-1 items-center justify-center rounded-xl border border-gray-200 bg-white text-sm font-bold text-[#163B2E] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-11 flex-1 items-center justify-center rounded-14 border border-border bg-surface text-sm font-bold text-brand-dark transition hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60"
             >
               Cancelar
             </button>
@@ -320,12 +320,12 @@ function ApplicationRow({
       )}
 
       {application.status === "PENDING" && confirming === "reject" && (
-        <div className="mt-4 rounded-xl border border-red-200 bg-white p-3.5">
-          <p className="text-sm font-bold text-[#163B2E]">
+        <div className="mt-4 rounded-14 border border-red-200 bg-surface p-3.5">
+          <p className="text-sm font-bold text-brand-dark">
             ¿Quieres rechazar esta solicitud?
           </p>
 
-          <p className="mt-1 text-xs leading-5 text-gray-500">
+          <p className="mt-1 text-xs leading-5 text-muted">
             La persona no se unirá a la comunidad. Podrás recibir nuevas
             solicitudes mientras queden plazas abiertas.
           </p>
@@ -335,7 +335,7 @@ function ApplicationRow({
               type="button"
               onClick={onReject}
               disabled={actioning}
-              className="flex h-11 flex-1 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-sm font-bold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-11 flex-1 items-center justify-center rounded-14 border border-red-200 bg-red-50 text-sm font-bold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {actioning ? "Procesando..." : "Sí, rechazar"}
             </button>
@@ -344,7 +344,7 @@ function ApplicationRow({
               type="button"
               onClick={() => setConfirming(null)}
               disabled={actioning}
-              className="flex h-11 flex-1 items-center justify-center rounded-xl border border-gray-200 bg-white text-sm font-bold text-[#163B2E] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-11 flex-1 items-center justify-center rounded-14 border border-border bg-surface text-sm font-bold text-brand-dark transition hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60"
             >
               Cancelar
             </button>

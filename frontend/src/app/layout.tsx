@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Inter } from "next/font/google";
+import { Geist_Mono, Manrope } from "next/font/google";
 
 import AuthProvider from "@/providers/AuthProvider";
 
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const manrope = Manrope({
+  variable: "--font-manrope",
+  weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
 });
 
@@ -75,7 +76,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${inter.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      className={`${manrope.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full bg-background font-sans text-brand-dark">
         <AuthProvider>{children}</AuthProvider>

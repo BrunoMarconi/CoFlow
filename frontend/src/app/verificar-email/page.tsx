@@ -60,8 +60,8 @@ export default function VerificarEmailPage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-10">
-      <div className="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-8 text-center shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-surface-soft px-4 py-10">
+      <div className="w-full max-w-md rounded-18 border border-border bg-surface p-8 text-center shadow-soft">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand">
           CoFlow
         </p>
@@ -85,7 +85,7 @@ export default function VerificarEmailPage() {
             </p>
             <Link
               href="/login"
-              className="mt-6 inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-6 text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark"
+              className="mt-6 inline-flex h-12 items-center justify-center rounded-18 bg-brand px-6 text-sm font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-brand-dark"
             >
               Ir a iniciar sesión
             </Link>
@@ -105,7 +105,7 @@ export default function VerificarEmailPage() {
             </p>
             <Link
               href="/login"
-              className="mt-6 inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-6 text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark"
+              className="mt-6 inline-flex h-12 items-center justify-center rounded-18 bg-brand px-6 text-sm font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-brand-dark"
             >
               Ir a iniciar sesión
             </Link>

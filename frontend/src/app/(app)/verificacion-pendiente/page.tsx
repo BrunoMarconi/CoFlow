@@ -76,7 +76,7 @@ export default function VerificacionPendientePage() {
       </p>
 
       {message && (
-        <p className="mt-4 rounded-xl bg-gray-50 px-4 py-3 text-sm font-semibold text-foreground">
+        <p className="mt-4 rounded-14 bg-surface-soft px-4 py-3 text-sm font-semibold text-foreground">
           {message}
         </p>
       )}
@@ -85,7 +85,7 @@ export default function VerificacionPendientePage() {
         type="button"
         onClick={handleResend}
         disabled={sending || cooldown > 0}
-        className="mt-6 flex h-12 w-full items-center justify-center rounded-2xl bg-brand text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-6 flex h-12 w-full items-center justify-center rounded-18 bg-brand text-sm font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
       >
         {cooldown > 0
           ? `Reenviar correo (${cooldown}s)`

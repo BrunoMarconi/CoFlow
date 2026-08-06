@@ -61,14 +61,14 @@ export default function MiComunidadPage() {
         <div className="mt-7 flex flex-col gap-3 sm:flex-row">
           <Link
             href="/comunidades"
-            className="inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-6 text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark"
+            className="inline-flex h-12 items-center justify-center rounded-18 bg-brand px-6 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-brand-dark"
           >
             Explorar comunidades
           </Link>
 
           <Link
             href="/crear/comunidad"
-            className="inline-flex h-12 items-center justify-center rounded-2xl border border-line bg-surface px-6 text-sm font-bold text-foreground transition hover:border-brand/40"
+            className="inline-flex h-12 items-center justify-center rounded-18 border border-line bg-surface px-6 text-sm font-bold text-foreground transition hover:border-brand/40"
           >
             Crear una comunidad
           </Link>
@@ -94,7 +94,7 @@ export default function MiComunidadPage() {
       : "No buscan nuevos miembros ahora";
 
   const statusClass = community.is_full
-    ? "bg-gray-100 text-gray-600"
+    ? "bg-surface-soft text-secondary"
     : community.open_spots > 0
       ? "bg-surface-soft text-brand-dark"
       : "bg-amber-50 text-amber-700";
@@ -113,7 +113,7 @@ export default function MiComunidadPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl">
-      <header className="rounded-2xl border border-line bg-surface p-3.5 sm:p-5">
+      <header className="rounded-18 border border-line bg-surface p-3.5 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h1 className="truncate text-lg font-bold text-foreground sm:text-2xl">
@@ -132,7 +132,7 @@ export default function MiComunidadPage() {
               "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold sm:px-3 sm:py-1.5 sm:text-xs",
               isOwner
                 ? "bg-brand/10 text-brand-dark"
-                : "bg-gray-100 text-gray-600"
+                : "bg-surface-soft text-secondary"
             )}
           >
             {isOwner ? "Administrador" : "Miembro"}
@@ -274,7 +274,7 @@ function ResumenTab({
 }) {
   return (
     <div className="space-y-4">
-      <section className="rounded-2xl border border-line bg-surface p-4 sm:p-5">
+      <section className="rounded-18 border border-line bg-surface p-4 sm:p-5">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-dark">
           Sobre la comunidad
         </p>
@@ -284,7 +284,7 @@ function ResumenTab({
         </p>
       </section>
 
-      <section className="rounded-2xl border border-line bg-surface p-4 sm:p-5">
+      <section className="rounded-18 border border-line bg-surface p-4 sm:p-5">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-dark">
           Quiénes forman la comunidad
         </p>
@@ -301,7 +301,7 @@ function ResumenTab({
       </section>
 
       {community.preferences && (
-        <section className="rounded-2xl border border-line bg-surface p-4 sm:p-5">
+        <section className="rounded-18 border border-line bg-surface p-4 sm:p-5">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-dark">
             Información de convivencia
           </p>
@@ -343,7 +343,7 @@ function ResumenTab({
         </section>
       )}
 
-      <section className="rounded-2xl border border-line bg-surface p-4 sm:p-5">
+      <section className="rounded-18 border border-line bg-surface p-4 sm:p-5">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-dark">
           Condiciones de la plaza
         </p>
@@ -464,8 +464,8 @@ function GestionTab({
         />
       </SettingsSection>
 
-      <div className="flex items-start gap-3 rounded-2xl border border-amber-100 bg-amber-50/70 p-3.5">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+      <div className="flex items-start gap-3 rounded-18 border border-amber-100 bg-amber-50/70 p-3.5">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-amber-100 text-amber-700">
           <InfoIcon />
         </span>
 
@@ -518,7 +518,7 @@ function PreferenceRow({
   value: string;
 }) {
   return (
-    <div className="rounded-xl bg-surface-soft px-3.5 py-2.5">
+    <div className="rounded-14 bg-surface-soft px-3.5 py-2.5">
       <p className="text-xs font-semibold text-muted">{label}</p>
       <p className="mt-0.5 text-sm font-bold text-foreground">{value}</p>
     </div>

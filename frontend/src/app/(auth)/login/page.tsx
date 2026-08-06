@@ -47,7 +47,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-dvh bg-[#F8FAFC] px-6 py-12">
+    <main className="min-h-dvh bg-surface-muted px-6 py-12">
       <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-6xl items-center justify-center">
         <Card className="w-full max-w-md p-8 md:p-10">
           <Link
@@ -55,21 +55,21 @@ export default function LoginPage() {
             className="mb-10 flex items-center justify-center gap-3"
           >
             <div className="flex">
-              <div className="h-5 w-5 rounded-full bg-green-500" />
-              <div className="-ml-2 h-5 w-5 rounded-full border-2 border-white bg-green-300" />
+              <div className="h-5 w-5 rounded-full bg-primary" />
+              <div className="-ml-2 h-5 w-5 rounded-full border-2 border-white bg-mint-200" />
             </div>
 
-            <span className="text-2xl font-bold text-[#163B2E]">
+            <span className="text-2xl font-bold text-brand-dark">
               CoFlow
             </span>
           </Link>
 
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-[#163B2E]">
+            <h1 className="text-3xl font-bold text-brand-dark">
               Bienvenido de nuevo
             </h1>
 
-            <p className="mt-3 text-gray-600">
+            <p className="mt-3 text-secondary">
               Inicia sesión para continuar buscando tu próxima comunidad.
             </p>
           </div>
@@ -79,7 +79,7 @@ export default function LoginPage() {
             className="mt-8 space-y-5"
           >
             <div>
-              <label className="mb-2 block text-sm font-semibold text-[#163B2E]">
+              <label className="mb-2 block text-sm font-semibold text-brand-dark">
                 Correo electrónico
               </label>
 
@@ -93,7 +93,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-[#163B2E]">
+              <label className="mb-2 block text-sm font-semibold text-brand-dark">
                 Contraseña
               </label>
 
@@ -107,7 +107,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+              <p className="rounded-14 bg-red-50 px-4 py-3 text-sm text-red-600">
                 {error}
               </p>
             )}
@@ -121,11 +121,11 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-gray-600">
+          <p className="mt-8 text-center text-sm text-secondary">
             ¿Todavía no tienes cuenta?{" "}
             <Link
               href="/register"
-              className="font-semibold text-green-600 hover:text-green-700"
+              className="font-semibold text-primary hover:text-primary-dark"
             >
               Crear cuenta
             </Link>

@@ -21,7 +21,7 @@ export default function EditarPerfilPage() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="text-3xl font-bold text-[#163B2E]">Editar perfil</h1>
+      <h1 className="text-3xl font-bold text-brand-dark">Editar perfil</h1>
       <div className="mt-8">
         <EditProfileForm user={user} onSubmit={handleSubmit} />
       </div>

@@ -46,17 +46,16 @@ export default function CommunityCard({
             : "border-border bg-surface-muted opacity-85"
         }`}
       >
-        <CommunityCover
-          communityId={community.id}
-          name={community.name}
-          profileType={community.profile_type}
-          className={`h-44 sm:h-52 ${
-            !isLookingForMembers ? "grayscale" : ""
-          }`}
-        />
+        <div className="relative">
+          <CommunityCover
+            communityId={community.id}
+            name={community.name}
+            className={`h-32 sm:h-36 ${
+              !isLookingForMembers ? "grayscale" : ""
+            }`}
+          />
 
-        <div className="flex flex-1 flex-col p-5 sm:p-6">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="absolute inset-x-3 top-3 flex flex-wrap items-center gap-2">
             {isLookingForMembers ? (
               <>
                 <StatusBadge variant="success">
@@ -80,8 +79,10 @@ export default function CommunityCard({
               </StatusBadge>
             )}
           </div>
+        </div>
 
-          <h3 className="mt-3 truncate text-lg font-bold tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark sm:text-xl">
+        <div className="flex flex-1 flex-col p-4 sm:p-5">
+          <h3 className="truncate text-lg font-bold tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark sm:text-xl">
             {community.name}
           </h3>
 
@@ -95,7 +96,7 @@ export default function CommunityCard({
           </div>
 
           {community.monthly_rent !== null && isLookingForMembers && (
-            <p className="mt-3 text-xl font-bold text-brand-dark">
+            <p className="mt-3 text-2xl font-black tracking-[-0.01em] text-brand-dark">
               {community.monthly_rent.toLocaleString("es-ES")} €
               <span className="text-sm font-semibold text-muted">
                 /mes por persona
@@ -131,7 +132,7 @@ export default function CommunityCard({
             </p>
           )}
 
-          <div className="mt-4 flex h-11 items-center justify-center gap-2 rounded-14 bg-primary text-sm font-bold text-white transition-colors duration-180 group-hover:bg-primary-hover">
+          <div className="-mx-4 mt-auto flex items-center justify-between gap-1.5 border-t border-border px-4 pt-3 text-sm font-bold text-brand-dark sm:-mx-5 sm:px-5">
             {isOwn ? "Mi comunidad" : "Ver comunidad"}
             <ArrowIcon />
           </div>

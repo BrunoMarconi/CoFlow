@@ -12,22 +12,22 @@ export default function ProfileHeader({
   const fullName = `${user.first_name} ${user.last_name}`.trim();
 
   return (
-    <header className="relative overflow-hidden rounded-[2rem] border border-gray-100 bg-white shadow-sm">
-      <div className="h-28 bg-gradient-to-br from-green-100 via-emerald-50 to-white sm:h-36" />
+    <header className="relative overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
+      <div className="h-28 bg-gradient-to-br from-mint-100 via-mint-50 to-surface sm:h-36" />
 
       <div className="relative px-5 pb-6 sm:px-8 sm:pb-8">
         <div className="-mt-12 flex flex-col gap-5 sm:-mt-14 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-end gap-4">
-            <div className="rounded-full border-4 border-white bg-white shadow-md">
+            <div className="rounded-full border-4 border-surface bg-surface shadow-soft">
               <Avatar name={fullName} size={88} />
             </div>
 
             <div className="pb-1">
-              <h1 className="text-2xl font-bold tracking-tight text-[#163B2E] sm:text-3xl">
+              <h1 className="text-2xl font-bold tracking-tight text-brand-dark sm:text-3xl">
                 {fullName}
               </h1>
 
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted">
                 Perfil de CoFlow
               </p>
             </div>
@@ -35,7 +35,7 @@ export default function ProfileHeader({
 
           <Link
             href="/perfil/editar"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 text-sm font-bold text-[#163B2E] shadow-sm transition hover:-translate-y-0.5 hover:border-green-300 hover:bg-green-50"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-14 border border-border bg-surface px-5 text-sm font-bold text-brand-dark shadow-soft transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-mint-50"
           >
             <EditIcon />
             Editar perfil
@@ -43,20 +43,20 @@ export default function ProfileHeader({
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          <span className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
-            <span className="h-2 w-2 rounded-full bg-green-500" />
+          <span className="inline-flex items-center gap-2 rounded-full bg-mint-50 px-3 py-2 text-xs font-bold text-primary-dark">
+            <span className="h-2 w-2 rounded-full bg-primary" />
             Perfil activo
           </span>
 
           {user.onboarding_completed && (
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#F3F6F4] px-3 py-2 text-xs font-bold text-[#476257]">
+            <span className="inline-flex items-center gap-2 rounded-full bg-surface-soft px-3 py-2 text-xs font-bold text-secondary">
               <CheckIcon />
               Preferencias completadas
             </span>
           )}
 
           {isOwner && (
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#163B2E] px-3 py-2 text-xs font-bold text-white shadow-sm">
+            <span className="inline-flex items-center gap-2 rounded-full bg-brand-dark px-3 py-2 text-xs font-bold text-white shadow-soft">
               <KeyIcon />
               Propietario
             </span>

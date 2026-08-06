@@ -2,18 +2,16 @@
 
 import { useMemo, useState } from "react";
 import { useUsers } from "@/hooks/useUsers";
-import { useAuth } from "@/hooks/useAuth";
 import UserGrid from "@/components/usuario/UserGrid";
 import PersonasTabs from "@/components/usuario/PersonasTabs";
-import PeopleHero from "@/components/usuario/PeopleHero";
 import UserFilters, {
   defaultUserFilters,
   isUserFiltersActive,
   type UserFilterState,
 } from "@/components/usuario/UserFilters";
+import PageHeader from "@/components/ui/PageHeader";
 import SectionHeader from "@/components/ui/SectionHeader";
 import SearchInput from "@/components/ui/SearchInput";
-import SoftButton from "@/components/ui/SoftButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 
 export default function UsuariosPage() {
@@ -23,21 +21,9 @@ export default function UsuariosPage() {
   );
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const { user: currentUser } = useAuth();
-
   const maxBudget = filters.maxBudget ? Number(filters.maxBudget) : undefined;
 
   const { users, loading } = useUsers({ max_budget: maxBudget });
-
-  const lookingUsers = useMemo(
-    () => users.filter((u) => u.is_looking_for_roommates && !u.community),
-    [users]
-  );
-
-  const inCommunityUsers = useMemo(
-    () => users.filter((u) => Boolean(u.community)),
-    [users]
-  );
 
   const visibleUsers = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -78,48 +64,40 @@ export default function UsuariosPage() {
     });
   }, [users, search, filters]);
 
-  const visibleLooking = useMemo(
-    () => visibleUsers.filter((u) => u.is_looking_for_roommates && !u.community),
-    [visibleUsers]
-  );
-
-  const visibleInCommunity = useMemo(
-    () => visibleUsers.filter((u) => Boolean(u.community)),
-    [visibleUsers]
-  );
-
   return (
     <div>
-      <PeopleHero
-        firstName={currentUser?.first_name}
-        lookingCount={lookingUsers.length}
-        inCommunityCount={inCommunityUsers.length}
+      <PageHeader
+        title="Personas compatibles contigo"
+        subtitle="Conoce gente con una forma de vivir, presupuesto y objetivos parecidos a los tuyos."
       />
 
-      <div className="mt-6">
+      <div className="mt-5">
         <PersonasTabs />
       </div>
 
-      <div className="mt-4 flex flex-row gap-2">
+      <div className="mt-4 flex h-14 items-center gap-1 rounded-full border border-border bg-surface py-1 pl-5 pr-1.5 shadow-soft transition-all duration-180 focus-within:border-primary focus-within:ring-4 focus-within:ring-mint-100">
         <SearchInput
+          bare
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           onClear={() => setSearch("")}
           placeholder="Buscar por nombre o ciudad"
-          className="flex-1"
         />
 
-        <SoftButton
+        <button
           type="button"
           onClick={() => setFiltersOpen((current) => !current)}
           aria-expanded={filtersOpen}
           aria-label="Filtros"
-          active={filtersOpen || isUserFiltersActive(filters)}
-          className="px-4 sm:px-5"
+          className={`flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-sm font-bold transition-colors duration-180 sm:px-4 ${
+            filtersOpen || isUserFiltersActive(filters)
+              ? "bg-mint-100 text-primary-dark"
+              : "text-secondary hover:bg-surface-soft"
+          }`}
         >
           <FilterIcon />
           <span className="hidden sm:inline">Filtros</span>
-        </SoftButton>
+        </button>
       </div>
 
       {filtersOpen && (
@@ -133,41 +111,31 @@ export default function UsuariosPage() {
         </div>
       )}
 
-      {loading ? (
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <SkeletonCard key={index} />
-          ))}
-        </div>
-      ) : (
-        <>
-          <section className="mt-8">
-            <SectionHeader
-              title="Buscando compañeros de piso"
-              subtitle={`${visibleLooking.length} ${
-                visibleLooking.length === 1 ? "persona" : "personas"
-              }`}
-            />
+      <section className="mt-8">
+        <SectionHeader
+          title="Personas"
+          subtitle={
+            !loading
+              ? `${visibleUsers.length} ${
+                  visibleUsers.length === 1
+                    ? "persona compatible"
+                    : "personas compatibles"
+                }`
+              : undefined
+          }
+          className="mb-5"
+        />
 
-            <div className="mt-4">
-              <UserGrid users={visibleLooking} />
-            </div>
-          </section>
-
-          <section className="mt-10">
-            <SectionHeader
-              title="Ya en una comunidad"
-              subtitle={`${visibleInCommunity.length} ${
-                visibleInCommunity.length === 1 ? "persona" : "personas"
-              }`}
-            />
-
-            <div className="mt-4">
-              <UserGrid users={visibleInCommunity} />
-            </div>
-          </section>
-        </>
-      )}
+        {loading ? (
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <SkeletonCard key={index} />
+            ))}
+          </div>
+        ) : (
+          <UserGrid users={visibleUsers} />
+        )}
+      </section>
     </div>
   );
 }

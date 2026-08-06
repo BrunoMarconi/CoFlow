@@ -11,12 +11,16 @@ type SearchInputProps = Omit<
   /** Si se pasa junto con un value no vacío, muestra un botón para
    * borrar la búsqueda. */
   onClear?: () => void;
+  /** Sin caja propia (borde/fondo/sombra) — para incrustarlo dentro de
+   * una barra compuesta (input + acciones) que ya aporta el contenedor. */
+  bare?: boolean;
 };
 
 export default function SearchInput({
   className,
   onClear,
   value,
+  bare = false,
   ...props
 }: SearchInputProps) {
   const showClear = Boolean(onClear && value);
@@ -24,8 +28,9 @@ export default function SearchInput({
   return (
     <div
       className={cn(
-        "flex h-11.5 min-w-0 items-center gap-3 rounded-14 border border-border bg-surface px-4",
-        "transition-colors duration-180 focus-within:border-primary focus-within:ring-4 focus-within:ring-mint-100",
+        "flex min-w-0 flex-1 items-center gap-3",
+        !bare &&
+          "h-12 rounded-full border border-border bg-surface px-5 shadow-soft transition-all duration-180 focus-within:border-primary focus-within:ring-4 focus-within:ring-mint-100",
         className
       )}
     >

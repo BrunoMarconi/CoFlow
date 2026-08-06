@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  /* --- Design system "soft premium living" -------------------------- */
-  --background: #f5f7f3;
-  --foreground: #102d22; /* text-primary */
+  /* --- Guía de marca CoFlow (oklch) ---------------------------------- */
+  --background: oklch(0.985 0.004 95);
+  --foreground: oklch(0.22 0.02 150); /* text-primary */
   --surface: #ffffff;
-  --surface-soft: #f0f4ef; /* = surface-muted */
-  --muted: #7a8981; /* text-muted */
-  --secondary: #52645c; /* text-secondary */
-  --brand: #16a05d; /* = primary */
-  --brand-hover: #12834c; /* = primary-hover */
-  --brand-dark: #0d3b2a; /* = primary-dark */
-  --line: #dde5dd; /* = border */
-  --mint-50: #f0fbf5;
-  --mint-100: #ddf6e8;
-  --mint-200: #bdecd2;
+  --surface-soft: oklch(0.97 0.01 150); /* = surface-muted */
+  --muted: oklch(0.58 0.015 110); /* text-muted */
+  --secondary: oklch(0.46 0.02 110); /* text-secondary */
+  --brand: oklch(0.28 0.05 155); /* = primary, verde oscuro (color principal) */
+  --brand-hover: oklch(0.24 0.05 155); /* = primary-hover */
+  --brand-dark: oklch(0.22 0.05 155); /* = primary-dark */
+  --line: oklch(0.9 0.005 150); /* = border */
+  --mint-50: oklch(0.94 0.035 155);
+  --mint-100: oklch(0.94 0.035 155);
+  --mint-200: oklch(0.88 0.05 155);
   --danger: #dc2626;
   --warning: #d97706;
 
@@ -28,8 +28,8 @@
   /* Alturas de la "chrome" móvil, compartidas entre el layout que
      reserva espacio (padding) y los componentes que la ocupan
      realmente (Navbar, BottomNavigation), para que no diverjan. */
-  --mobile-header-height: 4rem;
-  --mobile-bottom-nav-height: 4rem;
+  --mobile-header-height: 4.5rem;
+  --mobile-bottom-nav-height: 5.25rem;
 
   /* Escala de z-index única para toda la app. No renombra literales
      que nunca compiten entre sí (FAB, barras de progreso puntuales). */
@@ -67,17 +67,18 @@
   /* Radios nuevos del design system — no tocan la escala por defecto
      de Tailwind (rounded-lg/xl/2xl/3xl), que ya usan ~24 archivos. */
   --radius-10: 10px;
-  --radius-14: 14px;
-  --radius-18: 18px;
+  --radius-14: 12px;
+  --radius-18: 20px;
   --radius-24: 24px;
-  --radius-control: 14px;
-  --radius-card: 18px;
+  --radius-control: 12px;
+  --radius-card: 20px;
 
-  /* Sombras suaves, tono verde oscuro / verde marca, baja opacidad. */
-  --shadow-soft: 0 8px 24px -8px rgb(13 59 42 / 0.12);
-  --shadow-button: 0 10px 24px -8px rgb(22 160 93 / 0.35);
+  /* Diseño plano: sombras casi imperceptibles, solo para separar
+     superficies, nunca para dar profundidad dramática. */
+  --shadow-soft: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-button: 0 1px 2px 0 rgb(0 0 0 / 0.06);
 
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-manrope);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -102,7 +103,7 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+  font-family: var(--font-manrope), Arial, Helvetica, sans-serif;
 }
 
 img,
@@ -196,18 +197,41 @@ summary::-webkit-details-marker {
   animation: fade-in-up 0.5s ease-out both;
 }
 
-@keyframes blob-drift {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(3%, -4%) scale(1.05);
+/* Barra de navegación inferior flotante (móvil): efecto vidrio tipo
+   iOS 26 — el radius se aplica al propio elemento con backdrop-filter
+   (overflow: hidden aquí, no en un contenedor externo) para que el
+   blur no se recorte en cuadrado. */
+.nav-glass {
+  position: relative;
+  overflow: hidden;
+  /* Fondo de reserva por si el navegador no soporta backdrop-filter
+     (ver @supports abajo): sin él, un fondo al 5% de opacidad deja los
+     botones prácticamente invisibles sobre contenido claro. */
+  background: rgb(255 255 255 / 0.75);
+  box-shadow:
+    0 12px 32px -4px rgb(13 59 42 / 0.22),
+    inset 0 1px 1px rgb(255 255 255 / 0.45),
+    inset 0 0 0 1px rgb(255 255 255 / 0.15);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .nav-glass {
+    background: rgb(255 255 255 / 0.6);
+    backdrop-filter: blur(40px) saturate(220%);
+    -webkit-backdrop-filter: blur(40px) saturate(220%);
   }
 }
 
-.animate-blob-drift {
-  animation: blob-drift 14s ease-in-out infinite;
+.nav-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgb(255 255 255 / 0.35) 0%,
+    rgb(255 255 255 / 0) 45%
+  );
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,12 +1,10 @@
 import { cn } from "@/lib/utils";
 
-const GRADIENTS = [
-  "from-[#163B2E] via-[#237154] to-green-400",
-  "from-emerald-700 via-teal-600 to-emerald-400",
-  "from-lime-700 via-green-600 to-lime-400",
-  "from-teal-700 via-cyan-600 to-teal-400",
-  "from-green-800 via-emerald-600 to-teal-400",
-  "from-amber-700 via-orange-600 to-amber-400",
+/* Fondos planos dentro de la paleta de marca — sin gradientes. */
+const TONES = [
+  "bg-primary text-white",
+  "bg-brand-dark text-white",
+  "bg-mint-200 text-brand-dark",
 ];
 
 const SIZES = {
@@ -48,13 +46,13 @@ export default function UserAvatar({
     .join("")
     .toUpperCase();
 
-  const gradient = GRADIENTS[hashId(userId) % GRADIENTS.length];
+  const tone = TONES[hashId(userId) % TONES.length];
 
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-full border border-white/40 bg-gradient-to-br font-bold text-white shadow-sm",
-        gradient,
+        "flex shrink-0 items-center justify-center rounded-full border border-white/40 font-bold shadow-sm",
+        tone,
         SIZES[size],
         className
       )}

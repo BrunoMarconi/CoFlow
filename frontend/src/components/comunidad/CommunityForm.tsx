@@ -432,7 +432,7 @@ export default function CommunityForm({
 
             onCancel?.();
           }}
-          className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 transition hover:text-[#163B2E]"
+          className="inline-flex items-center gap-2 text-sm font-bold text-muted transition hover:text-brand-dark"
         >
           <ArrowLeftIcon />
 
@@ -443,29 +443,29 @@ export default function CommunityForm({
 
         <div className="mt-7 flex items-start justify-between gap-5">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
               Paso {step} de 2
             </p>
 
-            <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#163B2E] sm:text-4xl">
+            <h1 className="mt-3 text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl">
               {title}
             </h1>
 
-            <p className="mt-3 max-w-xl text-base leading-7 text-gray-500">
+            <p className="mt-3 max-w-xl text-base leading-7 text-muted">
               {descriptionText}
             </p>
           </div>
 
-          <span className="hidden rounded-full bg-green-50 px-4 py-2 text-sm font-bold text-green-700 sm:inline-flex">
+          <span className="hidden rounded-full bg-mint-50 px-4 py-2 text-sm font-bold text-primary-dark sm:inline-flex">
             {step === 1
               ? "Información"
               : `${answeredPreferences}/8 respondidas`}
           </span>
         </div>
 
-        <div className="mt-7 h-2 overflow-hidden rounded-full bg-gray-200">
+        <div className="mt-7 h-2 overflow-hidden rounded-full bg-surface-soft">
           <div
-            className="h-full rounded-full bg-green-500 transition-all duration-500"
+            className="h-full rounded-full bg-primary transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -473,14 +473,14 @@ export default function CommunityForm({
 
       <form onSubmit={handleSubmit} className="mt-8">
         {step === 1 ? (
-          <section className="rounded-[2rem] border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
+          <section className="rounded-24 border border-border bg-surface p-5 shadow-soft sm:p-8">
             <div className="space-y-8">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
                   Información de la comunidad
                 </p>
 
-                <p className="mt-2 text-sm leading-6 text-gray-500">
+                <p className="mt-2 text-sm leading-6 text-muted">
                   Estos son los datos que verán las personas al descubrir
                   vuestra comunidad.
                 </p>
@@ -567,16 +567,16 @@ export default function CommunityForm({
                 </div>
               </div>
 
-              <div className="border-t border-gray-100 pt-8">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+              <div className="border-t border-border pt-8">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
                   Perfil de la comunidad
                 </p>
 
-                <p className="mt-2 text-sm font-bold text-[#163B2E]">
+                <p className="mt-2 text-sm font-bold text-brand-dark">
                   ¿Qué perfil describe mejor a vuestra comunidad?
                 </p>
 
-                <p className="mt-1 text-sm leading-6 text-gray-500">
+                <p className="mt-1 text-sm leading-6 text-muted">
                   Indica quiénes forman principalmente el grupo. Esto ayuda
                   a otras personas a entender quiénes sois, pero no limita
                   automáticamente quién puede solicitar entrar.
@@ -588,14 +588,14 @@ export default function CommunityForm({
                       key={option.value}
                       type="button"
                       onClick={() => setProfileType(option.value)}
-                      className={`rounded-2xl border p-4 text-left transition ${
+                      className={`rounded-18 border p-4 text-left transition ${
                         profileType === option.value
-                          ? "border-green-500 bg-green-50 shadow-sm"
-                          : "border-gray-200 bg-white hover:border-green-300"
+                          ? "border-primary bg-mint-50 shadow-soft"
+                          : "border-border bg-surface hover:border-primary/30"
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-bold text-[#163B2E]">
+                        <p className="text-sm font-bold text-brand-dark">
                           {option.label}
                         </p>
 
@@ -626,12 +626,12 @@ export default function CommunityForm({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-dashed border-gray-200 bg-[#F8FAFC] p-5">
-                <p className="text-sm font-bold text-[#163B2E]">
+              <div className="rounded-18 border border-dashed border-border bg-surface-muted p-5">
+                <p className="text-sm font-bold text-brand-dark">
                   Compañeros actuales
                 </p>
 
-                <p className="mt-2 text-sm leading-6 text-gray-500">
+                <p className="mt-2 text-sm leading-6 text-muted">
                   Después de crear la comunidad podrás invitar a las
                   personas que ya viven contigo. Estas invitaciones no
                   representan candidatos nuevos ni reducen las plazas
@@ -639,12 +639,12 @@ export default function CommunityForm({
                 </p>
               </div>
 
-              <div className="border-t border-gray-100 pt-8">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+              <div className="border-t border-border pt-8">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
                   Personas nuevas que buscáis
                 </p>
 
-                <p className="mt-2 text-sm leading-6 text-gray-500">
+                <p className="mt-2 text-sm leading-6 text-muted">
                   Esto no es lo mismo que el espacio libre en la vivienda:
                   podéis tener sitio para más gente y estar buscando solo a
                   una persona ahora mismo.
@@ -671,12 +671,12 @@ export default function CommunityForm({
                 </div>
               </div>
 
-              <div className="border-t border-gray-100 pt-8">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+              <div className="border-t border-border pt-8">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
                   Condiciones de la plaza
                 </p>
 
-                <p className="mt-2 text-sm leading-6 text-gray-500">
+                <p className="mt-2 text-sm leading-6 text-muted">
                   Esta información solo tiene sentido si estáis buscando
                   incorporar a alguien nuevo.
                 </p>
@@ -722,7 +722,7 @@ export default function CommunityForm({
                 </div>
 
                 <div className="mt-6">
-                  <p className="text-sm font-semibold text-[#163B2E]">
+                  <p className="text-sm font-semibold text-brand-dark">
                     ¿Con qué urgencia buscáis a alguien?
                   </p>
 
@@ -765,12 +765,12 @@ export default function CommunityForm({
                 </div>
               </div>
 
-              <div className="border-t border-gray-100 pt-8">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+              <div className="border-t border-border pt-8">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
                   Forma de acceso
                 </p>
 
-                <p className="mt-2 text-sm leading-6 text-gray-500">
+                <p className="mt-2 text-sm leading-6 text-muted">
                   Decide cómo entrarán las personas nuevas cuando ocupen una
                   plaza abierta.
                 </p>
@@ -779,19 +779,19 @@ export default function CommunityForm({
                   <button
                     type="button"
                     onClick={() => setJoinType("OPEN")}
-                    className={`rounded-2xl border p-5 text-left transition ${
+                    className={`rounded-18 border p-5 text-left transition ${
                       joinType === "OPEN"
-                        ? "border-green-500 bg-green-50 shadow-sm"
-                        : "border-gray-200 bg-white hover:border-green-300"
+                        ? "border-primary bg-mint-50 shadow-soft"
+                        : "border-border bg-surface hover:border-primary/30"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="font-bold text-[#163B2E]">
+                        <p className="font-bold text-brand-dark">
                           Entrada directa
                         </p>
 
-                        <p className="mt-2 text-sm leading-6 text-gray-500">
+                        <p className="mt-2 text-sm leading-6 text-muted">
                           Puedes unirte inmediatamente mientras quede
                           alguna plaza abierta.
                         </p>
@@ -804,19 +804,19 @@ export default function CommunityForm({
                   <button
                     type="button"
                     onClick={() => setJoinType("REQUEST")}
-                    className={`rounded-2xl border p-5 text-left transition ${
+                    className={`rounded-18 border p-5 text-left transition ${
                       joinType === "REQUEST"
-                        ? "border-green-500 bg-green-50 shadow-sm"
-                        : "border-gray-200 bg-white hover:border-green-300"
+                        ? "border-primary bg-mint-50 shadow-soft"
+                        : "border-border bg-surface hover:border-primary/30"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="font-bold text-[#163B2E]">
+                        <p className="font-bold text-brand-dark">
                           Acceso mediante solicitud
                         </p>
 
-                        <p className="mt-2 text-sm leading-6 text-gray-500">
+                        <p className="mt-2 text-sm leading-6 text-muted">
                           Debes enviar una solicitud. Un administrador
                           revisará tu perfil antes de decidir.
                         </p>
@@ -836,7 +836,7 @@ export default function CommunityForm({
             <button
               type="button"
               onClick={continueToPreferences}
-              className="mt-8 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-green-500 px-6 text-sm font-bold text-white shadow-lg shadow-green-500/20 transition hover:-translate-y-0.5 hover:bg-green-600"
+              className="mt-8 flex h-14 w-full items-center justify-center gap-2 rounded-18 bg-primary px-6 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-primary-hover"
             >
               Continuar
               <ArrowRightIcon />
@@ -853,19 +853,19 @@ export default function CommunityForm({
                   return (
                     <article
                       key={question.key}
-                      className="rounded-[1.75rem] border border-gray-100 bg-white p-5 shadow-sm sm:p-7"
+                      className="rounded-18 border border-border bg-surface p-5 shadow-soft sm:p-7"
                     >
                       <div className="flex items-start gap-4">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50 text-sm font-bold text-green-700">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-14 bg-mint-50 text-sm font-bold text-primary-dark">
                           {questionIndex + 1}
                         </span>
 
                         <div>
-                          <h2 className="text-lg font-bold text-[#163B2E]">
+                          <h2 className="text-lg font-bold text-brand-dark">
                             {question.title}
                           </h2>
 
-                          <p className="mt-2 text-sm leading-6 text-gray-500">
+                          <p className="mt-2 text-sm leading-6 text-muted">
                             {question.description}
                           </p>
                         </div>
@@ -886,10 +886,10 @@ export default function CommunityForm({
                                   option
                                 )
                               }
-                              className={`flex min-h-16 items-center justify-between gap-4 rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                              className={`flex min-h-16 items-center justify-between gap-4 rounded-18 border px-4 py-3 text-left text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
                                 active
-                                  ? "border-green-500 bg-green-50 text-[#163B2E] shadow-sm"
-                                  : "border-gray-200 bg-white text-gray-600 hover:border-green-300 hover:bg-green-50/40"
+                                  ? "border-primary bg-mint-50 text-brand-dark shadow-soft"
+                                  : "border-border bg-surface text-secondary hover:border-primary/30 hover:bg-mint-50/40"
                               }`}
                             >
                               <span>{option}</span>
@@ -897,8 +897,8 @@ export default function CommunityForm({
                               <span
                                 className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs transition ${
                                   active
-                                    ? "border-green-500 bg-green-500 text-white"
-                                    : "border-gray-200 text-transparent"
+                                    ? "border-primary bg-primary text-white"
+                                    : "border-border text-transparent"
                                 }`}
                               >
                                 ✓
@@ -930,7 +930,7 @@ export default function CommunityForm({
                   });
                 }}
                 disabled={submitting}
-                className="h-14 rounded-2xl border border-gray-200 bg-white px-6 text-sm font-bold text-[#163B2E] transition hover:bg-gray-50 disabled:opacity-50"
+                className="h-14 rounded-18 border border-border bg-surface px-6 text-sm font-bold text-brand-dark transition hover:bg-surface-soft disabled:opacity-50"
               >
                 Atrás
               </button>
@@ -938,7 +938,7 @@ export default function CommunityForm({
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-green-500 px-6 text-sm font-bold text-white shadow-lg shadow-green-500/20 transition hover:-translate-y-0.5 hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex h-14 items-center justify-center gap-2 rounded-18 bg-primary px-6 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {submitting ? (
                   <>
@@ -969,7 +969,7 @@ function ErrorMessage({ message }: { message: string }) {
   return (
     <div
       role="alert"
-      className="mt-6 flex items-start gap-3 rounded-2xl border border-red-100 bg-red-50 px-4 py-4"
+      className="mt-6 flex items-start gap-3 rounded-18 border border-red-100 bg-red-50 px-4 py-4"
     >
       <span className="mt-0.5 text-red-500">
         <ErrorIcon />
@@ -1073,8 +1073,8 @@ function SelectionCircle({
     <span
       className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs transition ${
         selected
-          ? "border-green-500 bg-green-500 text-white"
-          : "border-gray-200 text-transparent"
+          ? "border-primary bg-primary text-white"
+          : "border-border text-transparent"
       }`}
     >
       ✓
@@ -1097,19 +1097,19 @@ function UrgencyOption({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-2xl border p-4 text-left transition ${
+      className={`rounded-18 border p-4 text-left transition ${
         selected
-          ? "border-green-500 bg-green-50 shadow-sm"
-          : "border-gray-200 bg-white hover:border-green-300"
+          ? "border-primary bg-mint-50 shadow-soft"
+          : "border-border bg-surface hover:border-primary/30"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-bold text-[#163B2E]">
+          <p className="text-sm font-bold text-brand-dark">
             {title}
           </p>
 
-          <p className="mt-2 text-xs leading-5 text-gray-500">
+          <p className="mt-2 text-xs leading-5 text-muted">
             {description}
           </p>
         </div>

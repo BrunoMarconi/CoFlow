@@ -40,7 +40,7 @@ export default function Sidebar() {
       icon: CompassIcon,
     },
     { href: "/usuarios", label: "Personas", icon: UsersIcon },
-    { href: "/conexiones", label: "Mensajes", icon: MessageIcon },
+    { href: "/mensajes", label: "Mensajes", icon: MessageIcon },
     {
       href: "/personas/guardadas",
       label: "Guardados",
@@ -89,17 +89,18 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="hidden w-60 shrink-0 flex-col bg-[#0d3b2a] px-3 py-6 md:flex">
+    <aside
+      className="fixed top-(--mobile-header-height) z-(--z-sticky-header) hidden h-[calc(100dvh-var(--mobile-header-height))] w-66 shrink-0 flex-col overflow-y-auto border-r border-border bg-surface/90 px-3 py-6 backdrop-blur-xl md:flex"
+      style={{ left: "max(0px, calc((100vw - 1600px) / 2))" }}
+    >
       <Link
         href="/comunidades"
         className="mb-6 flex items-center gap-2.5 px-4"
         aria-label="CoFlow"
       >
-        <span className="flex h-9 w-9 items-center justify-center rounded-10 bg-white/95">
-          <Logo size="sm" />
-        </span>
+        <Logo size="sm" />
 
-        <span className="text-xl font-black tracking-[-0.01em] text-white">
+        <span className="text-xl font-black tracking-[-0.01em] text-brand-dark">
           CoFlow
         </span>
       </Link>
@@ -127,18 +128,18 @@ export default function Sidebar() {
       </nav>
 
       {user && (
-        <div className="mt-4 flex items-center gap-3 rounded-18 border border-white/10 bg-white/10 p-3">
-          <Link href="/perfil" className="flex min-w-0 flex-1 items-center gap-3">
+        <div className="mt-4 flex items-center gap-2.5 rounded-14 bg-mint-50 p-2.5">
+          <Link href="/perfil" className="flex min-w-0 flex-1 items-center gap-2.5">
             <Avatar
               name={`${user.first_name} ${user.last_name}`}
-              size={38}
+              size={34}
             />
 
             <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-white">
+              <p className="truncate text-sm font-bold text-foreground">
                 {user.first_name} {user.last_name}
               </p>
-              <p className="truncate text-xs text-white/60">
+              <p className="truncate text-xs text-muted">
                 {user.email}
               </p>
             </div>
@@ -149,7 +150,7 @@ export default function Sidebar() {
             onClick={logout}
             aria-label="Cerrar sesión"
             title="Cerrar sesión"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-10 text-white/60 transition duration-180 hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mint-200"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-10 text-muted transition duration-180 hover:bg-white hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400"
           >
             <LogoutIcon />
           </button>
@@ -168,7 +169,7 @@ function NavGroup({
 }) {
   return (
     <div>
-      <p className="px-4 text-xs font-bold uppercase tracking-[0.14em] text-white/40">
+      <p className="px-4 text-xs font-bold uppercase tracking-[0.14em] text-muted">
         {label}
       </p>
 
@@ -191,23 +192,16 @@ function SidebarLink({
       href={link.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mint-200",
+        "flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
         active
-          ? "bg-white/10 text-white"
-          : "text-white/60 hover:bg-white/5 hover:text-white"
+          ? "bg-mint-50 text-primary-dark"
+          : "text-muted hover:bg-surface-soft hover:text-foreground"
       )}
     >
-      {active && (
-        <span
-          aria-hidden="true"
-          className="absolute left-0 top-1/2 h-5 w-0.75 -translate-y-1/2 rounded-full bg-mint-200"
-        />
-      )}
-
       <Icon
         className={cn(
           "h-5 w-5 shrink-0",
-          active ? "text-mint-200" : "text-white/50"
+          active ? "text-primary" : "text-muted"
         )}
       />
       <span className="truncate">{link.label}</span>

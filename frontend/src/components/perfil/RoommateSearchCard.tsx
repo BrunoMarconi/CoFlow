@@ -37,20 +37,20 @@ export default function RoommateSearchCard({
   }
 
   return (
-    <section className="rounded-[1.75rem] border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
-      <p className="text-xs font-bold uppercase tracking-[0.15em] text-green-600">
+    <section className="rounded-18 border border-border bg-surface p-5 shadow-soft sm:p-6">
+      <p className="text-xs font-bold uppercase tracking-[0.15em] text-primary">
         Búsqueda de compañeros
       </p>
 
       <div className="mt-4 flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-bold text-[#163B2E]">
+          <p className="text-sm font-bold text-brand-dark">
             {user.is_looking_for_roommates
               ? "Estás buscando compañeros de piso"
               : "No estás buscando compañeros ahora mismo"}
           </p>
 
-          <p className="mt-2 text-sm leading-6 text-gray-500">
+          <p className="mt-2 text-sm leading-6 text-muted">
             Si lo desactivas, dejarás de aparecer en el descubrimiento de
             personas.
           </p>
@@ -64,11 +64,11 @@ export default function RoommateSearchCard({
           disabled={saving}
           onClick={handleToggle}
           className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition disabled:cursor-not-allowed disabled:opacity-60 ${
-            user.is_looking_for_roommates ? "bg-green-500" : "bg-gray-200"
+            user.is_looking_for_roommates ? "bg-primary" : "bg-border"
           }`}
         >
           <span
-            className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-sm transition ${
+            className={`inline-block h-6 w-6 transform rounded-full bg-surface shadow-soft transition ${
               user.is_looking_for_roommates
                 ? "translate-x-7"
                 : "translate-x-1"

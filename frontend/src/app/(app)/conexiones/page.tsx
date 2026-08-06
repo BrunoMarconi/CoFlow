@@ -6,6 +6,10 @@ import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
 import EmptyState from "@/components/ui/EmptyState";
+import PageHeader from "@/components/ui/PageHeader";
+import SoftButton from "@/components/ui/SoftButton";
+import PrimaryButton from "@/components/ui/PrimaryButton";
+import SecondaryButton from "@/components/ui/SecondaryButton";
 import {
   acceptConnection,
   cancelConnection,
@@ -138,29 +142,24 @@ export default function ConexionesPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-[#163B2E]">Conexiones</h1>
-      <p className="mt-2 text-gray-600">
-        Gestiona tus conexiones y solicitudes con otras personas de
-        CoFlow.
-      </p>
+      <PageHeader
+        title="Conexiones"
+        subtitle="Gestiona tus conexiones y solicitudes con otras personas de CoFlow."
+      />
 
       <div
         role="tablist"
         aria-label="Secciones de conexiones"
-        className="mt-6 flex gap-2 overflow-x-auto scroll-px-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="mt-6 flex gap-2 overflow-x-auto scroll-px-2 rounded-18 border border-border bg-surface p-2 shadow-soft [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {tabs.map((item) => (
-          <button
+          <SoftButton
             key={item.key}
-            type="button"
             role="tab"
             aria-selected={tab === item.key}
             onClick={() => setTab(item.key)}
-            className={`min-h-11 flex shrink-0 snap-start scroll-ml-2 items-center gap-2 whitespace-nowrap rounded-xl px-4 text-sm font-bold transition active:scale-95 ${
-              tab === item.key
-                ? "bg-green-500 text-white"
-                : "text-gray-500 hover:bg-gray-50"
-            }`}
+            active={tab === item.key}
+            className="shrink-0 snap-start scroll-ml-2"
           >
             {item.label}
             {item.count > 0 && (
@@ -168,13 +167,13 @@ export default function ConexionesPage() {
                 className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                   tab === item.key
                     ? "bg-white/20 text-white"
-                    : "bg-green-100 text-green-800"
+                    : "bg-mint-100 text-primary-dark"
                 }`}
               >
                 {item.count}
               </span>
             )}
-          </button>
+          </SoftButton>
         ))}
       </div>
 
@@ -184,7 +183,7 @@ export default function ConexionesPage() {
             <Spinner />
           </div>
         ) : error ? (
-          <p className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center text-sm font-semibold text-red-600">
+          <p className="rounded-18 border border-red-100 bg-red-50 p-6 text-center text-sm font-semibold text-red-600">
             {error}
           </p>
         ) : (
@@ -205,21 +204,21 @@ export default function ConexionesPage() {
 
                     return (
                       <ConnectionRow key={connection.id} person={other}>
-                        <Link
-                          href={`/mensajes/${connection.id}`}
-                          className="flex h-11 flex-1 items-center justify-center rounded-xl bg-green-500 text-sm font-bold text-white transition hover:bg-green-600"
+                        <PrimaryButton
+                          href={`/mensajes?c=${connection.id}`}
+                          className="flex-1"
                         >
                           Enviar mensaje
-                        </Link>
+                        </PrimaryButton>
 
-                        <button
-                          type="button"
+                        <SecondaryButton
+                          destructive
                           onClick={() => handleDelete(connection.id)}
                           disabled={actioningId === connection.id}
-                          className="flex h-11 flex-1 items-center justify-center rounded-xl border border-red-200 bg-white text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="flex-1"
                         >
                           Eliminar conexión
-                        </button>
+                        </SecondaryButton>
                       </ConnectionRow>
                     );
                   })}
@@ -239,23 +238,22 @@ export default function ConexionesPage() {
                       key={connection.id}
                       person={connection.requester}
                     >
-                      <button
-                        type="button"
+                      <PrimaryButton
                         onClick={() => handleAccept(connection.id)}
                         disabled={actioningId === connection.id}
-                        className="flex h-11 flex-1 items-center justify-center rounded-xl bg-green-500 text-sm font-bold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="flex-1"
                       >
                         Aceptar
-                      </button>
+                      </PrimaryButton>
 
-                      <button
-                        type="button"
+                      <SecondaryButton
+                        destructive
                         onClick={() => handleReject(connection.id)}
                         disabled={actioningId === connection.id}
-                        className="flex h-11 flex-1 items-center justify-center rounded-xl border border-red-200 bg-white text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="flex-1"
                       >
                         Rechazar
-                      </button>
+                      </SecondaryButton>
                     </ConnectionRow>
                   ))}
                 </div>
@@ -274,18 +272,17 @@ export default function ConexionesPage() {
                       key={connection.id}
                       person={connection.recipient}
                     >
-                      <span className="flex h-11 flex-1 items-center justify-center rounded-xl bg-gray-100 text-sm font-bold text-gray-500">
+                      <span className="flex h-11 flex-1 items-center justify-center rounded-14 bg-surface-muted text-sm font-bold text-muted">
                         Pendiente de respuesta
                       </span>
 
-                      <button
-                        type="button"
+                      <SecondaryButton
                         onClick={() => handleCancel(connection.id)}
                         disabled={actioningId === connection.id}
-                        className="flex h-11 flex-1 items-center justify-center rounded-xl border border-gray-200 bg-white text-sm font-bold text-[#163B2E] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="flex-1"
                       >
                         Cancelar
-                      </button>
+                      </SecondaryButton>
                     </ConnectionRow>
                   ))}
                 </div>
@@ -314,16 +311,16 @@ function ConnectionRow({
     .toUpperCase();
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+    <div className="rounded-18 border border-border bg-surface p-4 shadow-soft">
       <Link
         href={`/personas/${person.id}`}
         className="flex items-center gap-3"
       >
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-green-500 text-sm font-bold text-white">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
           {initials || "CF"}
         </div>
 
-        <p className="min-w-0 flex-1 truncate text-sm font-bold text-[#163B2E]">
+        <p className="min-w-0 flex-1 truncate text-sm font-bold text-brand-dark">
           {fullName || "Persona de CoFlow"}
         </p>
       </Link>

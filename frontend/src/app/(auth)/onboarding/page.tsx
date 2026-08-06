@@ -444,83 +444,83 @@ export default function OnboardingPage() {
 
   if (initializing) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-[#F8FAFC]">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-green-500" />
+      <main className="flex min-h-dvh items-center justify-center bg-surface-muted">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-border border-t-primary" />
       </main>
     );
   }
 
   if (completed) {
     return (
-      <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-[#F8FAFC] px-6 py-12">
-        <div className="absolute left-[-100px] top-[-100px] h-80 w-80 rounded-full bg-green-200/40 blur-3xl" />
-        <div className="absolute bottom-[-120px] right-[-100px] h-96 w-96 rounded-full bg-green-300/30 blur-3xl" />
+      <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-surface-muted px-6 py-12">
+        <div className="absolute left-[-100px] top-[-100px] h-80 w-80 rounded-full bg-mint-200/40 blur-3xl" />
+        <div className="absolute bottom-[-120px] right-[-100px] h-96 w-96 rounded-full bg-mint-200/30 blur-3xl" />
 
-        <section className="relative w-full max-w-2xl animate-[fadeIn_500ms_ease-out] rounded-[2rem] border border-green-100 bg-white p-8 text-center shadow-[0_24px_80px_rgba(22,59,46,0.12)] md:p-14">
-          <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-green-100">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-3xl text-white shadow-lg shadow-green-200">
+        <section className="relative w-full max-w-2xl animate-[fadeIn_500ms_ease-out] rounded-18 border border-primary/30 bg-surface p-8 text-center shadow-soft md:p-14">
+          <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-mint-100">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-3xl text-white shadow-soft">
               ✓
             </div>
           </div>
 
-          <p className="mt-8 text-sm font-bold uppercase tracking-[0.2em] text-green-600">
+          <p className="mt-8 text-sm font-bold uppercase tracking-[0.2em] text-primary">
             Perfil completado
           </p>
 
-          <h1 className="mt-4 text-4xl font-bold tracking-tight text-[#163B2E] md:text-6xl">
+          <h1 className="mt-4 text-4xl font-bold tracking-tight text-brand-dark md:text-6xl">
             Tu comunidad ideal está más cerca.
           </h1>
 
-          <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-gray-600 md:text-lg">
+          <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-secondary md:text-lg">
             Hemos guardado tus preferencias de convivencia. CoFlow podrá
             utilizarlas para buscar personas compatibles contigo.
           </p>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl bg-[#F8FAFC] p-5">
-              <p className="text-3xl font-bold text-[#163B2E]">
+            <div className="rounded-18 bg-surface-muted p-5">
+              <p className="text-3xl font-bold text-brand-dark">
                 {answeredQuestions}
               </p>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted">
                 Respuestas
               </p>
             </div>
 
-            <div className="rounded-2xl bg-[#F8FAFC] p-5">
-              <p className="text-3xl font-bold text-[#163B2E]">
+            <div className="rounded-18 bg-surface-muted p-5">
+              <p className="text-3xl font-bold text-brand-dark">
                 100%
               </p>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted">
                 Perfil completado
               </p>
             </div>
 
-            <div className="rounded-2xl bg-[#F8FAFC] p-5">
-              <p className="text-3xl font-bold text-[#163B2E]">
+            <div className="rounded-18 bg-surface-muted p-5">
+              <p className="text-3xl font-bold text-brand-dark">
                 19
               </p>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted">
                 Factores analizados
               </p>
             </div>
           </div>
 
-          <div className="mt-10 rounded-2xl border border-gray-100 bg-[#F8FAFC] p-5 text-left">
+          <div className="mt-10 rounded-18 border border-border bg-surface-muted p-5 text-left">
             <label
               htmlFor="onboarding-rental-budget"
-              className="block text-sm font-bold text-[#163B2E]"
+              className="block text-sm font-bold text-brand-dark"
             >
               Presupuesto mensual aproximado para alquiler
             </label>
 
-            <p className="mt-1 text-xs leading-5 text-gray-500">
+            <p className="mt-1 text-xs leading-5 text-muted">
               Indica aproximadamente cuánto pagarías como máximo cada mes
               por tu parte del alquiler. No representa tus ingresos. Es
               opcional.
             </p>
 
             <div className="relative mt-3">
-              <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-sm font-semibold text-gray-400">
+              <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-sm font-semibold text-muted">
                 €
               </span>
 
@@ -534,13 +534,13 @@ export default function OnboardingPage() {
                 onChange={(event) => setRentalBudget(event.target.value)}
                 placeholder="Ej. 550"
                 disabled={submitting}
-                className="h-12 w-full rounded-xl border border-gray-200 bg-white pl-9 pr-4 text-base text-[#163B2E] outline-none transition focus:border-green-400 disabled:opacity-60"
+                className="h-12 w-full rounded-14 border border-border bg-surface pl-9 pr-4 text-base text-brand-dark outline-none transition focus:border-primary disabled:opacity-60"
               />
             </div>
           </div>
 
           {submitError && (
-            <p className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+            <p className="mt-6 rounded-14 bg-red-50 px-4 py-3 text-sm text-red-600">
               {submitError}
             </p>
           )}
@@ -549,7 +549,7 @@ export default function OnboardingPage() {
             type="button"
             onClick={handleFinish}
             disabled={submitting}
-            className="mt-10 w-full rounded-2xl bg-green-500 px-8 py-4 text-base font-bold text-white shadow-lg shadow-green-200 transition duration-200 hover:-translate-y-1 hover:bg-green-600 hover:shadow-xl active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+            className="mt-10 w-full rounded-18 bg-primary px-8 py-4 text-base font-bold text-white shadow-button transition duration-200 hover:-translate-y-1 hover:bg-primary-hover hover:shadow-soft active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
           >
             {submitting ? "Guardando..." : "Descubrir mi dashboard"}
           </button>
@@ -558,7 +558,7 @@ export default function OnboardingPage() {
             type="button"
             onClick={reviewAnswers}
             disabled={submitting}
-            className="mt-4 text-sm font-semibold text-gray-500 transition hover:text-[#163B2E] disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-4 text-sm font-semibold text-muted transition hover:text-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
           >
             Revisar mis respuestas
           </button>
@@ -568,16 +568,16 @@ export default function OnboardingPage() {
   }
 
   return (
-    <main className="relative min-h-dvh overflow-hidden bg-[#F8FAFC]">
-      <div className="fixed left-0 top-0 z-50 h-2 w-full bg-gray-200">
+    <main className="relative min-h-dvh overflow-hidden bg-surface-muted">
+      <div className="fixed left-0 top-0 z-50 h-2 w-full bg-border">
         <div
-          className="h-full rounded-r-full bg-green-500 transition-all duration-500 ease-out"
+          className="h-full rounded-r-full bg-primary transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      <div className="absolute left-[-140px] top-20 h-96 w-96 rounded-full bg-green-200/30 blur-3xl" />
-      <div className="absolute bottom-[-140px] right-[-100px] h-96 w-96 rounded-full bg-green-300/20 blur-3xl" />
+      <div className="absolute left-[-140px] top-20 h-96 w-96 rounded-full bg-mint-200/30 blur-3xl" />
+      <div className="absolute bottom-[-140px] right-[-100px] h-96 w-96 rounded-full bg-mint-200/20 blur-3xl" />
 
       <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-8 md:px-10">
         <button
@@ -586,16 +586,16 @@ export default function OnboardingPage() {
           className="flex items-center gap-3"
         >
           <div className="relative h-8 w-10">
-            <span className="absolute left-0 top-1 h-7 w-7 rounded-full bg-green-500" />
-            <span className="absolute right-0 top-1 h-7 w-7 rounded-full border-2 border-[#F8FAFC] bg-green-300" />
+            <span className="absolute left-0 top-1 h-7 w-7 rounded-full bg-primary" />
+            <span className="absolute right-0 top-1 h-7 w-7 rounded-full border-2 border-surface-muted bg-mint-200" />
           </div>
 
-          <span className="text-xl font-bold text-[#163B2E]">
+          <span className="text-xl font-bold text-brand-dark">
             CoFlow
           </span>
         </button>
 
-        <div className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-500 shadow-sm">
+        <div className="rounded-full border border-border bg-surface px-4 py-2 text-sm font-semibold text-muted shadow-soft">
           {step + 1} de {questions.length}
         </div>
       </header>
@@ -609,15 +609,15 @@ export default function OnboardingPage() {
               : "animate-[slideFromLeft_400ms_ease-out]"
           }`}
         >
-          <p className="text-sm font-bold uppercase tracking-[0.14em] text-green-600">
+          <p className="text-sm font-bold uppercase tracking-[0.14em] text-primary">
             {question.category}
           </p>
 
-          <h1 className="mt-5 max-w-3xl text-4xl font-bold leading-tight tracking-tight text-[#163B2E] md:text-6xl">
+          <h1 className="mt-5 max-w-3xl text-4xl font-bold leading-tight tracking-tight text-brand-dark md:text-6xl">
             {question.title}
           </h1>
 
-          <p className="mt-5 max-w-2xl text-base leading-7 text-gray-600 md:text-lg">
+          <p className="mt-5 max-w-2xl text-base leading-7 text-secondary md:text-lg">
             {question.description}
           </p>
 
@@ -630,18 +630,18 @@ export default function OnboardingPage() {
                   type="button"
                   key={option}
                   onClick={() => selectOption(option)}
-                  className={`group flex w-full items-center justify-between rounded-2xl border p-5 text-left transition duration-200 md:p-6 ${
+                  className={`group flex w-full items-center justify-between rounded-18 border p-5 text-left transition duration-200 md:p-6 ${
                     selected
-                      ? "scale-[1.01] border-green-500 bg-green-50 shadow-lg shadow-green-100"
-                      : "border-gray-200 bg-white shadow-sm hover:-translate-y-1 hover:border-green-300 hover:shadow-lg"
+                      ? "scale-[1.01] border-primary bg-mint-50 shadow-soft"
+                      : "border-border bg-surface shadow-soft hover:-translate-y-1 hover:border-primary/30 hover:shadow-soft"
                   }`}
                 >
                   <div className="flex items-center gap-4">
                     <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-bold transition ${
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-14 text-sm font-bold transition ${
                         selected
-                          ? "bg-green-500 text-white"
-                          : "bg-gray-100 text-gray-500 group-hover:bg-green-100 group-hover:text-green-700"
+                          ? "bg-primary text-white"
+                          : "bg-surface-soft text-muted group-hover:bg-mint-100 group-hover:text-primary-dark"
                       }`}
                     >
                       {index + 1}
@@ -650,8 +650,8 @@ export default function OnboardingPage() {
                     <span
                       className={`text-base font-semibold md:text-lg ${
                         selected
-                          ? "text-[#163B2E]"
-                          : "text-gray-700"
+                          ? "text-brand-dark"
+                          : "text-secondary"
                       }`}
                     >
                       {option}
@@ -661,8 +661,8 @@ export default function OnboardingPage() {
                   <span
                     className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition ${
                       selected
-                        ? "border-green-500 bg-green-500 text-sm text-white"
-                        : "border-gray-200 text-transparent group-hover:border-green-300"
+                        ? "border-primary bg-primary text-sm text-white"
+                        : "border-border text-transparent group-hover:border-primary/30"
                     }`}
                   >
                     ✓
@@ -673,7 +673,7 @@ export default function OnboardingPage() {
           </div>
 
           {submitError && (
-            <p className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+            <p className="mt-6 rounded-14 bg-red-50 px-4 py-3 text-sm text-red-600">
               {submitError}
             </p>
           )}
@@ -683,7 +683,7 @@ export default function OnboardingPage() {
               type="button"
               onClick={previousQuestion}
               disabled={step === 0}
-              className="rounded-2xl border border-gray-200 bg-white px-6 py-4 font-semibold text-[#163B2E] shadow-sm transition hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:translate-y-0"
+              className="rounded-18 border border-border bg-surface px-6 py-4 font-semibold text-brand-dark shadow-soft transition hover:-translate-y-0.5 hover:border-border hover:shadow-soft disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:translate-y-0"
             >
               ← Atrás
             </button>
@@ -692,7 +692,7 @@ export default function OnboardingPage() {
               type="button"
               onClick={nextQuestion}
               disabled={!currentAnswer}
-              className="rounded-2xl bg-green-500 px-7 py-4 font-bold text-white shadow-lg shadow-green-200 transition hover:-translate-y-1 hover:bg-green-600 hover:shadow-xl active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+              className="rounded-18 bg-primary px-7 py-4 font-bold text-white shadow-button transition hover:-translate-y-1 hover:bg-primary-hover hover:shadow-soft active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
             >
               {step === questions.length - 1
                 ? "Completar perfil"
@@ -700,7 +700,7 @@ export default function OnboardingPage() {
             </button>
           </div>
 
-          <p className="mt-8 text-center text-sm text-gray-400">
+          <p className="mt-8 text-center text-sm text-muted">
             Tus respuestas se guardan automáticamente.
           </p>
         </div>

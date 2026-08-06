@@ -18,10 +18,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_CLASSES: Record<string, string> = {
-  PENDING: "bg-green-100 text-green-800",
-  ACCEPTED: "bg-green-100 text-green-800",
-  DECLINED: "bg-gray-100 text-gray-500",
-  CANCELLED: "bg-gray-100 text-gray-500",
+  PENDING: "bg-mint-100 text-primary-dark",
+  ACCEPTED: "bg-mint-100 text-primary-dark",
+  DECLINED: "bg-surface-soft text-muted",
+  CANCELLED: "bg-surface-soft text-muted",
   EXPIRED: "bg-amber-100 text-amber-700",
 };
 
@@ -124,7 +124,7 @@ export default function CommunityInvitationsManager({
         type="button"
         onClick={handleCreate}
         disabled={creating}
-        className="mt-3 flex h-11 w-full items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+        className="mt-3 flex h-11 w-full items-center justify-center rounded-14 bg-brand px-5 text-sm font-bold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
       >
         {creating ? "Generando..." : "Generar nueva invitación"}
       </button>
@@ -143,20 +143,20 @@ export default function CommunityInvitationsManager({
             {loadError}
           </p>
         ) : invitations.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-line bg-surface-soft p-5 text-center text-sm text-muted">
+          <p className="rounded-18 border border-dashed border-line bg-surface-soft p-5 text-center text-sm text-muted">
             Todavía no has generado ninguna invitación.
           </p>
         ) : (
           invitations.map((invitation) => (
             <div
               key={invitation.id}
-              className="rounded-xl border border-line bg-surface-soft p-3"
+              className="rounded-14 border border-line bg-surface-soft p-3"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span
                   className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
                     STATUS_CLASSES[invitation.status] ??
-                    "bg-gray-100 text-gray-500"
+                    "bg-surface-soft text-muted"
                   }`}
                 >
                   {STATUS_LABELS[invitation.status] ?? invitation.status}
@@ -172,7 +172,7 @@ export default function CommunityInvitationsManager({
                   <button
                     type="button"
                     onClick={() => handleCopy(invitation)}
-                    className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-line bg-surface text-sm font-bold text-foreground transition hover:bg-surface-soft"
+                    className="flex h-10 flex-1 items-center justify-center gap-2 rounded-14 border border-line bg-surface text-sm font-bold text-foreground transition hover:bg-surface-soft"
                   >
                     {copiedId === invitation.id
                       ? "Enlace copiado"
@@ -183,7 +183,7 @@ export default function CommunityInvitationsManager({
                     type="button"
                     onClick={() => handleCancel(invitation)}
                     disabled={cancellingId === invitation.id}
-                    className="flex h-10 flex-1 items-center justify-center rounded-xl border border-red-200 bg-surface text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="flex h-10 flex-1 items-center justify-center rounded-14 border border-red-200 bg-surface text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {cancellingId === invitation.id
                       ? "Cancelando..."

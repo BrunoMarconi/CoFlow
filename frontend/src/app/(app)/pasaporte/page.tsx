@@ -302,7 +302,7 @@ export default function PasaportePage() {
         inmobiliarias.
       </p>
 
-      <div className="mt-6 flex items-baseline gap-3 rounded-2xl border border-line bg-surface px-5 py-4">
+      <div className="mt-6 flex items-baseline gap-3 rounded-18 border border-line bg-surface px-5 py-4">
         <span className="text-2xl font-bold text-foreground">20 €</span>
         <span className="text-sm font-semibold text-muted">
           por emisión · válido durante 90 días
@@ -318,14 +318,14 @@ export default function PasaportePage() {
           {actionError && (
             <p
               role="alert"
-              className="mb-5 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
+              className="mb-5 rounded-18 border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
             >
               {actionError}
             </p>
           )}
 
           {!summary || (!summary.connected && summary.status !== "PENDING") ? (
-            <div className="rounded-2xl border border-line bg-surface p-6">
+            <div className="rounded-18 border border-line bg-surface p-6">
               <h2 className="text-lg font-bold text-foreground">
                 Conecta tu banco para empezar
               </h2>
@@ -338,13 +338,13 @@ export default function PasaportePage() {
                 type="button"
                 onClick={handleConnect}
                 disabled={connecting}
-                className="mt-6 flex h-14 w-full items-center justify-center rounded-2xl bg-brand text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8"
+                className="mt-6 flex h-14 w-full items-center justify-center rounded-18 bg-brand text-sm font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8"
               >
                 {connecting ? "Conectando…" : "Conectar mi banco"}
               </button>
             </div>
           ) : summary.status === "PENDING" ? (
-            <div className="rounded-2xl border border-line bg-surface p-6">
+            <div className="rounded-18 border border-line bg-surface p-6">
               <h2 className="text-lg font-bold text-foreground">
                 Conexión pendiente
               </h2>
@@ -357,14 +357,14 @@ export default function PasaportePage() {
                 type="button"
                 onClick={handleConnect}
                 disabled={connecting}
-                className="mt-6 flex h-14 w-full items-center justify-center rounded-2xl bg-brand text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8"
+                className="mt-6 flex h-14 w-full items-center justify-center rounded-18 bg-brand text-sm font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8"
               >
                 {connecting ? "Conectando…" : "Continuar conexión"}
               </button>
             </div>
           ) : (
             <>
-              <div className="rounded-2xl border border-line bg-surface p-6">
+              <div className="rounded-18 border border-line bg-surface p-6">
                 <h2 className="text-lg font-bold text-foreground">
                   Banco conectado
                   {summary.provider_name ? `: ${summary.provider_name}` : ""}
@@ -406,7 +406,7 @@ export default function PasaportePage() {
                     type="button"
                     onClick={handleSync}
                     disabled={syncing}
-                    className="flex h-12 w-full items-center justify-center rounded-2xl border border-line bg-white text-sm font-bold text-foreground transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
+                    className="flex h-12 w-full items-center justify-center rounded-18 border border-line bg-surface text-sm font-bold text-foreground transition hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
                   >
                     {syncing ? "Actualizando…" : "Actualizar datos"}
                   </button>
@@ -415,7 +415,7 @@ export default function PasaportePage() {
                     type="button"
                     onClick={handleDisconnect}
                     disabled={disconnecting}
-                    className="flex h-12 w-full items-center justify-center rounded-2xl border border-red-100 bg-white text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
+                    className="flex h-12 w-full items-center justify-center rounded-18 border border-red-100 bg-surface text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
                   >
                     {disconnecting ? "Desconectando…" : "Desconectar"}
                   </button>
@@ -426,7 +426,7 @@ export default function PasaportePage() {
                 {analysisError && (
                   <p
                     role="alert"
-                    className="mb-5 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
+                    className="mb-5 rounded-18 border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
                   >
                     {analysisError}
                   </p>
@@ -437,7 +437,7 @@ export default function PasaportePage() {
                     <Spinner />
                   </div>
                 ) : analyzing ? (
-                  <div className="rounded-2xl border border-line bg-surface p-6 text-center">
+                  <div className="rounded-18 border border-line bg-surface p-6 text-center">
                     <Spinner className="mx-auto" />
                     <p className="mt-4 text-sm font-semibold text-muted">
                       Estamos analizando tus datos bancarios
@@ -452,7 +452,7 @@ export default function PasaportePage() {
                         <button
                           type="button"
                           onClick={handleRefreshAnalysis}
-                          className="mt-4 flex h-12 w-full items-center justify-center rounded-2xl border border-line bg-white text-sm font-bold text-foreground transition hover:bg-gray-50 sm:w-auto sm:px-8"
+                          className="mt-4 flex h-12 w-full items-center justify-center rounded-18 border border-line bg-surface text-sm font-bold text-foreground transition hover:bg-surface-soft sm:w-auto sm:px-8"
                         >
                           Actualizar análisis
                         </button>
@@ -472,14 +472,14 @@ export default function PasaportePage() {
                       <button
                         type="button"
                         onClick={handleRunAnalysis}
-                        className="mt-4 flex h-12 w-full items-center justify-center rounded-2xl bg-brand text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark sm:w-auto sm:px-8"
+                        className="mt-4 flex h-12 w-full items-center justify-center rounded-18 bg-brand text-sm font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-brand-dark sm:w-auto sm:px-8"
                       >
                         Reintentar análisis
                       </button>
                     )}
                   </>
                 ) : (
-                  <div className="rounded-2xl border border-line bg-surface p-6">
+                  <div className="rounded-18 border border-line bg-surface p-6">
                     <h2 className="text-lg font-bold text-foreground">
                       Analiza tus datos
                     </h2>
@@ -492,7 +492,7 @@ export default function PasaportePage() {
                     <button
                       type="button"
                       onClick={handleRunAnalysis}
-                      className="mt-6 flex h-14 w-full items-center justify-center rounded-2xl bg-brand text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark sm:w-auto sm:px-8"
+                      className="mt-6 flex h-14 w-full items-center justify-center rounded-18 bg-brand text-sm font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-brand-dark sm:w-auto sm:px-8"
                     >
                       Analizar mis datos
                     </button>
@@ -504,7 +504,7 @@ export default function PasaportePage() {
         </div>
       )}
 
-      <div className="mt-8 space-y-3 rounded-2xl bg-gray-50 p-5 text-sm leading-6 text-muted">
+      <div className="mt-8 space-y-3 rounded-18 bg-surface-soft p-5 text-sm leading-6 text-muted">
         <p>
           CoFlow no recibe tus claves bancarias. La conexión y el
           consentimiento se realizan mediante TrueLayer.

@@ -51,8 +51,8 @@ export default function CommunityHeader({
 
   return (
     <div className="space-y-6">
-      <header className="overflow-hidden rounded-[1.5rem] border border-gray-100 bg-white shadow-sm sm:rounded-[2rem]">
-        <div className="relative min-h-[13rem] overflow-hidden bg-gradient-to-br from-[#163B2E] via-[#237154] to-green-400 px-5 py-6 sm:min-h-72 sm:px-10 sm:py-10">
+      <header className="overflow-hidden rounded-24 border border-border bg-surface shadow-soft sm:rounded-24">
+        <div className="relative min-h-[13rem] overflow-hidden bg-gradient-to-br from-brand-dark via-[#237154] to-green-400 px-5 py-6 sm:min-h-72 sm:px-10 sm:py-10">
           <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/10" />
           <div className="absolute -bottom-24 -left-20 h-72 w-72 rounded-full bg-green-100/10" />
           <div className="absolute bottom-8 right-16 h-24 w-24 rounded-full bg-white/5 blur-sm" />
@@ -82,7 +82,7 @@ export default function CommunityHeader({
             </div>
 
             <div className="flex items-end gap-4 sm:gap-5">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.25rem] border border-white/20 bg-white/15 text-xl font-bold text-white shadow-xl backdrop-blur sm:h-24 sm:w-24 sm:rounded-[1.5rem] sm:text-3xl">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-18 border border-white/20 bg-white/15 text-xl font-bold text-white shadow-soft backdrop-blur sm:h-24 sm:w-24 sm:rounded-24 sm:text-3xl">
                 {initials || "CF"}
               </div>
 
@@ -102,17 +102,17 @@ export default function CommunityHeader({
         <div className="p-5 sm:p-8">
           <div className="grid gap-6 lg:grid-cols-[1fr_300px] lg:gap-8">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
                 Sobre la comunidad
               </p>
 
-              <p className="mt-4 max-w-2xl whitespace-pre-line text-base leading-8 text-gray-600">
+              <p className="mt-4 max-w-2xl whitespace-pre-line text-base leading-8 text-secondary">
                 {community.description}
               </p>
             </div>
 
-            <aside className="rounded-[1.5rem] bg-[#F8FAFC] p-5">
-              <p className="text-sm font-bold text-[#163B2E]">
+            <aside className="rounded-24 bg-surface-muted p-5">
+              <p className="text-sm font-bold text-brand-dark">
                 Información principal
               </p>
 
@@ -156,20 +156,20 @@ export default function CommunityHeader({
                 <AvailableSpotSection community={community} />
               </div>
             ) : (
-              <div className="lg:col-span-2 rounded-[1.5rem] border border-gray-100 bg-[#F8FAFC] p-5">
+              <div className="lg:col-span-2 rounded-24 border border-border bg-surface-muted p-5">
                 <div className="flex items-start gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-green-600 shadow-sm">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-18 bg-surface text-primary shadow-soft">
                     <UsersIcon />
                   </span>
 
                   <div>
-                    <p className="text-sm font-bold text-[#163B2E]">
+                    <p className="text-sm font-bold text-brand-dark">
                       {community.is_full
                         ? "Capacidad máxima alcanzada"
                         : "No buscan nuevos miembros ahora"}
                     </p>
 
-                    <p className="mt-2 text-sm leading-6 text-gray-500">
+                    <p className="mt-2 text-sm leading-6 text-muted">
                       {community.is_full
                         ? "Esta comunidad ya tiene todos los miembros que puede tener. Puedes consultar su información, pero no puedes solicitar entrar."
                         : "Esta comunidad no está buscando nuevos miembros actualmente. Puedes consultar su información, pero no puedes solicitar entrar."}
@@ -182,7 +182,7 @@ export default function CommunityHeader({
 
           {!isOwner && (
             <div className="mt-8">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
                 Forma de acceso
               </p>
 
@@ -191,7 +191,7 @@ export default function CommunityHeader({
                   <button
                     type="button"
                     disabled
-                    className="flex h-14 cursor-default items-center justify-center gap-2 rounded-2xl bg-green-600 px-5 text-sm font-bold text-white"
+                    className="flex h-14 cursor-default items-center justify-center gap-2 rounded-18 bg-primary-dark px-5 text-sm font-bold text-white"
                   >
                     <CheckIcon />
                     Ya formas parte de esta comunidad
@@ -200,7 +200,7 @@ export default function CommunityHeader({
                   <button
                     type="button"
                     disabled
-                    className="flex h-14 cursor-not-allowed items-center justify-center gap-2 rounded-2xl bg-green-500 px-5 text-sm font-bold text-white opacity-55"
+                    className="flex h-14 cursor-not-allowed items-center justify-center gap-2 rounded-18 bg-primary px-5 text-sm font-bold text-white opacity-55"
                   >
                     <UsersIcon />
                     Capacidad máxima alcanzada
@@ -209,7 +209,7 @@ export default function CommunityHeader({
                   <button
                     type="button"
                     disabled
-                    className="flex h-14 cursor-not-allowed items-center justify-center gap-2 rounded-2xl bg-gray-200 px-5 text-sm font-bold text-gray-500"
+                    className="flex h-14 cursor-not-allowed items-center justify-center gap-2 rounded-18 bg-surface-soft px-5 text-sm font-bold text-muted"
                   >
                     <UsersIcon />
                     No buscan nuevos miembros ahora
@@ -219,7 +219,7 @@ export default function CommunityHeader({
                     type="button"
                     onClick={onJoin}
                     disabled={joining}
-                    className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-green-500 px-5 text-sm font-bold text-white shadow-lg shadow-green-500/20 transition hover:-translate-y-0.5 hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                    className="flex h-14 items-center justify-center gap-2 rounded-18 bg-primary px-5 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
                   >
                     {joining ? (
                       <>
@@ -239,7 +239,7 @@ export default function CommunityHeader({
 
                 <Link
                   href={`/personas/${community.owner_id}`}
-                  className="flex h-14 items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-5 text-sm font-bold text-[#163B2E] transition hover:border-green-300 hover:bg-green-50/40"
+                  className="flex h-14 items-center justify-center gap-2 rounded-18 border border-border bg-surface px-5 text-sm font-bold text-brand-dark transition hover:border-primary/30 hover:bg-mint-50/40"
                 >
                   <MessageIcon />
                   Ver perfil del administrador
@@ -249,7 +249,7 @@ export default function CommunityHeader({
               {joinError && (
                 <div
                   role="alert"
-                  className="mt-4 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-700"
+                  className="mt-4 rounded-18 border border-red-100 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-700"
                 >
                   {joinError}
                 </div>
@@ -258,7 +258,7 @@ export default function CommunityHeader({
               {joinSuccess && (
                 <div
                   role="alert"
-                  className="mt-4 rounded-2xl border border-green-100 bg-green-50 px-4 py-3 text-center text-sm font-semibold text-green-700"
+                  className="mt-4 rounded-18 border border-primary/30 bg-mint-50 px-4 py-3 text-center text-sm font-semibold text-primary-dark"
                 >
                   Te has unido correctamente a esta comunidad.
                 </div>
@@ -268,7 +268,7 @@ export default function CommunityHeader({
                 !joinSuccess &&
                 !community.is_member &&
                 isLookingForMembers && (
-                  <p className="mt-3 text-center text-xs text-gray-400">
+                  <p className="mt-3 text-center text-xs text-muted">
                     {community.join_type === "OPEN"
                       ? "Te convertirás en miembro inmediatamente."
                       : "El administrador revisará tu perfil antes de decidir."}
@@ -279,17 +279,17 @@ export default function CommunityHeader({
         </div>
       </header>
 
-      <section className="rounded-[1.5rem] border border-gray-100 bg-white p-5 shadow-sm sm:rounded-[2rem] sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+      <section className="rounded-24 border border-border bg-surface p-5 shadow-soft sm:rounded-24 sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
           Quiénes forman la comunidad
         </p>
 
-        <p className="mt-4 text-lg font-bold text-[#163B2E]">
+        <p className="mt-4 text-lg font-bold text-brand-dark">
           {getProfileTypeLabel(community.profile_type)}
         </p>
 
         {community.profile_description && (
-          <p className="mt-2 max-w-2xl whitespace-pre-line text-sm leading-7 text-gray-600">
+          <p className="mt-2 max-w-2xl whitespace-pre-line text-sm leading-7 text-secondary">
             {community.profile_description}
           </p>
         )}
@@ -321,23 +321,23 @@ function AvailableSpotSection({
   );
 
   return (
-    <section className="rounded-[1.5rem] border border-green-100 bg-green-50/40 p-5 sm:p-6">
+    <section className="rounded-24 border border-primary/30 bg-mint-50/40 p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
             {community.open_spots === 1
               ? "Plaza abierta"
               : "Plazas abiertas"}
           </p>
 
-          <h2 className="mt-2 text-xl font-bold text-[#163B2E]">
+          <h2 className="mt-2 text-xl font-bold text-brand-dark">
             Buscan{" "}
             {community.open_spots === 1
               ? "una persona nueva"
               : `${community.open_spots} personas nuevas`}
           </h2>
 
-          <p className="mt-2 text-sm leading-6 text-gray-500">
+          <p className="mt-2 text-sm leading-6 text-muted">
             Condiciones para la persona que ocupe esta plaza.
           </p>
         </div>
@@ -350,9 +350,9 @@ function AvailableSpotSection({
       </div>
 
       {community.monthly_rent !== null && (
-        <p className="mt-4 rounded-2xl bg-white px-4 py-3 text-sm leading-6 text-gray-600">
+        <p className="mt-4 rounded-18 bg-surface px-4 py-3 text-sm leading-6 text-secondary">
           La persona que ocupe esta plaza pagaría aproximadamente{" "}
-          <span className="font-bold text-[#163B2E]">
+          <span className="font-bold text-brand-dark">
             {community.monthly_rent.toLocaleString("es-ES")} €/mes
           </span>
           .
@@ -361,7 +361,7 @@ function AvailableSpotSection({
               <>
                 {" "}
                 Aproximadamente el{" "}
-                <span className="font-bold text-[#163B2E]">
+                <span className="font-bold text-brand-dark">
                   {
                     Math.round(
                       (community.monthly_rent /
@@ -410,12 +410,12 @@ function AvailableSpotSection({
       </div>
 
       {community.room_description && (
-        <div className="mt-5 rounded-2xl bg-white p-5">
-          <p className="text-xs font-bold uppercase tracking-wide text-gray-400">
+        <div className="mt-5 rounded-18 bg-surface p-5">
+          <p className="text-xs font-bold uppercase tracking-wide text-muted">
             Sobre la habitación
           </p>
 
-          <p className="mt-3 whitespace-pre-line text-sm leading-7 text-gray-600">
+          <p className="mt-3 whitespace-pre-line text-sm leading-7 text-secondary">
             {community.room_description}
           </p>
         </div>
@@ -432,12 +432,12 @@ function SpotData({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm">
-      <p className="text-xs font-semibold text-gray-400">
+    <div className="rounded-18 bg-surface p-4 shadow-soft">
+      <p className="text-xs font-semibold text-muted">
         {label}
       </p>
 
-      <p className="mt-2 text-sm font-bold text-[#163B2E]">
+      <p className="mt-2 text-sm font-bold text-brand-dark">
         {value}
       </p>
     </div>
@@ -451,25 +451,25 @@ function CommunityPreferencesSection({
 }) {
   if (!preferences) {
     return (
-      <article className="rounded-[1.75rem] border border-gray-100 bg-white p-6 shadow-sm sm:p-7">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+      <article className="rounded-18 border border-border bg-surface p-6 shadow-soft sm:p-7">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
           Compatibilidad
         </p>
 
-        <h2 className="mt-2 text-xl font-bold text-[#163B2E]">
+        <h2 className="mt-2 text-xl font-bold text-brand-dark">
           Lo que busca esta comunidad
         </h2>
 
-        <div className="mt-6 rounded-2xl bg-[#F8FAFC] p-6 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-green-600 shadow-sm">
+        <div className="mt-6 rounded-18 bg-surface-muted p-6 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-18 bg-surface text-primary shadow-soft">
             <PreferencesIcon />
           </div>
 
-          <p className="mt-4 text-sm font-bold text-[#163B2E]">
+          <p className="mt-4 text-sm font-bold text-brand-dark">
             Preferencias todavía no configuradas
           </p>
 
-          <p className="mt-2 text-sm leading-6 text-gray-500">
+          <p className="mt-2 text-sm leading-6 text-muted">
             El administrador aún no ha indicado cómo quiere organizar la
             convivencia.
           </p>
@@ -529,24 +529,24 @@ function CommunityPreferencesSection({
   ];
 
   return (
-    <article className="rounded-[1.75rem] border border-gray-100 bg-white p-6 shadow-sm sm:p-7">
+    <article className="rounded-18 border border-border bg-surface p-6 shadow-soft sm:p-7">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
             Compatibilidad
           </p>
 
-          <h2 className="mt-2 text-xl font-bold text-[#163B2E]">
+          <h2 className="mt-2 text-xl font-bold text-brand-dark">
             Lo que busca esta comunidad
           </h2>
 
-          <p className="mt-3 max-w-xl text-sm leading-6 text-gray-500">
+          <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
             Estas son las principales condiciones y preferencias definidas por
             el administrador.
           </p>
         </div>
 
-        <span className="shrink-0 rounded-full bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
+        <span className="shrink-0 rounded-full bg-mint-50 px-3 py-2 text-xs font-bold text-primary-dark">
           8 preferencias
         </span>
       </div>
@@ -562,8 +562,8 @@ function CommunityPreferencesSection({
         ))}
       </div>
 
-      <details className="group mt-5 overflow-hidden rounded-2xl border border-gray-100">
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 bg-white px-4 py-4 text-sm font-bold text-[#163B2E] transition hover:bg-gray-50">
+      <details className="group mt-5 overflow-hidden rounded-18 border border-border">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 bg-surface px-4 py-4 text-sm font-bold text-brand-dark transition hover:bg-surface-soft">
           <span>Ver todas las condiciones</span>
 
           <span className="transition duration-200 group-open:rotate-180">
@@ -571,17 +571,17 @@ function CommunityPreferencesSection({
           </span>
         </summary>
 
-        <div className="space-y-2 border-t border-gray-100 bg-[#FBFCFB] p-4">
+        <div className="space-y-2 border-t border-border bg-surface-soft p-4">
           {secondaryPreferences.map((preference) => (
             <div
               key={preference.key}
-              className="rounded-xl bg-white px-4 py-3"
+              className="rounded-14 bg-surface px-4 py-3"
             >
-              <p className="text-xs font-semibold text-gray-500">
+              <p className="text-xs font-semibold text-muted">
                 {preference.label}
               </p>
 
-              <p className="mt-1 text-sm font-bold leading-6 text-[#163B2E]">
+              <p className="mt-1 text-sm font-bold leading-6 text-brand-dark">
                 {preference.value}
               </p>
             </div>
@@ -602,18 +602,18 @@ function PreferenceCard({
   icon: ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-100 bg-[#F8FAFC] p-4">
+    <div className="rounded-18 border border-border bg-surface-muted p-4">
       <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-green-600 shadow-sm">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-14 bg-surface text-primary shadow-soft">
           {icon}
         </span>
 
-        <p className="text-xs font-bold uppercase tracking-wide text-gray-500">
+        <p className="text-xs font-bold uppercase tracking-wide text-muted">
           {label}
         </p>
       </div>
 
-      <p className="mt-3 text-sm font-bold leading-6 text-[#163B2E]">
+      <p className="mt-3 text-sm font-bold leading-6 text-brand-dark">
         {value}
       </p>
     </div>
@@ -647,39 +647,39 @@ function MembersSection({
   });
 
   return (
-    <article className="rounded-[1.75rem] border border-gray-100 bg-white p-6 shadow-sm sm:p-7">
+    <article className="rounded-18 border border-border bg-surface p-6 shadow-soft sm:p-7">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
             Miembros actuales
           </p>
 
-          <h2 className="mt-2 text-xl font-bold text-[#163B2E]">
+          <h2 className="mt-2 text-xl font-bold text-brand-dark">
             Personas que ya forman parte
           </h2>
 
-          <p className="mt-3 text-sm leading-6 text-gray-500">
+          <p className="mt-3 text-sm leading-6 text-muted">
             Estas son las personas que ya viven en la comunidad dentro de
             CoFlow.
           </p>
         </div>
 
-        <span className="shrink-0 rounded-full bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
+        <span className="shrink-0 rounded-full bg-mint-50 px-3 py-2 text-xs font-bold text-primary-dark">
           {memberCount} de {maxMembers} miembros
         </span>
       </div>
 
       {sortedMembers.length === 0 ? (
-        <div className="mt-6 rounded-2xl bg-[#F8FAFC] p-5 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-green-600 shadow-sm">
+        <div className="mt-6 rounded-18 bg-surface-muted p-5 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-18 bg-surface text-primary shadow-soft">
             <UsersIcon />
           </div>
 
-          <p className="mt-4 text-sm font-bold text-[#163B2E]">
+          <p className="mt-4 text-sm font-bold text-brand-dark">
             Todavía no hay miembros registrados
           </p>
 
-          <p className="mt-2 text-sm leading-6 text-gray-500">
+          <p className="mt-2 text-sm leading-6 text-muted">
             Esta comunidad puede haberse creado antes de activar el sistema de
             miembros.
           </p>
@@ -696,21 +696,21 @@ function MembersSection({
       )}
 
       {openSpots > 0 && (
-        <div className="mt-5 rounded-2xl border border-dashed border-green-200 bg-green-50/50 px-4 py-4">
+        <div className="mt-5 rounded-18 border border-dashed border-primary/30 bg-mint-50/50 px-4 py-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-green-600 shadow-sm">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-14 bg-surface text-primary shadow-soft">
               <PlusPersonIcon />
             </span>
 
             <div>
-              <p className="text-sm font-bold text-[#163B2E]">
+              <p className="text-sm font-bold text-brand-dark">
                 {openSpots}{" "}
                 {openSpots === 1
                   ? "plaza abierta"
                   : "plazas abiertas"}
               </p>
 
-              <p className="mt-1 text-xs leading-5 text-gray-500">
+              <p className="mt-1 text-xs leading-5 text-muted">
                 La comunidad está buscando activamente nuevos miembros.
               </p>
             </div>
@@ -748,13 +748,13 @@ function CommunityMemberItem({
   return (
     <Link
       href={`/personas/${member.user_id}`}
-      className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-[#F8FAFC] p-4 transition active:scale-[0.98] hover:border-green-200"
+      className="flex items-center gap-4 rounded-18 border border-border bg-surface-muted p-4 transition active:scale-[0.98] hover:border-primary/30"
     >
       <div
-        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-bold ${
+        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-18 text-sm font-bold ${
           member.role === "OWNER"
-            ? "bg-[#163B2E] text-white"
-            : "bg-white text-green-700 shadow-sm"
+            ? "bg-brand-dark text-white"
+            : "bg-surface text-primary-dark shadow-soft"
         }`}
       >
         {initials || "CF"}
@@ -762,15 +762,15 @@ function CommunityMemberItem({
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="truncate text-sm font-bold text-[#163B2E]">
+          <p className="truncate text-sm font-bold text-brand-dark">
             {fullName || "Miembro de CoFlow"}
           </p>
 
           <span
             className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
               member.role === "OWNER"
-                ? "bg-green-100 text-green-800"
-                : "bg-white text-gray-500"
+                ? "bg-mint-100 text-primary-dark"
+                : "bg-surface text-muted"
             }`}
           >
             {member.role === "OWNER"
@@ -779,7 +779,7 @@ function CommunityMemberItem({
           </span>
         </div>
 
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-muted">
           {member.role === "OWNER"
             ? "Creador de la comunidad"
             : `Se unió ${joinedDate}`}
@@ -789,7 +789,7 @@ function CommunityMemberItem({
       {member.role === "OWNER" && (
         <span
           title="Administrador"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-700"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-mint-100 text-primary-dark"
         >
           <CrownIcon />
         </span>
@@ -851,8 +851,8 @@ function getUrgencyData(
     default:
       return {
         label: "Sin prisa",
-        heroClass: "bg-white text-[#163B2E]",
-        detailClass: "bg-green-100 text-green-700",
+        heroClass: "bg-surface text-brand-dark",
+        detailClass: "bg-mint-100 text-primary-dark",
       };
   }
 }
@@ -868,16 +868,16 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-green-600 shadow-sm">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-14 bg-surface text-primary shadow-soft">
         {icon}
       </span>
 
       <div className="min-w-0">
-        <p className="text-xs font-semibold text-gray-400">
+        <p className="text-xs font-semibold text-muted">
           {label}
         </p>
 
-        <p className="mt-1 text-sm font-bold leading-5 text-[#163B2E]">
+        <p className="mt-1 text-sm font-bold leading-5 text-brand-dark">
           {value}
         </p>
       </div>

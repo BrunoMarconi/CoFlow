@@ -24,17 +24,17 @@ export default function ProfileInfo({ user }: { user: User }) {
   ];
 
   return (
-    <section className="rounded-[1.75rem] border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-18 border border-border bg-surface p-5 shadow-soft sm:p-6">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.15em] text-green-600">
+        <p className="text-xs font-bold uppercase tracking-[0.15em] text-primary">
           Datos personales
         </p>
 
-        <h2 className="mt-2 text-xl font-bold text-[#163B2E]">
+        <h2 className="mt-2 text-xl font-bold text-brand-dark">
           Información
         </h2>
 
-        <p className="mt-2 text-sm leading-6 text-gray-500">
+        <p className="mt-2 text-sm leading-6 text-muted">
           Esta información ayuda a identificar tu cuenta y mantener tu perfil
           actualizado.
         </p>
@@ -47,24 +47,24 @@ export default function ProfileInfo({ user }: { user: User }) {
           return (
             <div
               key={row.label}
-              className="flex items-center gap-4 rounded-2xl bg-[#F8FAFC] p-4"
+              className="flex items-center gap-4 rounded-18 bg-surface-muted p-4"
             >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-green-600 shadow-sm">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 bg-surface text-primary shadow-soft">
                 <Icon />
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-gray-500">
+                <p className="text-xs font-semibold text-muted">
                   {row.label}
                 </p>
 
                 <p
                   className={`mt-1 truncate text-sm font-bold ${
                     row.missing
-                      ? "text-gray-400"
+                      ? "text-muted"
                       : row.positive
-                        ? "text-green-700"
-                        : "text-[#163B2E]"
+                        ? "text-primary-dark"
+                        : "text-brand-dark"
                   }`}
                 >
                   {row.value}

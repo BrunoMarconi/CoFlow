@@ -113,26 +113,26 @@ export default function ComunidadDetallePage() {
   if (notFound || !community) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-6 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-green-50 text-green-600">
+        <div className="flex h-16 w-16 items-center justify-center rounded-18 bg-mint-50 text-primary">
           <SearchIcon />
         </div>
 
-        <p className="mt-6 text-sm font-bold uppercase tracking-[0.2em] text-green-600">
+        <p className="mt-6 text-sm font-bold uppercase tracking-[0.2em] text-primary">
           Comunidad no encontrada
         </p>
 
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#163B2E]">
+        <h1 className="mt-3 text-3xl font-bold tracking-tight text-brand-dark">
           No hemos encontrado esta comunidad
         </h1>
 
-        <p className="mt-4 max-w-md text-base leading-7 text-gray-500">
+        <p className="mt-4 max-w-md text-base leading-7 text-muted">
           Puede que haya sido eliminada, desactivada o que el enlace ya no sea
           válido.
         </p>
 
         <Link
           href="/comunidades"
-          className="mt-7 inline-flex h-12 items-center justify-center rounded-2xl bg-green-500 px-6 text-sm font-bold text-white shadow-lg shadow-green-500/20 transition hover:-translate-y-0.5 hover:bg-green-600"
+          className="mt-7 inline-flex h-12 items-center justify-center rounded-18 bg-primary px-6 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-primary-hover"
         >
           Volver a comunidades
         </Link>
@@ -148,7 +148,7 @@ export default function ComunidadDetallePage() {
     <div className="mx-auto w-full max-w-5xl">
       <Link
         href="/comunidades"
-        className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-gray-500 transition hover:text-[#163B2E]"
+        className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-muted transition hover:text-brand-dark"
       >
         <ArrowLeftIcon />
         Volver a comunidades

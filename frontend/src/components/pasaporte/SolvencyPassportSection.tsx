@@ -164,14 +164,14 @@ export default function SolvencyPassportSection({
       {error && (
         <p
           role="alert"
-          className="mb-4 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
+          className="mb-4 rounded-18 border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
         >
           {error}
         </p>
       )}
 
       {!passport ? (
-        <div className="rounded-2xl border border-line bg-surface p-6">
+        <div className="rounded-18 border border-line bg-surface p-6">
           <h2 className="text-lg font-bold text-foreground">
             Emite tu Pasaporte de Solvencia
           </h2>
@@ -185,13 +185,13 @@ export default function SolvencyPassportSection({
             type="button"
             onClick={handleIssue}
             disabled={issuing}
-            className="mt-6 flex h-14 w-full items-center justify-center rounded-2xl bg-brand text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8"
+            className="mt-6 flex h-14 w-full items-center justify-center rounded-18 bg-brand text-sm font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8"
           >
             {issuing ? "Emitiendo…" : "Emitir pasaporte de prueba"}
           </button>
         </div>
       ) : (
-        <div className="rounded-2xl border border-line bg-surface p-6">
+        <div className="rounded-18 border border-line bg-surface p-6">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-bold text-foreground">
               Pasaporte de Solvencia
@@ -199,7 +199,7 @@ export default function SolvencyPassportSection({
             <span
               className={`rounded-full px-3 py-1 text-xs font-bold ${
                 passport.status === "ISSUED"
-                  ? "bg-green-100 text-green-700"
+                  ? "bg-mint-100 text-primary-dark"
                   : "bg-red-100 text-red-700"
               }`}
             >
@@ -237,7 +237,7 @@ export default function SolvencyPassportSection({
           </dl>
 
           {passport.status !== "ISSUED" && (
-            <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-700">
+            <p className="mt-4 rounded-14 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-700">
               Este pasaporte ya no es válido. No lo compartas como
               documento vigente.
             </p>
@@ -248,7 +248,7 @@ export default function SolvencyPassportSection({
               type="button"
               onClick={handleDownloadPdf}
               disabled={downloading}
-              className="flex h-12 items-center justify-center rounded-2xl bg-brand text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-12 items-center justify-center rounded-18 bg-brand text-sm font-bold text-white shadow-button transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
             >
               {downloading ? "Descargando…" : "Descargar PDF"}
             </button>
@@ -257,7 +257,7 @@ export default function SolvencyPassportSection({
               type="button"
               onClick={handleCopyLink}
               disabled={passport.status !== "ISSUED"}
-              className="flex h-12 items-center justify-center rounded-2xl border border-line bg-white text-sm font-bold text-foreground transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-12 items-center justify-center rounded-18 border border-line bg-surface text-sm font-bold text-foreground transition hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60"
             >
               {copied ? "¡Copiado!" : "Copiar enlace verificable"}
             </button>
@@ -266,7 +266,7 @@ export default function SolvencyPassportSection({
               type="button"
               onClick={handleViewPublicPage}
               disabled={passport.status !== "ISSUED"}
-              className="flex h-12 items-center justify-center rounded-2xl border border-line bg-white text-sm font-bold text-foreground transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-12 items-center justify-center rounded-18 border border-line bg-surface text-sm font-bold text-foreground transition hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60"
             >
               Ver página pública
             </button>
@@ -275,7 +275,7 @@ export default function SolvencyPassportSection({
               type="button"
               onClick={handleRegenerate}
               disabled={passport.status !== "ISSUED" || regenerating}
-              className="flex h-12 items-center justify-center rounded-2xl border border-line bg-white text-sm font-bold text-foreground transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-12 items-center justify-center rounded-18 border border-line bg-surface text-sm font-bold text-foreground transition hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60"
             >
               {regenerating ? "Regenerando…" : "Regenerar enlace"}
             </button>
@@ -286,7 +286,7 @@ export default function SolvencyPassportSection({
               type="button"
               onClick={handleRevoke}
               disabled={revoking}
-              className="mt-3 flex h-12 w-full items-center justify-center rounded-2xl border border-red-100 bg-white text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-3 flex h-12 w-full items-center justify-center rounded-18 border border-red-100 bg-surface text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {revoking ? "Revocando…" : "Revocar pasaporte"}
             </button>

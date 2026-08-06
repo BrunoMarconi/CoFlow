@@ -21,7 +21,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
         <main
           className={cn(
-            "min-w-0 flex-1 overflow-x-hidden md:pb-8",
+            "min-w-0 flex-1 overflow-x-hidden md:ml-66 md:pb-8",
             // Con un chat a pantalla completa activo en móvil, BottomNavigation
             // se oculta: reservarle espacio dejaría un hueco vacío debajo.
             isChatActive
@@ -31,7 +31,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         >
           <div
             className={cn(
-              "mx-auto w-full max-w-330 sm:px-6 sm:py-6 lg:px-8",
+              "mx-auto w-full max-w-7xl sm:px-6 sm:py-6 lg:px-8",
               isChatActive ? "px-0 py-0" : "px-4 py-6"
             )}
           >

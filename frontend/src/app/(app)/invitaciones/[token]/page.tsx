@@ -118,22 +118,22 @@ export default function InvitacionPage() {
   if (notFound || !invitation) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-6 text-center">
-        <p className="text-sm font-bold uppercase tracking-[0.2em] text-green-600">
+        <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
           Invitación no encontrada
         </p>
 
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#163B2E]">
+        <h1 className="mt-3 text-3xl font-bold tracking-tight text-brand-dark">
           Este enlace ya no es válido
         </h1>
 
-        <p className="mt-4 max-w-md text-base leading-7 text-gray-500">
+        <p className="mt-4 max-w-md text-base leading-7 text-muted">
           Puede que el enlace esté mal copiado o que la invitación ya no
           exista.
         </p>
 
         <Link
           href="/comunidades"
-          className="mt-7 inline-flex h-12 items-center justify-center rounded-2xl bg-green-500 px-6 text-sm font-bold text-white shadow-lg shadow-green-500/20 transition hover:-translate-y-0.5 hover:bg-green-600"
+          className="mt-7 inline-flex h-12 items-center justify-center rounded-18 bg-primary px-6 text-sm font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover"
         >
           Explorar comunidades
         </Link>
@@ -145,16 +145,16 @@ export default function InvitacionPage() {
 
   return (
     <div className="mx-auto w-full max-w-xl">
-      <div className="rounded-[1.5rem] border border-gray-100 bg-white p-5 shadow-sm sm:rounded-[2rem] sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-600">
+      <div className="rounded-18 border border-border bg-surface p-5 shadow-soft sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
           Invitación a una comunidad
         </p>
 
-        <h1 className="mt-3 text-2xl font-bold text-[#163B2E] sm:text-3xl">
+        <h1 className="mt-3 text-2xl font-bold text-brand-dark sm:text-3xl">
           {invitation.community.name}
         </h1>
 
-        <p className="mt-2 text-sm font-semibold text-gray-500">
+        <p className="mt-2 text-sm font-semibold text-muted">
           {invitation.community.city} ·{" "}
           {invitation.community.member_count}{" "}
           {invitation.community.member_count === 1
@@ -162,12 +162,12 @@ export default function InvitacionPage() {
             : "miembros actuales"}
         </p>
 
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted">
           Administrada por {invitation.community.owner_first_name}{" "}
           {invitation.community.owner_last_name}
         </p>
 
-        <p className="mt-5 rounded-2xl bg-[#F8FAFC] p-4 text-sm leading-6 text-gray-600">
+        <p className="mt-5 rounded-18 bg-surface-muted p-4 text-sm leading-6 text-secondary">
           Esta invitación es para una persona que ya vive en la vivienda.
           Al aceptarla, aparecerá como miembro de la comunidad, pero no
           ocupará una plaza abierta. Tendrás acceso al chat grupal dentro
@@ -175,17 +175,17 @@ export default function InvitacionPage() {
         </p>
 
         {isPending && (
-          <p className="mt-3 text-xs font-semibold text-gray-400">
+          <p className="mt-3 text-xs font-semibold text-muted">
             Caduca el {formatExpiry(invitation.expires_at)}
           </p>
         )}
 
         {declined ? (
-          <p className="mt-5 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-center text-sm font-semibold text-gray-600">
+          <p className="mt-5 rounded-18 border border-border bg-surface-soft px-4 py-3 text-center text-sm font-semibold text-secondary">
             Has rechazado esta invitación.
           </p>
         ) : !isPending ? (
-          <p className="mt-5 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-amber-700">
+          <p className="mt-5 rounded-18 border border-amber-100 bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-amber-700">
             {STATUS_MESSAGES[invitation.status] ??
               "Esta invitación ya no está disponible."}
           </p>
@@ -194,7 +194,7 @@ export default function InvitacionPage() {
             {actionError && (
               <p
                 role="alert"
-                className="mt-5 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
+                className="mt-5 rounded-18 border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
               >
                 {actionError}
               </p>
@@ -205,7 +205,7 @@ export default function InvitacionPage() {
                 type="button"
                 onClick={handleAccept}
                 disabled={submitting}
-                className="flex h-12 w-full items-center justify-center rounded-2xl bg-green-500 text-sm font-bold text-white shadow-lg shadow-green-500/20 transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
+                className="flex h-12 w-full items-center justify-center rounded-18 bg-primary text-sm font-bold text-white shadow-button transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
               >
                 {submitting ? "Procesando..." : "Aceptar invitación"}
               </button>
@@ -214,7 +214,7 @@ export default function InvitacionPage() {
                 type="button"
                 onClick={handleDecline}
                 disabled={submitting}
-                className="flex h-12 w-full items-center justify-center rounded-2xl border border-gray-200 bg-white text-sm font-bold text-[#163B2E] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
+                className="flex h-12 w-full items-center justify-center rounded-18 border border-border bg-surface text-sm font-bold text-brand-dark transition hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
               >
                 Rechazar
               </button>
