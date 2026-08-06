@@ -39,8 +39,23 @@ export default function LoginPage() {
       }
 
       router.push(currentUser?.onboarding_completed ? "/comunidades" : "/onboarding");
-    } catch {
-      setError("El correo o la contraseña no son correctos.");
+    } catch (err) {
+      const status = (err as { response?: { status?: number } })?.response
+        ?.status;
+
+      if (status === 401) {
+        setError("El correo o la contraseña no son correctos.");
+      } else if (status !== undefined) {
+        // Error real del servidor (5xx) o de validación (4xx distinto de
+        // 401): no es un problema de credenciales, así que no lo
+        // mostramos como tal — induciría a error a quien esté seguro de
+        // su contraseña.
+        setError(
+          "Estamos teniendo problemas técnicos para iniciar sesión. Inténtalo de nuevo en unos minutos."
+        );
+      } else {
+        setError("No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.");
+      }
     } finally {
       setLoading(false);
     }

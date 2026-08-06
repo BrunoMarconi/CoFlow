@@ -1,5 +1,6 @@
 from fastapi import BackgroundTasks, HTTPException
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.config import (
@@ -49,7 +50,23 @@ class AuthService:
         )
 
         db.add(user)
-        db.commit()
+
+        try:
+            db.commit()
+        except IntegrityError:
+            # Red de seguridad ante una condición de carrera: dos
+            # registros simultáneos con el mismo email pueden pasar
+            # ambos la comprobación de "existing_user" de arriba antes
+            # de que ninguno haga commit. Sin este catch, el segundo
+            # commit lanzaría un IntegrityError de la constraint UNIQUE
+            # de la base de datos como un 500 sin manejar, en vez del
+            # 409 "email ya registrado" esperable.
+            db.rollback()
+            raise HTTPException(
+                status_code=409,
+                detail="Email already registered",
+            )
+
         db.refresh(user)
 
         if not EMAIL_VERIFICATION_ENABLED:

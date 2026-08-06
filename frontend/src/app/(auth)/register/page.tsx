@@ -34,7 +34,20 @@ export default function RegisterPage() {
         email,
         password,
       });
+    } catch (err) {
+      const status = (err as { response?: { status?: number } })?.response
+        ?.status;
 
+      setError(
+        status === 409
+          ? "Ese correo ya tiene una cuenta creada. Inicia sesión con tu contraseña o usa otro correo."
+          : "No pudimos crear tu cuenta. Intenta de nuevo."
+      );
+      setLoading(false);
+      return;
+    }
+
+    try {
       const data = await login({ email, password });
 
       setToken(data.access_token);
@@ -42,7 +55,12 @@ export default function RegisterPage() {
 
       router.push("/verificacion-pendiente");
     } catch {
-      setError("No pudimos crear tu cuenta. Intenta de nuevo.");
+      // La cuenta SÍ se creó (el registro no lanzó error); solo falló
+      // el inicio de sesión automático justo después. No mostramos
+      // "no pudimos crear tu cuenta" — sería falso y confunde.
+      setError(
+        "Tu cuenta se creó correctamente, pero no pudimos iniciar sesión automáticamente. Ve a \"Iniciar sesión\" e inténtalo con tu contraseña."
+      );
     } finally {
       setLoading(false);
     }
