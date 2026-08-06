@@ -139,6 +139,55 @@ def test_login_with_unknown_email_returns_401_not_500(db_session):
     assert response.json() == {"detail": "Invalid credentials"}
 
 
+def test_login_full_response_body_matches_login_response_schema(db_session):
+    """Reproduce exactamente el flujo pedido: crear usuario -> login
+    correcto -> validar el JSON completo (no solo campos sueltos) ->
+    comprobar is_email_verified -> confirmar que nunca es un 500.
+
+    Este test fija por contrato las claves exactas que devuelve
+    LoginResponse. Si algún día login() empezara a servir (o a
+    intentar servir) columnas que no existen en la tabla real —como
+    pasó en producción al desplegar el modelo de avatares antes de
+    aplicar su migración— este test seguiría en verde porque usa una
+    base de datos con el esquema al día; la protección real contra esa
+    clase de fallo es de infraestructura (migración aplicada antes que
+    el código que la requiere), no algo que un test unitario pueda
+    sustituir. Lo que este test sí garantiza es el contrato exacto de
+    /auth/login cuando el esquema está correcto.
+    """
+    client = _client(db_session)
+
+    with patch("app.services.auth_service.EMAIL_VERIFICATION_ENABLED", False):
+        register_response = client.post(
+            "/auth/register", json=FRONTEND_REGISTER_PAYLOAD
+        )
+        assert register_response.status_code == 200
+
+        login_response = client.post(
+            "/auth/login",
+            json={
+                "email": FRONTEND_REGISTER_PAYLOAD["email"],
+                "password": FRONTEND_REGISTER_PAYLOAD["password"],
+            },
+        )
+
+    assert login_response.status_code != 500
+    assert login_response.status_code == 200
+
+    body = login_response.json()
+
+    assert set(body.keys()) == {
+        "access_token",
+        "token_type",
+        "is_email_verified",
+        "email_verification_enabled",
+    }
+    assert isinstance(body["access_token"], str) and len(body["access_token"]) > 0
+    assert body["token_type"] == "bearer"
+    assert body["is_email_verified"] is True
+    assert body["email_verification_enabled"] is False
+
+
 def test_register_does_not_send_email_when_flag_disabled(db_session):
     client = _client(db_session)
 
