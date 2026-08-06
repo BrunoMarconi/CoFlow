@@ -42,15 +42,24 @@ function CommunityMemberRow({ member }: { member: CommunityMember }) {
       href={`/personas/${member.user_id}`}
       className="flex items-center gap-4 rounded-18 border border-border bg-surface-muted p-4 transition active:scale-[0.98] hover:border-primary/30"
     >
-      <div
-        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-18 text-sm font-bold ${
-          member.role === "OWNER"
-            ? "bg-brand-dark text-white"
-            : "bg-surface text-primary-dark shadow-soft"
-        }`}
-      >
-        {initials || "CF"}
-      </div>
+      {member.user.avatar_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={member.user.avatar_url}
+          alt=""
+          className="h-12 w-12 shrink-0 rounded-18 object-cover"
+        />
+      ) : (
+        <div
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-18 text-sm font-bold ${
+            member.role === "OWNER"
+              ? "bg-brand-dark text-white"
+              : "bg-surface text-primary-dark shadow-soft"
+          }`}
+        >
+          {initials || "CF"}
+        </div>
+      )}
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">

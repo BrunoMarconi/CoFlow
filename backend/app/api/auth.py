@@ -1,4 +1,13 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    HTTPException,
+    Request,
+    Response,
+    UploadFile,
+)
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
@@ -19,6 +28,7 @@ from app.services.email_verification_service import (
     resend_verification,
     verify as verify_email_token,
 )
+from app.services.user_photo_service import UserPhotoService
 
 from app.core.config import (
     ENVIRONMENT,
@@ -28,6 +38,7 @@ from app.core.config import (
 from app.core.dependencies import get_current_user
 from app.database.models.user import User
 from app.schemas.user import UpdateProfileRequest, UserResponse
+from app.schemas.user_photo import UserPhotoOrderUpdate
 
 
 router = APIRouter(
@@ -36,6 +47,7 @@ router = APIRouter(
 )
 
 auth_service = AuthService()
+user_photo_service = UserPhotoService()
 
 _VERIFY_ERROR_MESSAGES = {
     "INVALID_TOKEN": "Este enlace de verificación no es válido.",
@@ -107,6 +119,63 @@ def update_profile(
         data,
         db
     )
+
+
+@router.post("/me/avatar", response_model=UserResponse)
+async def upload_avatar(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    user = await user_photo_service.upload_avatar(
+        db=db, current_user=current_user, file=file,
+    )
+    return _to_user_response(user)
+
+
+@router.delete("/me/avatar", response_model=UserResponse)
+def delete_avatar(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    user = user_photo_service.delete_avatar(db=db, current_user=current_user)
+    return _to_user_response(user)
+
+
+@router.post("/me/photos", response_model=UserResponse)
+async def upload_photos(
+    files: list[UploadFile] = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    user = await user_photo_service.upload_photos(
+        db=db, current_user=current_user, files=files,
+    )
+    return _to_user_response(user)
+
+
+@router.delete("/me/photos/{photo_id}", response_model=UserResponse)
+def delete_photo(
+    photo_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    user = user_photo_service.delete_photo(
+        db=db, current_user=current_user, photo_id=photo_id,
+    )
+    return _to_user_response(user)
+
+
+@router.put("/me/photos/order", response_model=UserResponse)
+def reorder_photos(
+    data: UserPhotoOrderUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    user = user_photo_service.reorder_photos(
+        db=db, current_user=current_user, photo_ids=data.photo_ids,
+    )
+    return _to_user_response(user)
 
 
 @router.post(

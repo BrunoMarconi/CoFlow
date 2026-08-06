@@ -120,9 +120,18 @@ export default function MensajesPage() {
           href={`/personas/${other.id}`}
           className="flex min-w-0 items-center gap-3"
         >
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 bg-primary text-sm font-bold text-white">
-            {initials || "CF"}
-          </div>
+          {other.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={other.avatar_url}
+              alt=""
+              className="h-11 w-11 shrink-0 rounded-14 object-cover"
+            />
+          ) : (
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 bg-primary text-sm font-bold text-white">
+              {initials || "CF"}
+            </div>
+          )}
 
           <div className="min-w-0">
             <p className="truncate text-base font-bold text-brand-dark">

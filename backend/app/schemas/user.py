@@ -2,6 +2,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.user_photo import UserPhotoResponse
+
 
 class UpdateProfileRequest(BaseModel):
     first_name: str
@@ -28,6 +30,8 @@ class UserResponse(BaseModel):
     rental_budget: int | None = None
     is_looking_for_roommates: bool
     is_email_verified: bool
+    avatar_url: str | None = None
+    photos: list[UserPhotoResponse] = Field(default_factory=list)
     # No es un campo del modelo: se rellena en la ruta a partir de la
     # feature flag EMAIL_VERIFICATION_ENABLED.
     email_verification_enabled: bool = True

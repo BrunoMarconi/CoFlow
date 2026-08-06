@@ -1,3 +1,5 @@
+import type { UserPhoto } from "./userPhoto";
+
 export interface RegisterRequest {
   first_name: string;
   last_name: string;
@@ -29,6 +31,8 @@ export interface User {
   is_looking_for_roommates: boolean;
   is_email_verified: boolean;
   email_verification_enabled: boolean;
+  avatar_url: string | null;
+  photos: UserPhoto[];
 }
 
 export interface RegisterResponse {

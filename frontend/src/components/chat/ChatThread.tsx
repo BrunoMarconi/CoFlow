@@ -17,6 +17,7 @@ export interface ChatThreadSender {
   id: string;
   first_name: string;
   last_name: string;
+  avatar_url?: string | null;
 }
 
 export interface ChatThreadMessage {
@@ -370,13 +371,22 @@ const MessageBubble = memo(function MessageBubble({
         isOwn ? "flex-row-reverse" : "flex-row"
       }`}
     >
-      <div
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-          isOwn ? "bg-primary text-white" : "bg-brand-dark text-white"
-        }`}
-      >
-        {initials || "CF"}
-      </div>
+      {message.sender.avatar_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={message.sender.avatar_url}
+          alt={fullName}
+          className="h-8 w-8 shrink-0 rounded-full object-cover"
+        />
+      ) : (
+        <div
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+            isOwn ? "bg-primary text-white" : "bg-brand-dark text-white"
+          }`}
+        >
+          {initials || "CF"}
+        </div>
+      )}
 
       <div
         className={`max-w-[82%] min-w-0 rounded-18 px-4 py-3 ${

@@ -66,6 +66,14 @@ class User(Base):
         default=True,
         index=True,
     )
+    avatar_url: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+    )
+    avatar_storage_key: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -101,6 +109,14 @@ class User(Base):
     cascade="all, delete-orphan",
     passive_deletes=True,
 )
+
+    photos: Mapped[list["UserPhoto"]] = relationship(
+        "UserPhoto",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="UserPhoto.position",
+    )
 
     community_messages: Mapped[list["CommunityMessage"]] = relationship(
         "CommunityMessage",

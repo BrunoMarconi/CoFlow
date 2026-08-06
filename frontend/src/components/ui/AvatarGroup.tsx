@@ -5,6 +5,7 @@ export interface AvatarGroupMember {
   id: string;
   firstName: string;
   lastName?: string | null;
+  imageUrl?: string | null;
 }
 
 export default function AvatarGroup({
@@ -36,6 +37,7 @@ export default function AvatarGroup({
           firstName={member.firstName}
           lastName={member.lastName}
           userId={member.id}
+          imageUrl={member.imageUrl}
           size={size}
           className="border-2 border-surface"
         />

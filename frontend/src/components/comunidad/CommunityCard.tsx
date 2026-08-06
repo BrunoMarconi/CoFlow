@@ -110,6 +110,7 @@ export default function CommunityCard({
                 id: member.id.toString(),
                 firstName: member.user.first_name,
                 lastName: member.user.last_name,
+                imageUrl: member.user.avatar_url,
               }))}
             />
 

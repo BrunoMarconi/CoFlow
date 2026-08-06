@@ -1,3 +1,5 @@
+import type { UserPhoto } from "./userPhoto";
+
 export interface PublicUserCommunity {
   id: number;
   name: string;
@@ -44,6 +46,8 @@ export interface UserPublicProfile {
   connection_id: number | null;
   is_owner: boolean;
   is_looking_for_roommates: boolean;
+  avatar_url: string | null;
+  photos: UserPhoto[];
 }
 
 export interface GetPublicUsersParams {

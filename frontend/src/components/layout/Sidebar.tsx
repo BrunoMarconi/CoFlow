@@ -132,6 +132,7 @@ export default function Sidebar() {
           <Link href="/perfil" className="flex min-w-0 flex-1 items-center gap-2.5">
             <Avatar
               name={`${user.first_name} ${user.last_name}`}
+              imageUrl={user.avatar_url}
               size={34}
             />
 

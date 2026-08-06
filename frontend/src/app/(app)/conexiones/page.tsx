@@ -298,7 +298,12 @@ function ConnectionRow({
   person,
   children,
 }: {
-  person: { id: string; first_name: string; last_name: string };
+  person: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    avatar_url?: string | null;
+  };
   children: React.ReactNode;
 }) {
   const fullName = `${person.first_name} ${person.last_name}`.trim();
@@ -316,9 +321,18 @@ function ConnectionRow({
         href={`/personas/${person.id}`}
         className="flex items-center gap-3"
       >
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-          {initials || "CF"}
-        </div>
+        {person.avatar_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={person.avatar_url}
+            alt=""
+            className="h-11 w-11 shrink-0 rounded-full object-cover"
+          />
+        ) : (
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+            {initials || "CF"}
+          </div>
+        )}
 
         <p className="min-w-0 flex-1 truncate text-sm font-bold text-brand-dark">
           {fullName || "Persona de CoFlow"}

@@ -30,12 +30,14 @@ export default function UserAvatar({
   firstName,
   lastName,
   userId,
+  imageUrl,
   size = "md",
   className,
 }: {
   firstName: string;
   lastName?: string | null;
   userId: string;
+  imageUrl?: string | null;
   size?: UserAvatarSize;
   className?: string;
 }) {
@@ -45,6 +47,21 @@ export default function UserAvatar({
     .map((part) => part?.[0])
     .join("")
     .toUpperCase();
+
+  if (imageUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={imageUrl}
+        alt={[firstName, lastName].filter(Boolean).join(" ")}
+        className={cn(
+          "shrink-0 rounded-full border border-white/40 object-cover shadow-sm",
+          SIZES[size],
+          className
+        )}
+      />
+    );
+  }
 
   const tone = TONES[hashId(userId) % TONES.length];
 

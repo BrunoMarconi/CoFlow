@@ -12,6 +12,7 @@ class UserConnectionParticipantResponse(BaseModel):
     id: UUID
     first_name: str
     last_name: str
+    avatar_url: str | None = None
 
 
 class UserConnectionResponse(BaseModel):

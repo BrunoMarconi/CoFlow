@@ -141,6 +141,7 @@ export default function MensajesPage() {
               >
                 <ConversationAvatar
                   initials={initialsOf(other.first_name, other.last_name)}
+                  imageUrl={other.avatar_url}
                 />
                 <ConversationPreview
                   name={`${other.first_name} ${other.last_name}`.trim()}
@@ -184,6 +185,7 @@ export default function MensajesPage() {
                 >
                   <ConversationAvatar
                     initials={initialsOf(other.first_name, other.last_name)}
+                    imageUrl={other.avatar_url}
                   />
                   <ConversationPreview
                     name={`${other.first_name} ${other.last_name}`.trim()}
@@ -208,6 +210,7 @@ export default function MensajesPage() {
                     selectedOther.first_name,
                     selectedOther.last_name
                   )}
+                  imageUrl={selectedOther.avatar_url}
                 />
 
                 <div className="min-w-0">
@@ -253,7 +256,24 @@ function InboxHeader() {
   );
 }
 
-function ConversationAvatar({ initials }: { initials: string }) {
+function ConversationAvatar({
+  initials,
+  imageUrl,
+}: {
+  initials: string;
+  imageUrl?: string | null;
+}) {
+  if (imageUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={imageUrl}
+        alt=""
+        className="h-11 w-11 shrink-0 rounded-full object-cover"
+      />
+    );
+  }
+
   return (
     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
       {initials || "CF"}

@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { getMyOnboarding, saveOnboarding } from "@/services/onboarding";
-import { updateProfile } from "@/services/users";
+import { updateProfile, uploadAvatar } from "@/services/users";
 import type { OnboardingAnswers } from "@/types/onboarding";
+
+const AVATAR_ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const AVATAR_MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
 const DRAFT_KEY = "coflow_onboarding";
 
@@ -285,18 +288,59 @@ export default function OnboardingPage() {
   const [submitError, setSubmitError] = useState("");
   const [rentalBudget, setRentalBudget] = useState("");
 
-  const question = questions[step];
-  const currentAnswer = answers[question.key];
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarError, setAvatarError] = useState("");
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const TOTAL_STEPS = questions.length + 1;
+  const isPhotoStep = step === questions.length;
+  const question = isPhotoStep ? null : questions[step];
+  const currentAnswer = question ? answers[question.key] : undefined;
+  const hasAvatar = Boolean(avatarFile || user?.avatar_url);
 
   const progress = useMemo(() => {
-    return ((step + 1) / questions.length) * 100;
-  }, [step]);
+    return ((step + 1) / TOTAL_STEPS) * 100;
+  }, [step, TOTAL_STEPS]);
 
   const answeredQuestions = Object.keys(answers).length;
 
   const isComplete = useMemo(() => {
-    return questions.every((item) => Boolean(answers[item.key]));
-  }, [answers]);
+    return (
+      questions.every((item) => Boolean(answers[item.key])) &&
+      Boolean(avatarFile || user?.avatar_url)
+    );
+  }, [answers, avatarFile, user]);
+
+  const avatarPreviewUrl = useMemo(
+    () => (avatarFile ? URL.createObjectURL(avatarFile) : null),
+    [avatarFile]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl);
+    };
+  }, [avatarPreviewUrl]);
+
+  function handleAvatarSelected(fileList: FileList | null) {
+    const file = fileList?.[0];
+    if (!file) return;
+
+    if (!AVATAR_ACCEPTED_TYPES.includes(file.type)) {
+      setAvatarError("Solo se aceptan imágenes en formato JPEG, PNG o WebP.");
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+      return;
+    }
+
+    if (file.size > AVATAR_MAX_SIZE_BYTES) {
+      setAvatarError("La foto debe pesar menos de 5MB.");
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+      return;
+    }
+
+    setAvatarError("");
+    setAvatarFile(file);
+  }
 
   useEffect(() => {
     if (authLoading) return;
@@ -376,6 +420,8 @@ export default function OnboardingPage() {
   }, [user]);
 
   function selectOption(option: string) {
+    if (!question) return;
+
     setAnswers((previousAnswers) => ({
       ...previousAnswers,
       [question.key]: option,
@@ -383,12 +429,13 @@ export default function OnboardingPage() {
   }
 
   function nextQuestion() {
-    if (!currentAnswer) return;
-
-    if (step === questions.length - 1) {
+    if (isPhotoStep) {
+      if (!hasAvatar) return;
       setCompleted(true);
       return;
     }
+
+    if (!currentAnswer) return;
 
     setDirection("forward");
     setStep((currentStep) => currentStep + 1);
@@ -410,7 +457,9 @@ export default function OnboardingPage() {
     if (submitting) return;
 
     if (!isComplete) {
-      setSubmitError("Por favor responde todas las preguntas antes de continuar.");
+      setSubmitError(
+        "Por favor responde todas las preguntas y añade una foto de perfil antes de continuar."
+      );
       return;
     }
 
@@ -430,6 +479,10 @@ export default function OnboardingPage() {
           rental_budget: trimmedBudget ? Number(trimmedBudget) : null,
           is_looking_for_roommates: user.is_looking_for_roommates,
         });
+      }
+
+      if (avatarFile) {
+        await uploadAvatar(avatarFile);
       }
 
       localStorage.removeItem(DRAFT_KEY);
@@ -596,7 +649,7 @@ export default function OnboardingPage() {
         </button>
 
         <div className="rounded-full border border-border bg-surface px-4 py-2 text-sm font-semibold text-muted shadow-soft">
-          {step + 1} de {questions.length}
+          {step + 1} de {TOTAL_STEPS}
         </div>
       </header>
 
@@ -610,67 +663,116 @@ export default function OnboardingPage() {
           }`}
         >
           <p className="text-sm font-bold uppercase tracking-[0.14em] text-primary">
-            {question.category}
+            {isPhotoStep ? "📸 Tu perfil" : question?.category}
           </p>
 
           <h1 className="mt-5 max-w-3xl text-4xl font-bold leading-tight tracking-tight text-brand-dark md:text-6xl">
-            {question.title}
+            {isPhotoStep ? "Añade una foto de perfil" : question?.title}
           </h1>
 
           <p className="mt-5 max-w-2xl text-base leading-7 text-secondary md:text-lg">
-            {question.description}
+            {isPhotoStep
+              ? "Ayuda a las demás personas a reconocerte. Es obligatoria para completar tu perfil."
+              : question?.description}
           </p>
 
-          <div className="mt-10 grid gap-4">
-            {question.options.map((option, index) => {
-              const selected = currentAnswer === option;
+          {isPhotoStep ? (
+            <div className="mt-10">
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept={AVATAR_ACCEPTED_TYPES.join(",")}
+                onChange={(event) =>
+                  handleAvatarSelected(event.target.files)
+                }
+                className="hidden"
+              />
 
-              return (
-                <button
-                  type="button"
-                  key={option}
-                  onClick={() => selectOption(option)}
-                  className={`group flex w-full items-center justify-between rounded-18 border p-5 text-left transition duration-200 md:p-6 ${
-                    selected
-                      ? "scale-[1.01] border-primary bg-mint-50 shadow-soft"
-                      : "border-border bg-surface shadow-soft hover:-translate-y-1 hover:border-primary/30 hover:shadow-soft"
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-14 text-sm font-bold transition ${
-                        selected
-                          ? "bg-primary text-white"
-                          : "bg-surface-soft text-muted group-hover:bg-mint-100 group-hover:text-primary-dark"
-                      }`}
-                    >
-                      {index + 1}
-                    </span>
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                className="group flex w-full flex-col items-center gap-4 rounded-18 border-2 border-dashed border-border bg-surface p-10 text-center transition duration-200 hover:border-primary/40 hover:bg-mint-50"
+              >
+                {avatarPreviewUrl || user?.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={avatarPreviewUrl ?? user?.avatar_url ?? ""}
+                    alt="Vista previa de tu foto de perfil"
+                    className="h-32 w-32 rounded-full border-4 border-surface object-cover shadow-soft"
+                  />
+                ) : (
+                  <span className="flex h-32 w-32 items-center justify-center rounded-full bg-mint-100 text-primary-dark">
+                    <CameraIcon />
+                  </span>
+                )}
 
-                    <span
-                      className={`text-base font-semibold md:text-lg ${
-                        selected
-                          ? "text-brand-dark"
-                          : "text-secondary"
-                      }`}
-                    >
-                      {option}
-                    </span>
-                  </div>
+                <span className="font-bold text-brand-dark">
+                  {hasAvatar ? "Cambiar foto" : "Subir foto"}
+                </span>
 
-                  <span
-                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition ${
+                <span className="text-sm text-muted">
+                  JPEG, PNG o WebP · máx. 5MB
+                </span>
+              </button>
+
+              {avatarError && (
+                <p className="mt-4 rounded-14 bg-red-50 px-4 py-3 text-sm text-red-600">
+                  {avatarError}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="mt-10 grid gap-4">
+              {question?.options.map((option, index) => {
+                const selected = currentAnswer === option;
+
+                return (
+                  <button
+                    type="button"
+                    key={option}
+                    onClick={() => selectOption(option)}
+                    className={`group flex w-full items-center justify-between rounded-18 border p-5 text-left transition duration-200 md:p-6 ${
                       selected
-                        ? "border-primary bg-primary text-sm text-white"
-                        : "border-border text-transparent group-hover:border-primary/30"
+                        ? "scale-[1.01] border-primary bg-mint-50 shadow-soft"
+                        : "border-border bg-surface shadow-soft hover:-translate-y-1 hover:border-primary/30 hover:shadow-soft"
                     }`}
                   >
-                    ✓
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+                    <div className="flex items-center gap-4">
+                      <span
+                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-14 text-sm font-bold transition ${
+                          selected
+                            ? "bg-primary text-white"
+                            : "bg-surface-soft text-muted group-hover:bg-mint-100 group-hover:text-primary-dark"
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
+
+                      <span
+                        className={`text-base font-semibold md:text-lg ${
+                          selected
+                            ? "text-brand-dark"
+                            : "text-secondary"
+                        }`}
+                      >
+                        {option}
+                      </span>
+                    </div>
+
+                    <span
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition ${
+                        selected
+                          ? "border-primary bg-primary text-sm text-white"
+                          : "border-border text-transparent group-hover:border-primary/30"
+                      }`}
+                    >
+                      ✓
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {submitError && (
             <p className="mt-6 rounded-14 bg-red-50 px-4 py-3 text-sm text-red-600">
@@ -691,12 +793,10 @@ export default function OnboardingPage() {
             <button
               type="button"
               onClick={nextQuestion}
-              disabled={!currentAnswer}
+              disabled={isPhotoStep ? !hasAvatar : !currentAnswer}
               className="rounded-18 bg-primary px-7 py-4 font-bold text-white shadow-button transition hover:-translate-y-1 hover:bg-primary-hover hover:shadow-soft active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
             >
-              {step === questions.length - 1
-                ? "Completar perfil"
-                : "Continuar →"}
+              {isPhotoStep ? "Completar perfil" : "Continuar →"}
             </button>
           </div>
 
@@ -744,5 +844,23 @@ export default function OnboardingPage() {
         }
       `}</style>
     </main>
+  );
+}
+
+function CameraIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-10 w-10"
+      aria-hidden="true"
+    >
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </svg>
   );
 }

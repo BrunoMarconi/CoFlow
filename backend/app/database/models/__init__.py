@@ -1,4 +1,5 @@
 from app.database.models.user import User
+from app.database.models.user_photo import UserPhoto
 from app.database.models.compatibility_profile import CompatibilityProfile
 from app.database.models.owner_profile import OwnerProfile
 from app.database.models.property import Property

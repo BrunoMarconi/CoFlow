@@ -37,6 +37,7 @@ export default function Navbar() {
             >
               <Avatar
                 name={`${user.first_name} ${user.last_name}`}
+                imageUrl={user.avatar_url}
                 size={38}
               />
             </Link>

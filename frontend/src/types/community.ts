@@ -125,6 +125,7 @@ export interface CommunityMemberUser {
   id: string;
   first_name: string;
   last_name: string;
+  avatar_url: string | null;
 }
 
 export interface CommunityMember {
@@ -143,6 +144,7 @@ export interface CommunityMessageSender {
   id: string;
   first_name: string;
   last_name: string;
+  avatar_url: string | null;
 }
 
 export interface CommunityMessage {

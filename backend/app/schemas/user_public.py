@@ -1,6 +1,8 @@
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+from app.schemas.user_photo import UserPhotoResponse
 
 
 class PublicUserCommunityResponse(BaseModel):
@@ -60,3 +62,5 @@ class PublicUserProfileResponse(BaseModel):
     connection_id: int | None = None
     is_owner: bool = False
     is_looking_for_roommates: bool = True
+    avatar_url: str | None = None
+    photos: list[UserPhotoResponse] = Field(default_factory=list)

@@ -69,6 +69,7 @@ export default function UserCard({ user }: { user: UserPublicProfile }) {
           firstName={user.first_name}
           lastName={user.last_name}
           userId={user.id}
+          imageUrl={user.avatar_url}
           size="xl"
         />
       </Link>

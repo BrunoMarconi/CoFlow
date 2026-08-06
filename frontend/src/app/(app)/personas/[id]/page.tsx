@@ -187,6 +187,7 @@ export default function PersonaPublicaPage() {
             firstName={profile.first_name}
             lastName={profile.last_name}
             userId={profile.id}
+            imageUrl={profile.avatar_url}
             size="xl"
           />
 
@@ -308,6 +309,28 @@ export default function PersonaPublicaPage() {
             </p>
           ))}
       </header>
+
+      {profile.photos.length > 0 && (
+        <section className="mt-5 rounded-[1.75rem] border border-line bg-surface p-5 shadow-sm sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-dark">
+            Fotos
+          </p>
+
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            {[...profile.photos]
+              .sort((a, b) => a.position - b.position)
+              .map((photo) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={photo.id}
+                  src={photo.image_url}
+                  alt=""
+                  className="h-28 w-full rounded-18 border border-line object-cover sm:h-32"
+                />
+              ))}
+          </div>
+        </section>
+      )}
 
       <div className="mt-5 lg:grid lg:grid-cols-[1fr_300px] lg:items-start lg:gap-6">
         {profile.preferences ? (

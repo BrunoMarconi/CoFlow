@@ -1,13 +1,16 @@
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar";
+import AvatarUploader from "@/components/perfil/AvatarUploader";
 import type { User } from "@/types/auth";
 
 export default function ProfileHeader({
   user,
   isOwner = false,
+  onAvatarUpdated,
 }: {
   user: User;
   isOwner?: boolean;
+  onAvatarUpdated: () => Promise<void>;
 }) {
   const fullName = `${user.first_name} ${user.last_name}`.trim();
 
@@ -18,8 +21,12 @@ export default function ProfileHeader({
       <div className="relative px-5 pb-6 sm:px-8 sm:pb-8">
         <div className="-mt-12 flex flex-col gap-5 sm:-mt-14 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-end gap-4">
-            <div className="rounded-full border-4 border-surface bg-surface shadow-soft">
-              <Avatar name={fullName} size={88} />
+            <div className="relative rounded-full border-4 border-surface bg-surface shadow-soft">
+              <Avatar name={fullName} imageUrl={user.avatar_url} size={88} />
+              <AvatarUploader
+                hasAvatar={Boolean(user.avatar_url)}
+                onUpdated={onAvatarUpdated}
+              />
             </div>
 
             <div className="pb-1">

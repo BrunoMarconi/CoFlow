@@ -13,6 +13,7 @@ from app.database.models.user_connection import (
     UserConnection,
     UserConnectionStatus,
 )
+from app.schemas.user_photo import UserPhotoResponse
 from app.schemas.user_public import (
     PublicUserCommunityResponse,
     PublicUserPreferencesResponse,
@@ -124,6 +125,11 @@ class UserService:
             connection_id=connection_id,
             is_owner=user.owner_profile is not None,
             is_looking_for_roommates=user.is_looking_for_roommates,
+            avatar_url=user.avatar_url,
+            photos=[
+                UserPhotoResponse.model_validate(photo)
+                for photo in user.photos
+            ],
         )
 
     def get_public_profile(
