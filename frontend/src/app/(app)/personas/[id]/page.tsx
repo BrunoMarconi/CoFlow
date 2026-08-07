@@ -329,6 +329,7 @@ export default function PersonaPublicaPage() {
                     src={photo.image_url}
                     alt=""
                     fill
+                    unoptimized
                     sizes="(min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
                     className="object-cover"
                   />

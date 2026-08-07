@@ -243,6 +243,7 @@ export default function PropertyImageUploader({
                 src={image.image_url}
                 alt=""
                 fill
+                unoptimized
                 sizes="(min-width: 640px) 33vw, 50vw"
                 className="object-cover"
                 draggable={false}

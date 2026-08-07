@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import type { UserPhoto } from "@/types/userPhoto";
+import { getCommunityErrorMessage } from "@/lib/communityErrors";
 
 const MAX_PHOTOS = 9;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -52,8 +53,13 @@ export default function ProfilePhotoGallery({
 
     try {
       await onUpload(files);
-    } catch {
-      setError("No pudimos subir las fotos. Inténtalo de nuevo.");
+    } catch (error) {
+      setError(
+        getCommunityErrorMessage(
+          error,
+          "No pudimos subir las fotos. Inténtalo de nuevo."
+        )
+      );
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -141,6 +147,7 @@ export default function ProfilePhotoGallery({
                 src={photo.image_url}
                 alt=""
                 fill
+                unoptimized
                 sizes="(min-width: 640px) 33vw, 50vw"
                 className="object-cover"
               />

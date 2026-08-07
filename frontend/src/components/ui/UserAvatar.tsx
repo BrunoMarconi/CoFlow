@@ -63,6 +63,7 @@ export default function UserAvatar({
         alt={[firstName, lastName].filter(Boolean).join(" ")}
         width={SIZE_PX[size]}
         height={SIZE_PX[size]}
+        unoptimized
         className={cn(
           "shrink-0 rounded-full border border-white/40 object-cover shadow-sm",
           SIZES[size],

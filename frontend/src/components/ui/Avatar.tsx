@@ -21,6 +21,7 @@ export default function Avatar({ name, imageUrl, size = 40 }: AvatarProps) {
         alt={name}
         width={size}
         height={size}
+        unoptimized
         className="rounded-full object-cover"
         style={{ width: size, height: size }}
       />

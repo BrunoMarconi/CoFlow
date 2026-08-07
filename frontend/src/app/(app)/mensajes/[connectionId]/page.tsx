@@ -127,6 +127,7 @@ export default function MensajesPage() {
               alt=""
               width={44}
               height={44}
+              unoptimized
               className="h-11 w-11 shrink-0 rounded-14 object-cover"
             />
           ) : (

@@ -391,6 +391,7 @@ function ConversationAvatar({
         alt=""
         width={44}
         height={44}
+        unoptimized
         className="h-11 w-11 shrink-0 rounded-full object-cover"
       />
     );

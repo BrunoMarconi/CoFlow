@@ -87,7 +87,13 @@ const KNOWN_ERRORS: Record<string, string> = {
     "No hemos encontrado a esta persona.",
   "This person is not looking for roommates right now":
     "Esta persona no está buscando compañeros actualmente.",
+  "Only JPEG, PNG or WebP images are allowed":
+    "Solo se aceptan imágenes en formato JPEG, PNG o WebP.",
+  "A profile can have at most 9 photos":
+    "Tu perfil puede tener como máximo 9 fotos. Elimina alguna antes de añadir más.",
 };
+
+const SIZE_LIMIT_PATTERN = /^Each image must be smaller than (\d+)MB$/;
 
 const FIELD_LABELS: Record<string, string> = {
   name: "el nombre",
@@ -132,6 +138,11 @@ export function getCommunityErrorMessage(
   const detail = error.response?.data?.detail;
 
   if (typeof detail === "string") {
+    const sizeLimitMatch = detail.match(SIZE_LIMIT_PATTERN);
+    if (sizeLimitMatch) {
+      return `Cada imagen debe pesar menos de ${sizeLimitMatch[1]}MB.`;
+    }
+
     return KNOWN_ERRORS[detail] ?? detail;
   }
 

@@ -137,6 +137,7 @@ export default function PropiedadDetallePage() {
                 src={image.image_url}
                 alt={property.title}
                 fill
+                unoptimized
                 sizes="(min-width: 640px) 25vw, 33vw"
                 className="object-cover"
               />

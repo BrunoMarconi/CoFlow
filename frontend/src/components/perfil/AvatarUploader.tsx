@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { deleteAvatar, uploadAvatar } from "@/services/users";
+import { getCommunityErrorMessage } from "@/lib/communityErrors";
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
@@ -32,8 +33,13 @@ export default function AvatarUploader({
     try {
       await uploadAvatar(file);
       await onUpdated();
-    } catch {
-      setError("No pudimos subir tu foto. Inténtalo de nuevo.");
+    } catch (error) {
+      setError(
+        getCommunityErrorMessage(
+          error,
+          "No pudimos subir tu foto. Inténtalo de nuevo."
+        )
+      );
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
