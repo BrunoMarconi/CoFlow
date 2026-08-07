@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
@@ -21,11 +22,20 @@ import type { Community } from "@/types/community";
 
 type Tab = "resumen" | "chat" | "miembros" | "solicitudes" | "gestion";
 
+const VALID_TABS: Tab[] = ["resumen", "chat", "miembros", "solicitudes", "gestion"];
+
+function isValidTab(value: string | null): value is Tab {
+  return value !== null && (VALID_TABS as string[]).includes(value);
+}
+
 export default function MiComunidadPage() {
   const { user, community, communityLoading } = useAuth();
   const { setChatActive } = useMobileChrome();
+  const searchParams = useSearchParams();
 
-  const [tab, setTab] = useState<Tab>("resumen");
+  const [tab, setTab] = useState<Tab>(
+    isValidTab(searchParams.get("tab")) ? (searchParams.get("tab") as Tab) : "resumen"
+  );
 
   // Con el chat de la comunidad activo en móvil, se libera el espacio de
   // BottomNavigation igual que en el chat 1:1 dedicado.

@@ -8,12 +8,16 @@ import { usePublicProfile } from "@/hooks/usePublicProfile";
 import Spinner from "@/components/ui/Spinner";
 import EmptyState from "@/components/ui/EmptyState";
 import PrivateChat from "@/components/mensajes/PrivateChat";
+import CommunityChat from "@/components/comunidad/CommunityChat";
+import { HomeIcon } from "@/components/layout/NavIcons";
 import {
   getConnections,
   getPrivateMessages,
 } from "@/services/connections";
+import { getCommunityMessages } from "@/services/communities";
 import type { UserConnection } from "@/types/connection";
 import type { PrivateMessage } from "@/types/privateMessage";
+import type { CommunityMessage } from "@/types/community";
 
 function otherParticipant(connection: UserConnection, currentUserId: string) {
   return connection.requester.id === currentUserId
@@ -41,17 +45,25 @@ function formatPreviewTime(value: string) {
 }
 
 export default function MensajesPage() {
-  const { user } = useAuth();
+  const { user, community } = useAuth();
   const searchParams = useSearchParams();
   const requestedId = Number(searchParams.get("c"));
+  const requestedCommunity = searchParams.get("c") === "community";
 
   const [connections, setConnections] = useState<UserConnection[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastMessages, setLastMessages] = useState<
     Record<number, PrivateMessage>
   >({});
+  const [communityLastMessage, setCommunityLastMessage] =
+    useState<CommunityMessage | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(
-    Number.isFinite(requestedId) && requestedId > 0 ? requestedId : null
+    !requestedCommunity && Number.isFinite(requestedId) && requestedId > 0
+      ? requestedId
+      : null
+  );
+  const [communitySelected, setCommunitySelected] = useState(
+    requestedCommunity
   );
 
   useEffect(() => {
@@ -94,9 +106,39 @@ export default function MensajesPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!community) return;
+
+    let active = true;
+
+    getCommunityMessages(community.id, { limit: 1 })
+      .then((messages) => {
+        if (active) setCommunityLastMessage(messages[0] ?? null);
+      })
+      .catch(() => {
+        if (active) setCommunityLastMessage(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [community]);
+
+  function selectConnection(id: number) {
+    setCommunitySelected(false);
+    setSelectedId(id);
+  }
+
+  function selectCommunity() {
+    setCommunitySelected(true);
+  }
+
   const selectedConnection = useMemo(
-    () => connections.find((c) => c.id === selectedId) ?? null,
-    [connections, selectedId]
+    () =>
+      !communitySelected
+        ? (connections.find((c) => c.id === selectedId) ?? null)
+        : null,
+    [connections, selectedId, communitySelected]
   );
 
   const selectedOther =
@@ -120,13 +162,29 @@ export default function MensajesPage() {
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto border-t border-border sm:hidden">
         <InboxHeader />
 
-        {connections.length === 0 ? (
-          <div className="p-6">
-            <EmptyState
-              title="Todavía no tienes conversaciones"
-              description="Conecta con personas o comunidades para empezar a hablar."
+        {community && (
+          <Link
+            href="/mi-comunidad?tab=chat"
+            className="flex items-center gap-3 border-b border-border bg-mint-50/40 px-4 py-3 transition-colors duration-180 hover:bg-mint-50"
+          >
+            <CommunityAvatar />
+            <ConversationPreview
+              name={community.name}
+              lastMessage={communityLastMessage}
+              badge="Comunidad"
             />
-          </div>
+          </Link>
+        )}
+
+        {connections.length === 0 ? (
+          !community && (
+            <div className="p-6">
+              <EmptyState
+                title="Todavía no tienes conversaciones"
+                description="Conecta con personas o comunidades para empezar a hablar."
+              />
+            </div>
+          )
         ) : (
           connections.map((connection) => {
             if (!user) return null;
@@ -158,25 +216,46 @@ export default function MensajesPage() {
         <div className="flex min-h-0 flex-col overflow-y-auto border-r border-border">
           <InboxHeader />
 
-          {connections.length === 0 ? (
-            <div className="p-6">
-              <EmptyState
-                title="Todavía no tienes conversaciones"
-                description="Conecta con personas o comunidades para empezar a hablar."
+          {community && (
+            <button
+              type="button"
+              onClick={selectCommunity}
+              className={`flex items-center gap-3 border-l-[3px] px-4 py-3 text-left transition-colors duration-180 ${
+                communitySelected
+                  ? "border-primary bg-mint-50"
+                  : "border-transparent hover:bg-surface-soft"
+              }`}
+            >
+              <CommunityAvatar />
+              <ConversationPreview
+                name={community.name}
+                lastMessage={communityLastMessage}
+                badge="Comunidad"
               />
-            </div>
+            </button>
+          )}
+
+          {connections.length === 0 ? (
+            !community && (
+              <div className="p-6">
+                <EmptyState
+                  title="Todavía no tienes conversaciones"
+                  description="Conecta con personas o comunidades para empezar a hablar."
+                />
+              </div>
+            )
           ) : (
             connections.map((connection) => {
               if (!user) return null;
               const other = otherParticipant(connection, user.id);
               const lastMessage = lastMessages[connection.id];
-              const isSelected = connection.id === selectedId;
+              const isSelected = !communitySelected && connection.id === selectedId;
 
               return (
                 <button
                   key={connection.id}
                   type="button"
-                  onClick={() => setSelectedId(connection.id)}
+                  onClick={() => selectConnection(connection.id)}
                   className={`flex items-center gap-3 border-l-[3px] px-4 py-3 text-left transition-colors duration-180 ${
                     isSelected
                       ? "border-primary bg-mint-50"
@@ -198,7 +277,34 @@ export default function MensajesPage() {
         </div>
 
         <div className="flex min-h-0 flex-col">
-          {!selectedConnection || !selectedOther || !user ? (
+          {communitySelected && community && user ? (
+            <>
+              <div className="flex shrink-0 items-center gap-3 border-b border-border px-5 py-4">
+                <CommunityAvatar />
+
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="truncate text-base font-bold text-brand-dark">
+                      {community.name}
+                    </p>
+                    <CommunityBadge />
+                  </div>
+
+                  <p className="truncate text-xs font-semibold text-muted">
+                    Chat de todos los miembros
+                  </p>
+                </div>
+              </div>
+
+              <div className="min-h-0 flex-1 p-4">
+                <CommunityChat
+                  communityId={community.id}
+                  currentUserId={user.id}
+                  variant="full"
+                />
+              </div>
+            </>
+          ) : !selectedConnection || !selectedOther || !user ? (
             <div className="flex flex-1 items-center justify-center p-6 text-center text-sm font-medium text-muted">
               Selecciona una conversación para empezar.
             </div>
@@ -281,19 +387,45 @@ function ConversationAvatar({
   );
 }
 
+function CommunityAvatar() {
+  return (
+    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 bg-brand-dark text-white">
+      <HomeIcon className="h-5 w-5" />
+    </div>
+  );
+}
+
+function CommunityBadge() {
+  return (
+    <span className="shrink-0 rounded-full bg-mint-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-dark">
+      Comunidad
+    </span>
+  );
+}
+
 function ConversationPreview({
   name,
   lastMessage,
+  badge,
 }: {
   name: string;
-  lastMessage?: PrivateMessage;
+  lastMessage?: PrivateMessage | CommunityMessage | null;
+  badge?: string;
 }) {
   return (
     <div className="min-w-0 flex-1">
       <div className="flex items-center justify-between gap-2">
-        <p className="truncate text-sm font-bold text-foreground">
-          {name || "Persona de CoFlow"}
-        </p>
+        <div className="flex min-w-0 items-center gap-1.5">
+          <p className="truncate text-sm font-bold text-foreground">
+            {name || "Persona de CoFlow"}
+          </p>
+
+          {badge && (
+            <span className="shrink-0 rounded-full bg-mint-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary-dark">
+              {badge}
+            </span>
+          )}
+        </div>
 
         {lastMessage && (
           <span className="shrink-0 text-[11px] font-semibold text-muted">

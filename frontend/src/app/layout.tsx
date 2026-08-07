@@ -34,6 +34,7 @@ export const metadata: Metadata = {
   ],
   authors: [
     {
+      
       name: "CoFlow",
     },
   ],
