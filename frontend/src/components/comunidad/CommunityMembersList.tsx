@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { CommunityMember } from "@/types/community";
 
@@ -43,10 +44,11 @@ function CommunityMemberRow({ member }: { member: CommunityMember }) {
       className="flex items-center gap-4 rounded-18 border border-border bg-surface-muted p-4 transition active:scale-[0.98] hover:border-primary/30"
     >
       {member.user.avatar_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           src={member.user.avatar_url}
           alt=""
+          width={48}
+          height={48}
           className="h-12 w-12 shrink-0 rounded-18 object-cover"
         />
       ) : (

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
+import SkeletonCard from "@/components/ui/SkeletonCard";
 import PropertyCard from "@/components/propietario/PropertyCard";
 import {
   archiveProperty,
@@ -13,37 +14,28 @@ import {
   pauseProperty,
   resumeProperty,
 } from "@/services/properties";
-import type { PropertySummary } from "@/types/property";
+
+const MY_PROPERTIES_QUERY_KEY = ["my-properties"];
 
 export default function MisPisosPage() {
   const { ownerProfile, ownerProfileLoading } = useAuth();
+  const queryClient = useQueryClient();
 
-  const [properties, setProperties] = useState<PropertySummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const {
+    data: properties = [],
+    isLoading: loading,
+    isError,
+  } = useQuery({
+    queryKey: MY_PROPERTIES_QUERY_KEY,
+    queryFn: () => getMyProperties(),
+    enabled: Boolean(ownerProfile),
+  });
 
-  function loadProperties() {
-    setLoading(true);
-    setError("");
-
-    return getMyProperties()
-      .then((data) => setProperties(data))
-      .catch(() =>
-        setError("No pudimos cargar tus pisos. Inténtalo de nuevo.")
-      )
-      .finally(() => setLoading(false));
-  }
-
-  useEffect(() => {
-    if (!ownerProfile) return;
-
-    loadProperties();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ownerProfile]);
+  const error = isError ? "No pudimos cargar tus pisos. Inténtalo de nuevo." : "";
 
   async function withRefresh(action: () => Promise<unknown>) {
     await action();
-    await loadProperties();
+    await queryClient.invalidateQueries({ queryKey: MY_PROPERTIES_QUERY_KEY });
   }
 
   if (ownerProfileLoading) {
@@ -88,8 +80,10 @@ export default function MisPisosPage() {
 
       <div className="mt-6">
         {loading ? (
-          <div className="flex justify-center py-10">
-            <Spinner />
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <SkeletonCard key={index} withCover coverClassName="h-40" />
+            ))}
           </div>
         ) : error ? (
           <p className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center text-sm font-semibold text-red-700">

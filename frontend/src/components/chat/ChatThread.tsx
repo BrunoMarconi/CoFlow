@@ -8,6 +8,7 @@ import {
   useState,
   type KeyboardEvent,
 } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 const POLL_INTERVAL_MS = 5000;
@@ -410,10 +411,11 @@ const MessageBubble = memo(function MessageBubble({
       {showAvatarColumn &&
         (lastOfGroup ? (
           message.sender.avatar_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={message.sender.avatar_url}
               alt={fullName}
+              width={28}
+              height={28}
               className="h-7 w-7 shrink-0 rounded-full object-cover"
             />
           ) : (

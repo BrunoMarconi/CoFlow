@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Spinner from "@/components/ui/Spinner";
 import PropertyStatusBadge from "@/components/propietario/PropertyStatusBadge";
 import {
@@ -29,25 +31,20 @@ export default function PropiedadDetallePage() {
   const router = useRouter();
   const propertyId = Number(params.id);
 
-  const [property, setProperty] = useState<Property | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const queryClient = useQueryClient();
+  const propertyQueryKey = ["my-property", propertyId];
+
+  const {
+    data: property = null,
+    isLoading: loading,
+    isError: notFound,
+  } = useQuery({
+    queryKey: propertyQueryKey,
+    queryFn: () => getMyProperty(propertyId),
+  });
+
   const [actioning, setActioning] = useState(false);
   const [actionError, setActionError] = useState("");
-
-  function load() {
-    setLoading(true);
-
-    getMyProperty(propertyId)
-      .then((data) => setProperty(data))
-      .catch(() => setNotFound(true))
-      .finally(() => setLoading(false));
-  }
-
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [propertyId]);
 
   async function run(action: () => Promise<Property>) {
     if (actioning) return;
@@ -56,7 +53,7 @@ export default function PropiedadDetallePage() {
 
     try {
       const updated = await action();
-      setProperty(updated);
+      queryClient.setQueryData(propertyQueryKey, updated);
     } catch (error) {
       setActionError(
         getCommunityErrorMessage(
@@ -132,13 +129,18 @@ export default function PropiedadDetallePage() {
       {cover && (
         <div className="mt-6 grid grid-cols-3 gap-2 sm:grid-cols-4">
           {property.images.map((image) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <div
               key={image.id}
-              src={image.image_url}
-              alt={property.title}
-              className="h-28 w-full rounded-2xl object-cover sm:h-36"
-            />
+              className="relative h-28 w-full overflow-hidden rounded-2xl sm:h-36"
+            >
+              <Image
+                src={image.image_url}
+                alt={property.title}
+                fill
+                sizes="(min-width: 640px) 25vw, 33vw"
+                className="object-cover"
+              />
+            </div>
           ))}
         </div>
       )}

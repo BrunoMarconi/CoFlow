@@ -45,6 +45,9 @@ export default function ComunidadesPage() {
     loading,
     error,
     refetch,
+    hasMore,
+    loadingMore,
+    loadMore,
   } = useCommunities({
     city: cityFilter || undefined,
     profile_type:
@@ -288,10 +291,20 @@ export default function ComunidadesPage() {
         )}
 
         {!loading && !error && (
-          <CommunityGrid
-            communities={visibleCommunities}
-            ownCommunityId={myCommunity?.id}
-          />
+          <>
+            <CommunityGrid
+              communities={visibleCommunities}
+              ownCommunityId={myCommunity?.id}
+            />
+
+            {hasMore && (
+              <div className="mt-6 flex justify-center">
+                <SecondaryButton onClick={loadMore} disabled={loadingMore}>
+                  {loadingMore ? "Cargando..." : "Cargar más comunidades"}
+                </SecondaryButton>
+              </div>
+            )}
+          </>
         )}
       </section>
 

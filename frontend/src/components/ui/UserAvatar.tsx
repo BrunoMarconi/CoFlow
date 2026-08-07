@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 /* Fondos planos dentro de la paleta de marca — sin gradientes. */
@@ -15,6 +16,13 @@ const SIZES = {
 } as const;
 
 export type UserAvatarSize = keyof typeof SIZES;
+
+const SIZE_PX: Record<UserAvatarSize, number> = {
+  sm: 32,
+  md: 44,
+  lg: 64,
+  xl: 96,
+};
 
 function hashId(id: string) {
   let hash = 0;
@@ -50,10 +58,11 @@ export default function UserAvatar({
 
   if (imageUrl) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <Image
         src={imageUrl}
         alt={[firstName, lastName].filter(Boolean).join(" ")}
+        width={SIZE_PX[size]}
+        height={SIZE_PX[size]}
         className={cn(
           "shrink-0 rounded-full border border-white/40 object-cover shadow-sm",
           SIZES[size],

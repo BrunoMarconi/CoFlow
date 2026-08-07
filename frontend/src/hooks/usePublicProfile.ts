@@ -1,47 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getPublicUserProfile } from "@/services/users";
 import type { UserPublicProfile } from "@/types/userPublic";
 
 export function usePublicProfile(id: string) {
-  const [profile, setProfile] = useState<UserPublicProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const query = useQuery<UserPublicProfile>({
+    queryKey: ["public-profile", id],
+    queryFn: () => getPublicUserProfile(id),
+    enabled: Boolean(id),
+  });
 
-  useEffect(() => {
-    let active = true;
-
-    function fetchProfile() {
-      if (!id) {
-        setProfile(null);
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      setNotFound(false);
-
-      getPublicUserProfile(id)
-        .then((data) => {
-          if (active) setProfile(data);
-        })
-        .catch(() => {
-          if (!active) return;
-          setProfile(null);
-          setNotFound(true);
-        })
-        .finally(() => {
-          if (active) setLoading(false);
-        });
-    }
-
-    fetchProfile();
-
-    return () => {
-      active = false;
-    };
-  }, [id]);
-
-  return { profile, loading, notFound };
+  return {
+    profile: query.data ?? null,
+    loading: Boolean(id) && query.isLoading,
+    notFound: query.isError,
+  };
 }

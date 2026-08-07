@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
@@ -121,10 +122,11 @@ export default function MensajesPage() {
           className="flex min-w-0 items-center gap-3"
         >
           {other.avatar_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={other.avatar_url}
               alt=""
+              width={44}
+              height={44}
               className="h-11 w-11 shrink-0 rounded-14 object-cover"
             />
           ) : (

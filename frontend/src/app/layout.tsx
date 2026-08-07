@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Manrope } from "next/font/google";
 
 import AuthProvider from "@/providers/AuthProvider";
+import QueryProvider from "@/providers/QueryProvider";
+import RouteProgressBar from "@/components/layout/RouteProgressBar";
 
 import "./globals.css";
 
@@ -80,7 +82,12 @@ export default function RootLayout({
       className={`${manrope.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full bg-background font-sans text-brand-dark">
-        <AuthProvider>{children}</AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <RouteProgressBar />
+            {children}
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

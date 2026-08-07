@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -320,13 +321,18 @@ export default function PersonaPublicaPage() {
             {[...profile.photos]
               .sort((a, b) => a.position - b.position)
               .map((photo) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <div
                   key={photo.id}
-                  src={photo.image_url}
-                  alt=""
-                  className="h-28 w-full rounded-18 border border-line object-cover sm:h-32"
-                />
+                  className="relative h-28 w-full overflow-hidden rounded-18 border border-line sm:h-32"
+                >
+                  <Image
+                    src={photo.image_url}
+                    alt=""
+                    fill
+                    sizes="(min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
+                    className="object-cover"
+                  />
+                </div>
               ))}
           </div>
         </section>

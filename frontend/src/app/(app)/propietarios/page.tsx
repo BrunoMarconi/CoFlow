@@ -1,37 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
 import PropertySummaryStats from "@/components/propietario/PropertySummaryStats";
 import OwnerTrustSummary from "@/components/propietario/OwnerTrustSummary";
 import { getMyProperties } from "@/services/properties";
-import type { PropertySummary } from "@/types/property";
+
+const MY_PROPERTIES_QUERY_KEY = ["my-properties"];
 
 export default function PropietariosResumenPage() {
   const { ownerProfile, ownerProfileLoading } = useAuth();
 
-  const [properties, setProperties] = useState<PropertySummary[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!ownerProfile) return;
-
-    let active = true;
-
-    getMyProperties()
-      .then((data) => {
-        if (active) setProperties(data);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [ownerProfile]);
+  const { data: properties = [], isLoading: loading } = useQuery({
+    queryKey: MY_PROPERTIES_QUERY_KEY,
+    queryFn: () => getMyProperties(),
+    enabled: Boolean(ownerProfile),
+  });
 
   if (ownerProfileLoading) {
     return (

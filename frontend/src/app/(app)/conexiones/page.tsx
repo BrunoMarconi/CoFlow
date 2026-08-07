@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import Spinner from "@/components/ui/Spinner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import SkeletonCard from "@/components/ui/SkeletonCard";
 import EmptyState from "@/components/ui/EmptyState";
 import PageHeader from "@/components/ui/PageHeader";
 import SoftButton from "@/components/ui/SoftButton";
@@ -15,7 +17,9 @@ import {
   getConnectionRequests,
   rejectConnection,
 } from "@/services/connections";
-import type { UserConnection } from "@/types/connection";
+import type { UserConnectionRequests } from "@/types/connection";
+
+const CONNECTION_REQUESTS_QUERY_KEY = ["connection-requests"];
 
 type Tab = "recibidas" | "enviadas";
 
@@ -34,34 +38,32 @@ export default function ConexionesPage() {
     isValidTab(initialTab) ? initialTab : "recibidas"
   );
 
-  const [received, setReceived] = useState<UserConnection[]>([]);
-  const [sent, setSent] = useState<UserConnection[]>([]);
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const queryClient = useQueryClient();
   const [actioningId, setActioningId] = useState<number | null>(null);
 
-  useEffect(() => {
-    let active = true;
+  const {
+    data: requests,
+    isLoading: loading,
+    isError,
+  } = useQuery({
+    queryKey: CONNECTION_REQUESTS_QUERY_KEY,
+    queryFn: getConnectionRequests,
+  });
 
-    getConnectionRequests()
-      .then((requests) => {
-        if (!active) return;
+  const error = isError ? "No pudimos cargar tus solicitudes." : "";
+  const received = requests?.received ?? [];
+  const sent = requests?.sent ?? [];
 
-        setReceived(requests.received);
-        setSent(requests.sent);
-      })
-      .catch(() => {
-        if (active) setError("No pudimos cargar tus solicitudes.");
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
+  function removeFromCache(key: keyof UserConnectionRequests, connectionId: number) {
+    queryClient.setQueryData<UserConnectionRequests>(
+      CONNECTION_REQUESTS_QUERY_KEY,
+      (current) =>
+        current && {
+          ...current,
+          [key]: current[key].filter((item) => item.id !== connectionId),
+        }
+    );
+  }
 
   async function handleAccept(connectionId: number) {
     if (actioningId) return;
@@ -69,9 +71,7 @@ export default function ConexionesPage() {
 
     try {
       await acceptConnection(connectionId);
-      setReceived((current) =>
-        current.filter((item) => item.id !== connectionId)
-      );
+      removeFromCache("received", connectionId);
     } catch {
       // El usuario puede reintentar desde la lista.
     } finally {
@@ -85,9 +85,7 @@ export default function ConexionesPage() {
 
     try {
       await rejectConnection(connectionId);
-      setReceived((current) =>
-        current.filter((item) => item.id !== connectionId)
-      );
+      removeFromCache("received", connectionId);
     } catch {
       // El usuario puede reintentar desde la lista.
     } finally {
@@ -101,9 +99,7 @@ export default function ConexionesPage() {
 
     try {
       await cancelConnection(connectionId);
-      setSent((current) =>
-        current.filter((item) => item.id !== connectionId)
-      );
+      removeFromCache("sent", connectionId);
     } catch {
       // El usuario puede reintentar desde la lista.
     } finally {
@@ -163,8 +159,10 @@ export default function ConexionesPage() {
 
       <div className="mt-6">
         {loading ? (
-          <div className="flex min-h-40 items-center justify-center">
-            <Spinner />
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <SkeletonCard key={index} className="h-34" />
+            ))}
           </div>
         ) : error ? (
           <p className="rounded-18 border border-red-100 bg-red-50 p-6 text-center text-sm font-semibold text-red-600">
@@ -273,10 +271,11 @@ function ConnectionRow({
         className="flex items-center gap-3"
       >
         {person.avatar_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={person.avatar_url}
             alt=""
+            width={44}
+            height={44}
             className="h-11 w-11 shrink-0 rounded-full object-cover"
           />
         ) : (

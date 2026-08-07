@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface AvatarProps {
   name: string;
   imageUrl?: string | null;
@@ -14,12 +16,13 @@ export default function Avatar({ name, imageUrl, size = 40 }: AvatarProps) {
 
   if (imageUrl) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <Image
         src={imageUrl}
         alt={name}
-        style={{ width: size, height: size }}
+        width={size}
+        height={size}
         className="rounded-full object-cover"
+        style={{ width: size, height: size }}
       />
     );
   }

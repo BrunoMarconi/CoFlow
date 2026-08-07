@@ -2,12 +2,20 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
-import PropertyImageUploader from "./PropertyImageUploader";
-import AddressAutocomplete, {
-  type ResolvedAddress,
-} from "./AddressAutocomplete";
+import type { ResolvedAddress } from "./AddressAutocomplete";
+
+// Diferidos: solo hacen falta en un paso concreto del wizard (fotos en
+// el paso 5, autocompletado de dirección en el paso 1), así que no
+// deben formar parte del bundle inicial del formulario.
+const PropertyImageUploader = dynamic(
+  () => import("./PropertyImageUploader")
+);
+const AddressAutocomplete = dynamic(
+  () => import("./AddressAutocomplete")
+);
 import {
   createProperty,
   deletePropertyImage,

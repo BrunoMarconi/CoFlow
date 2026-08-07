@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -16,52 +17,25 @@ import {
   joinOpenCommunity,
 } from "@/services/communities";
 
-import type { Community } from "@/types/community";
-
 export default function ComunidadDetallePage() {
   const params = useParams<{ id: string }>();
   const { user, loading: authLoading, refreshCommunity } = useAuth();
 
-  const [community, setCommunity] =
-    useState<Community | null>(null);
+  const queryClient = useQueryClient();
+  const communityQueryKey = ["community-detail", params.id];
 
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const {
+    data: community = null,
+    isLoading: loading,
+    isError: notFound,
+  } = useQuery({
+    queryKey: communityQueryKey,
+    queryFn: () => getCommunity(params.id),
+  });
 
   const [joining, setJoining] = useState(false);
   const [joinError, setJoinError] = useState("");
   const [joinSuccess, setJoinSuccess] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-
-    setLoading(true);
-    setNotFound(false);
-    setJoinError("");
-    setJoinSuccess(false);
-
-    getCommunity(params.id)
-      .then((data) => {
-        if (!active) return;
-
-        setCommunity(data);
-      })
-      .catch(() => {
-        if (!active) return;
-
-        setNotFound(true);
-        setCommunity(null);
-      })
-      .finally(() => {
-        if (!active) return;
-
-        setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [params.id]);
 
   async function handleJoin() {
     if (
@@ -81,7 +55,7 @@ export default function ComunidadDetallePage() {
       const updatedCommunity =
         await joinOpenCommunity(community.id);
 
-      setCommunity(updatedCommunity);
+      queryClient.setQueryData(communityQueryKey, updatedCommunity);
       setJoinSuccess(true);
       await refreshCommunity();
     } catch (error) {

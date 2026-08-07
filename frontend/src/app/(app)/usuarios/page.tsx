@@ -12,6 +12,7 @@ import UserFilters, {
 import PageHeader from "@/components/ui/PageHeader";
 import SectionHeader from "@/components/ui/SectionHeader";
 import SearchInput from "@/components/ui/SearchInput";
+import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 
 export default function UsuariosPage() {
@@ -23,7 +24,9 @@ export default function UsuariosPage() {
 
   const maxBudget = filters.maxBudget ? Number(filters.maxBudget) : undefined;
 
-  const { users, loading } = useUsers({ max_budget: maxBudget });
+  const { users, loading, hasMore, loadingMore, loadMore } = useUsers({
+    max_budget: maxBudget,
+  });
 
   const visibleUsers = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -133,7 +136,17 @@ export default function UsuariosPage() {
             ))}
           </div>
         ) : (
-          <UserGrid users={visibleUsers} />
+          <>
+            <UserGrid users={visibleUsers} />
+
+            {hasMore && (
+              <div className="mt-6 flex justify-center">
+                <SecondaryButton onClick={loadMore} disabled={loadingMore}>
+                  {loadingMore ? "Cargando..." : "Cargar más personas"}
+                </SecondaryButton>
+              </div>
+            )}
+          </>
         )}
       </section>
     </div>

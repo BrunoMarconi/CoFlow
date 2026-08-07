@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import PropertyStatusBadge from "./PropertyStatusBadge";
@@ -67,12 +68,13 @@ export default function PropertyCard({
     <article className="flex flex-col overflow-hidden rounded-[1.5rem] border border-line bg-surface shadow-sm">
       <div className="relative h-40 w-full shrink-0 overflow-hidden bg-surface-soft">
         {property.cover_image_url && !imageError ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={property.cover_image_url}
             alt={property.title}
             onError={() => setImageError(true)}
-            className="h-full w-full object-cover"
+            fill
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-muted">

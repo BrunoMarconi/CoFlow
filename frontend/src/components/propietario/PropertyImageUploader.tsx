@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState, type DragEvent } from "react";
 import type { PropertyImage } from "@/types/property";
 
@@ -232,17 +233,18 @@ export default function PropertyImageUploader({
                 setDraggedId(null);
                 setDropTargetId(null);
               }}
-              className={`group relative cursor-grab overflow-hidden rounded-2xl border bg-surface-soft transition active:cursor-grabbing ${
+              className={`group relative h-28 w-full cursor-grab overflow-hidden rounded-2xl border bg-surface-soft transition active:cursor-grabbing sm:h-32 ${
                 dropTargetId === image.id
                   ? "border-brand ring-2 ring-brand/30"
                   : "border-line"
               } ${draggedId === image.id ? "opacity-50" : ""}`}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={image.image_url}
                 alt=""
-                className="h-28 w-full object-cover sm:h-32"
+                fill
+                sizes="(min-width: 640px) 33vw, 50vw"
+                className="object-cover"
                 draggable={false}
               />
 

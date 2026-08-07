@@ -30,7 +30,7 @@ export default function Cities() {
                 fill
                 loading="lazy"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-cover transition duration-700 group-hover:scale-105"
+                className="object-cover transition duration-300 group-hover:scale-105"
               />
 
               <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/25 to-black/5" />

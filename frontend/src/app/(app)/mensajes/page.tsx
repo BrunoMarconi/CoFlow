@@ -1,14 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
-import Spinner from "@/components/ui/Spinner";
 import EmptyState from "@/components/ui/EmptyState";
-import PrivateChat from "@/components/mensajes/PrivateChat";
-import CommunityChat from "@/components/comunidad/CommunityChat";
+import Spinner from "@/components/ui/Spinner";
+
+// Diferidos: en cada visita solo se muestra uno de los dos a la vez
+// (chat privado o de comunidad), según lo que el usuario seleccione.
+const chatLoadingFallback = (
+  <div className="flex h-full items-center justify-center">
+    <Spinner />
+  </div>
+);
+const PrivateChat = dynamic(() => import("@/components/mensajes/PrivateChat"), {
+  loading: () => chatLoadingFallback,
+});
+const CommunityChat = dynamic(
+  () => import("@/components/comunidad/CommunityChat"),
+  { loading: () => chatLoadingFallback }
+);
 import { HomeIcon, ChevronRightIcon } from "@/components/layout/NavIcons";
 import {
   getConnections,
@@ -18,6 +34,26 @@ import { getCommunityMessages } from "@/services/communities";
 import type { UserConnection } from "@/types/connection";
 import type { PrivateMessage } from "@/types/privateMessage";
 import type { CommunityMessage } from "@/types/community";
+
+async function loadAcceptedConnectionsWithLastMessages() {
+  const data = await getConnections();
+  const accepted = data.filter((c) => c.status === "ACCEPTED");
+
+  const results = await Promise.all(
+    accepted.map((connection) =>
+      getPrivateMessages(connection.id, { limit: 1 })
+        .then((messages) => [connection.id, messages[0]] as const)
+        .catch(() => [connection.id, undefined] as const)
+    )
+  );
+
+  const lastMessages: Record<number, PrivateMessage> = {};
+  for (const [id, message] of results) {
+    if (message) lastMessages[id] = message;
+  }
+
+  return { accepted, lastMessages };
+}
 
 function otherParticipant(connection: UserConnection, currentUserId: string) {
   return connection.requester.id === currentUserId
@@ -50,13 +86,6 @@ export default function MensajesPage() {
   const requestedId = Number(searchParams.get("c"));
   const requestedCommunity = searchParams.get("c") === "community";
 
-  const [connections, setConnections] = useState<UserConnection[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [lastMessages, setLastMessages] = useState<
-    Record<number, PrivateMessage>
-  >({});
-  const [communityLastMessage, setCommunityLastMessage] =
-    useState<CommunityMessage | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(
     !requestedCommunity && Number.isFinite(requestedId) && requestedId > 0
       ? requestedId
@@ -66,63 +95,35 @@ export default function MensajesPage() {
     requestedCommunity
   );
 
-  useEffect(() => {
-    let active = true;
+  const { data: connectionsData, isLoading: loading } = useQuery({
+    queryKey: ["connections-with-last-message"],
+    queryFn: loadAcceptedConnectionsWithLastMessages,
+  });
 
-    getConnections()
-      .then((data) => {
-        if (!active) return;
+  const connections = useMemo(
+    () => connectionsData?.accepted ?? [],
+    [connectionsData]
+  );
+  const lastMessages = connectionsData?.lastMessages ?? {};
 
-        const accepted = data.filter((c) => c.status === "ACCEPTED");
-        setConnections(accepted);
-        setSelectedId((current) =>
-          current !== null && accepted.some((c) => c.id === current)
-            ? current
-            : (accepted[0]?.id ?? null)
-        );
+  // Deriva la selección "efectiva" en vez de sincronizarla con un efecto:
+  // si la selección actual ya no es válida (o no hay ninguna todavía),
+  // cae a la primera conversación disponible sin un renderizado extra.
+  const effectiveSelectedId = useMemo(() => {
+    if (selectedId !== null && connections.some((c) => c.id === selectedId)) {
+      return selectedId;
+    }
+    return connections[0]?.id ?? null;
+  }, [selectedId, connections]);
 
-        Promise.all(
-          accepted.map((connection) =>
-            getPrivateMessages(connection.id, { limit: 1 })
-              .then((messages) => [connection.id, messages[0]] as const)
-              .catch(() => [connection.id, undefined] as const)
-          )
-        ).then((results) => {
-          if (!active) return;
-
-          const map: Record<number, PrivateMessage> = {};
-          for (const [id, message] of results) {
-            if (message) map[id] = message;
-          }
-          setLastMessages(map);
-        });
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!community) return;
-
-    let active = true;
-
-    getCommunityMessages(community.id, { limit: 1 })
-      .then((messages) => {
-        if (active) setCommunityLastMessage(messages[0] ?? null);
-      })
-      .catch(() => {
-        if (active) setCommunityLastMessage(null);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [community]);
+  const { data: communityLastMessage = null } = useQuery({
+    queryKey: ["community-last-message", community?.id],
+    queryFn: () =>
+      getCommunityMessages(community!.id, { limit: 1 }).then(
+        (messages) => messages[0] ?? null
+      ),
+    enabled: Boolean(community),
+  });
 
   function selectConnection(id: number) {
     setCommunitySelected(false);
@@ -136,9 +137,9 @@ export default function MensajesPage() {
   const selectedConnection = useMemo(
     () =>
       !communitySelected
-        ? (connections.find((c) => c.id === selectedId) ?? null)
+        ? (connections.find((c) => c.id === effectiveSelectedId) ?? null)
         : null,
-    [connections, selectedId, communitySelected]
+    [connections, effectiveSelectedId, communitySelected]
   );
 
   const selectedOther =
@@ -150,8 +151,20 @@ export default function MensajesPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Spinner />
+      <div className="-mx-4 -my-6 flex flex-col border-t border-border sm:-mx-6 lg:-mx-8">
+        <InboxHeader />
+        {Array.from({ length: 5 }).map((_, index) => (
+          <div
+            key={index}
+            className="flex animate-pulse items-center gap-3 border-b border-border px-4 py-3"
+          >
+            <div className="h-11 w-11 shrink-0 rounded-full bg-surface-soft" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="h-3 w-1/3 rounded-full bg-surface-soft" />
+              <div className="h-3 w-2/3 rounded-full bg-surface-soft" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
@@ -249,7 +262,8 @@ export default function MensajesPage() {
               if (!user) return null;
               const other = otherParticipant(connection, user.id);
               const lastMessage = lastMessages[connection.id];
-              const isSelected = !communitySelected && connection.id === selectedId;
+              const isSelected =
+                !communitySelected && connection.id === effectiveSelectedId;
 
               return (
                 <button
@@ -372,10 +386,11 @@ function ConversationAvatar({
 }) {
   if (imageUrl) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <Image
         src={imageUrl}
         alt=""
+        width={44}
+        height={44}
         className="h-11 w-11 shrink-0 rounded-full object-cover"
       />
     );

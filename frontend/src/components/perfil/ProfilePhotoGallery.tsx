@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
 import type { UserPhoto } from "@/types/userPhoto";
 
@@ -134,13 +135,14 @@ export default function ProfilePhotoGallery({
           {sorted.map((photo, index) => (
             <div
               key={photo.id}
-              className="group relative overflow-hidden rounded-18 border border-border bg-surface-soft"
+              className="group relative h-28 w-full overflow-hidden rounded-18 border border-border bg-surface-soft sm:h-32"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={photo.image_url}
                 alt=""
-                className="h-28 w-full object-cover sm:h-32"
+                fill
+                sizes="(min-width: 640px) 33vw, 50vw"
+                className="object-cover"
               />
 
               <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-black/50 p-1.5">

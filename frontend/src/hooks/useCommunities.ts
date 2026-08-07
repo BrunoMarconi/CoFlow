@@ -1,54 +1,44 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { getCommunities } from "@/services/communities";
 import type { Community, GetCommunitiesParams } from "@/types/community";
 
-export function useCommunities(params?: GetCommunitiesParams) {
-  const [communities, setCommunities] = useState<Community[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+const PAGE_SIZE = 20;
 
+export function useCommunities(params?: GetCommunitiesParams) {
   const city = params?.city;
   const province = params?.province;
   const profileType = params?.profile_type;
-  const skip = params?.skip;
-  const limit = params?.limit;
 
-  const refetch = useCallback(() => {
-    let active = true;
-    setLoading(true);
-    setError("");
+  const query = useInfiniteQuery({
+    queryKey: ["communities", { city, province, profileType }],
+    queryFn: ({ pageParam }): Promise<Community[]> =>
+      getCommunities({
+        city,
+        province,
+        profile_type: profileType,
+        skip: pageParam,
+        limit: PAGE_SIZE,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length < PAGE_SIZE ? undefined : allPages.length * PAGE_SIZE,
+  });
 
-    getCommunities({
-      city,
-      province,
-      profile_type: profileType,
-      skip,
-      limit,
-    })
-      .then((data) => {
-        if (active) setCommunities(data);
-      })
-      .catch(() => {
-        if (active) {
-          setCommunities([]);
-          setError("No pudimos cargar las comunidades. Intenta de nuevo.");
-        }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [city, province, profileType, skip, limit]);
-
-  useEffect(() => {
-    const cancel = refetch();
-    return cancel;
-  }, [refetch]);
-
-  return { communities, loading, error, refetch };
+  return {
+    communities: query.data?.pages.flat() ?? [],
+    loading: query.isLoading,
+    error: query.isError
+      ? "No pudimos cargar las comunidades. Intenta de nuevo."
+      : "",
+    refetch: () => {
+      query.refetch();
+    },
+    hasMore: Boolean(query.hasNextPage),
+    loadingMore: query.isFetchingNextPage,
+    loadMore: () => {
+      query.fetchNextPage();
+    },
+  };
 }
