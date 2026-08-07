@@ -12,6 +12,12 @@ import type { OwnerProfile } from "@/types/owner";
 
 const UNREAD_POLL_INTERVAL_MS = 30000;
 
+function devLog(...args: unknown[]) {
+  if (process.env.NODE_ENV === "development") {
+    console.log("[auth]", ...args);
+  }
+}
+
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
@@ -38,6 +44,17 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const [ownerProfileLoading, setOwnerProfileLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const userRef = useRef<User | null>(null);
+
+  // AuthProvider vive una sola vez para toda la sesión de navegación (no
+  // se remonta al navegar de /login a /comunidades). Eso significa que
+  // la llamada a refresh() del montaje inicial (con el token que hubiera
+  // en localStorage al cargar la página, o ninguno) puede seguir en
+  // vuelo cuando el login dispara su propio refresh(). Sin esta guarda,
+  // la respuesta que llegue más tarde —aunque sea la más antigua y ya
+  // no relevante— pisa el estado más reciente y correcto, dejando al
+  // usuario con user=null tras un login que sí funcionó. Solo se aplica
+  // el resultado de la llamada más reciente.
+  const refreshRequestIdRef = useRef(0);
 
   const refreshUnreadCount = useCallback(async () => {
     if (!userRef.current) {
@@ -96,32 +113,53 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refresh = useCallback(async () => {
+    const requestId = ++refreshRequestIdRef.current;
+    const isCurrent = () => requestId === refreshRequestIdRef.current;
     const token = getToken();
 
     if (!token) {
-      setUser(null);
-      setLoading(false);
-      setCommunity(null);
-      setCommunityLoading(false);
-      setOwnerProfile(null);
-      setOwnerProfileLoading(false);
+      devLog("refresh(): sin token");
+
+      if (isCurrent()) {
+        setUser(null);
+        setLoading(false);
+        setCommunity(null);
+        setCommunityLoading(false);
+        setOwnerProfile(null);
+        setOwnerProfileLoading(false);
+      }
       return null;
     }
 
     try {
       const currentUser = await fetchMe(token);
-      setUser(currentUser);
+      devLog("refresh(): /auth/me respondió", {
+        userId: currentUser.id,
+        stale: !isCurrent(),
+      });
+
+      if (isCurrent()) {
+        setUser(currentUser);
+        devLog("refresh(): user actualizado en el contexto");
+      }
       return currentUser;
-    } catch {
-      clearToken();
-      setUser(null);
-      setCommunity(null);
-      setCommunityLoading(false);
-      setOwnerProfile(null);
-      setOwnerProfileLoading(false);
+    } catch (error) {
+      devLog("refresh(): /auth/me falló", { stale: !isCurrent(), error });
+
+      if (isCurrent()) {
+        clearToken();
+        setUser(null);
+        setCommunity(null);
+        setCommunityLoading(false);
+        setOwnerProfile(null);
+        setOwnerProfileLoading(false);
+      }
       return null;
     } finally {
-      setLoading(false);
+      if (isCurrent()) {
+        setLoading(false);
+        devLog("refresh(): loading actualizado a false");
+      }
     }
   }, []);
 

@@ -11,6 +11,12 @@ import { login } from "@/services/auth";
 import { setToken } from "@/lib/auth";
 import { useAuth } from "@/hooks/useAuth";
 
+function devLog(...args: unknown[]) {
+  if (process.env.NODE_ENV === "development") {
+    console.log("[login]", ...args);
+  }
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const { refresh, refreshCommunity } = useAuth();
@@ -30,15 +36,27 @@ export default function LoginPage() {
         email,
         password,
       });
+      devLog("login response recibida", { emailVerified: data.is_email_verified });
 
       setToken(data.access_token);
+      devLog("token guardado");
+
       const currentUser = await refresh();
+      devLog("user actualizado", {
+        gotUser: Boolean(currentUser),
+        onboardingCompleted: currentUser?.onboarding_completed ?? null,
+      });
 
       if (currentUser?.onboarding_completed) {
         await refreshCommunity();
       }
 
-      router.push(currentUser?.onboarding_completed ? "/comunidades" : "/onboarding");
+      const destination = currentUser?.onboarding_completed
+        ? "/comunidades"
+        : "/onboarding";
+      devLog("ruta de destino", destination);
+
+      router.replace(destination);
     } catch (err) {
       const status = (err as { response?: { status?: number } })?.response
         ?.status;
