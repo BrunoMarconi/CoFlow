@@ -142,6 +142,14 @@ export default function ConexionesPage() {
 
   return (
     <div>
+      <Link
+        href="/mensajes"
+        className="mb-4 inline-flex h-9 items-center gap-1.5 text-sm font-bold text-muted transition-colors duration-180 hover:text-brand-dark"
+      >
+        <ArrowLeftIcon />
+        Volver a mensajes
+      </Link>
+
       <PageHeader
         title="Conexiones"
         subtitle="Gestiona tus conexiones y solicitudes con otras personas de CoFlow."
@@ -341,5 +349,23 @@ function ConnectionRow({
 
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">{children}</div>
     </div>
+  );
+}
+
+function ArrowLeftIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4"
+      aria-hidden="true"
+    >
+      <path d="M19 12H5" />
+      <path d="m11 18-6-6 6-6" />
+    </svg>
   );
 }

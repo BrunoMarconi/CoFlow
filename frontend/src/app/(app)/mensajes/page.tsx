@@ -9,7 +9,7 @@ import Spinner from "@/components/ui/Spinner";
 import EmptyState from "@/components/ui/EmptyState";
 import PrivateChat from "@/components/mensajes/PrivateChat";
 import CommunityChat from "@/components/comunidad/CommunityChat";
-import { HomeIcon } from "@/components/layout/NavIcons";
+import { HomeIcon, ChevronRightIcon } from "@/components/layout/NavIcons";
 import {
   getConnections,
   getPrivateMessages,
@@ -354,9 +354,10 @@ function InboxHeader() {
 
       <Link
         href="/conexiones"
-        className="text-xs font-bold text-primary-dark hover:text-brand-dark"
+        className="flex items-center gap-1 text-xs font-bold text-primary-dark transition-colors duration-180 hover:text-brand-dark"
       >
         Solicitudes de conexión
+        <ChevronRightIcon className="h-3.5 w-3.5" />
       </Link>
     </div>
   );
