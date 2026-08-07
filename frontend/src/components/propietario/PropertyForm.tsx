@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import PropertyImageUploader from "./PropertyImageUploader";
+import AddressAutocomplete, {
+  type ResolvedAddress,
+} from "./AddressAutocomplete";
 import {
   createProperty,
   deletePropertyImage,
@@ -39,6 +42,14 @@ const STEP_TITLES = [
   "Fotografías y resumen",
 ];
 
+const STEP_TIPS = [
+  "Un título claro y una descripción detallada son lo primero que verán los inquilinos: menciona la zona, la luz, el transporte cercano y qué hace especial a la vivienda.",
+  "Estos datos ayudan a los inquilinos a filtrar pisos que encajan con lo que buscan. Cuanto más completo, menos preguntas tendrás que responder luego.",
+  "El alquiler y la fianza son opcionales por ahora, pero indícalos si ya los tienes claros: son el primer filtro que usa cualquier inquilino.",
+  "\"Sin definir\" significa que ese criterio no aparecerá como filtro, ni a favor ni en contra. Márcalo como Sí o No solo si es una condición firme.",
+  "Sube al menos 3-4 fotografías con buena luz: portada del salón, dormitorios y cocina. Podrás añadir más y reordenarlas cuando quieras.",
+];
+
 function toDateInputValue(value: string | null): string {
   if (!value) return "";
   return value.slice(0, 10);
@@ -52,10 +63,14 @@ export default function PropertyForm({
   const router = useRouter();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [maxStepReached, setMaxStepReached] = useState<1 | 2 | 3 | 4 | 5>(
+    initialProperty ? 5 : 1
+  );
   const [property, setProperty] = useState<Property | null>(initialProperty);
   const [propertyId, setPropertyId] = useState<number | null>(
     initialProperty?.id ?? null
   );
+  const [draftSavedNotice, setDraftSavedNotice] = useState(false);
 
   const [title, setTitle] = useState(initialProperty?.title ?? "");
   const [description, setDescription] = useState(
@@ -74,6 +89,12 @@ export default function PropertyForm({
   );
   const [postalCode, setPostalCode] = useState(
     initialProperty?.postal_code ?? ""
+  );
+  const [latitude, setLatitude] = useState<number | null>(
+    initialProperty?.latitude ?? null
+  );
+  const [longitude, setLongitude] = useState<number | null>(
+    initialProperty?.longitude ?? null
   );
 
   const [surfaceM2, setSurfaceM2] = useState(
@@ -170,6 +191,15 @@ export default function PropertyForm({
 
   const progress = (step / 5) * 100;
 
+  function handleAddressResolved(resolved: ResolvedAddress) {
+    setCity(resolved.city);
+    setProvince(resolved.province);
+    setPostalCode(resolved.postalCode);
+    if (resolved.neighborhood) setNeighborhood(resolved.neighborhood);
+    setLatitude(resolved.latitude);
+    setLongitude(resolved.longitude);
+  }
+
   function toggleAmenity(id: number) {
     setAmenityIds((current) =>
       current.includes(id)
@@ -235,6 +265,8 @@ export default function PropertyForm({
       province: province.trim(),
       postal_code: postalCode.trim(),
       neighborhood: neighborhood.trim() || null,
+      latitude,
+      longitude,
       surface_m2: surfaceM2 ? Number(surfaceM2) : null,
       bedrooms: Number(bedrooms),
       bathrooms: Number(bathrooms),
@@ -276,6 +308,12 @@ export default function PropertyForm({
     setValidationError("");
     window.scrollTo({ top: 0, behavior: "smooth" });
     setStep(next);
+    setMaxStepReached((current) => (next > current ? next : current));
+  }
+
+  function handleStepNavigatorClick(target: 1 | 2 | 3 | 4 | 5) {
+    if (target > maxStepReached || target === step) return;
+    goToStep(target);
   }
 
   async function handleContinue() {
@@ -304,6 +342,8 @@ export default function PropertyForm({
       try {
         await persist();
         await goToStep(5);
+        setDraftSavedNotice(true);
+        window.setTimeout(() => setDraftSavedNotice(false), 4000);
       } catch (error) {
         setValidationError(
           getCommunityErrorMessage(
@@ -372,9 +412,12 @@ export default function PropertyForm({
     }
   }
 
-  async function handleUploadImages(files: File[]) {
+  async function handleUploadImages(
+    files: File[],
+    onProgress?: (percent: number) => void
+  ) {
     if (!propertyId) return;
-    const updated = await uploadPropertyImages(propertyId, files);
+    const updated = await uploadPropertyImages(propertyId, files, onProgress);
     setProperty(updated);
   }
 
@@ -434,14 +477,58 @@ export default function PropertyForm({
             style={{ width: `${progress}%` }}
           />
         </div>
+
+        <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1">
+          {STEP_TITLES.map((title, index) => {
+            const stepNumber = (index + 1) as 1 | 2 | 3 | 4 | 5;
+            const reachable = stepNumber <= maxStepReached;
+            const current = stepNumber === step;
+
+            return (
+              <button
+                key={title}
+                type="button"
+                onClick={() => handleStepNavigatorClick(stepNumber)}
+                disabled={!reachable}
+                aria-current={current ? "step" : undefined}
+                title={title}
+                className={`flex h-9 shrink-0 items-center gap-2 rounded-full border px-3 text-xs font-bold transition ${
+                  current
+                    ? "border-brand bg-brand text-white"
+                    : reachable
+                      ? "border-line bg-surface text-foreground hover:border-brand/40"
+                      : "cursor-not-allowed border-line bg-surface-soft text-muted"
+                }`}
+              >
+                <span
+                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] ${
+                    current
+                      ? "bg-white/20"
+                      : reachable
+                        ? "bg-brand/10 text-brand-dark"
+                        : "bg-line text-muted"
+                  }`}
+                >
+                  {stepNumber}
+                </span>
+                <span className="hidden sm:inline">{title}</span>
+              </button>
+            );
+          })}
+        </div>
       </header>
+
+      <div className="mt-6 flex gap-2.5 rounded-2xl border border-mint-200 bg-mint-50 px-4 py-3 text-sm leading-6 text-primary-dark">
+        <InfoIcon />
+        <p>{STEP_TIPS[step - 1]}</p>
+      </div>
 
       <div className="mt-8 rounded-[2rem] border border-line bg-surface p-5 shadow-sm sm:p-8">
         {step === 1 && (
           <div className="space-y-6">
             <Input
               label="Título"
-              helperText="Entre 5 y 150 caracteres."
+              helperText={`${title.trim().length}/150 caracteres (mínimo 5)`}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Ej. Piso luminoso cerca del centro"
@@ -451,7 +538,11 @@ export default function PropertyForm({
 
             <Textarea
               label="Descripción"
-              helperText="Mínimo 30 caracteres."
+              helperText={
+                description.trim().length >= 30
+                  ? `${description.trim().length} caracteres`
+                  : `${description.trim().length}/30 caracteres mínimo`
+              }
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               placeholder="Describe la vivienda, la zona y lo que la hace especial..."
@@ -497,11 +588,10 @@ export default function PropertyForm({
               />
             </div>
 
-            <Input
-              label="Dirección"
+            <AddressAutocomplete
               value={addressLine}
-              onChange={(event) => setAddressLine(event.target.value)}
-              required
+              onChange={setAddressLine}
+              onResolved={handleAddressResolved}
             />
 
             <div className="grid gap-5 sm:grid-cols-2">
@@ -711,6 +801,14 @@ export default function PropertyForm({
 
         {step === 5 && (
           <div className="space-y-8">
+            {draftSavedNotice && (
+              <div className="flex items-center gap-2 rounded-2xl border border-mint-200 bg-mint-50 px-4 py-3 text-sm font-semibold text-primary-dark">
+                <CheckCircleIcon />
+                Borrador guardado. Puedes volver más tarde y seguir donde lo
+                dejaste.
+              </div>
+            )}
+
             {propertyId ? (
               <PropertyImageUploader
                 images={property?.images ?? []}
@@ -816,6 +914,43 @@ export default function PropertyForm({
         </div>
       </div>
     </div>
+  );
+}
+
+function InfoIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="mt-0.5 h-4 w-4 shrink-0"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 8h.01" />
+      <path d="M11 12h1v4h1" />
+    </svg>
+  );
+}
+
+function CheckCircleIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4 shrink-0"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8.5 12.5 2.5 2.5 4.5-5" />
+    </svg>
   );
 }
 

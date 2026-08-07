@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 import EmailVerificationBanner from "@/components/layout/EmailVerificationBanner";
+import ProfileCompletionBanner from "@/components/layout/ProfileCompletionBanner";
 import SwipeNavigation from "@/components/layout/SwipeNavigation";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { cn } from "@/lib/utils";
@@ -35,7 +36,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
               isChatActive ? "px-0 py-0" : "px-4 py-6"
             )}
           >
-            {!isChatActive && <EmailVerificationBanner />}
+            {!isChatActive && (
+              <>
+                <EmailVerificationBanner />
+                <ProfileCompletionBanner />
+              </>
+            )}
             <SwipeNavigation>{children}</SwipeNavigation>
           </div>
         </main>

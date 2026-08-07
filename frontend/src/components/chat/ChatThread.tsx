@@ -3,6 +3,7 @@
 import {
   memo,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type KeyboardEvent,
@@ -12,6 +13,10 @@ import { cn } from "@/lib/utils";
 const POLL_INTERVAL_MS = 5000;
 const NEAR_BOTTOM_THRESHOLD_PX = 120;
 const MAX_TEXTAREA_HEIGHT_PX = 120;
+// Ventana para considerar dos mensajes consecutivos del mismo
+// remitente parte del mismo "grupo" visual (menos separación, una
+// sola colita al final) — igual criterio que WhatsApp/Telegram.
+const GROUP_WINDOW_MS = 3 * 60 * 1000;
 
 export interface ChatThreadSender {
   id: string;
@@ -239,6 +244,8 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
     }
   }
 
+  const renderItems = useMemo(() => buildRenderItems(messages), [messages]);
+
   return (
     <div
       className={cn(
@@ -252,7 +259,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
         <div
           ref={containerRef}
           onScroll={handleScroll}
-          className="h-full space-y-3 overflow-y-auto p-4 sm:p-5"
+          className="chat-wallpaper h-full overflow-y-auto p-4 sm:p-5"
         >
           {loading ? (
             <div className="flex h-full items-center justify-center">
@@ -274,14 +281,31 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
               </p>
             </div>
           ) : (
-            messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isOwn={message.sender.id === currentUserId}
-                showSenderName={showSenderName}
-              />
-            ))
+            renderItems.map((item) =>
+              item.type === "date" ? (
+                <div
+                  key={item.key}
+                  className="sticky top-0 z-10 mb-3 flex justify-center first:mt-0 not-first:mt-4"
+                >
+                  <span className="rounded-full bg-surface/90 px-3 py-1 text-[11px] font-bold text-secondary shadow-soft backdrop-blur-sm">
+                    {item.label}
+                  </span>
+                </div>
+              ) : (
+                <div
+                  key={item.message.id}
+                  className={item.firstOfGroup ? "mt-3 first:mt-0" : "mt-0.5"}
+                >
+                  <MessageBubble
+                    message={item.message}
+                    isOwn={item.message.sender.id === currentUserId}
+                    showSenderName={showSenderName}
+                    firstOfGroup={item.firstOfGroup}
+                    lastOfGroup={item.lastOfGroup}
+                  />
+                </div>
+              )
+            )
           )}
         </div>
 
@@ -289,21 +313,22 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           <button
             type="button"
             onClick={scrollToRecent}
-            className="absolute bottom-3 left-1/2 flex h-10 -translate-x-1/2 items-center gap-2 rounded-full bg-primary px-4 text-xs font-bold text-white shadow-soft transition active:scale-95"
+            aria-label="Ir a los mensajes recientes"
+            className="absolute bottom-3 right-3 flex h-11 w-11 items-center justify-center rounded-full bg-surface text-brand-dark shadow-soft transition active:scale-95"
           >
             <DownArrowIcon />
-            {newArrivals > 0
-              ? `${newArrivals} ${
-                  newArrivals === 1 ? "mensaje nuevo" : "mensajes nuevos"
-                }`
-              : "Volver a los mensajes recientes"}
+            {newArrivals > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
+                {newArrivals > 9 ? "9+" : newArrivals}
+              </span>
+            )}
           </button>
         )}
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="flex items-end gap-2 border-t border-border p-3 pb-[max(0.75rem,var(--safe-bottom))] sm:gap-3 sm:p-4"
+        className="flex items-end gap-2 border-t border-border bg-surface p-3 pb-[max(0.75rem,var(--safe-bottom))] sm:gap-3 sm:p-4"
       >
         <textarea
           ref={textareaRef}
@@ -317,17 +342,16 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           maxLength={2000}
           disabled={sending}
           rows={1}
-          className="max-h-[120px] min-h-11 min-w-0 flex-1 resize-none rounded-14 border border-border bg-surface-muted px-4 py-2.5 text-base leading-6 text-foreground outline-none transition focus:border-primary disabled:opacity-60"
+          className="max-h-30 min-h-11 min-w-0 flex-1 resize-none rounded-full border border-border bg-surface-muted px-4 py-2.5 text-base leading-6 text-foreground outline-none transition focus:border-primary disabled:opacity-60"
         />
 
         <button
           type="submit"
           disabled={sending || !content.trim()}
           aria-label="Enviar mensaje"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 bg-primary text-white transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:gap-2 sm:px-5"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {sending ? <LoadingIcon /> : <SendIcon />}
-          <span className="hidden text-sm font-bold sm:inline">Enviar</span>
         </button>
       </form>
 
@@ -347,10 +371,14 @@ const MessageBubble = memo(function MessageBubble({
   message,
   isOwn,
   showSenderName,
+  firstOfGroup,
+  lastOfGroup,
 }: {
   message: ChatThreadMessage;
   isOwn: boolean;
   showSenderName: boolean;
+  firstOfGroup: boolean;
+  lastOfGroup: boolean;
 }) {
   const fullName = [message.sender.first_name, message.sender.last_name]
     .filter(Boolean)
@@ -365,50 +393,67 @@ const MessageBubble = memo(function MessageBubble({
 
   const time = formatMessageTime(message.created_at);
 
+  // El avatar por mensaje solo tiene sentido en chats de grupo
+  // (comunidad); en 1:1 no aporta nada que el encabezado del hilo no
+  // muestre ya. Cuando sí aplica, solo se pinta en el último mensaje
+  // del grupo — el resto reserva el mismo hueco para que las burbujas
+  // seguidas queden alineadas.
+  const showAvatarColumn = showSenderName && !isOwn;
+
   return (
     <div
-      className={`flex items-end gap-2 ${
+      className={cn(
+        "flex items-end gap-2",
         isOwn ? "flex-row-reverse" : "flex-row"
-      }`}
-    >
-      {message.sender.avatar_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={message.sender.avatar_url}
-          alt={fullName}
-          className="h-8 w-8 shrink-0 rounded-full object-cover"
-        />
-      ) : (
-        <div
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-            isOwn ? "bg-primary text-white" : "bg-brand-dark text-white"
-          }`}
-        >
-          {initials || "CF"}
-        </div>
       )}
+    >
+      {showAvatarColumn &&
+        (lastOfGroup ? (
+          message.sender.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={message.sender.avatar_url}
+              alt={fullName}
+              className="h-7 w-7 shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-dark text-[10px] font-bold text-white">
+              {initials || "CF"}
+            </div>
+          )
+        ) : (
+          <div className="h-7 w-7 shrink-0" aria-hidden="true" />
+        ))}
 
       <div
-        className={`max-w-[82%] min-w-0 rounded-18 px-4 py-3 ${
+        className={cn(
+          "max-w-[80%] min-w-0 rounded-18 px-3.5 py-2 shadow-[0_1px_1px_rgb(0_0_0/0.04)]",
           isOwn
-            ? "rounded-br-md bg-primary text-white"
-            : "rounded-bl-md border border-border bg-surface text-foreground"
-        }`}
+            ? cn(
+                "bg-primary text-white",
+                lastOfGroup && "chat-tail-own rounded-br-md"
+              )
+            : cn(
+                "bg-surface text-foreground",
+                lastOfGroup && "chat-tail-other rounded-bl-md"
+              )
+        )}
       >
-        {!isOwn && showSenderName && (
+        {!isOwn && showSenderName && firstOfGroup && (
           <p className="truncate text-xs font-bold text-primary-dark">
             {fullName || "Miembro de CoFlow"}
           </p>
         )}
 
-        <p className="mt-1 whitespace-pre-line text-sm leading-6 wrap-anywhere">
+        <p className="whitespace-pre-line text-sm leading-6 wrap-anywhere">
           {message.content}
         </p>
 
         <p
-          className={`mt-1 text-[10px] font-semibold ${
+          className={cn(
+            "mt-0.5 text-right text-[10px] font-semibold",
             isOwn ? "text-white/70" : "text-muted"
-          }`}
+          )}
         >
           {time}
         </p>
@@ -416,6 +461,82 @@ const MessageBubble = memo(function MessageBubble({
     </div>
   );
 });
+
+function buildRenderItems<TMessage extends ChatThreadMessage>(
+  messages: TMessage[]
+): (
+  | { type: "date"; key: string; label: string }
+  | { type: "message"; message: TMessage; firstOfGroup: boolean; lastOfGroup: boolean }
+)[] {
+  type Item =
+    | { type: "date"; key: string; label: string }
+    | { type: "message"; message: TMessage; firstOfGroup: boolean; lastOfGroup: boolean };
+
+  const items: Item[] = [];
+
+  messages.forEach((message, index) => {
+    const previous = messages[index - 1];
+    const messageDate = new Date(message.created_at);
+    const previousDate = previous ? new Date(previous.created_at) : null;
+
+    const isNewDay = !previousDate || !isSameDay(messageDate, previousDate);
+
+    if (isNewDay) {
+      items.push({
+        type: "date",
+        key: `date-${message.id}`,
+        label: formatDateSeparatorLabel(messageDate),
+      });
+    }
+
+    const withinGroupWindow =
+      previous &&
+      !isNewDay &&
+      previous.sender.id === message.sender.id &&
+      messageDate.getTime() - new Date(previous.created_at).getTime() <
+        GROUP_WINDOW_MS;
+
+    items.push({
+      type: "message",
+      message,
+      firstOfGroup: !withinGroupWindow,
+      lastOfGroup: true, // se corrige abajo mirando el siguiente mensaje
+    });
+  });
+
+  for (let index = 0; index < items.length; index += 1) {
+    const item = items[index];
+    if (item.type !== "message") continue;
+
+    const next = items[index + 1];
+    item.lastOfGroup = !next || next.type === "date" || next.firstOfGroup;
+  }
+
+  return items;
+}
+
+function isSameDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+function formatDateSeparatorLabel(date: Date) {
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  if (isSameDay(date, today)) return "Hoy";
+  if (isSameDay(date, yesterday)) return "Ayer";
+
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
+  }).format(date);
+}
 
 function formatMessageTime(value: string) {
   const date = new Date(value);

@@ -10,11 +10,15 @@ import Card from "@/components/ui/Card";
 import { login, register } from "@/services/auth";
 import { setToken } from "@/lib/auth";
 import { useAuth } from "@/hooks/useAuth";
+import { POST_VERIFICATION_INTENT_KEY } from "@/lib/postVerificationIntent";
+
+type Intent = "seeker" | "owner";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { refresh } = useAuth();
 
+  const [intent, setIntent] = useState<Intent>("seeker");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -52,6 +56,10 @@ export default function RegisterPage() {
 
       setToken(data.access_token);
       await refresh();
+
+      if (intent === "owner") {
+        window.localStorage.setItem(POST_VERIFICATION_INTENT_KEY, "owner");
+      }
 
       router.push("/verificacion-pendiente");
     } catch {
@@ -98,6 +106,40 @@ export default function RegisterPage() {
             onSubmit={handleSubmit}
             className="mt-8 space-y-5"
           >
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-brand-dark">
+                ¿Qué te trae a CoFlow?
+              </label>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIntent("seeker")}
+                  aria-pressed={intent === "seeker"}
+                  className={`rounded-14 border-2 px-4 py-3 text-left text-sm font-semibold transition-colors duration-180 ${
+                    intent === "seeker"
+                      ? "border-primary bg-mint-50 text-primary-dark"
+                      : "border-border bg-surface text-secondary hover:border-primary/40"
+                  }`}
+                >
+                  Busco piso o compañeros
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIntent("owner")}
+                  aria-pressed={intent === "owner"}
+                  className={`rounded-14 border-2 px-4 py-3 text-left text-sm font-semibold transition-colors duration-180 ${
+                    intent === "owner"
+                      ? "border-primary bg-mint-50 text-primary-dark"
+                      : "border-border bg-surface text-secondary hover:border-primary/40"
+                  }`}
+                >
+                  Quiero publicar mi piso
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="mb-2 block text-sm font-semibold text-brand-dark">

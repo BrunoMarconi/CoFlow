@@ -164,7 +164,7 @@ export default function MensajesPage() {
 
         {community && (
           <Link
-            href="/mi-comunidad?tab=chat"
+            href="/mensajes/comunidad"
             className="flex items-center gap-3 border-b border-border bg-mint-50/40 px-4 py-3 transition-colors duration-180 hover:bg-mint-50"
           >
             <CommunityAvatar />

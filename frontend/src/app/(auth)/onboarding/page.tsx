@@ -304,12 +304,11 @@ export default function OnboardingPage() {
 
   const answeredQuestions = Object.keys(answers).length;
 
+  // La foto es opcional: solo las respuestas del cuestionario son
+  // obligatorias para completar el perfil.
   const isComplete = useMemo(() => {
-    return (
-      questions.every((item) => Boolean(answers[item.key])) &&
-      Boolean(avatarFile || user?.avatar_url)
-    );
-  }, [answers, avatarFile, user]);
+    return questions.every((item) => Boolean(answers[item.key]));
+  }, [answers]);
 
   const avatarPreviewUrl = useMemo(
     () => (avatarFile ? URL.createObjectURL(avatarFile) : null),
@@ -430,7 +429,8 @@ export default function OnboardingPage() {
 
   function nextQuestion() {
     if (isPhotoStep) {
-      if (!hasAvatar) return;
+      // La foto es opcional — el botón siempre avanza, con o sin foto
+      // elegida.
       setCompleted(true);
       return;
     }
@@ -672,12 +672,28 @@ export default function OnboardingPage() {
 
           <p className="mt-5 max-w-2xl text-base leading-7 text-secondary md:text-lg">
             {isPhotoStep
-              ? "Ayuda a las demás personas a reconocerte. Es obligatoria para completar tu perfil."
+              ? "Es opcional, pero marca la diferencia: los perfiles con foto generan más confianza y reciben más solicitudes de conexión."
               : question?.description}
           </p>
 
           {isPhotoStep ? (
             <div className="mt-10">
+              <ul className="mb-6 grid gap-2.5 sm:grid-cols-3">
+                {[
+                  "Genera más confianza al conectar",
+                  "Recibe más solicitudes",
+                  "Tu perfil se ve más completo",
+                ].map((benefit) => (
+                  <li
+                    key={benefit}
+                    className="flex items-center gap-2 rounded-14 bg-mint-50 px-3.5 py-2.5 text-sm font-semibold text-primary-dark"
+                  >
+                    <CheckIcon />
+                    {benefit}
+                  </li>
+                ))}
+              </ul>
+
               <input
                 ref={avatarInputRef}
                 type="file"
@@ -793,15 +809,21 @@ export default function OnboardingPage() {
             <button
               type="button"
               onClick={nextQuestion}
-              disabled={isPhotoStep ? !hasAvatar : !currentAnswer}
+              disabled={isPhotoStep ? false : !currentAnswer}
               className="rounded-18 bg-primary px-7 py-4 font-bold text-white shadow-button transition hover:-translate-y-1 hover:bg-primary-hover hover:shadow-soft active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
             >
-              {isPhotoStep ? "Completar perfil" : "Continuar →"}
+              {isPhotoStep
+                ? hasAvatar
+                  ? "Completar perfil"
+                  : "Continuar sin foto"
+                : "Continuar →"}
             </button>
           </div>
 
           <p className="mt-8 text-center text-sm text-muted">
-            Tus respuestas se guardan automáticamente.
+            {isPhotoStep && !hasAvatar
+              ? "Podrás añadir tu foto más tarde desde tu perfil."
+              : "Tus respuestas se guardan automáticamente."}
           </p>
         </div>
       </section>
@@ -844,6 +866,23 @@ export default function OnboardingPage() {
         }
       `}</style>
     </main>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4 shrink-0"
+      aria-hidden="true"
+    >
+      <path d="m5 12 4 4L19 6" />
+    </svg>
   );
 }
 

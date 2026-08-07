@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
 import { maskEmail } from "@/lib/maskEmail";
 import { resendVerification } from "@/services/auth";
+import { consumePostVerificationOwnerIntent } from "@/lib/postVerificationIntent";
 
 const COOLDOWN_SECONDS = 60;
 
@@ -20,7 +21,9 @@ export default function VerificacionPendientePage() {
 
   useEffect(() => {
     if (!loading && (user?.is_email_verified || !user?.email_verification_enabled)) {
-      router.replace("/");
+      router.replace(
+        consumePostVerificationOwnerIntent() ? "/propietarios/perfil" : "/"
+      );
     }
   }, [loading, user, router]);
 

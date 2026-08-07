@@ -82,7 +82,8 @@ export async function archiveProperty(propertyId: number) {
 
 export async function uploadPropertyImages(
   propertyId: number,
-  files: File[]
+  files: File[],
+  onProgress?: (percent: number) => void
 ) {
   const formData = new FormData();
 
@@ -93,7 +94,15 @@ export async function uploadPropertyImages(
   const { data } = await api.post<Property>(
     `/owner/properties/${propertyId}/images`,
     formData,
-    { headers: { "Content-Type": "multipart/form-data" } }
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+      onUploadProgress: onProgress
+        ? (event) => {
+            if (!event.total) return;
+            onProgress(Math.round((event.loaded / event.total) * 100));
+          }
+        : undefined,
+    }
   );
 
   return data;

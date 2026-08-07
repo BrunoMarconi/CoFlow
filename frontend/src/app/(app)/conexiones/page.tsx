@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
 import EmptyState from "@/components/ui/EmptyState";
 import PageHeader from "@/components/ui/PageHeader";
@@ -13,32 +12,28 @@ import SecondaryButton from "@/components/ui/SecondaryButton";
 import {
   acceptConnection,
   cancelConnection,
-  deleteConnection,
   getConnectionRequests,
-  getConnections,
   rejectConnection,
 } from "@/services/connections";
 import type { UserConnection } from "@/types/connection";
 
-type Tab = "conectados" | "recibidas" | "enviadas";
+type Tab = "recibidas" | "enviadas";
 
-const VALID_TABS: Tab[] = ["conectados", "recibidas", "enviadas"];
+const VALID_TABS: Tab[] = ["recibidas", "enviadas"];
 
 function isValidTab(value: string | null): value is Tab {
   return value !== null && (VALID_TABS as string[]).includes(value);
 }
 
 export default function ConexionesPage() {
-  const { user } = useAuth();
   const searchParams = useSearchParams();
 
   const initialTab = searchParams.get("tab");
 
   const [tab, setTab] = useState<Tab>(
-    isValidTab(initialTab) ? initialTab : "conectados"
+    isValidTab(initialTab) ? initialTab : "recibidas"
   );
 
-  const [connected, setConnected] = useState<UserConnection[]>([]);
   const [received, setReceived] = useState<UserConnection[]>([]);
   const [sent, setSent] = useState<UserConnection[]>([]);
 
@@ -49,16 +44,15 @@ export default function ConexionesPage() {
   useEffect(() => {
     let active = true;
 
-    Promise.all([getConnections(), getConnectionRequests()])
-      .then(([connections, requests]) => {
+    getConnectionRequests()
+      .then((requests) => {
         if (!active) return;
 
-        setConnected(connections);
         setReceived(requests.received);
         setSent(requests.sent);
       })
       .catch(() => {
-        if (active) setError("No pudimos cargar tus conexiones.");
+        if (active) setError("No pudimos cargar tus solicitudes.");
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -74,11 +68,10 @@ export default function ConexionesPage() {
     setActioningId(connectionId);
 
     try {
-      const updated = await acceptConnection(connectionId);
+      await acceptConnection(connectionId);
       setReceived((current) =>
         current.filter((item) => item.id !== connectionId)
       );
-      setConnected((current) => [updated, ...current]);
     } catch {
       // El usuario puede reintentar desde la lista.
     } finally {
@@ -118,24 +111,7 @@ export default function ConexionesPage() {
     }
   }
 
-  async function handleDelete(connectionId: number) {
-    if (actioningId) return;
-    setActioningId(connectionId);
-
-    try {
-      await deleteConnection(connectionId);
-      setConnected((current) =>
-        current.filter((item) => item.id !== connectionId)
-      );
-    } catch {
-      // El usuario puede reintentar desde la lista.
-    } finally {
-      setActioningId(null);
-    }
-  }
-
   const tabs: { key: Tab; label: string; count: number }[] = [
-    { key: "conectados", label: "Conectados", count: connected.length },
     { key: "recibidas", label: "Recibidas", count: received.length },
     { key: "enviadas", label: "Enviadas", count: sent.length },
   ];
@@ -196,43 +172,6 @@ export default function ConexionesPage() {
           </p>
         ) : (
           <>
-            {tab === "conectados" &&
-              (connected.length === 0 ? (
-                <EmptyState
-                  title="Todavía no tienes conexiones"
-                  description="Cuando conectes con alguien y acepte tu solicitud, aparecerá aquí."
-                />
-              ) : (
-                <div className="space-y-3">
-                  {connected.map((connection) => {
-                    const other =
-                      connection.requester.id === user?.id
-                        ? connection.recipient
-                        : connection.requester;
-
-                    return (
-                      <ConnectionRow key={connection.id} person={other}>
-                        <PrimaryButton
-                          href={`/mensajes?c=${connection.id}`}
-                          className="flex-1"
-                        >
-                          Enviar mensaje
-                        </PrimaryButton>
-
-                        <SecondaryButton
-                          destructive
-                          onClick={() => handleDelete(connection.id)}
-                          disabled={actioningId === connection.id}
-                          className="flex-1"
-                        >
-                          Eliminar conexión
-                        </SecondaryButton>
-                      </ConnectionRow>
-                    );
-                  })}
-                </div>
-              ))}
-
             {tab === "recibidas" &&
               (received.length === 0 ? (
                 <EmptyState
@@ -251,7 +190,8 @@ export default function ConexionesPage() {
                         disabled={actioningId === connection.id}
                         className="flex-1"
                       >
-                        Aceptar
+                        <CheckIcon />
+                        <span className="truncate">Aceptar</span>
                       </PrimaryButton>
 
                       <SecondaryButton
@@ -260,7 +200,8 @@ export default function ConexionesPage() {
                         disabled={actioningId === connection.id}
                         className="flex-1"
                       >
-                        Rechazar
+                        <CloseIcon />
+                        <span className="truncate">Rechazar</span>
                       </SecondaryButton>
                     </ConnectionRow>
                   ))}
@@ -280,8 +221,9 @@ export default function ConexionesPage() {
                       key={connection.id}
                       person={connection.recipient}
                     >
-                      <span className="flex h-11 flex-1 items-center justify-center rounded-14 bg-surface-muted text-sm font-bold text-muted">
-                        Pendiente de respuesta
+                      <span className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-14 bg-surface-muted px-2 text-sm font-bold text-muted">
+                        <ClockIcon />
+                        <span className="truncate">Pendiente</span>
                       </span>
 
                       <SecondaryButton
@@ -289,7 +231,8 @@ export default function ConexionesPage() {
                         disabled={actioningId === connection.id}
                         className="flex-1"
                       >
-                        Cancelar
+                        <CloseIcon />
+                        <span className="truncate">Cancelar</span>
                       </SecondaryButton>
                     </ConnectionRow>
                   ))}
@@ -347,7 +290,7 @@ function ConnectionRow({
         </p>
       </Link>
 
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row">{children}</div>
+      <div className="mt-3 flex gap-2">{children}</div>
     </div>
   );
 }
@@ -366,6 +309,58 @@ function ArrowLeftIcon() {
     >
       <path d="M19 12H5" />
       <path d="m11 18-6-6 6-6" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4 shrink-0"
+      aria-hidden="true"
+    >
+      <path d="m5 12 4 4L19 6" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      className="h-4 w-4 shrink-0"
+      aria-hidden="true"
+    >
+      <path d="m6 6 12 12" />
+      <path d="m18 6-12 12" />
+    </svg>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4 shrink-0"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 3" />
     </svg>
   );
 }

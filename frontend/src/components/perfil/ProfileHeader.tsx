@@ -13,6 +13,8 @@ export default function ProfileHeader({
   onAvatarUpdated: () => Promise<void>;
 }) {
   const fullName = `${user.first_name} ${user.last_name}`.trim();
+  const missingAvatar = !user.avatar_url;
+  const missingOtherFields = !user.phone || user.rental_budget === null;
 
   return (
     <header className="relative overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
@@ -68,6 +70,20 @@ export default function ProfileHeader({
               Propietario
             </span>
           )}
+
+          {missingAvatar ? (
+            <span className="inline-flex items-center gap-2 rounded-full bg-mint-100 px-3 py-2 text-xs font-bold text-primary-dark">
+              <CameraSmallIcon />
+              Añade tu foto — genera más confianza
+            </span>
+          ) : (
+            missingOtherFields && (
+              <span className="inline-flex items-center gap-2 rounded-full bg-surface-soft px-3 py-2 text-xs font-bold text-secondary">
+                <InfoSmallIcon />
+                Perfil incompleto
+              </span>
+            )
+          )}
         </div>
       </div>
     </header>
@@ -108,6 +124,43 @@ function KeyIcon() {
       <path d="m10.8 12.2 8.5-8.5" />
       <path d="m16.5 6 2.5 2.5" />
       <path d="m14 8.5 2.5 2.5" />
+    </svg>
+  );
+}
+
+function CameraSmallIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-3.5 w-3.5"
+      aria-hidden="true"
+    >
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </svg>
+  );
+}
+
+function InfoSmallIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-3.5 w-3.5"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 8h.01" />
+      <path d="M11 12h1v4h1" />
     </svg>
   );
 }

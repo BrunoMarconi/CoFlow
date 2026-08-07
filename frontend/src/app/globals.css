@@ -234,6 +234,47 @@ summary::-webkit-details-marker {
   pointer-events: none;
 }
 
+/* Fondo del hilo de chat: textura de puntos muy sutil sobre un verde
+   casi imperceptible, para separar visualmente las burbujas del fondo
+   (referencia: wallpaper de chat tipo WhatsApp, sin imagen real). */
+.chat-wallpaper {
+  background-color: var(--surface-soft);
+  background-image: radial-gradient(rgb(13 59 42 / 0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* "Colita" de la burbuja — solo en el último mensaje de cada grupo
+   consecutivo del mismo remitente, como en WhatsApp/Telegram. Un
+   pseudo-elemento triangular del mismo color que la burbuja, en vez de
+   depender de una imagen o de un borde que se desalinee. */
+.chat-tail-own {
+  position: relative;
+}
+.chat-tail-own::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: -6px;
+  width: 12px;
+  height: 12px;
+  background: var(--brand);
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+}
+
+.chat-tail-other {
+  position: relative;
+}
+.chat-tail-other::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: -6px;
+  width: 12px;
+  height: 12px;
+  background: var(--surface);
+  clip-path: polygon(100% 0, 0 100%, 100% 100%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
