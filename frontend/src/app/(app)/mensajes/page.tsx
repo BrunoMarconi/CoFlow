@@ -384,7 +384,9 @@ function ConversationAvatar({
   initials: string;
   imageUrl?: string | null;
 }) {
-  if (imageUrl) {
+  const [imageError, setImageError] = useState(false);
+
+  if (imageUrl && !imageError) {
     return (
       <Image
         src={imageUrl}
@@ -392,6 +394,7 @@ function ConversationAvatar({
         width={44}
         height={44}
         unoptimized
+        onError={() => setImageError(true)}
         className="h-11 w-11 shrink-0 rounded-full object-cover"
       />
     );

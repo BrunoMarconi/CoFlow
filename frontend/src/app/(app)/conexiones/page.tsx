@@ -255,6 +255,8 @@ function ConnectionRow({
   };
   children: React.ReactNode;
 }) {
+  const [imageError, setImageError] = useState(false);
+
   const fullName = `${person.first_name} ${person.last_name}`.trim();
 
   const initials = [person.first_name, person.last_name]
@@ -270,13 +272,14 @@ function ConnectionRow({
         href={`/personas/${person.id}`}
         className="flex items-center gap-3"
       >
-        {person.avatar_url ? (
+        {person.avatar_url && !imageError ? (
           <Image
             src={person.avatar_url}
             alt=""
             width={44}
             height={44}
             unoptimized
+            onError={() => setImageError(true)}
             className="h-11 w-11 shrink-0 rounded-full object-cover"
           />
         ) : (

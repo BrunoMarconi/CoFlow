@@ -3,6 +3,7 @@ import io
 
 import pytest
 from fastapi import HTTPException, UploadFile
+from PIL import Image
 
 from app.database.models.user_photo import UserPhoto
 from app.services.user_photo_service import (
@@ -13,8 +14,17 @@ from app.services.user_photo_service import (
 
 service = UserPhotoService()
 
-# Cabecera PNG válida (detect_image_type solo mira los primeros bytes).
-PNG_BYTES = b"\x89PNG\r\n\x1a\n" + b"0" * 32
+
+def _build_valid_png() -> bytes:
+    # storage_service.validate_image ahora decodifica el archivo entero
+    # con Pillow (no solo comprueba los magic bytes), así que el
+    # fixture debe ser una imagen real y no solo una cabecera PNG.
+    buffer = io.BytesIO()
+    Image.new("RGB", (4, 4), color=(200, 50, 50)).save(buffer, format="PNG")
+    return buffer.getvalue()
+
+
+PNG_BYTES = _build_valid_png()
 
 
 def _upload_file(content: bytes = PNG_BYTES, filename: str = "photo.png") -> UploadFile:

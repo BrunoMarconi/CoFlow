@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { CommunityMember } from "@/types/community";
@@ -25,6 +28,8 @@ export default function CommunityMembersList({
 }
 
 function CommunityMemberRow({ member }: { member: CommunityMember }) {
+  const [imageError, setImageError] = useState(false);
+
   const fullName = [member.user.first_name, member.user.last_name]
     .filter(Boolean)
     .join(" ");
@@ -43,13 +48,14 @@ function CommunityMemberRow({ member }: { member: CommunityMember }) {
       href={`/personas/${member.user_id}`}
       className="flex items-center gap-4 rounded-18 border border-border bg-surface-muted p-4 transition active:scale-[0.98] hover:border-primary/30"
     >
-      {member.user.avatar_url ? (
+      {member.user.avatar_url && !imageError ? (
         <Image
           src={member.user.avatar_url}
           alt=""
           width={48}
           height={48}
           unoptimized
+          onError={() => setImageError(true)}
           className="h-12 w-12 shrink-0 rounded-18 object-cover"
         />
       ) : (

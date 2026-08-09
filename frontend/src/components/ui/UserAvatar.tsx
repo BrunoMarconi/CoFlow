@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +52,8 @@ export default function UserAvatar({
   size?: UserAvatarSize;
   className?: string;
 }) {
+  const [imageError, setImageError] = useState(false);
+
   const initials = [firstName, lastName]
     .filter(Boolean)
     .slice(0, 2)
@@ -56,7 +61,7 @@ export default function UserAvatar({
     .join("")
     .toUpperCase();
 
-  if (imageUrl) {
+  if (imageUrl && !imageError) {
     return (
       <Image
         src={imageUrl}
@@ -64,6 +69,7 @@ export default function UserAvatar({
         width={SIZE_PX[size]}
         height={SIZE_PX[size]}
         unoptimized
+        onError={() => setImageError(true)}
         className={cn(
           "shrink-0 rounded-full border border-white/40 object-cover shadow-sm",
           SIZES[size],

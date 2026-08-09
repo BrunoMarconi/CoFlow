@@ -17,12 +17,46 @@ import CommunityFilters, {
   isCommunityFiltersActive,
   type CommunityFilterState,
 } from "@/components/comunidad/CommunityFilters";
-import PageHeader from "@/components/ui/PageHeader";
 import SectionHeader from "@/components/ui/SectionHeader";
 import SearchInput from "@/components/ui/SearchInput";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
+
+type QuickFilter = "withSpots" | "all" | "immediate" | "students";
+
+const QUICK_FILTERS: { key: QuickFilter; label: string }[] = [
+  { key: "withSpots", label: "Con plaza libre" },
+  { key: "all", label: "Todas" },
+  { key: "immediate", label: "Entrada inmediata" },
+  { key: "students", label: "Estudiantes" },
+];
+
+function getQuickFilter(filters: CommunityFilterState): QuickFilter {
+  if (filters.joinType === "OPEN") return "immediate";
+  if (filters.profileType === "STUDENTS") return "students";
+  if (!filters.showNoSpots) return "withSpots";
+  return "all";
+}
+
+function applyQuickFilter(
+  filters: CommunityFilterState,
+  key: QuickFilter
+): CommunityFilterState {
+  const base = { ...filters, joinType: "ALL" as const, profileType: "ALL" as const };
+
+  switch (key) {
+    case "withSpots":
+      return { ...base, showNoSpots: false };
+    case "immediate":
+      return { ...base, showNoSpots: true, joinType: "OPEN" };
+    case "students":
+      return { ...base, showNoSpots: true, profileType: "STUDENTS" };
+    case "all":
+    default:
+      return { ...base, showNoSpots: true };
+  }
+}
 
 export default function ComunidadesPage() {
   const [cityInput, setCityInput] = useState("");
@@ -148,21 +182,38 @@ export default function ComunidadesPage() {
     : "Crear comunidad";
 
   const activeChips = buildActiveChips(filters, setFilters);
+  const activeQuickFilter = getQuickFilter(filters);
+
+  function selectQuickFilter(key: QuickFilter) {
+    setFilters((current) => applyQuickFilter(current, key));
+  }
 
   return (
     <div>
-      <PageHeader
-        title="Encuentra tu próxima comunidad"
-        subtitle="Descubre casas y personas con las que de verdad encajes."
-        action={
-          !loadingMyCommunity && (
-            <PrimaryButton href={actionHref} className="hidden sm:inline-flex">
-              {myCommunity ? <UsersIcon /> : <PlusIcon />}
-              {actionLabel}
-            </PrimaryButton>
-          )
-        }
-      />
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-brand">
+            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+            CoFlow · Comunidades
+          </p>
+
+          <h1 className="mt-2 font-serif text-4xl font-medium leading-[1.1] tracking-[-0.01em] text-brand-dark sm:text-[42px]">
+            Encuentra tu comunidad
+          </h1>
+
+          <p className="mt-3 max-w-lg text-[15px] leading-[1.55] text-secondary sm:text-base">
+            Pisos y grupos de convivencia cerca de ti. Conoce a la gente
+            antes de mudarte.
+          </p>
+        </div>
+
+        {!loadingMyCommunity && (
+          <PrimaryButton href={actionHref} className="hidden shrink-0 sm:inline-flex">
+            {myCommunity ? <UsersIcon /> : <PlusIcon />}
+            {actionLabel}
+          </PrimaryButton>
+        )}
+      </header>
 
       {justLeft && (
         <p className="mt-5 rounded-14 border border-primary/30 bg-mint-50 px-5 py-4 text-sm font-semibold text-primary-dark">
@@ -188,26 +239,45 @@ export default function ComunidadesPage() {
         />
 
         <button
-          type="button"
-          onClick={() => setFiltersOpen((current) => !current)}
-          aria-expanded={filtersOpen}
-          className={`flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-sm font-bold transition-colors duration-180 sm:px-4 ${
-            filtersOpen || isCommunityFiltersActive(filters)
-              ? "bg-mint-100 text-primary-dark"
-              : "text-secondary hover:bg-surface-soft"
-          }`}
-        >
-          <FilterIcon />
-          <span className="hidden sm:inline">Filtros</span>
-        </button>
-
-        <button
           type="submit"
           className="flex h-11 shrink-0 items-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-white transition-all duration-180 hover:-translate-y-0.5 hover:bg-primary-hover"
         >
           Buscar
         </button>
       </form>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setFiltersOpen((current) => !current)}
+          aria-expanded={filtersOpen}
+          aria-label="Más filtros"
+          title="Más filtros"
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-180 ${
+            filtersOpen || isCommunityFiltersActive(filters)
+              ? "border-primary/30 bg-mint-100 text-primary-dark"
+              : "border-border bg-surface text-secondary hover:bg-surface-soft"
+          }`}
+        >
+          <FilterIcon />
+        </button>
+
+        {QUICK_FILTERS.map((option) => (
+          <button
+            key={option.key}
+            type="button"
+            onClick={() => selectQuickFilter(option.key)}
+            aria-pressed={activeQuickFilter === option.key}
+            className={`flex h-10 shrink-0 items-center rounded-full px-4 text-sm font-bold transition-colors duration-180 ${
+              activeQuickFilter === option.key
+                ? "bg-brand text-white"
+                : "bg-surface-muted text-secondary hover:bg-mint-50 hover:text-primary-dark"
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
 
       {(cityFilter || activeChips.length > 0) && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -339,13 +409,14 @@ function buildActiveChips(
     });
   }
 
-  if (filters.joinType !== "ALL") {
+  // joinType "OPEN" y profileType "STUDENTS" ya se controlan desde la
+  // fila de chips rápidos (encima); "REQUEST" y el resto de perfiles
+  // solo son alcanzables desde el panel de filtros avanzados, así que
+  // sí necesitan su propio chip removible aquí.
+  if (filters.joinType === "REQUEST") {
     chips.push({
       key: "joinType",
-      label:
-        filters.joinType === "OPEN"
-          ? "Entrada inmediata"
-          : "Con solicitud",
+      label: "Con solicitud",
       onRemove: () =>
         setFilters((current) => ({ ...current, joinType: "ALL" })),
     });
@@ -365,7 +436,7 @@ function buildActiveChips(
     });
   }
 
-  if (filters.profileType !== "ALL") {
+  if (filters.profileType !== "ALL" && filters.profileType !== "STUDENTS") {
     chips.push({
       key: "profileType",
       label: getProfileTypeLabel(filters.profileType),

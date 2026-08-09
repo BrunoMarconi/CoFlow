@@ -381,6 +381,8 @@ const MessageBubble = memo(function MessageBubble({
   firstOfGroup: boolean;
   lastOfGroup: boolean;
 }) {
+  const [avatarError, setAvatarError] = useState(false);
+
   const fullName = [message.sender.first_name, message.sender.last_name]
     .filter(Boolean)
     .join(" ");
@@ -410,13 +412,14 @@ const MessageBubble = memo(function MessageBubble({
     >
       {showAvatarColumn &&
         (lastOfGroup ? (
-          message.sender.avatar_url ? (
+          message.sender.avatar_url && !avatarError ? (
             <Image
               src={message.sender.avatar_url}
               alt={fullName}
               width={28}
               height={28}
               unoptimized
+              onError={() => setAvatarError(true)}
               className="h-7 w-7 shrink-0 rounded-full object-cover"
             />
           ) : (

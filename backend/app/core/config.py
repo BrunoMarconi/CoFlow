@@ -32,6 +32,31 @@ ALLOW_LOCAL_MEDIA_IN_PRODUCTION = (
     os.getenv("ALLOW_LOCAL_MEDIA_IN_PRODUCTION", "false").lower() == "true"
 )
 
+# --- Almacenamiento de imágenes (Cloudflare R2, S3-compatible) --------
+# Backend de almacenamiento persistente para avatares, fotos de perfil,
+# imágenes de piso y (en el futuro) imágenes de comunidad. Si las cinco
+# variables están presentes, app/services/storage_service.py usa R2
+# para todas las subidas nuevas; si falta alguna, cae a disco local
+# (bloqueado en producción salvo ALLOW_LOCAL_MEDIA_IN_PRODUCTION, ver
+# arriba). Se validan en el momento de usarlas, no al importar este
+# módulo, para no romper el arranque si todavía no están configuradas.
+R2_ACCOUNT_ID = os.getenv("R2_ACCOUNT_ID", "")
+R2_ACCESS_KEY_ID = os.getenv("R2_ACCESS_KEY_ID", "")
+R2_SECRET_ACCESS_KEY = os.getenv("R2_SECRET_ACCESS_KEY", "")
+R2_BUCKET_NAME = os.getenv("R2_BUCKET_NAME", "")
+# Dominio público desde el que se sirven los objetos del bucket (el
+# dominio r2.dev por defecto, o un dominio propio conectado al bucket).
+# Sin barra final, ej. "https://pub-xxxxxxxx.r2.dev".
+R2_PUBLIC_BASE_URL = os.getenv("R2_PUBLIC_BASE_URL", "").rstrip("/")
+
+# Tamaños máximos de subida (en bytes), configurables sin tocar código.
+MAX_AVATAR_SIZE_BYTES = int(
+    os.getenv("MAX_AVATAR_SIZE_BYTES", str(5 * 1024 * 1024))
+)
+MAX_IMAGE_SIZE_BYTES = int(
+    os.getenv("MAX_IMAGE_SIZE_BYTES", str(8 * 1024 * 1024))
+)
+
 # --- TrueLayer (Open Banking sandbox) ---------------------------------
 # Credenciales de la app TrueLayer. Se validan (RuntimeError) solo en el
 # momento de usarlas (app/services/truelayer_client.py), no al importar

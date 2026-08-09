@@ -1,12 +1,8 @@
 import Link from "next/link";
 import CommunityCover from "@/components/ui/CommunityCover";
 import AvatarGroup from "@/components/ui/AvatarGroup";
-import StatusBadge from "@/components/ui/StatusBadge";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
-import type {
-  Community,
-  CommunityUrgency,
-} from "@/types/community";
+import type { Community } from "@/types/community";
 
 export default function CommunityCard({
   community,
@@ -22,15 +18,11 @@ export default function CommunityCard({
   const isLookingForMembers =
     community.open_spots > 0 && !community.is_full;
 
-  const capacityReachedLabel = "Capacidad máxima alcanzada";
-  const notLookingLabel = "No buscan nuevos miembros ahora";
+  const capacityReachedLabel = "Capacidad máxima";
+  const notLookingLabel = "No busca miembros";
 
-  const urgency = getUrgencyData(community.urgency);
-
-  const traits = [
-    community.preferences?.atmosphere,
-    community.preferences?.smoking,
-  ].filter((trait): trait is string => Boolean(trait));
+  const tag =
+    community.preferences?.atmosphere ?? community.preferences?.smoking;
 
   const visibleMembers = community.members.slice(0, 3);
 
@@ -50,129 +42,87 @@ export default function CommunityCard({
           <CommunityCover
             communityId={community.id}
             name={community.name}
-            className={`h-32 sm:h-36 ${
+            className={`h-40 sm:h-44 ${
               !isLookingForMembers ? "grayscale" : ""
             }`}
           />
 
-          <div className="absolute inset-x-3 top-3 flex flex-wrap items-center gap-2">
-            {isLookingForMembers ? (
-              <>
-                <StatusBadge variant="success">
-                  {community.open_spots}{" "}
-                  {community.open_spots === 1
-                    ? "plaza abierta"
-                    : "plazas abiertas"}
-                </StatusBadge>
-
-                {community.urgency !== "NORMAL" && (
-                  <StatusBadge variant={urgency.variant}>
-                    {urgency.label}
-                  </StatusBadge>
-                )}
-              </>
+          <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">
+            {isOwn ? (
+              <span className="inline-flex h-6.5 items-center rounded-full bg-white/95 px-3 text-xs font-bold text-primary-dark shadow-soft backdrop-blur">
+                Tu comunidad
+              </span>
+            ) : community.urgency !== "NORMAL" && isLookingForMembers ? (
+              <span className="inline-flex h-6.5 items-center rounded-full bg-white/95 px-3 text-xs font-bold text-amber-700 shadow-soft backdrop-blur">
+                {community.urgency === "URGENT" ? "Urgente" : "Próximamente"}
+              </span>
             ) : (
-              <StatusBadge variant="neutral">
-                {community.is_full
-                  ? capacityReachedLabel
-                  : notLookingLabel}
-              </StatusBadge>
+              <span />
             )}
           </div>
+
+          {isLookingForMembers ? (
+            <div className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-brand-dark/90 px-3 py-1.5 text-xs font-bold text-white shadow-soft backdrop-blur">
+              {community.open_spots}{" "}
+              {community.open_spots === 1 ? "plaza libre" : "plazas libres"}
+            </div>
+          ) : (
+            <div className="absolute bottom-3 left-3 rounded-full bg-black/60 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
+              {community.is_full ? capacityReachedLabel : notLookingLabel}
+            </div>
+          )}
+
+          {community.monthly_rent !== null && (
+            <div className="absolute bottom-3 right-3 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-brand-dark shadow-soft backdrop-blur">
+              {community.monthly_rent.toLocaleString("es-ES")} €/mes
+            </div>
+          )}
         </div>
 
         <div className="flex flex-1 flex-col p-4 sm:p-5">
-          <h3 className="truncate text-lg font-bold tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark sm:text-xl">
+          <h3 className="truncate font-serif text-xl font-medium tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark">
             {community.name}
           </h3>
 
-          <span className="mt-1.5 inline-flex w-fit items-center rounded-full bg-surface-muted px-2.5 py-1 text-xs font-bold text-brand-dark">
-            {getProfileTypeLabel(community.profile_type)}
-          </span>
-
-          <div className="mt-1 flex items-center gap-1.5 text-sm font-medium text-secondary">
+          <div className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-secondary">
             <LocationIcon />
             <span className="truncate">{location}</span>
           </div>
 
-          {community.monthly_rent !== null && isLookingForMembers && (
-            <p className="mt-3 text-2xl font-black tracking-[-0.01em] text-brand-dark">
-              {community.monthly_rent.toLocaleString("es-ES")} €
-              <span className="text-sm font-semibold text-muted">
-                /mes por persona
+          <div className="mt-3.5 flex items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <AvatarGroup
+                members={visibleMembers.map((member) => ({
+                  id: member.id.toString(),
+                  firstName: member.user.first_name,
+                  lastName: member.user.last_name,
+                  imageUrl: member.user.avatar_url,
+                }))}
+              />
+
+              <span className="min-w-0 truncate text-xs font-semibold text-muted">
+                {isLookingForMembers
+                  ? `${community.open_spots} ${
+                      community.open_spots === 1 ? "plaza" : "plazas"
+                    } libre${community.open_spots === 1 ? "" : "s"}`
+                  : `${community.member_count} miembros`}
               </span>
-            </p>
-          )}
+            </div>
 
-          <div className="mt-4 flex min-w-0 items-center gap-2">
-            <AvatarGroup
-              members={visibleMembers.map((member) => ({
-                id: member.id.toString(),
-                firstName: member.user.first_name,
-                lastName: member.user.last_name,
-                imageUrl: member.user.avatar_url,
-              }))}
-            />
-
-            <span className="min-w-0 truncate text-xs font-semibold text-muted">
-              {community.member_count} de {community.max_members} miembros
-              actuales
-            </span>
+            {tag && (
+              <span className="shrink-0 rounded-full bg-mint-50 px-2.5 py-1 text-xs font-bold text-primary-dark">
+                {tag}
+              </span>
+            )}
           </div>
 
-          {isLookingForMembers && (
-            <p className="mt-2 text-xs font-semibold text-muted">
-              Entrada desde{" "}
-              {formatMoveInDate(community.move_in_date)}
-            </p>
-          )}
-
-          {traits.length > 0 && (
-            <p className="mt-3 line-clamp-2 text-xs font-semibold text-brand-dark">
-              {traits.join(" · ")}
-            </p>
-          )}
-
-          <div className="-mx-4 mt-auto flex items-center justify-between gap-1.5 border-t border-border px-4 pt-3 text-sm font-bold text-brand-dark sm:-mx-5 sm:px-5">
-            {isOwn ? "Mi comunidad" : "Ver comunidad"}
-            <ArrowIcon />
-          </div>
+          <span className="mt-3.5 inline-flex w-fit items-center rounded-full bg-surface-muted px-2.5 py-1 text-xs font-bold text-brand-dark">
+            {getProfileTypeLabel(community.profile_type)}
+          </span>
         </div>
       </article>
     </Link>
   );
-}
-
-function getUrgencyData(
-  urgency: CommunityUrgency
-): { label: string; variant: "warning" | "info" | "neutral" } {
-  switch (urgency) {
-    case "URGENT":
-      return { label: "Urgente", variant: "warning" };
-
-    case "SOON":
-      return { label: "Próximamente", variant: "info" };
-
-    default:
-      return { label: "Sin prisa", variant: "neutral" };
-  }
-}
-
-function formatMoveInDate(value: string | null) {
-  if (!value) {
-    return "fecha flexible";
-  }
-
-  const date = new Date(`${value}T00:00:00`);
-
-  if (Number.isNaN(date.getTime())) {
-    return "por consultar";
-  }
-
-  return new Intl.DateTimeFormat("es-ES", {
-    day: "numeric",
-    month: "long",
-  }).format(date);
 }
 
 function LocationIcon() {
@@ -189,24 +139,6 @@ function LocationIcon() {
     >
       <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
       <circle cx="12" cy="10" r="2.5" />
-    </svg>
-  );
-}
-
-function ArrowIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4 transition group-hover:translate-x-1"
-      aria-hidden="true"
-    >
-      <path d="M5 12h14" />
-      <path d="m13 6 6 6-6 6" />
     </svg>
   );
 }

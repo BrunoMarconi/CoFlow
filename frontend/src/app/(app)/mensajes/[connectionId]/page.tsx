@@ -21,6 +21,7 @@ export default function MensajesPage() {
   );
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   const connectionId = Number(params.connectionId);
 
@@ -121,13 +122,14 @@ export default function MensajesPage() {
           href={`/personas/${other.id}`}
           className="flex min-w-0 items-center gap-3"
         >
-          {other.avatar_url ? (
+          {other.avatar_url && !avatarError ? (
             <Image
               src={other.avatar_url}
               alt=""
               width={44}
               height={44}
               unoptimized
+              onError={() => setAvatarError(true)}
               className="h-11 w-11 shrink-0 rounded-14 object-cover"
             />
           ) : (

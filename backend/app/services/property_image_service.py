@@ -1,19 +1,18 @@
 from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
-from app.core.config import ALLOW_LOCAL_MEDIA_IN_PRODUCTION, ENVIRONMENT
+from app.core.config import MAX_IMAGE_SIZE_BYTES
 from app.database.models.property import Property
 from app.database.models.property_image import PropertyImage
 from app.database.models.user import User
+from app.services import storage_service
 from app.services.property_service import PropertyService
-from app.services.storage.local import LocalDiskStorage
-from app.services.storage.validation import detect_image_type
 
 MAX_IMAGES_PER_PROPERTY = 15
-MAX_IMAGE_SIZE_BYTES = 8 * 1024 * 1024  # 8 MB
+
+PROPERTY_IMAGE_SUBFOLDER = "properties"
 
 property_service = PropertyService()
-storage = LocalDiskStorage(subfolder="properties")
 
 
 class PropertyImageService:
@@ -39,17 +38,6 @@ class PropertyImageService:
         property_id: int,
         files: list[UploadFile],
     ) -> Property:
-        if ENVIRONMENT == "production" and not ALLOW_LOCAL_MEDIA_IN_PRODUCTION:
-            raise HTTPException(
-                status_code=503,
-                detail=(
-                    "Local image storage is disabled in production. "
-                    "Set ALLOW_LOCAL_MEDIA_IN_PRODUCTION=true only for "
-                    "temporary test deployments, or configure a real "
-                    "storage backend."
-                ),
-            )
-
         property_obj = self._get_owned_property(db, current_user, property_id)
 
         current_count = (
@@ -67,42 +55,37 @@ class PropertyImageService:
                 ),
             )
 
+        # Valida y sube TODAS las imágenes antes de tocar la DB: si
+        # alguna falla la validación, ninguna llega a subirse.
+        validated_images = []
+        for file in files:
+            content = await file.read()
+            validated_images.append(
+                storage_service.validate_image(content, MAX_IMAGE_SIZE_BYTES)
+            )
+
+        uploaded: list[tuple[str, str]] = []
+
+        try:
+            for validated in validated_images:
+                uploaded.append(
+                    storage_service.upload_file(
+                        validated, PROPERTY_IMAGE_SUBFOLDER
+                    )
+                )
+        except Exception:
+            for storage_key, _ in uploaded:
+                storage_service.delete_file(
+                    storage_key, PROPERTY_IMAGE_SUBFOLDER
+                )
+            raise
+
         next_position = current_count
         has_cover = current_count > 0
         created: list[PropertyImage] = []
 
         try:
-            for file in files:
-                content = await file.read()
-
-                if len(content) > MAX_IMAGE_SIZE_BYTES:
-                    raise HTTPException(
-                        status_code=400,
-                        detail="Each image must be smaller than 8MB",
-                    )
-
-                image_type = detect_image_type(content)
-
-                if image_type is None:
-                    raise HTTPException(
-                        status_code=400,
-                        detail=(
-                            "Only JPEG, PNG or WebP images are allowed"
-                        ),
-                    )
-
-                content_type = {
-                    "jpeg": "image/jpeg",
-                    "png": "image/png",
-                    "webp": "image/webp",
-                }[image_type]
-
-                storage_key, url = storage.save(
-                    content=content,
-                    filename=file.filename or "image",
-                    content_type=content_type,
-                )
-
+            for storage_key, url in uploaded:
                 image = PropertyImage(
                     property_id=property_obj.id,
                     storage_key=storage_key,
@@ -118,16 +101,14 @@ class PropertyImageService:
 
             db.commit()
 
-        except HTTPException:
-            db.rollback()
-
-            for image in created:
-                storage.delete(image.storage_key)
-
-            raise
-
         except Exception:
             db.rollback()
+
+            for storage_key, _ in uploaded:
+                storage_service.delete_file(
+                    storage_key, PROPERTY_IMAGE_SUBFOLDER
+                )
+
             raise
 
         return property_service.get_my_property(
@@ -179,7 +160,7 @@ class PropertyImageService:
             db.rollback()
             raise
 
-        storage.delete(storage_key)
+        storage_service.delete_file(storage_key, PROPERTY_IMAGE_SUBFOLDER)
 
         return property_service.get_my_property(
             db, current_user, property_obj.id,

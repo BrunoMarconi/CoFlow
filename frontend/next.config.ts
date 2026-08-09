@@ -1,11 +1,22 @@
 import type { NextConfig } from "next";
 
+// Dominio público del bucket de Cloudflare R2 (imágenes de usuario:
+// avatares, fotos de perfil, fotos de piso). Puede ser el subdominio
+// r2.dev por defecto o un dominio propio conectado al bucket — en ese
+// caso, define NEXT_PUBLIC_R2_PUBLIC_HOSTNAME con solo el hostname
+// (sin protocolo), ej. "media.coflow.app".
+const r2CustomHostname = process.env.NEXT_PUBLIC_R2_PUBLIC_HOSTNAME;
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "http", hostname: "127.0.0.1", port: "8000" },
       { protocol: "http", hostname: "localhost", port: "8000" },
       { protocol: "https", hostname: "*.onrender.com" },
+      { protocol: "https", hostname: "*.r2.dev" },
+      ...(r2CustomHostname
+        ? [{ protocol: "https" as const, hostname: r2CustomHostname }]
+        : []),
     ],
   },
   async headers() {

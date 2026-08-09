@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 
 interface AvatarProps {
@@ -7,6 +10,8 @@ interface AvatarProps {
 }
 
 export default function Avatar({ name, imageUrl, size = 40 }: AvatarProps) {
+  const [imageError, setImageError] = useState(false);
+
   const initials = name
     .split(" ")
     .filter(Boolean)
@@ -14,7 +19,7 @@ export default function Avatar({ name, imageUrl, size = 40 }: AvatarProps) {
     .map((part) => part[0]?.toUpperCase())
     .join("");
 
-  if (imageUrl) {
+  if (imageUrl && !imageError) {
     return (
       <Image
         src={imageUrl}
@@ -22,6 +27,7 @@ export default function Avatar({ name, imageUrl, size = 40 }: AvatarProps) {
         width={size}
         height={size}
         unoptimized
+        onError={() => setImageError(true)}
         className="rounded-full object-cover"
         style={{ width: size, height: size }}
       />
