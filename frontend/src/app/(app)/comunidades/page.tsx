@@ -266,7 +266,7 @@ export default function ComunidadesPage() {
           href={actionHref}
           aria-label={actionLabel}
           title={actionLabel}
-          className="fixed bottom-24 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-soft transition active:scale-95 sm:hidden"
+          className="fixed right-5 bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+1rem)] z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-soft transition active:scale-95 sm:hidden"
         >
           <HomeIcon />
         </Link>

@@ -31,7 +31,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
             // se oculta: reservarle espacio dejaría un hueco vacío debajo.
             isChatActive
               ? "pb-0"
-              : "pb-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+1rem)]"
+              : "pb-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))]"
           )}
         >
           <div

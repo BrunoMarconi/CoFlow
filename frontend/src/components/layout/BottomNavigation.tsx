@@ -104,9 +104,9 @@ export default function BottomNavigation() {
   return (
     <nav
       aria-label="Navegación principal"
-      className="fixed inset-x-4 bottom-[18px] z-(--z-bottom-nav) md:hidden"
+      className="fixed inset-x-0 bottom-0 z-(--z-bottom-nav) border-t border-border bg-surface pb-(--safe-bottom) md:hidden"
     >
-      <div className="nav-glass mx-auto flex h-16 max-w-md items-stretch rounded-full">
+      <div className="mx-auto flex h-20 max-w-md items-stretch">
         {LINKS.map((link) => {
           const active = link.isActive(pathname);
           const Icon = link.icon;
@@ -117,12 +117,12 @@ export default function BottomNavigation() {
               href={link.href}
               aria-current={active ? "page" : undefined}
               transitionTypes={getTabTransitionTypes(pathname, link.href)}
-              className="relative flex flex-1 flex-col items-center justify-center gap-0.5 px-1 transition active:scale-95 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
+              className="relative flex flex-1 flex-col items-center justify-center gap-1 px-1 transition active:scale-95 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
             >
               <span className="relative">
                 <Icon
                   className={cn(
-                    "h-5 w-5 shrink-0",
+                    "h-7 w-7 shrink-0",
                     active ? "text-brand-dark" : "text-muted"
                   )}
                 />
@@ -137,7 +137,7 @@ export default function BottomNavigation() {
 
               <span
                 className={cn(
-                  "text-[10px] leading-none",
+                  "text-[11px] leading-none",
                   active ? "font-bold text-brand-dark" : "font-semibold text-muted"
                 )}
               >
