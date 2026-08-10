@@ -147,37 +147,7 @@ export default function ComunidadesPage() {
 
   return (
     <div>
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-brand">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-            CoFlow · Comunidades
-          </p>
-
-          <h1 className="mt-2 font-rounded text-4xl font-semibold leading-[1.1] tracking-[-0.01em] text-brand-dark sm:text-[42px]">
-            Encuentra tu comunidad
-          </h1>
-
-          <p className="mt-3 text-[15px] leading-[1.55] text-secondary sm:text-base">
-            Pisos y grupos de convivencia cerca de ti.
-          </p>
-        </div>
-
-        {!loadingMyCommunity && (
-          <PrimaryButton href={actionHref} className="hidden shrink-0 sm:inline-flex">
-            {myCommunity ? <UsersIcon /> : <PlusIcon />}
-            {actionLabel}
-          </PrimaryButton>
-        )}
-      </header>
-
-      {justLeft && (
-        <p className="mt-5 rounded-14 border border-primary/30 bg-mint-50 px-5 py-4 text-sm font-semibold text-primary-dark">
-          Has abandonado la comunidad correctamente.
-        </p>
-      )}
-
-      <div className="mt-7 flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <form
           onSubmit={handleFilterSubmit}
           className="flex h-14 min-w-0 flex-1 items-center rounded-full border border-border bg-surface pl-5 pr-1.5 shadow-soft transition-all duration-180 focus-within:border-primary focus-within:ring-4 focus-within:ring-mint-100"
@@ -224,6 +194,31 @@ export default function ComunidadesPage() {
             resultCount={visibleCommunities.length}
           />
         </div>
+      )}
+
+      <header className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="font-rounded text-4xl font-semibold leading-[1.1] tracking-[-0.01em] text-brand-dark sm:text-[42px]">
+            Encuentra tu comunidad
+          </h1>
+
+          <p className="mt-3 text-[15px] leading-[1.55] text-secondary sm:text-base">
+            Pisos y grupos de convivencia cerca de ti.
+          </p>
+        </div>
+
+        {!loadingMyCommunity && (
+          <PrimaryButton href={actionHref} className="hidden shrink-0 sm:inline-flex">
+            {myCommunity ? <UsersIcon /> : <PlusIcon />}
+            {actionLabel}
+          </PrimaryButton>
+        )}
+      </header>
+
+      {justLeft && (
+        <p className="mt-5 rounded-14 border border-primary/30 bg-mint-50 px-5 py-4 text-sm font-semibold text-primary-dark">
+          Has abandonado la comunidad correctamente.
+        </p>
       )}
 
       <section className="mt-8">
