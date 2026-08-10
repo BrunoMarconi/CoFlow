@@ -20,7 +20,7 @@ export default function Navbar() {
           >
             <Logo size="sm" />
 
-            <span className="text-xl font-black tracking-tight text-brand-dark">
+            <span className="font-rounded text-xl font-semibold tracking-tight text-brand-dark">
               CoFlow
             </span>
           </Link>

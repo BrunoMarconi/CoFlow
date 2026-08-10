@@ -80,7 +80,7 @@
 
   --font-sans: var(--font-manrope);
   --font-mono: var(--font-geist-mono);
-  --font-serif: var(--font-fraunces);
+  --font-rounded: var(--font-fredoka);
 }
 
 * {

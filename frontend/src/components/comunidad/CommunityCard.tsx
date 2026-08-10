@@ -80,7 +80,7 @@ export default function CommunityCard({
         </div>
 
         <div className="flex flex-1 flex-col p-4 sm:p-5">
-          <h3 className="truncate font-serif text-xl font-medium tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark">
+          <h3 className="truncate font-rounded text-xl font-semibold tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark">
             {community.name}
           </h3>
 

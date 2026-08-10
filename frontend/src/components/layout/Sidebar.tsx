@@ -99,7 +99,7 @@ export default function Sidebar() {
       >
         <Logo size="sm" />
 
-        <span className="text-xl font-black tracking-[-0.01em] text-brand-dark">
+        <span className="font-rounded text-xl font-semibold tracking-[-0.01em] text-brand-dark">
           CoFlow
         </span>
       </Link>

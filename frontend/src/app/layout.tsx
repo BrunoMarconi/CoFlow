@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Geist_Mono, Manrope } from "next/font/google";
+import { Fredoka, Geist_Mono, Manrope } from "next/font/google";
 
 import AuthProvider from "@/providers/AuthProvider";
 import QueryProvider from "@/providers/QueryProvider";
@@ -18,13 +18,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Serif cálido para titulares (secciones tipo "lifestyle" — Comunidades
-// por ahora). No sustituye a Manrope como fuente base: se usa puntual
-// con la utilidad `font-serif`, nunca en texto de cuerpo/UI.
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  weight: ["500", "600"],
-  style: ["normal", "italic"],
+// Redondita, a juego con las formas circulares del logo. No sustituye
+// a Manrope como fuente base: se usa puntual con la utilidad
+// `font-rounded` en titulares, nunca en texto de cuerpo/UI.
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
+  weight: ["500", "600", "700"],
   subsets: ["latin"],
 });
 
@@ -89,7 +88,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${manrope.variable} ${geistMono.variable} ${fraunces.variable} h-full scroll-smooth antialiased`}
+      className={`${manrope.variable} ${geistMono.variable} ${fredoka.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full bg-background font-sans text-brand-dark">
         <QueryProvider>

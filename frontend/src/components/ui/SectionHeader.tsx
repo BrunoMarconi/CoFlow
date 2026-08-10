@@ -20,7 +20,7 @@ export default function SectionHeader({
       )}
     >
       <div className="min-w-0">
-        <h2 className="text-xl font-bold tracking-[-0.01em] text-foreground">
+        <h2 className="font-rounded text-xl font-semibold tracking-[-0.01em] text-foreground">
           {title}
         </h2>
 

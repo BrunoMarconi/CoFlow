@@ -35,7 +35,7 @@ export default function PageHeader({
 
           <h1
             className={cn(
-              "text-[26px] font-bold leading-[1.15] tracking-[-0.02em] text-brand-dark md:text-[30px] lg:text-[36px]",
+              "font-rounded text-[26px] font-semibold leading-[1.15] tracking-[-0.02em] text-brand-dark md:text-[30px] lg:text-[36px]",
               eyebrow && "mt-1.5"
             )}
           >
