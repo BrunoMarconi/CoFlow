@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import UserCard from "./UserCard";
 import EmptyState from "@/components/ui/EmptyState";
+import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import type { UserPublicProfile } from "@/types/userPublic";
 
 const containerVariants = {
@@ -17,7 +18,7 @@ const itemVariants = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.25, ease: "easeOut" as const },
+    transition: { duration: MOTION_DURATION.slow, ease: MOTION_EASE.out },
   },
 };
 

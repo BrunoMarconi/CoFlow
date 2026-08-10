@@ -3,6 +3,11 @@
 import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { useUserConnection } from "@/hooks/useUserConnection";
+import {
+  MOTION_DURATION,
+  MOTION_EASE,
+  MOTION_SPRING,
+} from "@/lib/motionTokens";
 import type { UserPublicProfile } from "@/types/userPublic";
 
 const CONNECTION_LABELS: Record<string, string> = {
@@ -74,13 +79,17 @@ export default function UserCard({
       onKeyDown={(event) => {
         if (event.key === "Enter") handleOpen();
       }}
-      whileHover={{ y: -3 }}
+      whileHover={{ y: -2 }}
       whileTap={{ scale: 0.985 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
+      transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
       className="flex h-full cursor-pointer flex-col rounded-18 border border-border bg-surface p-4 shadow-soft transition-shadow duration-200 ease-out sm:p-5 sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]"
     >
       <div className="flex items-start gap-3">
-        <div className="relative shrink-0">
+        <motion.div
+          layoutId={`person-avatar-${user.id}`}
+          transition={MOTION_SPRING.gentle}
+          className="relative shrink-0"
+        >
           <UserAvatar
             firstName={user.first_name}
             lastName={user.last_name}
@@ -96,12 +105,18 @@ export default function UserCard({
               className="absolute bottom-0.5 right-0.5 h-3.5 w-3.5 rounded-full border-2 border-surface bg-emerald-500"
             />
           )}
-        </div>
+        </motion.div>
 
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-1.5">
             <h3 className="truncate text-base font-bold text-foreground">
-              {fullName || "Persona de CoFlow"}
+              <motion.span
+                layoutId={`person-name-${user.id}`}
+                transition={MOTION_SPRING.gentle}
+                className="inline"
+              >
+                {fullName || "Persona de CoFlow"}
+              </motion.span>
               {user.age !== null && (
                 <span className="font-semibold text-secondary">
                   , {user.age}
@@ -113,7 +128,7 @@ export default function UserCard({
               <motion.span
                 initial={{ opacity: 0, scale: 0.7 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
+                transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
                 className="inline-flex shrink-0"
               >
                 <VerifiedIcon className="h-4 w-4 text-primary" />
@@ -138,7 +153,7 @@ export default function UserCard({
           <motion.span
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
             className="shrink-0 rounded-full bg-mint-100 px-2.5 py-1 text-[11px] font-bold text-primary-dark"
           >
             {statusLabel}
@@ -160,8 +175,8 @@ export default function UserCard({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{
-                duration: 0.2,
-                ease: "easeOut",
+                duration: MOTION_DURATION.normal,
+                ease: MOTION_EASE.out,
                 delay: index * 0.03,
               }}
               className="inline-flex items-center rounded-full bg-mint-50 px-2.5 py-1 text-[11px] font-bold text-primary-dark"
@@ -184,7 +199,7 @@ export default function UserCard({
           onClick={handlePrimaryAction}
           disabled={connecting || connectionStatus === "PENDING_SENT"}
           whileTap={{ scale: 0.96 }}
-          transition={{ duration: 0.15, ease: "easeOut" }}
+          transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
           className="flex h-10 flex-1 items-center justify-center gap-2 rounded-14 bg-brand px-4 text-sm font-bold text-white transition-colors duration-200 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
           <MessageIcon />
@@ -206,7 +221,7 @@ export default function UserCard({
           aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
           aria-pressed={saved}
           whileTap={{ scale: 0.9 }}
-          transition={{ duration: 0.15, ease: "easeOut" }}
+          transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
             saved
               ? "border-primary/30 bg-mint-100 text-primary-dark"
@@ -215,7 +230,7 @@ export default function UserCard({
         >
           <motion.span
             animate={{ scale: saved ? [1, 1.15, 1] : 1 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            transition={{ duration: MOTION_DURATION.slow, ease: MOTION_EASE.out }}
             className="inline-flex"
           >
             <HeartIcon filled={saved} />

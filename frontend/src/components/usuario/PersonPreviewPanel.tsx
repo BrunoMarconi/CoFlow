@@ -3,11 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
 import Spinner from "@/components/ui/Spinner";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { useUserConnection } from "@/hooks/useUserConnection";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import {
+  MOTION_DURATION,
+  MOTION_EASE,
+  MOTION_SPRING,
+  MOTION_STAGGER_CHILDREN,
+} from "@/lib/motionTokens";
 import { cn } from "@/lib/utils";
 
 const TAG_KEYS = [
@@ -54,6 +61,28 @@ const TAG_LABELS: Record<(typeof TAG_KEYS)[number], string> = {
   lifestyle: "Convivencia",
 };
 
+// Umbrales para el "arrastra hacia abajo para cerrar" del bottom
+// sheet: basta con superar cualquiera de los dos (distancia o
+// velocidad) para interpretar el gesto como "quiero cerrar".
+const DRAG_CLOSE_OFFSET = 120;
+const DRAG_CLOSE_VELOCITY = 600;
+
+const infoStagger = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: MOTION_STAGGER_CHILDREN },
+  },
+};
+
+const infoItem = {
+  hidden: { opacity: 0, y: 6 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: MOTION_DURATION.normal, ease: MOTION_EASE.out },
+  },
+};
+
 export default function PersonPreviewPanel({
   userId,
   onClose,
@@ -77,6 +106,7 @@ export default function PersonPreviewPanel({
   const [expanded, setExpanded] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
+  const isDesktop = useMediaQuery("(min-width: 640px)");
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -121,6 +151,18 @@ export default function PersonPreviewPanel({
     if (!expanded) setExpanded(true);
   }
 
+  function handleDragEnd(
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: { offset: { y: number }; velocity: { y: number } }
+  ) {
+    if (
+      info.offset.y > DRAG_CLOSE_OFFSET ||
+      info.velocity.y > DRAG_CLOSE_VELOCITY
+    ) {
+      onClose();
+    }
+  }
+
   const fullName = profile
     ? `${profile.first_name} ${profile.last_name}`.trim()
     : "";
@@ -150,19 +192,27 @@ export default function PersonPreviewPanel({
 
   const overlayTransition = prefersReducedMotion
     ? { duration: 0.01 }
-    : { duration: 0.2, ease: "easeOut" as const };
+    : { duration: MOTION_DURATION.normal, ease: MOTION_EASE.out };
 
+  // Escritorio: modal centrado, aparece con scale+fade (sin desplazamiento).
+  // Móvil: bottom sheet, entra desde abajo con spring natural.
   const sheetTransition = prefersReducedMotion
     ? { duration: 0.01 }
-    : { type: "spring" as const, stiffness: 300, damping: 30, mass: 0.9 };
+    : MOTION_SPRING.gentle;
 
   const sheetInitial = prefersReducedMotion
     ? { opacity: 0 }
-    : { y: 40, opacity: 0, scale: 0.98 };
+    : isDesktop
+      ? { opacity: 0, scale: 0.96 }
+      : { y: 40, opacity: 0, scale: 0.98 };
 
   const sheetAnimate = prefersReducedMotion
     ? { opacity: 1 }
-    : { y: 0, opacity: 1, scale: 1 };
+    : isDesktop
+      ? { opacity: 1, scale: 1 }
+      : { y: 0, opacity: 1, scale: 1 };
+
+  const canDrag = !prefersReducedMotion && !isDesktop && !expanded;
 
   return (
     <div className="fixed inset-0 z-(--z-modal) flex items-end justify-center sm:items-center">
@@ -182,6 +232,10 @@ export default function PersonPreviewPanel({
         animate={sheetAnimate}
         exit={sheetInitial}
         transition={sheetTransition}
+        drag={canDrag ? "y" : false}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0, bottom: 0.6 }}
+        onDragEnd={handleDragEnd}
         style={{ willChange: "transform" }}
         className={cn(
           "relative flex w-full flex-col overflow-hidden bg-surface shadow-2xl sm:max-w-lg sm:rounded-24",
@@ -226,9 +280,18 @@ export default function PersonPreviewPanel({
               expanded ? "overflow-y-auto overscroll-contain" : "overflow-hidden"
             )}
           >
-            <div className="p-5 pt-8 sm:p-6 sm:pt-8">
-              <div className="flex items-start gap-4">
-                <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-18 bg-mint-100 sm:h-28 sm:w-28">
+            <motion.div
+              variants={infoStagger}
+              initial="hidden"
+              animate="show"
+              className="p-5 pt-8 sm:p-6 sm:pt-8"
+            >
+              <motion.div variants={infoItem} className="flex items-start gap-4">
+                <motion.div
+                  layoutId={`person-avatar-${userId}`}
+                  transition={MOTION_SPRING.gentle}
+                  className="relative h-24 w-24 shrink-0 overflow-hidden rounded-18 bg-mint-100 sm:h-28 sm:w-28"
+                >
                   {coverPhoto || profile.avatar_url ? (
                     <Image
                       src={coverPhoto ?? profile.avatar_url!}
@@ -255,11 +318,17 @@ export default function PersonPreviewPanel({
                       className="absolute bottom-1.5 right-1.5 h-3.5 w-3.5 rounded-full border-2 border-surface bg-emerald-500"
                     />
                   )}
-                </div>
+                </motion.div>
 
                 <div className="min-w-0 flex-1 pt-1">
                   <h2 className="text-xl font-bold leading-tight text-foreground sm:text-2xl">
-                    {fullName || "Persona de CoFlow"}
+                    <motion.span
+                      layoutId={`person-name-${userId}`}
+                      transition={MOTION_SPRING.gentle}
+                      className="inline"
+                    >
+                      {fullName || "Persona de CoFlow"}
+                    </motion.span>
                   </h2>
 
                   {metaLine && (
@@ -276,16 +345,19 @@ export default function PersonPreviewPanel({
                     </p>
                   )}
                 </div>
-              </div>
+              </motion.div>
 
               {profile.is_verified && (
-                <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-mint-100 px-3 py-1.5 text-xs font-bold text-primary-dark">
+                <motion.span
+                  variants={infoItem}
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-mint-100 px-3 py-1.5 text-xs font-bold text-primary-dark"
+                >
                   <VerifiedIcon className="h-3.5 w-3.5" />
                   Perfil verificado
-                </span>
+                </motion.span>
               )}
 
-              <div className="mt-4 flex flex-wrap gap-2">
+              <motion.div variants={infoItem} className="mt-4 flex flex-wrap gap-2">
                 {profile.is_owner && (
                   <span className="inline-flex items-center rounded-full bg-surface-muted px-3 py-1 text-xs font-bold text-brand-dark">
                     Propietario
@@ -296,15 +368,18 @@ export default function PersonPreviewPanel({
                     ? "Busca compañeros de piso"
                     : "No busca compañeros ahora"}
                 </span>
-              </div>
+              </motion.div>
 
               {profile.bio && (
-                <p className="mt-4 text-sm leading-6 text-secondary">
+                <motion.p
+                  variants={infoItem}
+                  className="mt-4 text-sm leading-6 text-secondary"
+                >
                   {profile.bio}
-                </p>
+                </motion.p>
               )}
 
-              <div className="mt-5 grid grid-cols-2 gap-3">
+              <motion.div variants={infoItem} className="mt-5 grid grid-cols-2 gap-3">
                 <div className="rounded-18 border border-border bg-surface-muted px-4 py-3">
                   <p className="text-xs font-semibold text-muted">
                     Presupuesto
@@ -322,10 +397,10 @@ export default function PersonPreviewPanel({
                     {profile.community ? profile.community.name : "Ninguna todavía"}
                   </p>
                 </div>
-              </div>
+              </motion.div>
 
               {tags.length > 0 && (
-                <div className="mt-6">
+                <motion.div variants={infoItem} className="mt-6">
                   <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted">
                     Estilo de vida y convivencia
                   </p>
@@ -345,11 +420,11 @@ export default function PersonPreviewPanel({
                       </div>
                     ))}
                   </div>
-                </div>
+                </motion.div>
               )}
 
               {profile.photos.length > 1 && (
-                <div className="mt-6">
+                <motion.div variants={infoItem} className="mt-6">
                   <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted">
                     Fotos
                   </p>
@@ -370,37 +445,48 @@ export default function PersonPreviewPanel({
                       </div>
                     ))}
                   </div>
-                </div>
+                </motion.div>
               )}
 
               {connectionError && (
-                <p className="mt-4 text-sm font-semibold text-red-600">
+                <motion.p
+                  variants={infoItem}
+                  className="mt-4 text-sm font-semibold text-red-600"
+                >
                   {connectionError}
-                </p>
+                </motion.p>
               )}
-            </div>
+            </motion.div>
 
             <div className="mt-auto flex items-center gap-2 border-t border-border bg-surface p-4 sm:p-5">
               {connectionStatus === "ACCEPTED" && connectionId !== null && (
                 <>
-                  <Link
-                    href={`/mensajes/${connectionId}`}
-                    className="flex h-12 flex-1 items-center justify-center gap-2 rounded-14 bg-brand px-5 text-sm font-bold text-white shadow-button transition hover:bg-brand-dark"
+                  <motion.div
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ duration: MOTION_DURATION.fast }}
+                    className="flex-1"
                   >
-                    <MessageIcon />
-                    Enviar mensaje
-                  </Link>
+                    <Link
+                      href={`/mensajes/${connectionId}`}
+                      className="flex h-12 items-center justify-center gap-2 rounded-14 bg-brand px-5 text-sm font-bold text-white shadow-button transition-colors duration-200 hover:bg-brand-dark"
+                    >
+                      <MessageIcon />
+                      Enviar mensaje
+                    </Link>
+                  </motion.div>
 
-                  <button
+                  <motion.button
                     type="button"
                     onClick={removeConnection}
                     disabled={connecting}
                     aria-label="Eliminar conexión"
                     title="Eliminar conexión"
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-red-200 text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+                    whileTap={{ scale: 0.9 }}
+                    transition={{ duration: MOTION_DURATION.fast }}
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-red-200 text-red-600 transition-colors duration-200 hover:bg-red-50 disabled:opacity-60"
                   >
                     <CloseIcon />
-                  </button>
+                  </motion.button>
                 </>
               )}
 
@@ -411,40 +497,61 @@ export default function PersonPreviewPanel({
               )}
 
               {connectionStatus === "PENDING_RECEIVED" && (
-                <Link
-                  href="/conexiones"
-                  className="flex h-12 flex-1 items-center justify-center gap-2 rounded-14 bg-brand px-5 text-sm font-bold text-white shadow-button transition hover:bg-brand-dark"
+                <motion.div
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ duration: MOTION_DURATION.fast }}
+                  className="flex-1"
                 >
-                  Responder solicitud
-                </Link>
+                  <Link
+                    href="/conexiones"
+                    className="flex h-12 items-center justify-center gap-2 rounded-14 bg-brand px-5 text-sm font-bold text-white shadow-button transition-colors duration-200 hover:bg-brand-dark"
+                  >
+                    Responder solicitud
+                  </Link>
+                </motion.div>
               )}
 
               {connectionStatus === "NONE" && (
-                <button
+                <motion.button
                   type="button"
                   onClick={connect}
                   disabled={connecting || !profile.is_looking_for_roommates}
-                  className="flex h-12 flex-1 items-center justify-center gap-2 rounded-14 bg-brand px-5 text-sm font-bold text-white shadow-button transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ duration: MOTION_DURATION.fast }}
+                  className="flex h-12 flex-1 items-center justify-center gap-2 rounded-14 bg-brand px-5 text-sm font-bold text-white shadow-button transition-colors duration-200 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <ConnectIcon />
                   {connecting ? "Enviando..." : "Conectar"}
-                </button>
+                </motion.button>
               )}
 
-              <button
+              <motion.button
                 type="button"
                 onClick={toggleSave}
                 disabled={savingToggle}
                 aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
                 aria-pressed={saved}
-                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border transition-colors duration-180 disabled:cursor-not-allowed disabled:opacity-60 ${
+                whileTap={{ scale: 0.88 }}
+                transition={{ duration: MOTION_DURATION.fast }}
+                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
                   saved
                     ? "border-primary/30 bg-mint-100 text-primary-dark"
                     : "border-border bg-surface text-muted hover:border-primary/40"
                 }`}
               >
-                <HeartIcon filled={saved} />
-              </button>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key={saved ? "saved" : "unsaved"}
+                    initial={{ scale: 0.6, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.6, opacity: 0 }}
+                    transition={MOTION_SPRING.snappy}
+                    className="inline-flex"
+                  >
+                    <HeartIcon filled={saved} />
+                  </motion.span>
+                </AnimatePresence>
+              </motion.button>
             </div>
           </div>
         )}
