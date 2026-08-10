@@ -69,31 +69,33 @@ export default function UsuariosPage() {
 
   return (
     <div>
-      <div className="sticky top-[calc(var(--safe-top)+4.5rem)] z-(--z-sticky-header) flex items-center gap-2 py-3">
-        <div className="flex h-14 min-w-0 flex-1 items-center rounded-full border border-border bg-surface pl-5 pr-1.5 shadow-soft transition-all duration-180 focus-within:border-primary focus-within:ring-4 focus-within:ring-mint-100">
-          <SearchInput
-            bare
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            onClear={() => setSearch("")}
-            placeholder="Buscar por nombre, zona o intereses..."
-          />
-        </div>
+      <div className="sticky top-[calc(var(--safe-top)+4.5rem)] z-(--z-sticky-header) -mx-4 -mt-6 bg-background/85 px-4 pb-3 pt-2 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <div className="flex items-center gap-2">
+          <div className="flex h-14 min-w-0 flex-1 items-center rounded-full border border-border bg-surface pl-5 pr-1.5 shadow-soft transition-all duration-180 focus-within:border-primary focus-within:ring-4 focus-within:ring-mint-100">
+            <SearchInput
+              bare
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              onClear={() => setSearch("")}
+              placeholder="Buscar por nombre, zona o intereses..."
+            />
+          </div>
 
-        <button
-          type="button"
-          onClick={() => setFiltersOpen((current) => !current)}
-          aria-expanded={filtersOpen}
-          aria-label="Filtros"
-          title="Filtros"
-          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border shadow-soft transition-colors duration-180 ${
-            filtersOpen || isUserFiltersActive(filters)
-              ? "border-primary/30 bg-mint-100 text-primary-dark"
-              : "border-border bg-surface text-secondary hover:bg-surface-soft"
-          }`}
-        >
-          <FilterIcon />
-        </button>
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((current) => !current)}
+            aria-expanded={filtersOpen}
+            aria-label="Filtros"
+            title="Filtros"
+            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border shadow-soft transition-colors duration-180 ${
+              filtersOpen || isUserFiltersActive(filters)
+                ? "border-primary/30 bg-mint-100 text-primary-dark"
+                : "border-border bg-surface text-secondary hover:bg-surface-soft"
+            }`}
+          >
+            <FilterIcon />
+          </button>
+        </div>
       </div>
 
       {filtersOpen && (

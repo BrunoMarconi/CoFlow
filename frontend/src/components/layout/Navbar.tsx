@@ -10,7 +10,7 @@ export default function Navbar() {
   const { user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-(--z-sticky-header) pt-(--safe-top)">
+    <header className="sticky top-0 z-(--z-sticky-header) bg-background/85 pt-(--safe-top) backdrop-blur-xl">
       <div className="mx-auto flex h-18 w-full max-w-[1600px] items-center justify-between px-4 sm:px-6 md:pl-72">
         <div className="flex items-center gap-2">
           <Link
