@@ -1,8 +1,9 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
+from app.core.config import MAX_IMAGE_SIZE_BYTES
 from app.database.models.community import (
     Community,
     CommunityJoinType,
@@ -16,9 +17,11 @@ from app.database.models.community_preferences import CommunityPreferences
 from app.database.models.notification import NotificationType
 from app.database.models.user import User
 from app.schemas.community import CommunityCreate, CommunityUpdate
+from app.services import storage_service
 from app.services.notification_service import create_notification
 
 MAX_LIMIT = 100
+COVER_IMAGE_SUBFOLDER = "communities"
 
 
 class CommunityService:
@@ -151,6 +154,7 @@ class CommunityService:
             deposit=data.deposit,
             move_in_date=data.move_in_date,
             room_description=data.room_description,
+            cover_color=data.cover_color,
         )
 
         community.preferences = CommunityPreferences(
@@ -386,6 +390,98 @@ class CommunityService:
         return self.get_community_by_id(
             db=db,
             community_id=membership.community_id,
+            current_user=current_user,
+        )
+
+    async def upload_cover_image(
+        self,
+        db: Session,
+        current_user: User,
+        community_id: int,
+        file: UploadFile,
+    ):
+        """Sustituye la portada automática (color + avatares) por una
+        imagen personalizada. Sube primero, guarda en DB después: si
+        falla la subida, la portada anterior (color o imagen) no se
+        toca — mismo orden que user_photo_service.upload_avatar."""
+        community = self.get_community_by_id(
+            db=db,
+            community_id=community_id,
+            current_user=current_user,
+        )
+
+        if community.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="Only the owner can update this community",
+            )
+
+        content = await file.read()
+        validated = storage_service.validate_image(
+            content, MAX_IMAGE_SIZE_BYTES
+        )
+        storage_key, url = storage_service.upload_file(
+            validated, COVER_IMAGE_SUBFOLDER
+        )
+
+        previous_storage_key = community.cover_storage_key
+
+        try:
+            community.cover_image_url = url
+            community.cover_storage_key = storage_key
+            db.commit()
+        except Exception:
+            db.rollback()
+            storage_service.delete_file(storage_key, COVER_IMAGE_SUBFOLDER)
+            raise
+
+        if previous_storage_key:
+            storage_service.delete_file(
+                previous_storage_key, COVER_IMAGE_SUBFOLDER
+            )
+
+        return self.get_community_by_id(
+            db=db,
+            community_id=community_id,
+            current_user=current_user,
+        )
+
+    def delete_cover_image(
+        self,
+        db: Session,
+        current_user: User,
+        community_id: int,
+    ):
+        """Quita la imagen personalizada: la portada vuelve a ser el
+        color + avatares (cover_color se conserva tal cual)."""
+        community = self.get_community_by_id(
+            db=db,
+            community_id=community_id,
+            current_user=current_user,
+        )
+
+        if community.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="Only the owner can update this community",
+            )
+
+        storage_key = community.cover_storage_key
+
+        try:
+            community.cover_image_url = None
+            community.cover_storage_key = None
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+
+        if storage_key:
+            storage_service.delete_file(storage_key, COVER_IMAGE_SUBFOLDER)
+
+        return self.get_community_by_id(
+            db=db,
+            community_id=community_id,
             current_user=current_user,
         )
 

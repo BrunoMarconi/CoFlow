@@ -35,6 +35,14 @@ export interface CommunityPreferencesUpdate {
   lifestyle?: string;
 }
 
+export type CommunityCoverColor =
+  | "sage"
+  | "cream"
+  | "stone"
+  | "sand"
+  | "smoke"
+  | "forest";
+
 export interface Community {
   id: number;
   name: string;
@@ -58,6 +66,8 @@ export interface Community {
   deposit: number | null;
   move_in_date: string | null;
   room_description: string | null;
+  cover_color: CommunityCoverColor;
+  cover_image_url: string | null;
   member_count: number;
   is_member: boolean;
   current_user_role: CommunityMemberRole | null;
@@ -82,6 +92,7 @@ export interface CommunityCreate {
   deposit?: number | null;
   move_in_date?: string | null;
   room_description?: string | null;
+  cover_color?: CommunityCoverColor;
 }
 
 export interface CommunityUpdate {
@@ -101,6 +112,7 @@ export interface CommunityUpdate {
   deposit?: number | null;
   move_in_date?: string | null;
   room_description?: string | null;
+  cover_color?: CommunityCoverColor;
 }
 
 export type CommunityProfileType =

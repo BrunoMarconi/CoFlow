@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, File, Query, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user, require_verified_email
@@ -317,6 +317,40 @@ def update_community(
         current_user=current_user,
         community_id=community_id,
         data=data,
+    )
+
+
+@router.post(
+    "/{community_id}/cover",
+    response_model=CommunityResponse,
+)
+async def upload_community_cover(
+    community_id: int,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return await community_service.upload_cover_image(
+        db=db,
+        current_user=current_user,
+        community_id=community_id,
+        file=file,
+    )
+
+
+@router.delete(
+    "/{community_id}/cover",
+    response_model=CommunityResponse,
+)
+def delete_community_cover(
+    community_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return community_service.delete_cover_image(
+        db=db,
+        current_user=current_user,
+        community_id=community_id,
     )
 
 

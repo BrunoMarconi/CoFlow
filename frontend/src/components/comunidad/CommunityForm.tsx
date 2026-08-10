@@ -5,7 +5,9 @@ import { FormEvent, useMemo, useState } from "react";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import { COMMUNITY_PROFILE_TYPE_OPTIONS } from "@/lib/communityProfileType";
+import { COMMUNITY_COVER_COLOR_MAP } from "@/components/ui/CommunityCover";
 import type {
+  CommunityCoverColor,
   CommunityCreate,
   CommunityJoinType,
   CommunityPreferencesCreate,
@@ -18,6 +20,18 @@ const DESCRIPTION_MIN_LENGTH = 20;
 const MIN_MEMBERS = 2;
 const MAX_MEMBERS = 12;
 const PROFILE_DESCRIPTION_MAX_LENGTH = 500;
+
+const COVER_COLOR_OPTIONS: {
+  value: CommunityCoverColor;
+  label: string;
+}[] = [
+  { value: "sage", label: "Verde salvia" },
+  { value: "cream", label: "Crema" },
+  { value: "stone", label: "Gris piedra" },
+  { value: "sand", label: "Arena" },
+  { value: "smoke", label: "Azul humo" },
+  { value: "forest", label: "Verde oscuro" },
+];
 
 type PreferenceKey = keyof CommunityPreferencesCreate;
 
@@ -166,6 +180,7 @@ const defaultValues: CommunityFormValues = {
   deposit: null,
   move_in_date: null,
   room_description: null,
+  cover_color: "sage",
 };
 
 export default function CommunityForm({
@@ -235,6 +250,10 @@ export default function CommunityForm({
 
   const [profileDescription, setProfileDescription] = useState(
     initialValues.profile_description ?? ""
+  );
+
+  const [coverColor, setCoverColor] = useState<CommunityCoverColor>(
+    initialValues.cover_color ?? "sage"
   );
 
   const [preferences, setPreferences] =
@@ -407,6 +426,7 @@ export default function CommunityForm({
       move_in_date: moveInDate || null,
       room_description:
         roomDescription.trim() || null,
+      cover_color: coverColor,
     });
   }
 
@@ -623,6 +643,40 @@ export default function CommunityForm({
                     maxLength={PROFILE_DESCRIPTION_MAX_LENGTH}
                     rows={3}
                   />
+                </div>
+              </div>
+
+              <div className="border-t border-border pt-8">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+                  Portada de la comunidad
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  Elige un color para la portada automática. Por defecto
+                  mostrará las fotos de los miembros sobre este fondo. Si más
+                  adelante tenéis piso, podréis subir una imagen propia desde
+                  la edición de la comunidad.
+                </p>
+
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {COVER_COLOR_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setCoverColor(option.value)}
+                      title={option.label}
+                      aria-label={option.label}
+                      className={`h-11 w-11 shrink-0 rounded-full border-2 transition ${
+                        coverColor === option.value
+                          ? "border-primary shadow-soft"
+                          : "border-white shadow-sm hover:border-primary/30"
+                      }`}
+                      style={{
+                        backgroundColor:
+                          COMMUNITY_COVER_COLOR_MAP[option.value].bg,
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
 

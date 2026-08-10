@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -9,6 +10,13 @@ from app.database.models.community import (
 )
 from app.database.models.community_member import CommunityMemberRole
 
+# Paleta cerrada y elegante para la portada automática (fondo de color
+# + avatares de los miembros encima, ver frontend CommunityCover.tsx).
+# Deliberadamente pequeña: nada de un selector de color libre, para
+# mantener el aspecto premium/curado en todas las comunidades.
+CommunityCoverColor = Literal[
+    "sage", "cream", "stone", "sand", "smoke", "forest"
+]
 
 
 class CommunityPreferencesCreate(BaseModel):
@@ -142,6 +150,8 @@ class CommunityCreate(BaseModel):
         max_length=2000,
     )
 
+    cover_color: CommunityCoverColor = "sage"
+
 
 class CommunityUpdate(BaseModel):
     name: str | None = Field(
@@ -207,6 +217,10 @@ class CommunityUpdate(BaseModel):
         default=None,
         max_length=2000,
     )
+
+    cover_color: CommunityCoverColor | None = None
+
+
 class CommunityResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -229,6 +243,9 @@ class CommunityResponse(BaseModel):
     deposit: int | None = None
     move_in_date: date | None = None
     room_description: str | None = None
+
+    cover_color: str
+    cover_image_url: str | None = None
 
     owner_id: UUID
     is_active: bool

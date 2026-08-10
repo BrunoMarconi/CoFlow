@@ -1,57 +1,116 @@
+import Image from "next/image";
+import UserAvatar from "@/components/ui/UserAvatar";
 import { cn } from "@/lib/utils";
+import type { CommunityCoverColor } from "@/types/community";
 
-const GRADIENTS = [
-  "from-[#163B2E] via-[#237154] to-green-400",
-  "from-emerald-800 via-teal-600 to-emerald-400",
-  "from-teal-800 via-cyan-700 to-teal-400",
-  "from-green-900 via-lime-700 to-lime-400",
-  "from-[#12382C] via-emerald-700 to-teal-300",
-];
+/* Paleta plana y elegante para la portada automática de comunidad.
+ * Nada de degradados: un único fondo suave por comunidad, sobre el
+ * que se apoyan los avatares de los miembros. */
+export const COMMUNITY_COVER_COLOR_MAP: Record<
+  CommunityCoverColor,
+  { bg: string; dark: boolean }
+> = {
+  sage: { bg: "#B7C7AC", dark: false },
+  cream: { bg: "#EFE6D6", dark: false },
+  stone: { bg: "#D6D1C6", dark: false },
+  sand: { bg: "#E3D3B6", dark: false },
+  smoke: { bg: "#C7CCD1", dark: false },
+  forest: { bg: "#3E4F3B", dark: true },
+};
 
-function hashId(id: number | string) {
-  const value = String(id);
-  let hash = 0;
-
-  for (let index = 0; index < value.length; index += 1) {
-    hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
-  }
-
-  return hash;
+export interface CommunityCoverMember {
+  id: string;
+  firstName: string;
+  lastName?: string | null;
+  imageUrl?: string | null;
 }
 
 export default function CommunityCover({
-  communityId,
   name,
+  coverColor,
+  coverImageUrl,
+  members,
+  memberCount,
+  isOwn = false,
   className,
 }: {
-  communityId: number | string;
   name: string;
+  coverColor: CommunityCoverColor;
+  coverImageUrl?: string | null;
+  members: CommunityCoverMember[];
+  memberCount: number;
+  isOwn?: boolean;
   className?: string;
 }) {
-  const initials = name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join("")
-    .toUpperCase();
+  if (coverImageUrl) {
+    return (
+      <div className={cn("relative overflow-hidden", className)}>
+        <Image
+          src={coverImageUrl}
+          alt={name}
+          fill
+          unoptimized
+          className="object-cover"
+        />
+        {isOwn && (
+          <span className="absolute left-3 top-3 inline-flex h-6.5 items-center rounded-full bg-white/95 px-3 text-xs font-bold text-primary-dark shadow-soft backdrop-blur">
+            Tu comunidad
+          </span>
+        )}
+      </div>
+    );
+  }
 
-  const gradient = GRADIENTS[hashId(communityId) % GRADIENTS.length];
+  const { bg, dark } = COMMUNITY_COVER_COLOR_MAP[coverColor] ?? COMMUNITY_COVER_COLOR_MAP.sage;
+  const visible = members.slice(0, 4);
+  const extra = memberCount - visible.length;
+  const centerIndex = Math.min(1, visible.length - 1);
 
   return (
     <div
-      className={cn(
-        "relative overflow-hidden bg-gradient-to-br",
-        gradient,
-        className
-      )}
+      className={cn("relative overflow-hidden", className)}
+      style={{ backgroundColor: bg }}
     >
-      <div className="absolute -right-10 -top-12 h-36 w-36 rounded-full bg-white/10" />
-      <div className="absolute -bottom-16 -left-8 h-40 w-40 rounded-full bg-white/5" />
+      {isOwn && (
+        <span className="absolute left-3 top-3 inline-flex h-6.5 items-center rounded-full bg-white/95 px-3 text-xs font-bold text-primary-dark shadow-soft backdrop-blur">
+          Tu comunidad
+        </span>
+      )}
 
-      <div className="absolute inset-0 flex items-center justify-center text-3xl font-bold text-white/25">
-        {initials || "CF"}
-      </div>
+      {visible.length > 0 && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="flex items-center">
+            {visible.map((member, index) => (
+              <UserAvatar
+                key={member.id}
+                firstName={member.firstName}
+                lastName={member.lastName}
+                userId={member.id}
+                imageUrl={member.imageUrl}
+                size={index === centerIndex ? "lg" : "md"}
+                className={cn(
+                  "border-[3px] border-white shadow-[0_4px_10px_-4px_rgb(0_0_0/0.25)]",
+                  index !== 0 && "-ml-3.5",
+                  index === centerIndex && "z-10"
+                )}
+              />
+            ))}
+
+            {extra > 0 && (
+              <div
+                className={cn(
+                  "-ml-3.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-[3px] border-white text-xs font-bold shadow-[0_4px_10px_-4px_rgb(0_0_0/0.25)]",
+                  dark
+                    ? "bg-white/20 text-white"
+                    : "bg-white/70 text-foreground"
+                )}
+              >
+                +{extra}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

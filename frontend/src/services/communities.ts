@@ -118,6 +118,32 @@ export async function sendCommunityMessage(
   return data;
 }
 
+export async function uploadCommunityCover(
+  id: number | string,
+  file: File
+) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const { data } = await api.post<Community>(
+    `/communities/${id}/cover`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+
+  return data;
+}
+
+export async function deleteCommunityCover(
+  id: number | string
+) {
+  const { data } = await api.delete<Community>(
+    `/communities/${id}/cover`
+  );
+
+  return data;
+}
+
 export async function getCommunityRentSplit(
   id: number | string
 ) {

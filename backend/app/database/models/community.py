@@ -155,6 +155,29 @@ class Community(Base):
         default=True,
     )
 
+    # Portada de la comunidad. Por defecto (cover_image_url=None) se
+    # muestra un fondo de color plano (cover_color, una de las claves
+    # de COVER_COLOR_KEYS) con los avatares de los miembros encima —
+    # ver frontend CommunityCover.tsx. cover_color siempre tiene un
+    # valor por defecto para que la portada nunca se quede sin color
+    # aunque el anfitrión no la haya elegido explícitamente.
+    cover_color: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="sage",
+        server_default="sage",
+    )
+
+    cover_image_url: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+    )
+
+    cover_storage_key: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

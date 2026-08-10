@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 
 import CommunityForm from "@/components/comunidad/CommunityForm";
+import CommunityCoverImageUploader from "@/components/comunidad/CommunityCoverImageUploader";
 import Spinner from "@/components/ui/Spinner";
 
 import {
@@ -183,6 +184,7 @@ export default function EditarComunidadPage() {
     deposit: community.deposit,
     move_in_date: community.move_in_date,
     room_description: community.room_description,
+    cover_color: community.cover_color,
     preferences: {
       cleanliness:
         community.preferences.cleanliness,
@@ -200,17 +202,24 @@ export default function EditarComunidadPage() {
   };
 
   return (
-    <CommunityForm
-      mode="edit"
-      initialValues={initialValues}
-      submitting={submitting}
-      serverError={error}
-      onSubmit={handleUpdate}
-      onCancel={() =>
-        router.push(
-          `/comunidades/${community.id}`
-        )
-      }
-    />
+    <div className="mx-auto w-full max-w-3xl space-y-6">
+      <CommunityCoverImageUploader
+        community={community}
+        onUpdated={setCommunity}
+      />
+
+      <CommunityForm
+        mode="edit"
+        initialValues={initialValues}
+        submitting={submitting}
+        serverError={error}
+        onSubmit={handleUpdate}
+        onCancel={() =>
+          router.push(
+            `/comunidades/${community.id}`
+          )
+        }
+      />
+    </div>
   );
 }
