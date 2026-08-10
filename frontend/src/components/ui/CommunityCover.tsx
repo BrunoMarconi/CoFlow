@@ -1,5 +1,7 @@
 import Image from "next/image";
+import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
+import { MOTION_SPRING } from "@/lib/motionTokens";
 import { cn } from "@/lib/utils";
 import type { CommunityCoverColor } from "@/types/community";
 
@@ -33,6 +35,7 @@ export default function CommunityCover({
   memberCount,
   isOwn = false,
   className,
+  layoutId,
 }: {
   name: string;
   coverColor: CommunityCoverColor;
@@ -41,10 +44,19 @@ export default function CommunityCover({
   memberCount: number;
   isOwn?: boolean;
   className?: string;
+  /** Opcional: cuando dos instancias (p. ej. la tarjeta y la cabecera
+   * del detalle) comparten el mismo layoutId y están montadas a la
+   * vez, Framer Motion anima la transición entre ellas. Sin efecto en
+   * el resto de casos (solo pasa este prop quien lo necesite). */
+  layoutId?: string;
 }) {
   if (coverImageUrl) {
     return (
-      <div className={cn("relative overflow-hidden", className)}>
+      <motion.div
+        layoutId={layoutId}
+        transition={MOTION_SPRING.gentle}
+        className={cn("relative overflow-hidden", className)}
+      >
         <Image
           src={coverImageUrl}
           alt={name}
@@ -57,7 +69,7 @@ export default function CommunityCover({
             Tu comunidad
           </span>
         )}
-      </div>
+      </motion.div>
     );
   }
 
@@ -67,7 +79,9 @@ export default function CommunityCover({
   const centerIndex = Math.min(1, visible.length - 1);
 
   return (
-    <div
+    <motion.div
+      layoutId={layoutId}
+      transition={MOTION_SPRING.gentle}
       className={cn("relative overflow-hidden", className)}
       style={{ backgroundColor: bg }}
     >
@@ -111,6 +125,6 @@ export default function CommunityCover({
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

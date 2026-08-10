@@ -2,10 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import CommunityApplicationAction from "./CommunityApplicationAction";
 import CommunityCover from "@/components/ui/CommunityCover";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
+import {
+  MOTION_DURATION,
+  MOTION_EASE,
+  MOTION_SPRING,
+} from "@/lib/motionTokens";
 import { cn } from "@/lib/utils";
 import type {
   Community,
@@ -74,6 +80,7 @@ export default function CommunityHeader({
           name={community.name}
           coverColor={community.cover_color}
           coverImageUrl={community.cover_image_url}
+          layoutId={`community-cover-${community.id}`}
           members={community.members.slice(0, 4).map((member) => ({
             id: member.id.toString(),
             firstName: member.user.first_name,
@@ -88,18 +95,39 @@ export default function CommunityHeader({
         <div className="p-5 sm:p-8">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="font-rounded text-2xl font-bold tracking-tight text-brand-dark sm:text-3xl">
-              {community.name}
+              <motion.span
+                layoutId={`community-name-${community.id}`}
+                transition={{
+                  duration: MOTION_DURATION.normal,
+                  ease: MOTION_EASE.out,
+                }}
+                className="inline"
+              >
+                {community.name}
+              </motion.span>
             </h1>
 
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-muted px-3 py-1.5 text-xs font-bold text-secondary">
-              <span
-                className={cn(
-                  "h-1.5 w-1.5 rounded-full",
-                  isLookingForMembers ? "bg-primary" : "bg-muted"
-                )}
-              />
-              {statusLabel}
-            </span>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={statusLabel}
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.92 }}
+                transition={{
+                  duration: MOTION_DURATION.fast,
+                  ease: MOTION_EASE.out,
+                }}
+                className="inline-flex items-center gap-1.5 rounded-full bg-surface-muted px-3 py-1.5 text-xs font-bold text-secondary"
+              >
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    isLookingForMembers ? "bg-primary" : "bg-muted"
+                  )}
+                />
+                {statusLabel}
+              </motion.span>
+            </AnimatePresence>
           </div>
 
           <p className="mt-1.5 text-sm font-semibold text-secondary">
@@ -113,21 +141,29 @@ export default function CommunityHeader({
           </p>
 
           {verifiedPercentage !== null && (
-            <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-mint-50 px-4 py-2 text-xs font-bold text-primary-dark">
+            <motion.div
+              key={verifiedPercentage}
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={MOTION_SPRING.snappy}
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-mint-50 px-4 py-2 text-xs font-bold text-primary-dark"
+            >
               <ShieldIcon />
               {verifiedPercentage}% de perfiles verificados
-            </div>
+            </motion.div>
           )}
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {community.is_member ? (
-              <Link
-                href="/mensajes/comunidad"
-                className="flex h-14 items-center justify-center gap-2 rounded-18 bg-brand px-5 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-brand-dark"
-              >
-                <MessageIcon />
-                Chat de comunidad
-              </Link>
+              <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: MOTION_DURATION.fast }}>
+                <Link
+                  href="/mensajes/comunidad"
+                  className="flex h-14 items-center justify-center gap-2 rounded-18 bg-brand px-5 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-brand-dark"
+                >
+                  <MessageIcon />
+                  Chat de comunidad
+                </Link>
+              </motion.div>
             ) : community.is_full ? (
               <button
                 type="button"
@@ -147,10 +183,12 @@ export default function CommunityHeader({
                 No buscan nuevos miembros ahora
               </button>
             ) : community.join_type === "OPEN" ? (
-              <button
+              <motion.button
                 type="button"
                 onClick={onJoin}
                 disabled={joining}
+                whileTap={{ scale: 0.97 }}
+                transition={{ duration: MOTION_DURATION.fast }}
                 className="flex h-14 items-center justify-center gap-2 rounded-18 bg-primary px-5 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
               >
                 {joining ? (
@@ -164,27 +202,31 @@ export default function CommunityHeader({
                     Unirme directamente
                   </>
                 )}
-              </button>
+              </motion.button>
             ) : (
               <CommunityApplicationAction community={community} />
             )}
 
             {isOwner ? (
-              <Link
-                href={`/comunidades/${community.id}/editar`}
-                className="flex h-14 items-center justify-center gap-2 rounded-18 border border-border bg-surface px-5 text-sm font-bold text-brand-dark transition hover:border-primary/30 hover:bg-mint-50/40"
-              >
-                <EditIcon />
-                Editar comunidad
-              </Link>
+              <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: MOTION_DURATION.fast }}>
+                <Link
+                  href={`/comunidades/${community.id}/editar`}
+                  className="flex h-14 items-center justify-center gap-2 rounded-18 border border-border bg-surface px-5 text-sm font-bold text-brand-dark transition hover:border-primary/30 hover:bg-mint-50/40"
+                >
+                  <EditIcon />
+                  Editar comunidad
+                </Link>
+              </motion.div>
             ) : (
-              <Link
-                href={`/personas/${community.owner_id}`}
-                className="flex h-14 items-center justify-center gap-2 rounded-18 border border-border bg-surface px-5 text-sm font-bold text-brand-dark transition hover:border-primary/30 hover:bg-mint-50/40"
-              >
-                <ProfileIcon />
-                Ver perfil del administrador
-              </Link>
+              <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: MOTION_DURATION.fast }}>
+                <Link
+                  href={`/personas/${community.owner_id}`}
+                  className="flex h-14 items-center justify-center gap-2 rounded-18 border border-border bg-surface px-5 text-sm font-bold text-brand-dark transition hover:border-primary/30 hover:bg-mint-50/40"
+                >
+                  <ProfileIcon />
+                  Ver perfil del administrador
+                </Link>
+              </motion.div>
             )}
           </div>
 
@@ -213,13 +255,15 @@ export default function CommunityHeader({
           <h2 className="text-lg font-bold text-brand-dark">Miembros</h2>
 
           {sortedMembers.length > 4 && (
-            <button
+            <motion.button
               type="button"
               onClick={() => setShowAllMembers((current) => !current)}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: MOTION_DURATION.fast }}
               className="shrink-0 text-xs font-bold text-primary-dark hover:underline"
             >
               {showAllMembers ? "Ver menos" : "Ver todos"}
-            </button>
+            </motion.button>
           )}
         </div>
 
@@ -229,9 +273,23 @@ export default function CommunityHeader({
           </p>
         ) : (
           <div className="mt-4 flex flex-wrap gap-x-6 gap-y-4">
-            {visibleMembers.map((member) => (
-              <MemberChip key={member.id} member={member} />
-            ))}
+            <AnimatePresence initial={false}>
+              {visibleMembers.map((member) => (
+                <motion.div
+                  key={member.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{
+                    duration: MOTION_DURATION.normal,
+                    ease: MOTION_EASE.out,
+                  }}
+                >
+                  <MemberChip member={member} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         )}
       </section>
@@ -250,11 +308,21 @@ export default function CommunityHeader({
         </div>
 
         <div className="p-5 sm:p-7">
-          {tab === "resumen" ? (
-            <ResumenTab community={community} />
-          ) : (
-            <ViviendaTab community={community} />
-          )}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={tab}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+            >
+              {tab === "resumen" ? (
+                <ResumenTab community={community} />
+              ) : (
+                <ViviendaTab community={community} />
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </section>
     </div>
@@ -275,13 +343,19 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex-1 border-b-2 px-4 py-4 text-sm font-bold transition",
-        active
-          ? "border-primary text-primary-dark"
-          : "border-transparent text-muted hover:text-brand-dark"
+        "relative flex-1 px-4 py-4 text-sm font-bold transition-colors duration-200",
+        active ? "text-primary-dark" : "text-muted hover:text-brand-dark"
       )}
     >
       {children}
+
+      {active && (
+        <motion.span
+          layoutId="community-tabs-indicator"
+          transition={MOTION_SPRING.snappy}
+          className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-primary"
+        />
+      )}
     </button>
   );
 }
@@ -292,10 +366,11 @@ function MemberChip({ member }: { member: CommunityMember }) {
     .join(" ");
 
   return (
-    <Link
-      href={`/personas/${member.user_id}`}
-      className="flex w-20 shrink-0 flex-col items-center gap-2 text-center transition hover:opacity-80"
-    >
+    <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.96 }} transition={{ duration: MOTION_DURATION.fast }}>
+      <Link
+        href={`/personas/${member.user_id}`}
+        className="flex w-20 shrink-0 flex-col items-center gap-2 text-center"
+      >
       <UserAvatar
         firstName={member.user.first_name}
         lastName={member.user.last_name}
@@ -323,7 +398,8 @@ function MemberChip({ member }: { member: CommunityMember }) {
           {member.role === "OWNER" ? "Crea comunidad" : "Miembro"}
         </p>
       </div>
-    </Link>
+      </Link>
+    </motion.div>
   );
 }
 

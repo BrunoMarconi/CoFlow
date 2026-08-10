@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   cancelCommunityInvitation,
   createCommunityInvitation,
   getCommunityInvitations,
 } from "@/services/invitations";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
+import { MOTION_DURATION, MOTION_SPRING } from "@/lib/motionTokens";
 import type { CommunityInvitation } from "@/types/invitation";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -39,6 +41,7 @@ export default function CommunityInvitationsManager({
 
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [cancellingId, setCancellingId] = useState<number | null>(null);
+  const [justCreated, setJustCreated] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -68,6 +71,8 @@ export default function CommunityInvitationsManager({
     try {
       const invitation = await createCommunityInvitation(communityId);
       setInvitations((current) => [invitation, ...current]);
+      setJustCreated(true);
+      window.setTimeout(() => setJustCreated(false), 2000);
     } catch (error) {
       setCreateError(
         getCommunityErrorMessage(
@@ -120,14 +125,33 @@ export default function CommunityInvitationsManager({
         invitaciones no ocupan plazas abiertas.
       </p>
 
-      <button
-        type="button"
-        onClick={handleCreate}
-        disabled={creating}
-        className="mt-3 flex h-11 w-full items-center justify-center rounded-14 bg-brand px-5 text-sm font-bold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-      >
-        {creating ? "Generando..." : "Generar nueva invitación"}
-      </button>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <motion.button
+          type="button"
+          onClick={handleCreate}
+          disabled={creating}
+          whileTap={{ scale: 0.97 }}
+          transition={{ duration: MOTION_DURATION.fast }}
+          className="flex h-11 w-full items-center justify-center rounded-14 bg-brand px-5 text-sm font-bold text-white transition-colors duration-200 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+        >
+          {creating ? "Generando..." : "Generar nueva invitación"}
+        </motion.button>
+
+        <AnimatePresence>
+          {justCreated && (
+            <motion.span
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={MOTION_SPRING.snappy}
+              className="inline-flex items-center gap-1.5 rounded-full bg-mint-100 px-3 py-1.5 text-xs font-bold text-primary-dark"
+            >
+              <CheckIcon />
+              Invitación generada
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </div>
 
       {createError && (
         <p className="mt-3 text-sm font-semibold text-red-600">
@@ -169,26 +193,30 @@ export default function CommunityInvitationsManager({
 
               {invitation.status === "PENDING" && (
                 <div className="mt-2.5 flex flex-col gap-2 sm:flex-row">
-                  <button
+                  <motion.button
                     type="button"
                     onClick={() => handleCopy(invitation)}
-                    className="flex h-10 flex-1 items-center justify-center gap-2 rounded-14 border border-line bg-surface text-sm font-bold text-foreground transition hover:bg-surface-soft"
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ duration: MOTION_DURATION.fast }}
+                    className="flex h-10 flex-1 items-center justify-center gap-2 rounded-14 border border-line bg-surface text-sm font-bold text-foreground transition-colors duration-200 hover:bg-surface-soft"
                   >
                     {copiedId === invitation.id
                       ? "Enlace copiado"
                       : "Copiar enlace"}
-                  </button>
+                  </motion.button>
 
-                  <button
+                  <motion.button
                     type="button"
                     onClick={() => handleCancel(invitation)}
                     disabled={cancellingId === invitation.id}
-                    className="flex h-10 flex-1 items-center justify-center rounded-14 border border-red-200 bg-surface text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ duration: MOTION_DURATION.fast }}
+                    className="flex h-10 flex-1 items-center justify-center rounded-14 border border-red-200 bg-surface text-sm font-bold text-red-600 transition-colors duration-200 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {cancellingId === invitation.id
                       ? "Cancelando..."
                       : "Cancelar"}
-                  </button>
+                  </motion.button>
                 </div>
               )}
             </div>
@@ -196,6 +224,23 @@ export default function CommunityInvitationsManager({
         )}
       </div>
     </div>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-3.5 w-3.5"
+      aria-hidden="true"
+    >
+      <path d="m5 12 4 4L19 6" />
+    </svg>
   );
 }
 

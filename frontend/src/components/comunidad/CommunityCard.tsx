@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { motion } from "framer-motion";
 import CommunityCover from "@/components/ui/CommunityCover";
 import AvatarGroup from "@/components/ui/AvatarGroup";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
+import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import type { Community } from "@/types/community";
 
 export default function CommunityCard({
@@ -28,10 +30,14 @@ export default function CommunityCard({
   return (
     <Link
       href={`/comunidades/${community.id}`}
-      className="group block h-full active:scale-[0.99]"
+      transitionTypes={["nav-forward"]}
+      className="group block h-full"
     >
-      <article
-        className={`flex h-full flex-col overflow-hidden rounded-18 border shadow-soft transition-all duration-180 ease-out sm:hover:-translate-y-0.5 sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)] ${
+      <motion.article
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.985 }}
+        transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+        className={`flex h-full flex-col overflow-hidden rounded-18 border shadow-soft transition-shadow duration-200 ease-out sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)] ${
           isLookingForMembers
             ? "border-border bg-surface"
             : "border-border bg-surface-muted opacity-85"
@@ -42,6 +48,7 @@ export default function CommunityCard({
             name={community.name}
             coverColor={community.cover_color}
             coverImageUrl={community.cover_image_url}
+            layoutId={`community-cover-${community.id}`}
             members={visibleMembers.map((member) => ({
               id: member.id.toString(),
               firstName: member.user.first_name,
@@ -64,7 +71,13 @@ export default function CommunityCard({
 
         <div className="flex flex-1 flex-col p-4 sm:p-5">
           <h3 className="truncate font-rounded text-xl font-semibold tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark">
-            {community.name}
+            <motion.span
+              layoutId={`community-name-${community.id}`}
+              transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+              className="inline"
+            >
+              {community.name}
+            </motion.span>
           </h3>
 
           <div className="mt-1 flex items-center gap-1.5 text-sm font-medium text-secondary">
@@ -125,7 +138,7 @@ export default function CommunityCard({
             <ArrowIcon />
           </span>
         </div>
-      </article>
+      </motion.article>
     </Link>
   );
 }

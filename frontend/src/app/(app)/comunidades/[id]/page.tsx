@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { MotionConfig } from "framer-motion";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -119,6 +120,7 @@ export default function ComunidadDetallePage() {
     user?.id === community.owner_id;
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="mx-auto w-full max-w-5xl">
       <Link
         href="/comunidades"
@@ -145,6 +147,7 @@ export default function ComunidadDetallePage() {
         </div>
       )}
     </div>
+    </MotionConfig>
   );
 }
 

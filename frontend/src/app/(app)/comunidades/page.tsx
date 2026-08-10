@@ -7,6 +7,7 @@ import {
 } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { MotionConfig } from "framer-motion";
 
 import { useCommunities } from "@/hooks/useCommunities";
 import { useAuth } from "@/hooks/useAuth";
@@ -146,6 +147,7 @@ export default function ComunidadesPage() {
     : "Crear comunidad";
 
   return (
+    <MotionConfig reducedMotion="user">
     <div>
       <div className="sticky top-[calc(var(--safe-top)+4.5rem)] z-(--z-sticky-header) -mx-4 -mt-6 bg-background/85 px-4 pb-3 pt-2 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div className="flex items-center gap-2">
@@ -272,6 +274,7 @@ export default function ComunidadesPage() {
         </Link>
       )}
     </div>
+    </MotionConfig>
   );
 }
 

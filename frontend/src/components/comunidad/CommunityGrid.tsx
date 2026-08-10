@@ -1,6 +1,26 @@
+"use client";
+
+import { motion } from "framer-motion";
 import CommunityCard from "./CommunityCard";
 import EmptyState from "@/components/ui/EmptyState";
+import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import type { Community } from "@/types/community";
+
+const containerVariants = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.04 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: MOTION_DURATION.slow, ease: MOTION_EASE.out },
+  },
+};
 
 export default function CommunityGrid({
   communities,
@@ -19,19 +39,20 @@ export default function CommunityGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
-      {communities.map((community, index) => (
-        <div
-          key={community.id}
-          className="h-full animate-fade-in-up"
-          style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
-        >
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]"
+    >
+      {communities.map((community) => (
+        <motion.div key={community.id} variants={itemVariants} className="h-full">
           <CommunityCard
             community={community}
             isOwn={community.id === ownCommunityId}
           />
-        </div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }
