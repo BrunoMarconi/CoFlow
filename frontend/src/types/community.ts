@@ -138,6 +138,8 @@ export interface CommunityMemberUser {
   first_name: string;
   last_name: string;
   avatar_url: string | null;
+  age: number | null;
+  is_email_verified: boolean;
 }
 
 export interface CommunityMember {

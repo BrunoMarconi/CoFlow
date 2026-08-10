@@ -98,6 +98,8 @@ class CommunityMemberUserResponse(BaseModel):
     first_name: str
     last_name: str
     avatar_url: str | None = None
+    age: int | None = None
+    is_email_verified: bool = False
 
 
 class CommunityMemberResponse(BaseModel):
