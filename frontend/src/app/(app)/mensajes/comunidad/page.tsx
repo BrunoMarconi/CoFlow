@@ -7,6 +7,7 @@ import Spinner from "@/components/ui/Spinner";
 import CommunityChat from "@/components/comunidad/CommunityChat";
 import { HomeIcon } from "@/components/layout/NavIcons";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
+import { markConversationReadNow } from "@/lib/conversationReadState";
 
 export default function MensajesComunidadPage() {
   const { user, community, communityLoading } = useAuth();
@@ -16,6 +17,10 @@ export default function MensajesComunidadPage() {
     setChatActive(true);
     return () => setChatActive(false);
   }, [setChatActive]);
+
+  useEffect(() => {
+    markConversationReadNow("community");
+  }, []);
 
   if (communityLoading) {
     return (
@@ -61,25 +66,30 @@ export default function MensajesComunidadPage() {
           <ArrowLeftIcon />
         </Link>
 
-        <div className="flex min-w-0 items-center gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 bg-brand-dark text-white">
             <HomeIcon className="h-5 w-5" />
           </div>
 
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <p className="truncate text-base font-bold text-brand-dark">
-                {community.name}
-              </p>
-              <span className="shrink-0 rounded-full bg-mint-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-dark">
-                Comunidad
-              </span>
-            </div>
+            <p className="truncate text-base font-bold text-brand-dark">
+              {community.name}
+            </p>
             <p className="text-xs font-semibold text-muted">
-              Chat de todos los miembros
+              {community.member_count}{" "}
+              {community.member_count === 1 ? "miembro" : "miembros"}
             </p>
           </div>
         </div>
+
+        <Link
+          href="/mi-comunidad"
+          aria-label="Ver comunidad"
+          title="Ver comunidad"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-soft hover:text-brand-dark"
+        >
+          <MoreIcon />
+        </Link>
       </div>
 
       <div className="min-h-0 flex-1 sm:flex-none">
@@ -90,6 +100,21 @@ export default function MensajesComunidadPage() {
         />
       </div>
     </div>
+  );
+}
+
+function MoreIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className="h-5 w-5"
+      aria-hidden="true"
+    >
+      <circle cx="5" cy="12" r="1.8" />
+      <circle cx="12" cy="12" r="1.8" />
+      <circle cx="19" cy="12" r="1.8" />
+    </svg>
   );
 }
 

@@ -9,6 +9,7 @@ import Spinner from "@/components/ui/Spinner";
 import PrivateChat from "@/components/mensajes/PrivateChat";
 import { getConnections } from "@/services/connections";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
+import { markConversationReadNow } from "@/lib/conversationReadState";
 import type { UserConnection } from "@/types/connection";
 
 export default function MensajesPage() {
@@ -29,6 +30,12 @@ export default function MensajesPage() {
     setChatActive(true);
     return () => setChatActive(false);
   }, [setChatActive]);
+
+  useEffect(() => {
+    if (Number.isFinite(connectionId)) {
+      markConversationReadNow(`connection:${connectionId}`);
+    }
+  }, [connectionId]);
 
   useEffect(() => {
     let active = true;

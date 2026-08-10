@@ -90,8 +90,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="fixed top-(--mobile-header-height) z-(--z-sticky-header) hidden h-[calc(100dvh-var(--mobile-header-height))] w-66 shrink-0 flex-col overflow-y-auto border-r border-border bg-surface/90 px-3 py-6 backdrop-blur-xl md:flex"
-      style={{ left: "max(0px, calc((100vw - 1600px) / 2))" }}
+      className="fixed left-0 top-(--mobile-header-height) z-(--z-sticky-header) hidden h-[calc(100dvh-var(--mobile-header-height))] w-66 shrink-0 flex-col overflow-y-auto border-r border-border bg-surface/90 px-3 py-6 backdrop-blur-xl md:flex"
     >
       <Link
         href="/comunidades"

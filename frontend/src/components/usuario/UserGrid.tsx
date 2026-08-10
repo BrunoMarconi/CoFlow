@@ -2,7 +2,13 @@ import UserCard from "./UserCard";
 import EmptyState from "@/components/ui/EmptyState";
 import type { UserPublicProfile } from "@/types/userPublic";
 
-export default function UserGrid({ users }: { users: UserPublicProfile[] }) {
+export default function UserGrid({
+  users,
+  onOpen,
+}: {
+  users: UserPublicProfile[];
+  onOpen: (userId: string) => void;
+}) {
   if (users.length === 0) {
     return (
       <EmptyState
@@ -20,7 +26,7 @@ export default function UserGrid({ users }: { users: UserPublicProfile[] }) {
           className="animate-fade-in-up"
           style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
         >
-          <UserCard user={user} />
+          <UserCard user={user} onOpen={onOpen} />
         </div>
       ))}
     </div>

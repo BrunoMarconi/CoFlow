@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -9,7 +9,12 @@ import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import EmptyState from "@/components/ui/EmptyState";
+import SearchInput from "@/components/ui/SearchInput";
 import Spinner from "@/components/ui/Spinner";
+import {
+  isConversationUnread,
+  markConversationReadNow,
+} from "@/lib/conversationReadState";
 
 // Diferidos: en cada visita solo se muestra uno de los dos a la vez
 // (chat privado o de comunidad), según lo que el usuario seleccione.
@@ -34,6 +39,8 @@ import { getCommunityMessages } from "@/services/communities";
 import type { UserConnection } from "@/types/connection";
 import type { PrivateMessage } from "@/types/privateMessage";
 import type { CommunityMessage } from "@/types/community";
+
+type InboxTab = "all" | "unread" | "groups";
 
 async function loadAcceptedConnectionsWithLastMessages() {
   const data = await getConnections();
@@ -94,6 +101,8 @@ export default function MensajesPage() {
   const [communitySelected, setCommunitySelected] = useState(
     requestedCommunity
   );
+  const [search, setSearch] = useState("");
+  const [tab, setTab] = useState<InboxTab>("all");
 
   const { data: connectionsData, isLoading: loading } = useQuery({
     queryKey: ["connections-with-last-message"],
@@ -104,7 +113,10 @@ export default function MensajesPage() {
     () => connectionsData?.accepted ?? [],
     [connectionsData]
   );
-  const lastMessages = connectionsData?.lastMessages ?? {};
+  const lastMessages = useMemo(
+    () => connectionsData?.lastMessages ?? {},
+    [connectionsData]
+  );
 
   // Deriva la selección "efectiva" en vez de sincronizarla con un efecto:
   // si la selección actual ya no es válida (o no hay ninguna todavía),
@@ -124,6 +136,17 @@ export default function MensajesPage() {
       ),
     enabled: Boolean(community),
   });
+
+  // En escritorio no hay navegación a otra página al abrir un hilo, así
+  // que marcarlo como leído ocurre aquí en vez de en la propia página
+  // de hilo a pantalla completa (que sí lo hace en su propio montaje).
+  useEffect(() => {
+    if (communitySelected && community) {
+      markConversationReadNow("community");
+    } else if (effectiveSelectedId !== null) {
+      markConversationReadNow(`connection:${effectiveSelectedId}`);
+    }
+  }, [communitySelected, community, effectiveSelectedId]);
 
   function selectConnection(id: number) {
     setCommunitySelected(false);
@@ -149,6 +172,50 @@ export default function MensajesPage() {
 
   const { profile: selectedProfile } = usePublicProfile(selectedOther?.id ?? "");
 
+  const communityUnread =
+    Boolean(community) &&
+    Boolean(user) &&
+    isConversationUnread("community", communityLastMessage, user!.id);
+
+  const normalizedSearch = search.trim().toLowerCase();
+
+  const visibleConnections = useMemo(() => {
+    if (!user) return [];
+
+    return connections.filter((connection) => {
+      if (tab === "groups") return false;
+
+      const other = otherParticipant(connection, user.id);
+      const lastMessage = lastMessages[connection.id];
+
+      if (tab === "unread") {
+        const unread = isConversationUnread(
+          `connection:${connection.id}`,
+          lastMessage,
+          user.id
+        );
+        if (!unread) return false;
+      }
+
+      if (normalizedSearch) {
+        const fullName =
+          `${other.first_name} ${other.last_name}`.toLowerCase();
+        if (!fullName.includes(normalizedSearch)) return false;
+      }
+
+      return true;
+    });
+  }, [connections, lastMessages, tab, normalizedSearch, user]);
+
+  const showCommunityRow = tab === "unread" ? communityUnread : true;
+
+  const showCommunitySearchMatch =
+    !normalizedSearch ||
+    Boolean(community?.name.toLowerCase().includes(normalizedSearch));
+
+  const communityVisible =
+    Boolean(community) && showCommunityRow && showCommunitySearchMatch;
+
   if (loading) {
     return (
       <div className="-mx-4 -my-6 flex flex-col border-t border-border sm:-mx-6 lg:-mx-8">
@@ -169,13 +236,21 @@ export default function MensajesPage() {
     );
   }
 
+  const isEmpty = !communityVisible && visibleConnections.length === 0;
+
   return (
     <div className="-mx-4 -my-6 flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] flex-col sm:-mx-6 sm:h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] lg:-mx-8">
       {/* Móvil: solo lista, cada fila navega al hilo a pantalla completa ya existente. */}
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto border-t border-border sm:hidden">
         <InboxHeader />
+        <InboxSearchAndTabs
+          search={search}
+          onSearchChange={setSearch}
+          tab={tab}
+          onTabChange={setTab}
+        />
 
-        {community && (
+        {communityVisible && community && (
           <Link
             href="/mensajes/comunidad"
             className="flex items-center gap-3 border-b border-border bg-mint-50/40 px-4 py-3 transition-colors duration-180 hover:bg-mint-50"
@@ -185,24 +260,36 @@ export default function MensajesPage() {
               name={community.name}
               lastMessage={communityLastMessage}
               badge="Comunidad"
+              unread={communityUnread}
             />
           </Link>
         )}
 
-        {connections.length === 0 ? (
-          !community && (
-            <div className="p-6">
-              <EmptyState
-                title="Todavía no tienes conversaciones"
-                description="Conecta con personas o comunidades para empezar a hablar."
-              />
-            </div>
-          )
+        {isEmpty ? (
+          <div className="p-6">
+            <EmptyState
+              title={
+                tab === "unread"
+                  ? "No tienes conversaciones sin leer"
+                  : "Todavía no tienes conversaciones"
+              }
+              description={
+                tab === "unread"
+                  ? "Vuelve más tarde o revisa todas tus conversaciones."
+                  : "Conecta con personas o comunidades para empezar a hablar."
+              }
+            />
+          </div>
         ) : (
-          connections.map((connection) => {
+          visibleConnections.map((connection) => {
             if (!user) return null;
             const other = otherParticipant(connection, user.id);
             const lastMessage = lastMessages[connection.id];
+            const unread = isConversationUnread(
+              `connection:${connection.id}`,
+              lastMessage,
+              user.id
+            );
 
             return (
               <Link
@@ -217,6 +304,7 @@ export default function MensajesPage() {
                 <ConversationPreview
                   name={`${other.first_name} ${other.last_name}`.trim()}
                   lastMessage={lastMessage}
+                  unread={unread}
                 />
               </Link>
             );
@@ -228,8 +316,14 @@ export default function MensajesPage() {
       <div className="hidden min-h-0 flex-1 border-t border-border sm:grid sm:grid-cols-[340px_1fr]">
         <div className="flex min-h-0 flex-col overflow-y-auto border-r border-border">
           <InboxHeader />
+          <InboxSearchAndTabs
+            search={search}
+            onSearchChange={setSearch}
+            tab={tab}
+            onTabChange={setTab}
+          />
 
-          {community && (
+          {communityVisible && community && (
             <button
               type="button"
               onClick={selectCommunity}
@@ -244,26 +338,38 @@ export default function MensajesPage() {
                 name={community.name}
                 lastMessage={communityLastMessage}
                 badge="Comunidad"
+                unread={communityUnread}
               />
             </button>
           )}
 
-          {connections.length === 0 ? (
-            !community && (
-              <div className="p-6">
-                <EmptyState
-                  title="Todavía no tienes conversaciones"
-                  description="Conecta con personas o comunidades para empezar a hablar."
-                />
-              </div>
-            )
+          {isEmpty ? (
+            <div className="p-6">
+              <EmptyState
+                title={
+                  tab === "unread"
+                    ? "No tienes conversaciones sin leer"
+                    : "Todavía no tienes conversaciones"
+                }
+                description={
+                  tab === "unread"
+                    ? "Vuelve más tarde o revisa todas tus conversaciones."
+                    : "Conecta con personas o comunidades para empezar a hablar."
+                }
+              />
+            </div>
           ) : (
-            connections.map((connection) => {
+            visibleConnections.map((connection) => {
               if (!user) return null;
               const other = otherParticipant(connection, user.id);
               const lastMessage = lastMessages[connection.id];
               const isSelected =
                 !communitySelected && connection.id === effectiveSelectedId;
+              const unread = isConversationUnread(
+                `connection:${connection.id}`,
+                lastMessage,
+                user.id
+              );
 
               return (
                 <button
@@ -283,6 +389,7 @@ export default function MensajesPage() {
                   <ConversationPreview
                     name={`${other.first_name} ${other.last_name}`.trim()}
                     lastMessage={lastMessage}
+                    unread={unread}
                   />
                 </button>
               );
@@ -305,7 +412,8 @@ export default function MensajesPage() {
                   </div>
 
                   <p className="truncate text-xs font-semibold text-muted">
-                    Chat de todos los miembros
+                    {community.member_count}{" "}
+                    {community.member_count === 1 ? "miembro" : "miembros"}
                   </p>
                 </div>
               </div>
@@ -366,13 +474,75 @@ function InboxHeader() {
     <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-4">
       <p className="text-lg font-bold text-brand-dark">Mensajes</p>
 
-      <Link
-        href="/conexiones"
-        className="flex items-center gap-1 text-xs font-bold text-primary-dark transition-colors duration-180 hover:text-brand-dark"
-      >
-        Solicitudes de conexión
-        <ChevronRightIcon className="h-3.5 w-3.5" />
-      </Link>
+      <div className="flex items-center gap-1">
+        <Link
+          href="/conexiones"
+          aria-label="Solicitudes de conexión"
+          title="Solicitudes de conexión"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition hover:bg-surface-soft hover:text-brand-dark"
+        >
+          <ChevronRightIcon className="h-4 w-4" />
+        </Link>
+
+        <Link
+          href="/usuarios"
+          aria-label="Nueva conversación"
+          title="Nueva conversación"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition hover:bg-surface-soft hover:text-brand-dark"
+        >
+          <ComposeIcon />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+const TAB_OPTIONS: { key: InboxTab; label: string }[] = [
+  { key: "all", label: "Todos" },
+  { key: "unread", label: "No leídos" },
+  { key: "groups", label: "Grupos" },
+];
+
+function InboxSearchAndTabs({
+  search,
+  onSearchChange,
+  tab,
+  onTabChange,
+}: {
+  search: string;
+  onSearchChange: (value: string) => void;
+  tab: InboxTab;
+  onTabChange: (value: InboxTab) => void;
+}) {
+  return (
+    <div className="shrink-0 border-b border-border px-4 py-3">
+      <div className="flex h-11 items-center gap-2 rounded-full border border-border bg-surface-soft px-4">
+        <SearchInput
+          bare
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
+          onClear={() => onSearchChange("")}
+          placeholder="Buscar conversaciones"
+        />
+      </div>
+
+      <div className="mt-3 flex gap-2">
+        {TAB_OPTIONS.map((option) => (
+          <button
+            key={option.key}
+            type="button"
+            onClick={() => onTabChange(option.key)}
+            aria-pressed={tab === option.key}
+            className={`h-8 rounded-full px-3.5 text-xs font-bold transition-colors duration-180 ${
+              tab === option.key
+                ? "bg-brand text-white"
+                : "bg-surface-muted text-secondary hover:bg-mint-50 hover:text-primary-dark"
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -427,10 +597,12 @@ function ConversationPreview({
   name,
   lastMessage,
   badge,
+  unread = false,
 }: {
   name: string;
   lastMessage?: PrivateMessage | CommunityMessage | null;
   badge?: string;
+  unread?: boolean;
 }) {
   return (
     <div className="min-w-0 flex-1">
@@ -454,9 +626,37 @@ function ConversationPreview({
         )}
       </div>
 
-      <p className="truncate text-xs text-secondary">
-        {lastMessage ? lastMessage.content : "Todavía no hay mensajes"}
-      </p>
+      <div className="flex items-center justify-between gap-2">
+        <p
+          className={`truncate text-xs ${unread ? "font-bold text-foreground" : "text-secondary"}`}
+        >
+          {lastMessage ? lastMessage.content : "Todavía no hay mensajes"}
+        </p>
+
+        {unread && (
+          <span
+            aria-label="Sin leer"
+            className="h-2 w-2 shrink-0 rounded-full bg-primary"
+          />
+        )}
+      </div>
     </div>
+  );
+}
+
+function ComposeIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4.5 w-4.5"
+      aria-hidden="true"
+    >
+      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+    </svg>
   );
 }

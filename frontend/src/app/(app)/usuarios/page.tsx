@@ -3,17 +3,41 @@
 import { useMemo, useState } from "react";
 import { useUsers } from "@/hooks/useUsers";
 import UserGrid from "@/components/usuario/UserGrid";
+import PersonPreviewPanel from "@/components/usuario/PersonPreviewPanel";
 import PersonasTabs from "@/components/usuario/PersonasTabs";
 import UserFilters, {
   defaultUserFilters,
   isUserFiltersActive,
   type UserFilterState,
 } from "@/components/usuario/UserFilters";
-import PageHeader from "@/components/ui/PageHeader";
 import SectionHeader from "@/components/ui/SectionHeader";
 import SearchInput from "@/components/ui/SearchInput";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
+import type { UserPublicProfile } from "@/types/userPublic";
+
+type QuickFilter = "all" | "looking" | "petFriendly" | "noSmokers";
+
+const QUICK_FILTERS: { key: QuickFilter; label: string }[] = [
+  { key: "all", label: "Todos" },
+  { key: "looking", label: "Buscan piso" },
+  { key: "petFriendly", label: "Pet friendly" },
+  { key: "noSmokers", label: "No fumadores" },
+];
+
+function matchesQuickFilter(user: UserPublicProfile, key: QuickFilter) {
+  switch (key) {
+    case "looking":
+      return user.is_looking_for_roommates && !user.community;
+    case "petFriendly":
+      return user.preferences?.pets === "Me encantan las mascotas";
+    case "noSmokers":
+      return user.preferences?.smoking === "No quiero convivir con fumadores";
+    case "all":
+    default:
+      return true;
+  }
+}
 
 export default function UsuariosPage() {
   const [search, setSearch] = useState("");
@@ -21,6 +45,8 @@ export default function UsuariosPage() {
     defaultUserFilters
   );
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
+  const [openUserId, setOpenUserId] = useState<string | null>(null);
 
   const maxBudget = filters.maxBudget ? Number(filters.maxBudget) : undefined;
 
@@ -33,6 +59,8 @@ export default function UsuariosPage() {
     const normalizedCity = filters.city.trim().toLowerCase();
 
     return users.filter((user) => {
+      if (!matchesQuickFilter(user, quickFilter)) return false;
+
       if (normalizedSearch) {
         const fullName =
           `${user.first_name} ${user.last_name}`.toLowerCase();
@@ -65,14 +93,25 @@ export default function UsuariosPage() {
 
       return true;
     });
-  }, [users, search, filters]);
+  }, [users, search, filters, quickFilter]);
 
   return (
     <div>
-      <PageHeader
-        title="Personas compatibles contigo"
-        subtitle="Conoce gente con una forma de vivir, presupuesto y objetivos parecidos a los tuyos."
-      />
+      <header>
+        <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-brand">
+          <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+          CoFlow · Personas
+        </p>
+
+        <h1 className="mt-2 font-serif text-4xl font-medium leading-[1.1] tracking-[-0.01em] text-brand-dark sm:text-[42px]">
+          Encuentra a tu compañero
+        </h1>
+
+        <p className="mt-3 max-w-lg text-[15px] leading-[1.55] text-secondary sm:text-base">
+          Perfiles de personas que buscan piso como tú. Conecta según
+          estilo de vida, presupuesto y afinidad.
+        </p>
+      </header>
 
       <div className="mt-5">
         <PersonasTabs />
@@ -84,23 +123,41 @@ export default function UsuariosPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           onClear={() => setSearch("")}
-          placeholder="Buscar por nombre o ciudad"
+          placeholder="Buscar por nombre, zona o intereses..."
         />
+      </div>
 
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={() => setFiltersOpen((current) => !current)}
           aria-expanded={filtersOpen}
-          aria-label="Filtros"
-          className={`flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-sm font-bold transition-colors duration-180 sm:px-4 ${
+          aria-label="Más filtros"
+          title="Más filtros"
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-180 ${
             filtersOpen || isUserFiltersActive(filters)
-              ? "bg-mint-100 text-primary-dark"
-              : "text-secondary hover:bg-surface-soft"
+              ? "border-primary/30 bg-mint-100 text-primary-dark"
+              : "border-border bg-surface text-secondary hover:bg-surface-soft"
           }`}
         >
           <FilterIcon />
-          <span className="hidden sm:inline">Filtros</span>
         </button>
+
+        {QUICK_FILTERS.map((option) => (
+          <button
+            key={option.key}
+            type="button"
+            onClick={() => setQuickFilter(option.key)}
+            aria-pressed={quickFilter === option.key}
+            className={`flex h-10 shrink-0 items-center rounded-full px-4 text-sm font-bold transition-colors duration-180 ${
+              quickFilter === option.key
+                ? "bg-brand text-white"
+                : "bg-surface-muted text-secondary hover:bg-mint-50 hover:text-primary-dark"
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
       </div>
 
       {filtersOpen && (
@@ -137,7 +194,7 @@ export default function UsuariosPage() {
           </div>
         ) : (
           <>
-            <UserGrid users={visibleUsers} />
+            <UserGrid users={visibleUsers} onOpen={setOpenUserId} />
 
             {hasMore && (
               <div className="mt-6 flex justify-center">
@@ -149,6 +206,13 @@ export default function UsuariosPage() {
           </>
         )}
       </section>
+
+      {openUserId && (
+        <PersonPreviewPanel
+          userId={openUserId}
+          onClose={() => setOpenUserId(null)}
+        />
+      )}
     </div>
   );
 }

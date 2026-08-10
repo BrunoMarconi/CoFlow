@@ -11,7 +11,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-(--z-sticky-header) border-b border-line bg-surface/85 pt-(--safe-top) backdrop-blur-xl">
-      <div className="mx-auto flex h-18 w-full max-w-[1600px] items-center justify-between px-4 sm:px-6">
+      <div className="mx-auto flex h-18 w-full max-w-[1600px] items-center justify-between px-4 sm:px-6 md:pl-72">
         <div className="flex items-center gap-2">
           <Link
             href="/comunidades"

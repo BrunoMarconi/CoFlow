@@ -17,7 +17,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-dvh bg-background">
       <Navbar />
 
-      <div className="mx-auto flex w-full max-w-[1600px]">
+      <div className="flex w-full">
         <Sidebar />
 
         <main

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import PersonasTabs from "@/components/usuario/PersonasTabs";
 import UserGrid from "@/components/usuario/UserGrid";
+import PersonPreviewPanel from "@/components/usuario/PersonPreviewPanel";
 import Spinner from "@/components/ui/Spinner";
 import EmptyState from "@/components/ui/EmptyState";
 import { getSavedProfiles } from "@/services/users";
@@ -12,6 +13,7 @@ export default function PersonasGuardadasPage() {
   const [profiles, setProfiles] = useState<UserPublicProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [openUserId, setOpenUserId] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -61,9 +63,16 @@ export default function PersonasGuardadasPage() {
             description="Cuando guardes un perfil desde /usuarios, aparecerá aquí para que lo encuentres fácilmente."
           />
         ) : (
-          <UserGrid users={profiles} />
+          <UserGrid users={profiles} onOpen={setOpenUserId} />
         )}
       </div>
+
+      {openUserId && (
+        <PersonPreviewPanel
+          userId={openUserId}
+          onClose={() => setOpenUserId(null)}
+        />
+      )}
     </div>
   );
 }

@@ -2,23 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
+import { useUserConnection } from "@/hooks/useUserConnection";
 import Badge from "@/components/ui/Badge";
 import Spinner from "@/components/ui/Spinner";
 import UserAvatar from "@/components/ui/UserAvatar";
-import { getCommunityErrorMessage } from "@/lib/communityErrors";
-import {
-  createConnectionRequest,
-  saveUserProfile,
-  unsaveUserProfile,
-} from "@/services/users";
-import { deleteConnection } from "@/services/connections";
-import type {
-  PublicUserPreferences,
-  UserConnectionStatusLabel,
-} from "@/types/userPublic";
+import type { PublicUserPreferences } from "@/types/userPublic";
 
 const PREFERENCE_LABELS: Record<keyof PublicUserPreferences, string> = {
   cleanliness: "Limpieza",
@@ -45,91 +35,17 @@ const PREFERENCE_LABELS: Record<keyof PublicUserPreferences, string> = {
 export default function PersonaPublicaPage() {
   const params = useParams<{ id: string }>();
   const { profile, loading, notFound } = usePublicProfile(params.id);
-
-  const [saved, setSaved] = useState(false);
-  const [savingToggle, setSavingToggle] = useState(false);
-
-  const [connectionStatus, setConnectionStatus] =
-    useState<UserConnectionStatusLabel>("NONE");
-  const [connectionId, setConnectionId] = useState<number | null>(null);
-  const [connecting, setConnecting] = useState(false);
-  const [connectionError, setConnectionError] = useState("");
-
-  useEffect(() => {
-    function syncFromProfile() {
-      if (!profile) return;
-
-      setSaved(profile.is_saved);
-      setConnectionStatus(profile.connection_status);
-      setConnectionId(profile.connection_id);
-    }
-
-    syncFromProfile();
-  }, [profile]);
-
-  async function handleToggleSave() {
-    if (!profile || savingToggle) return;
-
-    setSavingToggle(true);
-
-    try {
-      if (saved) {
-        await unsaveUserProfile(profile.id);
-        setSaved(false);
-      } else {
-        await saveUserProfile(profile.id);
-        setSaved(true);
-      }
-    } catch {
-      // Si falla, el usuario puede volver a intentarlo.
-    } finally {
-      setSavingToggle(false);
-    }
-  }
-
-  async function handleConnect() {
-    if (!profile || connecting) return;
-
-    setConnecting(true);
-    setConnectionError("");
-
-    try {
-      const connection = await createConnectionRequest(profile.id);
-      setConnectionStatus("PENDING_SENT");
-      setConnectionId(connection.id);
-    } catch (error) {
-      setConnectionError(
-        getCommunityErrorMessage(
-          error,
-          "No pudimos enviar la solicitud de conexión."
-        )
-      );
-    } finally {
-      setConnecting(false);
-    }
-  }
-
-  async function handleRemoveConnection() {
-    if (!connectionId || connecting) return;
-
-    setConnecting(true);
-    setConnectionError("");
-
-    try {
-      await deleteConnection(connectionId);
-      setConnectionStatus("NONE");
-      setConnectionId(null);
-    } catch (error) {
-      setConnectionError(
-        getCommunityErrorMessage(
-          error,
-          "No pudimos eliminar la conexión."
-        )
-      );
-    } finally {
-      setConnecting(false);
-    }
-  }
+  const {
+    saved,
+    savingToggle,
+    toggleSave: handleToggleSave,
+    connectionStatus,
+    connectionId,
+    connecting,
+    connectionError,
+    connect: handleConnect,
+    removeConnection: handleRemoveConnection,
+  } = useUserConnection(profile);
 
   if (loading) {
     return (
