@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 export interface UserFilterState {
   city: string;
   maxBudget: string;
@@ -100,30 +102,34 @@ export default function UserFilters({
 
         <div className="flex flex-wrap gap-2">
           {COMMUNITY_STATUS_OPTIONS.map((option) => (
-            <button
+            <motion.button
               key={option.value}
               type="button"
               onClick={() => update({ communityStatus: option.value })}
-              className={`min-h-11 rounded-xl border px-4 text-sm font-bold transition ${
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className={`min-h-11 rounded-xl border px-4 text-sm font-bold transition-colors duration-200 ${
                 filters.communityStatus === option.value
                   ? "border-brand bg-brand/10 text-brand-dark"
                   : "border-line bg-surface text-muted hover:border-brand/40"
               }`}
             >
               {option.label}
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
 
       <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-        <button
+        <motion.button
           type="button"
           onClick={onClear}
-          className="flex h-12 w-full items-center justify-center rounded-xl border border-line bg-surface text-sm font-bold text-foreground transition hover:bg-surface-soft sm:w-auto"
+          whileTap={{ scale: 0.96 }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
+          className="flex h-12 w-full items-center justify-center rounded-xl border border-line bg-surface text-sm font-bold text-foreground transition-colors duration-200 hover:bg-surface-soft sm:w-auto"
         >
           Limpiar filtros
-        </button>
+        </motion.button>
 
         <p className="flex h-12 flex-1 items-center justify-center rounded-xl bg-surface-soft text-sm font-bold text-brand-dark sm:justify-start sm:px-4">
           {resultCount}{" "}

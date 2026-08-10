@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, MotionConfig } from "framer-motion";
 import PersonasTabs from "@/components/usuario/PersonasTabs";
 import UserGrid from "@/components/usuario/UserGrid";
 import PersonPreviewPanel from "@/components/usuario/PersonPreviewPanel";
@@ -36,6 +36,7 @@ export default function PersonasGuardadasPage() {
   }, []);
 
   return (
+    <MotionConfig reducedMotion="user">
     <div>
       <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
         Personas
@@ -78,5 +79,6 @@ export default function PersonasGuardadasPage() {
         )}
       </AnimatePresence>
     </div>
+    </MotionConfig>
   );
 }

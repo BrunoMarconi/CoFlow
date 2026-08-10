@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { useUsers } from "@/hooks/useUsers";
 import UserGrid from "@/components/usuario/UserGrid";
 import PersonPreviewPanel from "@/components/usuario/PersonPreviewPanel";
@@ -69,6 +69,7 @@ export default function UsuariosPage() {
   }, [users, search, filters]);
 
   return (
+    <MotionConfig reducedMotion="user">
     <div>
       <div className="sticky top-[calc(var(--safe-top)+4.5rem)] z-(--z-sticky-header) -mx-4 -mt-6 bg-background/85 px-4 pb-3 pt-2 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div className="flex items-center gap-2">
@@ -82,20 +83,22 @@ export default function UsuariosPage() {
             />
           </div>
 
-          <button
+          <motion.button
             type="button"
             onClick={() => setFiltersOpen((current) => !current)}
             aria-expanded={filtersOpen}
             aria-label="Filtros"
             title="Filtros"
-            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border shadow-soft transition-colors duration-180 ${
+            whileTap={{ scale: 0.92 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border shadow-soft transition-colors duration-200 ${
               filtersOpen || isUserFiltersActive(filters)
                 ? "border-primary/30 bg-mint-100 text-primary-dark"
                 : "border-border bg-surface text-secondary hover:bg-surface-soft"
             }`}
           >
             <FilterIcon />
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -162,6 +165,7 @@ export default function UsuariosPage() {
         )}
       </AnimatePresence>
     </div>
+    </MotionConfig>
   );
 }
 

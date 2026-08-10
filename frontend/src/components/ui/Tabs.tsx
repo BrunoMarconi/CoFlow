@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export interface TabItem {
@@ -32,10 +33,18 @@ export default function Tabs({
     >
       {items.map((item) => {
         const tabClassName = cn(
-          "flex h-11 shrink-0 items-center whitespace-nowrap border-b-2 px-1 text-sm font-bold transition-colors duration-180",
+          "relative flex h-11 shrink-0 items-center whitespace-nowrap px-1 text-sm font-bold transition-colors duration-200",
           item.active
-            ? "border-primary text-primary-dark"
-            : "border-transparent text-muted hover:text-foreground"
+            ? "text-primary-dark"
+            : "text-muted hover:text-foreground"
+        );
+
+        const indicator = item.active && (
+          <motion.span
+            layoutId="tabs-active-indicator"
+            transition={{ type: "spring", stiffness: 420, damping: 38 }}
+            className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-primary"
+          />
         );
 
         if (item.href) {
@@ -48,6 +57,7 @@ export default function Tabs({
               className={tabClassName}
             >
               {item.label}
+              {indicator}
             </Link>
           );
         }
@@ -62,6 +72,7 @@ export default function Tabs({
             className={tabClassName}
           >
             {item.label}
+            {indicator}
           </button>
         );
       })}

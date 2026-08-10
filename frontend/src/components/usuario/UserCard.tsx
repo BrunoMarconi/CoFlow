@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { useUserConnection } from "@/hooks/useUserConnection";
 import type { UserPublicProfile } from "@/types/userPublic";
@@ -66,14 +67,17 @@ export default function UserCard({
   }
 
   return (
-    <article
+    <motion.article
       onClick={handleOpen}
       role="button"
       tabIndex={0}
       onKeyDown={(event) => {
         if (event.key === "Enter") handleOpen();
       }}
-      className="flex h-full cursor-pointer flex-col rounded-18 border border-border bg-surface p-4 shadow-soft transition-all duration-180 ease-out sm:p-5 sm:hover:-translate-y-0.5 sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]"
+      whileHover={{ y: -3 }}
+      whileTap={{ scale: 0.985 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className="flex h-full cursor-pointer flex-col rounded-18 border border-border bg-surface p-4 shadow-soft transition-shadow duration-200 ease-out sm:p-5 sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]"
     >
       <div className="flex items-start gap-3">
         <div className="relative shrink-0">
@@ -106,7 +110,14 @@ export default function UserCard({
             </h3>
 
             {user.is_verified && (
-              <VerifiedIcon className="h-4 w-4 shrink-0 text-primary" />
+              <motion.span
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="inline-flex shrink-0"
+              >
+                <VerifiedIcon className="h-4 w-4 text-primary" />
+              </motion.span>
             )}
           </div>
 
@@ -124,9 +135,14 @@ export default function UserCard({
         </div>
 
         {statusLabel && (
-          <span className="shrink-0 rounded-full bg-mint-100 px-2.5 py-1 text-[11px] font-bold text-primary-dark">
+          <motion.span
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="shrink-0 rounded-full bg-mint-100 px-2.5 py-1 text-[11px] font-bold text-primary-dark"
+          >
             {statusLabel}
-          </span>
+          </motion.span>
         )}
       </div>
 
@@ -138,13 +154,20 @@ export default function UserCard({
 
       {traits.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {traits.slice(0, 3).map((trait) => (
-            <span
+          {traits.slice(0, 3).map((trait, index) => (
+            <motion.span
               key={trait}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                duration: 0.2,
+                ease: "easeOut",
+                delay: index * 0.03,
+              }}
               className="inline-flex items-center rounded-full bg-mint-50 px-2.5 py-1 text-[11px] font-bold text-primary-dark"
             >
               {trait}
-            </span>
+            </motion.span>
           ))}
         </div>
       )}
@@ -156,11 +179,13 @@ export default function UserCard({
       </div>
 
       <div className="mt-3 flex items-center gap-2">
-        <button
+        <motion.button
           type="button"
           onClick={handlePrimaryAction}
           disabled={connecting || connectionStatus === "PENDING_SENT"}
-          className="flex h-10 flex-1 items-center justify-center gap-2 rounded-14 bg-brand px-4 text-sm font-bold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
+          whileTap={{ scale: 0.96 }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
+          className="flex h-10 flex-1 items-center justify-center gap-2 rounded-14 bg-brand px-4 text-sm font-bold text-white transition-colors duration-200 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
           <MessageIcon />
           {connectionStatus === "ACCEPTED"
@@ -172,24 +197,32 @@ export default function UserCard({
                 : connecting
                   ? "Enviando..."
                   : "Conectar"}
-        </button>
+        </motion.button>
 
-        <button
+        <motion.button
           type="button"
           onClick={handleSave}
           disabled={savingToggle}
           aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
           aria-pressed={saved}
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-180 disabled:cursor-not-allowed disabled:opacity-60 ${
+          whileTap={{ scale: 0.9 }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
             saved
               ? "border-primary/30 bg-mint-100 text-primary-dark"
               : "border-border bg-surface text-muted hover:border-primary/40"
           }`}
         >
-          <HeartIcon filled={saved} />
-        </button>
+          <motion.span
+            animate={{ scale: saved ? [1, 1.15, 1] : 1 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="inline-flex"
+          >
+            <HeartIcon filled={saved} />
+          </motion.span>
+        </motion.button>
       </div>
-    </article>
+    </motion.article>
   );
 }
 
