@@ -69,22 +69,7 @@ export default function UsuariosPage() {
 
   return (
     <div>
-      <header>
-        <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-brand">
-          <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-          CoFlow · Personas
-        </p>
-
-        <h1 className="mt-2 font-rounded text-4xl font-semibold leading-[1.1] tracking-[-0.01em] text-brand-dark sm:text-[42px]">
-          Encuentra a tu compañero
-        </h1>
-
-        <p className="mt-3 text-[15px] leading-[1.55] text-secondary sm:text-base">
-          Perfiles de personas que buscan piso como tú.
-        </p>
-      </header>
-
-      <div className="mt-7 flex items-center gap-2">
+      <div className="sticky top-[calc(var(--safe-top)+4.5rem)] z-(--z-sticky-header) flex items-center gap-2 py-3">
         <div className="flex h-14 min-w-0 flex-1 items-center rounded-full border border-border bg-surface pl-5 pr-1.5 shadow-soft transition-all duration-180 focus-within:border-primary focus-within:ring-4 focus-within:ring-mint-100">
           <SearchInput
             bare
@@ -121,6 +106,16 @@ export default function UsuariosPage() {
           />
         </div>
       )}
+
+      <header className="mt-7">
+        <h1 className="font-rounded text-4xl font-semibold leading-[1.1] tracking-[-0.01em] text-brand-dark sm:text-[42px]">
+          Encuentra a tu compañero
+        </h1>
+
+        <p className="mt-3 text-[15px] leading-[1.55] text-secondary sm:text-base">
+          Perfiles de personas que buscan piso como tú.
+        </p>
+      </header>
 
       <section className="mt-8">
         <SectionHeader

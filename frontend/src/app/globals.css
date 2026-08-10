@@ -81,6 +81,15 @@
   --font-sans: var(--font-manrope);
   --font-mono: var(--font-geist-mono);
   --font-rounded: var(--font-fredoka);
+
+  /* Toda la app usa font-semibold/font-bold muy libremente (labels,
+     botones, chips...); con el peso por defecto de Tailwind se veía
+     demasiado "gordo". Se baja un escalón cada uno, no se quita el
+     énfasis — Manrope ya carga los pesos 500/600/700 reales, así que
+     esto no cae en negrita sintética del navegador. */
+  --font-weight-semibold: 500;
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 700;
 }
 
 * {
