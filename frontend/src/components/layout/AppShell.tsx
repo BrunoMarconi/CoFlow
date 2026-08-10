@@ -22,7 +22,10 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
         <main
           className={cn(
-            "min-w-0 flex-1 overflow-x-hidden md:ml-66 md:pb-8",
+            // overflow-x-hidden aquí rompería position: sticky en todo
+            // lo que cuelgue de esta rama (buscadores, tabs...) — el
+            // guard de scroll horizontal ya vive en html (globals.css).
+            "min-w-0 flex-1 md:ml-66 md:pb-8",
             // Con un chat a pantalla completa activo en móvil, BottomNavigation
             // se oculta: reservarle espacio dejaría un hueco vacío debajo.
             isChatActive

@@ -176,7 +176,12 @@ export default function SwipeNavigation({
       onTouchEnd={handleTouchEnd}
       className="min-h-full touch-pan-y"
       style={{
-        transform: `translateX(${dragOffset}px)`,
+        // Sin arrastre activo, se omite `transform` del todo (no basta
+        // con translateX(0px)): un transform, aunque sea nulo, crea un
+        // containing block nuevo y rompe `position: sticky` en todo lo
+        // que cuelgue de children (buscadores, tabs...).
+        transform:
+          dragOffset !== 0 ? `translateX(${dragOffset}px)` : undefined,
         opacity: transitioning ? 0.82 : 1,
         transition:
           dragOffset === 0 || transitioning
