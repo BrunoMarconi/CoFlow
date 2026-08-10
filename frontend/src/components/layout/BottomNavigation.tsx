@@ -30,6 +30,8 @@ const LINKS: {
   label: string;
   icon: (props: IconProps) => React.ReactElement;
   isActive: (pathname: string) => boolean;
+  activeBg: string;
+  activeText: string;
 }[] = [
   {
     href: "/comunidades",
@@ -37,6 +39,8 @@ const LINKS: {
     icon: CompassIcon,
     isActive: (pathname) =>
       pathname.startsWith("/comunidades") || pathname.startsWith("/mi-comunidad"),
+    activeBg: "bg-mint-100",
+    activeText: "text-primary-dark",
   },
   {
     href: "/usuarios",
@@ -46,18 +50,24 @@ const LINKS: {
       pathname.startsWith("/usuarios") ||
       (pathname.startsWith("/personas") &&
         !pathname.startsWith("/personas/guardadas")),
+    activeBg: "bg-blue-100",
+    activeText: "text-blue-600",
   },
   {
     href: "/mensajes",
     label: "Mensajes",
     icon: MessageIcon,
     isActive: (pathname) => pathname.startsWith("/mensajes"),
+    activeBg: "bg-amber-100",
+    activeText: "text-amber-600",
   },
   {
     href: "/perfil",
     label: "Perfil",
     icon: ProfileIcon,
     isActive: (pathname) => pathname.startsWith("/perfil"),
+    activeBg: "bg-violet-100",
+    activeText: "text-violet-600",
   },
   {
     href: "/mas",
@@ -65,6 +75,8 @@ const LINKS: {
     icon: MoreIcon,
     isActive: (pathname) =>
       SECONDARY_PREFIXES.some((prefix) => pathname.startsWith(prefix)),
+    activeBg: "bg-slate-200",
+    activeText: "text-slate-600",
   },
 ];
 
@@ -119,18 +131,23 @@ export default function BottomNavigation() {
               transitionTypes={getTabTransitionTypes(pathname, link.href)}
               className="relative flex flex-1 flex-col items-center justify-center gap-0.5 px-1 transition active:scale-95 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
             >
-              <span className="relative">
+              <span
+                className={cn(
+                  "relative flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-180",
+                  active && link.activeBg
+                )}
+              >
                 <Icon
                   className={cn(
                     "h-5 w-5 shrink-0",
-                    active ? "text-brand-dark" : "text-muted"
+                    active ? link.activeText : "text-muted"
                   )}
                 />
 
                 {link.href === "/mensajes" && hasUnreadMessages && (
                   <span
                     aria-hidden="true"
-                    className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary ring-2 ring-white/80"
+                    className="absolute right-0 top-0 h-2 w-2 rounded-full bg-primary ring-2 ring-white/80"
                   />
                 )}
               </span>

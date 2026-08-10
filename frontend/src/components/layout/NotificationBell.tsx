@@ -110,7 +110,11 @@ export default function NotificationBell() {
         onClick={() => setOpen((current) => !current)}
         aria-label="Notificaciones"
         aria-expanded={open}
-        className="relative flex h-11 w-11 items-center justify-center rounded-xl text-muted transition hover:bg-surface-soft hover:text-brand-dark active:scale-95"
+        className={`relative flex h-11 w-11 items-center justify-center rounded-full transition active:scale-95 ${
+          unreadCount > 0
+            ? "bg-amber-100 text-amber-600 hover:bg-amber-200"
+            : "text-muted hover:bg-surface-soft hover:text-brand-dark"
+        }`}
       >
         <BellIcon />
 
