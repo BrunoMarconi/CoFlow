@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, ViewTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -10,6 +10,7 @@ import PrivateChat from "@/components/mensajes/PrivateChat";
 import { getConnections } from "@/services/connections";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { markConversationReadNow } from "@/lib/conversationReadState";
+import { NAV_TRANSITION } from "@/lib/navTransition";
 import type { UserConnection } from "@/types/connection";
 
 export default function MensajesPage() {
@@ -115,11 +116,13 @@ export default function MensajesPage() {
     .toUpperCase();
 
   return (
+    <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
     <div className="mx-auto flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top)-var(--safe-bottom))] w-full max-w-3xl flex-col sm:h-auto sm:block">
       <div className="mb-3 flex shrink-0 items-center gap-3 sm:mb-4">
         <Link
           href="/mensajes"
           aria-label="Volver a mensajes"
+          transitionTypes={["nav-back"]}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted transition hover:bg-surface-soft hover:text-brand-dark"
         >
           <ArrowLeftIcon />
@@ -164,6 +167,7 @@ export default function MensajesPage() {
         />
       </div>
     </div>
+    </ViewTransition>
   );
 }
 

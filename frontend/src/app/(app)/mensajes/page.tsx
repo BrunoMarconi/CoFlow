@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, ViewTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -15,6 +15,7 @@ import {
   isConversationUnread,
   markConversationReadNow,
 } from "@/lib/conversationReadState";
+import { NAV_TRANSITION } from "@/lib/navTransition";
 
 // Diferidos: en cada visita solo se muestra uno de los dos a la vez
 // (chat privado o de comunidad), según lo que el usuario seleccione.
@@ -241,6 +242,7 @@ export default function MensajesPage() {
   return (
     <div className="-mx-4 -my-6 flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] flex-col sm:-mx-6 sm:h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] lg:-mx-8">
       {/* Móvil: solo lista, cada fila navega al hilo a pantalla completa ya existente. */}
+      <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto border-t border-border sm:hidden">
         <InboxHeader />
         <InboxSearchAndTabs
@@ -253,6 +255,7 @@ export default function MensajesPage() {
         {communityVisible && community && (
           <Link
             href="/mensajes/comunidad"
+            transitionTypes={["nav-forward"]}
             className="flex items-center gap-3 border-b border-border bg-mint-50/40 px-4 py-3 transition-colors duration-180 hover:bg-mint-50"
           >
             <CommunityAvatar />
@@ -295,6 +298,7 @@ export default function MensajesPage() {
               <Link
                 key={connection.id}
                 href={`/mensajes/${connection.id}`}
+                transitionTypes={["nav-forward"]}
                 className="flex items-center gap-3 border-b border-border px-4 py-3 transition-colors duration-180 hover:bg-surface-soft"
               >
                 <ConversationAvatar
@@ -311,6 +315,7 @@ export default function MensajesPage() {
           })
         )}
       </div>
+      </ViewTransition>
 
       {/* Escritorio/tablet: bandeja de dos columnas, selección en el sitio. */}
       <div className="hidden min-h-0 flex-1 border-t border-border sm:grid sm:grid-cols-[340px_1fr]">

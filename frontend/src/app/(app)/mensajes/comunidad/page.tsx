@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, ViewTransition } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
@@ -8,6 +8,7 @@ import CommunityChat from "@/components/comunidad/CommunityChat";
 import { HomeIcon } from "@/components/layout/NavIcons";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { markConversationReadNow } from "@/lib/conversationReadState";
+import { NAV_TRANSITION } from "@/lib/navTransition";
 
 export default function MensajesComunidadPage() {
   const { user, community, communityLoading } = useAuth();
@@ -56,11 +57,13 @@ export default function MensajesComunidadPage() {
   }
 
   return (
+    <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
     <div className="mx-auto flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top)-var(--safe-bottom))] w-full max-w-3xl flex-col sm:h-auto sm:block">
       <div className="mb-3 flex shrink-0 items-center gap-3 sm:mb-4">
         <Link
           href="/mensajes"
           aria-label="Volver a mensajes"
+          transitionTypes={["nav-back"]}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted transition hover:bg-surface-soft hover:text-brand-dark"
         >
           <ArrowLeftIcon />
@@ -100,6 +103,7 @@ export default function MensajesComunidadPage() {
         />
       </div>
     </div>
+    </ViewTransition>
   );
 }
 

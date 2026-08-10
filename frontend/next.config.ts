@@ -8,6 +8,12 @@ import type { NextConfig } from "next";
 const r2CustomHostname = process.env.NEXT_PUBLIC_R2_PUBLIC_HOSTNAME;
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Transición nativa (View Transitions API) al entrar/salir de un
+    // chat en móvil — ver globals.css (.nav-forward/.nav-back) y
+    // frontend/src/app/(app)/mensajes/.
+    viewTransition: true,
+  },
   images: {
     remotePatterns: [
       { protocol: "http", hostname: "127.0.0.1", port: "8000" },

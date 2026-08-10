@@ -10,12 +10,12 @@ export default function Navbar() {
   const { user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-(--z-sticky-header) border-b border-line bg-surface/85 pt-(--safe-top) backdrop-blur-xl">
+    <header className="sticky top-0 z-(--z-sticky-header) pt-(--safe-top)">
       <div className="mx-auto flex h-18 w-full max-w-[1600px] items-center justify-between px-4 sm:px-6 md:pl-72">
         <div className="flex items-center gap-2">
           <Link
             href="/comunidades"
-            className="flex items-center gap-2 md:hidden"
+            className="flex items-center gap-2 rounded-full bg-surface/90 px-3 py-2 shadow-soft backdrop-blur-xl md:hidden"
             aria-label="CoFlow"
           >
             <Logo size="sm" />
@@ -28,12 +28,14 @@ export default function Navbar() {
 
         {user && (
           <div className="flex items-center gap-2 sm:gap-3">
-            <NotificationBell />
+            <div className="rounded-full bg-surface/90 shadow-soft backdrop-blur-xl">
+              <NotificationBell />
+            </div>
 
             <Link
               href="/perfil"
               aria-label="Abrir perfil"
-              className="flex h-11 w-11 items-center justify-center"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-surface/90 shadow-soft backdrop-blur-xl"
             >
               <Avatar
                 name={`${user.first_name} ${user.last_name}`}
