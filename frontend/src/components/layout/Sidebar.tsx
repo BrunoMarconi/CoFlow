@@ -7,16 +7,24 @@ import { useAuth } from "@/hooks/useAuth";
 import Avatar from "@/components/ui/Avatar";
 import Logo from "@/components/ui/Logo";
 import {
+  BookmarkIcon,
+  CompassIcon,
+  KeyIcon,
   LogoutIcon,
+  MessageIcon,
   PlusIcon,
+  ProfileIcon,
+  SettingsIcon,
+  UsersIcon,
+  HomeIcon,
+  type IconProps,
 } from "@/components/layout/NavIcons";
-import Icon3D from "@/components/layout/Icon3D";
 import { getTabTransitionTypes } from "@/lib/navTransition";
 
 type NavLink = {
   href: string;
   label: string;
-  icon3d?: string;
+  icon: (props: IconProps) => React.ReactElement;
 };
 
 export default function Sidebar() {
@@ -25,60 +33,39 @@ export default function Sidebar() {
 
   const principalLinks: NavLink[] = [
     ...(community
-      ? [
-          {
-            href: "/mi-comunidad",
-            label: "Tu comunidad",
-            icon3d: "/icons/3d/house.png",
-          },
-        ]
+      ? [{ href: "/mi-comunidad", label: "Tu comunidad", icon: HomeIcon }]
       : []),
     {
       href: "/comunidades",
       label: community ? "Explorar" : "Explorar comunidades",
-      icon3d: "/icons/3d/compass.png",
+      icon: CompassIcon,
     },
-    {
-      href: "/usuarios",
-      label: "Personas",
-      icon3d: "/icons/3d/busts-in-silhouette.png",
-    },
-    {
-      href: "/mensajes",
-      label: "Mensajes",
-      icon3d: "/icons/3d/speech-balloon.png",
-    },
+    { href: "/usuarios", label: "Personas", icon: UsersIcon },
+    { href: "/mensajes", label: "Mensajes", icon: MessageIcon },
     {
       href: "/personas/guardadas",
       label: "Guardados",
-      icon3d: "/icons/3d/bookmark.png",
+      icon: BookmarkIcon,
     },
     ...(!community
       ? [
           {
             href: "/crear/comunidad",
             label: "Crear comunidad",
+            icon: PlusIcon,
           },
         ]
       : []),
   ];
 
   const accountLinks: NavLink[] = [
-    {
-      href: "/perfil",
-      label: "Mi perfil",
-      icon3d: "/icons/3d/bust-in-silhouette.png",
-    },
+    { href: "/perfil", label: "Mi perfil", icon: ProfileIcon },
     {
       href: ownerProfile ? "/propietarios" : "/propietarios/perfil",
       label: "Publicar un piso",
-      icon3d: "/icons/3d/key.png",
+      icon: KeyIcon,
     },
-    {
-      href: "/ajustes",
-      label: "Ajustes",
-      icon3d: "/icons/3d/gear.png",
-    },
+    { href: "/ajustes", label: "Ajustes", icon: SettingsIcon },
   ];
 
   function isActive(href: string) {
@@ -203,30 +190,26 @@ function SidebarLink({
   active: boolean;
   transitionTypes?: string[];
 }) {
+  const Icon = link.icon;
+
   return (
     <Link
       href={link.href}
       aria-current={active ? "page" : undefined}
       transitionTypes={transitionTypes}
       className={cn(
-        "flex items-center gap-3 rounded-10 px-3 py-2 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+        "flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
         active
           ? "bg-mint-50 text-primary-dark"
           : "text-muted hover:bg-surface-soft hover:text-foreground"
       )}
     >
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center">
-        {link.icon3d ? (
-          <Icon3D src={link.icon3d} active={active} size={26} />
-        ) : (
-          <PlusIcon
-            className={cn(
-              "h-5 w-5 shrink-0",
-              active ? "text-primary" : "text-muted"
-            )}
-          />
+      <Icon
+        className={cn(
+          "h-5 w-5 shrink-0",
+          active ? "text-primary" : "text-muted"
         )}
-      </span>
+      />
       <span className="truncate">{link.label}</span>
     </Link>
   );

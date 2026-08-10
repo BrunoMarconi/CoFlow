@@ -113,11 +113,7 @@ export default function NotificationBell() {
         aria-expanded={open}
         className="relative flex h-11 w-11 items-center justify-center rounded-full transition hover:bg-surface-soft active:scale-95"
       >
-        <Icon3D
-          src="/icons/3d/bell.png"
-          active={unreadCount > 0}
-          size={26}
-        />
+        <Icon3D src="/icons/3d/bell.png" active size={28} />
 
         {unreadCount > 0 && (
           <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">

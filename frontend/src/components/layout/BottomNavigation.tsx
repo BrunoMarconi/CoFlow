@@ -8,8 +8,14 @@ import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { useKeyboardVisible } from "@/hooks/useKeyboardVisible";
 import { getNotifications } from "@/services/notifications";
 import { getTabTransitionTypes } from "@/lib/navTransition";
-import { MoreIcon } from "@/components/layout/NavIcons";
-import Icon3D from "@/components/layout/Icon3D";
+import {
+  CompassIcon,
+  UsersIcon,
+  MessageIcon,
+  ProfileIcon,
+  MoreIcon,
+  type IconProps,
+} from "@/components/layout/NavIcons";
 
 const SECONDARY_PREFIXES = [
   "/mas",
@@ -22,20 +28,20 @@ const SECONDARY_PREFIXES = [
 const LINKS: {
   href: string;
   label: string;
-  icon3d?: string;
+  icon: (props: IconProps) => React.ReactElement;
   isActive: (pathname: string) => boolean;
 }[] = [
   {
     href: "/comunidades",
     label: "Explorar",
-    icon3d: "/icons/3d/compass.png",
+    icon: CompassIcon,
     isActive: (pathname) =>
       pathname.startsWith("/comunidades") || pathname.startsWith("/mi-comunidad"),
   },
   {
     href: "/usuarios",
     label: "Personas",
-    icon3d: "/icons/3d/busts-in-silhouette.png",
+    icon: UsersIcon,
     isActive: (pathname) =>
       pathname.startsWith("/usuarios") ||
       (pathname.startsWith("/personas") &&
@@ -44,18 +50,19 @@ const LINKS: {
   {
     href: "/mensajes",
     label: "Mensajes",
-    icon3d: "/icons/3d/speech-balloon.png",
+    icon: MessageIcon,
     isActive: (pathname) => pathname.startsWith("/mensajes"),
   },
   {
     href: "/perfil",
     label: "Perfil",
-    icon3d: "/icons/3d/bust-in-silhouette.png",
+    icon: ProfileIcon,
     isActive: (pathname) => pathname.startsWith("/perfil"),
   },
   {
     href: "/mas",
     label: "Más",
+    icon: MoreIcon,
     isActive: (pathname) =>
       SECONDARY_PREFIXES.some((prefix) => pathname.startsWith(prefix)),
   },
@@ -102,6 +109,7 @@ export default function BottomNavigation() {
       <div className="nav-glass mx-auto flex h-16 max-w-md items-stretch rounded-full">
         {LINKS.map((link) => {
           const active = link.isActive(pathname);
+          const Icon = link.icon;
 
           return (
             <Link
@@ -111,22 +119,18 @@ export default function BottomNavigation() {
               transitionTypes={getTabTransitionTypes(pathname, link.href)}
               className="relative flex flex-1 flex-col items-center justify-center gap-0.5 px-1 transition active:scale-95 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
             >
-              <span className="relative flex h-7 w-7 items-center justify-center">
-                {link.icon3d ? (
-                  <Icon3D src={link.icon3d} active={active} size={26} />
-                ) : (
-                  <MoreIcon
-                    className={cn(
-                      "h-5 w-5 shrink-0",
-                      active ? "text-brand-dark" : "text-muted"
-                    )}
-                  />
-                )}
+              <span className="relative">
+                <Icon
+                  className={cn(
+                    "h-5 w-5 shrink-0",
+                    active ? "text-brand-dark" : "text-muted"
+                  )}
+                />
 
                 {link.href === "/mensajes" && hasUnreadMessages && (
                   <span
                     aria-hidden="true"
-                    className="absolute right-0 top-0 h-2 w-2 rounded-full bg-primary ring-2 ring-white/80"
+                    className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary ring-2 ring-white/80"
                   />
                 )}
               </span>
