@@ -87,10 +87,10 @@ export default function CommunityCover({
                 lastName={member.lastName}
                 userId={member.id}
                 imageUrl={member.imageUrl}
-                size={index === centerIndex ? "lg" : "md"}
+                size={index === centerIndex ? "xl" : "lg"}
                 className={cn(
                   "border-[3px] border-white shadow-[0_4px_10px_-4px_rgb(0_0_0/0.25)]",
-                  index !== 0 && "-ml-3.5",
+                  index !== 0 && "-ml-5",
                   index === centerIndex && "z-10"
                 )}
               />
@@ -99,7 +99,7 @@ export default function CommunityCover({
             {extra > 0 && (
               <div
                 className={cn(
-                  "-ml-3.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-[3px] border-white text-xs font-bold shadow-[0_4px_10px_-4px_rgb(0_0_0/0.25)]",
+                  "-ml-5 flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-[3px] border-white text-sm font-bold shadow-[0_4px_10px_-4px_rgb(0_0_0/0.25)]",
                   dark
                     ? "bg-white/20 text-white"
                     : "bg-white/70 text-foreground"
