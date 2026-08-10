@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
+import { motion, MotionConfig } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import EmptyState from "@/components/ui/EmptyState";
@@ -42,6 +43,17 @@ import type { PrivateMessage } from "@/types/privateMessage";
 import type { CommunityMessage } from "@/types/community";
 
 type InboxTab = "all" | "unread" | "groups";
+
+const MotionLink = motion.create(Link);
+
+const rowVariants = {
+  hidden: { opacity: 0, y: 6 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.2, ease: "easeOut" as const },
+  },
+};
 
 async function loadAcceptedConnectionsWithLastMessages() {
   const data = await getConnections();
@@ -224,7 +236,7 @@ export default function MensajesPage() {
         {Array.from({ length: 5 }).map((_, index) => (
           <div
             key={index}
-            className="flex animate-pulse items-center gap-3 border-b border-border px-4 py-3"
+            className="flex animate-pulse items-center gap-3 border-b border-border/60 px-4 py-3"
           >
             <div className="h-11 w-11 shrink-0 rounded-full bg-surface-soft" />
             <div className="min-w-0 flex-1 space-y-2">
@@ -240,6 +252,7 @@ export default function MensajesPage() {
   const isEmpty = !communityVisible && visibleConnections.length === 0;
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="-mx-4 -my-6 flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] flex-col sm:-mx-6 sm:h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] lg:-mx-8">
       {/* Móvil: solo lista, cada fila navega al hilo a pantalla completa ya existente. */}
       <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
@@ -250,13 +263,19 @@ export default function MensajesPage() {
           onSearchChange={setSearch}
           tab={tab}
           onTabChange={setTab}
+          layoutIdPrefix="mobile"
         />
 
         {communityVisible && community && (
-          <Link
+          <MotionLink
             href="/mensajes/comunidad"
             transitionTypes={["nav-forward"]}
-            className="flex items-center gap-3 border-b border-border bg-mint-50/40 px-4 py-3 transition-colors duration-180 hover:bg-mint-50"
+            variants={rowVariants}
+            initial="hidden"
+            animate="show"
+            whileTap={{ scale: 0.985 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="flex items-center gap-3 px-4 py-3.5 transition-colors duration-200 hover:bg-mint-50/60"
           >
             <CommunityAvatar />
             <ConversationPreview
@@ -264,8 +283,15 @@ export default function MensajesPage() {
               lastMessage={communityLastMessage}
               badge="Comunidad"
               unread={communityUnread}
+              lastMessageAuthorLabel={
+                communityLastMessage
+                  ? communityLastMessage.sender.id === user?.id
+                    ? "Tú"
+                    : communityLastMessage.sender.first_name
+                  : undefined
+              }
             />
-          </Link>
+          </MotionLink>
         )}
 
         {isEmpty ? (
@@ -284,7 +310,7 @@ export default function MensajesPage() {
             />
           </div>
         ) : (
-          visibleConnections.map((connection) => {
+          visibleConnections.map((connection, index) => {
             if (!user) return null;
             const other = otherParticipant(connection, user.id);
             const lastMessage = lastMessages[connection.id];
@@ -295,11 +321,20 @@ export default function MensajesPage() {
             );
 
             return (
-              <Link
+              <MotionLink
                 key={connection.id}
                 href={`/mensajes/${connection.id}`}
                 transitionTypes={["nav-forward"]}
-                className="flex items-center gap-3 border-b border-border px-4 py-3 transition-colors duration-180 hover:bg-surface-soft"
+                variants={rowVariants}
+                initial="hidden"
+                animate="show"
+                transition={{
+                  duration: 0.2,
+                  ease: "easeOut",
+                  delay: Math.min(index, 8) * 0.02,
+                }}
+                whileTap={{ scale: 0.985 }}
+                className="flex items-center gap-3 px-4 py-3.5 transition-colors duration-200 hover:bg-surface-soft"
               >
                 <ConversationAvatar
                   initials={initialsOf(other.first_name, other.last_name)}
@@ -309,8 +344,13 @@ export default function MensajesPage() {
                   name={`${other.first_name} ${other.last_name}`.trim()}
                   lastMessage={lastMessage}
                   unread={unread}
+                  lastMessageAuthorLabel={
+                    lastMessage && lastMessage.sender.id === user.id
+                      ? "Tú"
+                      : undefined
+                  }
                 />
-              </Link>
+              </MotionLink>
             );
           })
         )}
@@ -326,13 +366,20 @@ export default function MensajesPage() {
             onSearchChange={setSearch}
             tab={tab}
             onTabChange={setTab}
+            layoutIdPrefix="desktop"
           />
 
           {communityVisible && community && (
-            <button
+            <motion.button
               type="button"
               onClick={selectCommunity}
-              className={`flex items-center gap-3 border-l-[3px] px-4 py-3 text-left transition-colors duration-180 ${
+              variants={rowVariants}
+              initial="hidden"
+              animate="show"
+              whileHover={{ x: 2 }}
+              whileTap={{ scale: 0.99 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className={`flex items-center gap-3 border-l-[3px] px-4 py-3.5 text-left transition-colors duration-200 ${
                 communitySelected
                   ? "border-primary bg-mint-50"
                   : "border-transparent hover:bg-surface-soft"
@@ -344,8 +391,15 @@ export default function MensajesPage() {
                 lastMessage={communityLastMessage}
                 badge="Comunidad"
                 unread={communityUnread}
+                lastMessageAuthorLabel={
+                  communityLastMessage
+                    ? communityLastMessage.sender.id === user?.id
+                      ? "Tú"
+                      : communityLastMessage.sender.first_name
+                    : undefined
+                }
               />
-            </button>
+            </motion.button>
           )}
 
           {isEmpty ? (
@@ -364,7 +418,7 @@ export default function MensajesPage() {
               />
             </div>
           ) : (
-            visibleConnections.map((connection) => {
+            visibleConnections.map((connection, index) => {
               if (!user) return null;
               const other = otherParticipant(connection, user.id);
               const lastMessage = lastMessages[connection.id];
@@ -377,11 +431,21 @@ export default function MensajesPage() {
               );
 
               return (
-                <button
+                <motion.button
                   key={connection.id}
                   type="button"
                   onClick={() => selectConnection(connection.id)}
-                  className={`flex items-center gap-3 border-l-[3px] px-4 py-3 text-left transition-colors duration-180 ${
+                  variants={rowVariants}
+                  initial="hidden"
+                  animate="show"
+                  transition={{
+                    duration: 0.2,
+                    ease: "easeOut",
+                    delay: Math.min(index, 8) * 0.02,
+                  }}
+                  whileHover={{ x: 2 }}
+                  whileTap={{ scale: 0.99 }}
+                  className={`flex items-center gap-3 border-l-[3px] px-4 py-3.5 text-left transition-colors duration-200 ${
                     isSelected
                       ? "border-primary bg-mint-50"
                       : "border-transparent hover:bg-surface-soft"
@@ -395,8 +459,13 @@ export default function MensajesPage() {
                     name={`${other.first_name} ${other.last_name}`.trim()}
                     lastMessage={lastMessage}
                     unread={unread}
+                    lastMessageAuthorLabel={
+                      lastMessage && lastMessage.sender.id === user.id
+                        ? "Tú"
+                        : undefined
+                    }
                   />
-                </button>
+                </motion.button>
               );
             })
           )}
@@ -405,7 +474,7 @@ export default function MensajesPage() {
         <div className="flex min-h-0 flex-col">
           {communitySelected && community && user ? (
             <>
-              <div className="flex shrink-0 items-center gap-3 border-b border-border px-5 py-4">
+              <div className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4">
                 <CommunityAvatar />
 
                 <div className="min-w-0">
@@ -437,7 +506,7 @@ export default function MensajesPage() {
             </div>
           ) : (
             <>
-              <div className="flex shrink-0 items-center gap-3 border-b border-border px-5 py-4">
+              <div className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4">
                 <ConversationAvatar
                   initials={initialsOf(
                     selectedOther.first_name,
@@ -471,32 +540,37 @@ export default function MensajesPage() {
         </div>
       </div>
     </div>
+    </MotionConfig>
   );
 }
 
 function InboxHeader() {
   return (
-    <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-4">
+    <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-4 py-4">
       <p className="text-lg font-bold text-brand-dark">Mensajes</p>
 
       <div className="flex items-center gap-1">
-        <Link
-          href="/conexiones"
-          aria-label="Solicitudes de conexión"
-          title="Solicitudes de conexión"
-          className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition hover:bg-surface-soft hover:text-brand-dark"
-        >
-          <ChevronRightIcon className="h-4 w-4" />
-        </Link>
+        <motion.div whileTap={{ scale: 0.9 }} transition={{ duration: 0.15 }}>
+          <Link
+            href="/conexiones"
+            aria-label="Solicitudes de conexión"
+            title="Solicitudes de conexión"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors duration-200 hover:bg-surface-soft hover:text-brand-dark"
+          >
+            <ChevronRightIcon className="h-4 w-4" />
+          </Link>
+        </motion.div>
 
-        <Link
-          href="/usuarios"
-          aria-label="Nueva conversación"
-          title="Nueva conversación"
-          className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition hover:bg-surface-soft hover:text-brand-dark"
-        >
-          <ComposeIcon />
-        </Link>
+        <motion.div whileTap={{ scale: 0.9 }} transition={{ duration: 0.15 }}>
+          <Link
+            href="/usuarios"
+            aria-label="Nueva conversación"
+            title="Nueva conversación"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-mint-50 text-primary-dark transition-colors duration-200 hover:bg-mint-100"
+          >
+            <ComposeIcon />
+          </Link>
+        </motion.div>
       </div>
     </div>
   );
@@ -505,7 +579,7 @@ function InboxHeader() {
 const TAB_OPTIONS: { key: InboxTab; label: string }[] = [
   { key: "all", label: "Todos" },
   { key: "unread", label: "No leídos" },
-  { key: "groups", label: "Grupos" },
+  { key: "groups", label: "Comunidades" },
 ];
 
 function InboxSearchAndTabs({
@@ -513,15 +587,17 @@ function InboxSearchAndTabs({
   onSearchChange,
   tab,
   onTabChange,
+  layoutIdPrefix,
 }: {
   search: string;
   onSearchChange: (value: string) => void;
   tab: InboxTab;
   onTabChange: (value: InboxTab) => void;
+  layoutIdPrefix: string;
 }) {
   return (
-    <div className="shrink-0 border-b border-border px-4 py-3">
-      <div className="flex h-11 items-center gap-2 rounded-full border border-border bg-surface-soft px-4">
+    <div className="shrink-0 border-b border-border/60 px-4 py-3">
+      <div className="flex h-10 items-center gap-2 rounded-full bg-mint-50/50 px-4 transition-colors duration-200 focus-within:bg-mint-50">
         <SearchInput
           bare
           value={search}
@@ -531,20 +607,32 @@ function InboxSearchAndTabs({
         />
       </div>
 
-      <div className="mt-3 flex gap-2">
+      <div className="mt-3 flex gap-1 rounded-full bg-surface-muted p-1">
         {TAB_OPTIONS.map((option) => (
           <button
             key={option.key}
             type="button"
             onClick={() => onTabChange(option.key)}
             aria-pressed={tab === option.key}
-            className={`h-8 rounded-full px-3.5 text-xs font-bold transition-colors duration-180 ${
-              tab === option.key
-                ? "bg-brand text-white"
-                : "bg-surface-muted text-secondary hover:bg-mint-50 hover:text-primary-dark"
-            }`}
+            className="relative h-8 flex-1 rounded-full px-3 text-xs font-bold"
           >
-            {option.label}
+            {tab === option.key && (
+              <motion.span
+                layoutId={`${layoutIdPrefix}-inbox-tab-pill`}
+                transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                className="absolute inset-0 rounded-full bg-brand-dark"
+              />
+            )}
+
+            <span
+              className={`relative transition-colors duration-200 ${
+                tab === option.key
+                  ? "text-white"
+                  : "text-secondary hover:text-primary-dark"
+              }`}
+            >
+              {option.label}
+            </span>
           </button>
         ))}
       </div>
@@ -603,17 +691,23 @@ function ConversationPreview({
   lastMessage,
   badge,
   unread = false,
+  lastMessageAuthorLabel,
 }: {
   name: string;
   lastMessage?: PrivateMessage | CommunityMessage | null;
   badge?: string;
   unread?: boolean;
+  lastMessageAuthorLabel?: string;
 }) {
   return (
     <div className="min-w-0 flex-1">
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-1.5">
-          <p className="truncate text-sm font-bold text-foreground">
+          <p
+            className={`truncate text-sm ${
+              unread ? "font-semibold text-foreground" : "font-medium text-secondary"
+            }`}
+          >
             {name || "Persona de CoFlow"}
           </p>
 
@@ -625,22 +719,42 @@ function ConversationPreview({
         </div>
 
         {lastMessage && (
-          <span className="shrink-0 text-[11px] font-semibold text-muted">
+          <span className="shrink-0 text-[11px] font-medium text-muted">
             {formatPreviewTime(lastMessage.created_at)}
           </span>
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-2">
+      <div className="mt-0.5 flex items-center justify-between gap-2">
         <p
-          className={`truncate text-xs ${unread ? "font-bold text-foreground" : "text-secondary"}`}
+          className={`truncate text-xs ${unread ? "font-semibold text-foreground" : "text-muted"}`}
         >
-          {lastMessage ? lastMessage.content : "Todavía no hay mensajes"}
+          {lastMessage ? (
+            <>
+              {lastMessageAuthorLabel && (
+                <span
+                  className={
+                    lastMessageAuthorLabel === "Tú"
+                      ? "text-secondary"
+                      : "text-primary-dark"
+                  }
+                >
+                  {lastMessageAuthorLabel}:{" "}
+                </span>
+              )}
+              {lastMessage.content}
+            </>
+          ) : (
+            "Todavía no hay mensajes"
+          )}
         </p>
 
         {unread && (
-          <span
+          <motion.span
             aria-label="Sin leer"
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             className="h-2 w-2 shrink-0 rounded-full bg-primary"
           />
         )}
