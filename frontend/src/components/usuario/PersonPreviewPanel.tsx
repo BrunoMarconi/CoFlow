@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import UserAvatar from "@/components/ui/UserAvatar";
 import Spinner from "@/components/ui/Spinner";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { useUserConnection } from "@/hooks/useUserConnection";
+import { cn } from "@/lib/utils";
 
 const TAG_KEYS = [
   "lifestyle",
@@ -46,9 +47,25 @@ export default function PersonPreviewPanel({
     removeConnection,
   } = useUserConnection(profile);
 
+  const [entered, setEntered] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  function handleClose() {
+    if (closing) return;
+    setClosing(true);
+    window.setTimeout(onClose, 280);
+  }
+
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") handleClose();
     }
 
     document.addEventListener("keydown", handleKeyDown);
@@ -58,10 +75,24 @@ export default function PersonPreviewPanel({
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function expandToFullScreen() {
+    if (!expanded) setExpanded(true);
+  }
 
   const fullName = profile
     ? `${profile.first_name} ${profile.last_name}`.trim()
+    : "";
+
+  const metaLine = profile
+    ? [
+        profile.age !== null ? `${profile.age} años` : null,
+        profile.community?.city ?? null,
+      ]
+        .filter(Boolean)
+        .join(" · ")
     : "";
 
   const budgetLabel = profile?.rental_budget
@@ -79,18 +110,30 @@ export default function PersonPreviewPanel({
     : [];
 
   return (
-    <div className="fixed inset-0 z-(--z-modal) flex justify-end">
+    <div className="fixed inset-0 z-(--z-modal) flex items-end justify-center sm:items-center">
       <button
         type="button"
         aria-label="Cerrar"
-        onClick={onClose}
+        onClick={handleClose}
         className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
       />
 
-      <div className="relative flex h-full w-full max-w-[480px] flex-col overflow-y-auto bg-surface shadow-2xl animate-fade-in-up sm:rounded-l-24">
+      <div
+        className={cn(
+          "relative flex w-full flex-col overflow-hidden bg-surface shadow-2xl transition-transform duration-300 ease-out sm:max-w-lg sm:rounded-24",
+          expanded
+            ? "h-dvh rounded-t-none sm:h-[85dvh]"
+            : "max-h-[85dvh] rounded-t-24",
+          entered && !closing ? "translate-y-0" : "translate-y-full"
+        )}
+      >
+        <div className="flex shrink-0 justify-center pb-1 pt-2.5 sm:hidden">
+          <span className="h-1.5 w-10 rounded-full bg-border" />
+        </div>
+
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleClose}
           aria-label="Cerrar"
           className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-foreground shadow-soft backdrop-blur transition hover:bg-white"
         >
@@ -111,7 +154,15 @@ export default function PersonPreviewPanel({
             </p>
           </div>
         ) : (
-          <>
+          <div
+            ref={contentRef}
+            onWheel={expandToFullScreen}
+            onTouchMove={expandToFullScreen}
+            className={cn(
+              "flex flex-1 flex-col",
+              expanded ? "overflow-y-auto overscroll-contain" : "overflow-hidden"
+            )}
+          >
             <div className="relative h-56 w-full shrink-0 overflow-hidden bg-mint-100 sm:h-64">
               {coverPhoto ? (
                 <Image
@@ -132,17 +183,36 @@ export default function PersonPreviewPanel({
                   />
                 </div>
               )}
+
+              {profile.is_online && (
+                <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-primary-dark shadow-soft backdrop-blur">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  En línea
+                </span>
+              )}
             </div>
 
             <div className="p-5 sm:p-6">
-              <h2 className="text-2xl font-bold text-foreground">
-                {fullName || "Persona de CoFlow"}
-              </h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-2xl font-bold text-foreground">
+                  {fullName || "Persona de CoFlow"}
+                </h2>
 
-              {profile.community && (
-                <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-secondary">
-                  <LocationIcon />
-                  {profile.community.city}
+                {profile.is_verified && (
+                  <VerifiedIcon className="h-5 w-5 shrink-0 text-primary" />
+                )}
+              </div>
+
+              {metaLine && (
+                <p className="mt-1 text-sm font-semibold text-secondary">
+                  {metaLine}
+                </p>
+              )}
+
+              {profile.occupation && (
+                <p className="mt-1 flex items-center gap-1.5 text-sm text-secondary">
+                  <BriefcaseIcon />
+                  {profile.occupation}
                 </p>
               )}
 
@@ -158,6 +228,12 @@ export default function PersonPreviewPanel({
                     : "No busca compañeros ahora"}
                 </span>
               </div>
+
+              {profile.bio && (
+                <p className="mt-4 text-sm leading-6 text-secondary">
+                  {profile.bio}
+                </p>
+              )}
 
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <div className="rounded-14 bg-surface-soft px-4 py-3">
@@ -297,7 +373,7 @@ export default function PersonPreviewPanel({
                 <HeartIcon filled={saved} />
               </button>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
@@ -317,24 +393,6 @@ function CloseIcon() {
     >
       <path d="m6 6 12 12" />
       <path d="m18 6-12 12" />
-    </svg>
-  );
-}
-
-function LocationIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-3.5 w-3.5 shrink-0"
-      aria-hidden="true"
-    >
-      <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-      <circle cx="12" cy="10" r="2.5" />
     </svg>
   );
 }
@@ -389,6 +447,40 @@ function HeartIcon({ filled }: { filled: boolean }) {
       aria-hidden="true"
     >
       <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6Z" />
+    </svg>
+  );
+}
+
+function VerifiedIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M12 2 9.5 4.5 6 4l-.5 3.5L2 9l2 3-2 3 3.5 1.5L6 20l3.5-.5L12 22l2.5-2.5L18 20l.5-3.5L22 15l-2-3 2-3-3.5-1.5L18 4l-3.5.5Z" />
+      <path
+        d="m8.5 12.3 2.2 2.2 4.3-4.8"
+        stroke="white"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+function BriefcaseIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-3.5 w-3.5 shrink-0"
+      aria-hidden="true"
+    >
+      <rect x="2" y="7" width="20" height="14" rx="2" />
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
     </svg>
   );
 }
