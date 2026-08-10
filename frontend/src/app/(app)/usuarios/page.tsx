@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { useUsers } from "@/hooks/useUsers";
 import UserGrid from "@/components/usuario/UserGrid";
 import PersonPreviewPanel from "@/components/usuario/PersonPreviewPanel";
@@ -151,12 +152,15 @@ export default function UsuariosPage() {
         )}
       </section>
 
-      {openUserId && (
-        <PersonPreviewPanel
-          userId={openUserId}
-          onClose={() => setOpenUserId(null)}
-        />
-      )}
+      <AnimatePresence>
+        {openUserId && (
+          <PersonPreviewPanel
+            key={openUserId}
+            userId={openUserId}
+            onClose={() => setOpenUserId(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

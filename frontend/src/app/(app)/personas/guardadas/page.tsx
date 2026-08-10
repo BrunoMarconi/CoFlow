@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import PersonasTabs from "@/components/usuario/PersonasTabs";
 import UserGrid from "@/components/usuario/UserGrid";
 import PersonPreviewPanel from "@/components/usuario/PersonPreviewPanel";
@@ -67,12 +68,15 @@ export default function PersonasGuardadasPage() {
         )}
       </div>
 
-      {openUserId && (
-        <PersonPreviewPanel
-          userId={openUserId}
-          onClose={() => setOpenUserId(null)}
-        />
-      )}
+      <AnimatePresence>
+        {openUserId && (
+          <PersonPreviewPanel
+            key={openUserId}
+            userId={openUserId}
+            onClose={() => setOpenUserId(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

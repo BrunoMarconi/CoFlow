@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
 import Spinner from "@/components/ui/Spinner";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
@@ -10,21 +11,47 @@ import { useUserConnection } from "@/hooks/useUserConnection";
 import { cn } from "@/lib/utils";
 
 const TAG_KEYS = [
-  "lifestyle",
   "cleanliness",
+  "dishes",
+  "common_objects",
   "noise",
-  "smoking",
-  "pets",
   "visits",
+  "sleepovers",
+  "wake_up",
+  "night_noise",
+  "smoking",
+  "alcohol",
+  "pets",
+  "bills",
+  "food",
+  "communication",
+  "conflicts",
+  "rules",
+  "culture",
+  "space",
+  "lifestyle",
 ] as const;
 
 const TAG_LABELS: Record<(typeof TAG_KEYS)[number], string> = {
-  lifestyle: "Convivencia",
   cleanliness: "Limpieza",
+  dishes: "Platos",
+  common_objects: "Zonas comunes",
   noise: "Ambiente",
-  smoking: "Tabaco",
-  pets: "Mascotas",
   visits: "Visitas",
+  sleepovers: "Pernoctaciones",
+  wake_up: "Rutina",
+  night_noise: "Ruido nocturno",
+  smoking: "Tabaco",
+  alcohol: "Alcohol",
+  pets: "Mascotas",
+  bills: "Facturas",
+  food: "Comida",
+  communication: "Comunicación",
+  conflicts: "Conflictos",
+  rules: "Reglas",
+  culture: "Cultura",
+  space: "Espacio personal",
+  lifestyle: "Convivencia",
 };
 
 export default function PersonPreviewPanel({
@@ -47,31 +74,13 @@ export default function PersonPreviewPanel({
     removeConnection,
   } = useUserConnection(profile);
 
-  const [entered, setEntered] = useState(false);
-  const [closing, setClosing] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef(0);
-
-  useEffect(() => {
-    // Doble rAF: si solo esperamos un frame, el navegador a veces pinta
-    // el estado inicial (translate-y-full) y el final en el mismo
-    // frame, y la transición no llega a animarse (aparece de golpe).
-    rafRef.current = requestAnimationFrame(() => {
-      rafRef.current = requestAnimationFrame(() => setEntered(true));
-    });
-    return () => cancelAnimationFrame(rafRef.current);
-  }, []);
-
-  function handleClose() {
-    if (closing) return;
-    setClosing(true);
-    window.setTimeout(onClose, 280);
-  }
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") handleClose();
+      if (event.key === "Escape") onClose();
     }
 
     // overflow:hidden en body no basta en iOS Safari (el scroll de fondo
@@ -106,8 +115,7 @@ export default function PersonPreviewPanel({
       body.style.width = previousStyle.width;
       window.scrollTo(0, scrollY);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [onClose]);
 
   function expandToFullScreen() {
     if (!expanded) setExpanded(true);
@@ -140,26 +148,46 @@ export default function PersonPreviewPanel({
       })).filter((tag) => Boolean(tag.value))
     : [];
 
+  const overlayTransition = prefersReducedMotion
+    ? { duration: 0.01 }
+    : { duration: 0.2, ease: "easeOut" as const };
+
+  const sheetTransition = prefersReducedMotion
+    ? { duration: 0.01 }
+    : { type: "spring" as const, stiffness: 300, damping: 30, mass: 0.9 };
+
+  const sheetInitial = prefersReducedMotion
+    ? { opacity: 0 }
+    : { y: 40, opacity: 0, scale: 0.98 };
+
+  const sheetAnimate = prefersReducedMotion
+    ? { opacity: 1 }
+    : { y: 0, opacity: 1, scale: 1 };
+
   return (
     <div className="fixed inset-0 z-(--z-modal) flex items-end justify-center sm:items-center">
-      <button
+      <motion.button
         type="button"
         aria-label="Cerrar"
-        onClick={handleClose}
-        className={cn(
-          "absolute inset-0 bg-black/40 transition-opacity duration-300 ease-out",
-          entered && !closing ? "opacity-100" : "opacity-0"
-        )}
+        onClick={onClose}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={overlayTransition}
+        className="absolute inset-0 bg-black/40"
       />
 
-      <div
+      <motion.div
+        initial={sheetInitial}
+        animate={sheetAnimate}
+        exit={sheetInitial}
+        transition={sheetTransition}
         style={{ willChange: "transform" }}
         className={cn(
-          "relative flex w-full flex-col overflow-hidden bg-surface shadow-2xl transition-transform duration-300 ease-out will-change-transform sm:max-w-lg sm:rounded-24",
+          "relative flex w-full flex-col overflow-hidden bg-surface shadow-2xl sm:max-w-lg sm:rounded-24",
           expanded
             ? "h-dvh rounded-t-none sm:h-[85dvh]"
-            : "max-h-[85dvh] rounded-t-24",
-          entered && !closing ? "translate-y-0" : "translate-y-full"
+            : "max-h-[85dvh] rounded-t-24"
         )}
       >
         <div className="flex shrink-0 justify-center pb-1 pt-2.5 sm:hidden">
@@ -168,7 +196,7 @@ export default function PersonPreviewPanel({
 
         <button
           type="button"
-          onClick={handleClose}
+          onClick={onClose}
           aria-label="Cerrar"
           className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-foreground shadow-soft backdrop-blur transition hover:bg-white"
         >
@@ -299,18 +327,22 @@ export default function PersonPreviewPanel({
               {tags.length > 0 && (
                 <div className="mt-6">
                   <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted">
-                    Estilo de vida
+                    Estilo de vida y convivencia
                   </p>
 
-                  <div className="mt-2.5 flex flex-wrap gap-2">
+                  <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
                     {tags.map((tag) => (
-                      <span
+                      <div
                         key={tag.key}
-                        className="inline-flex items-center rounded-full bg-mint-50 px-3 py-1.5 text-xs font-bold text-primary-dark"
-                        title={tag.label}
+                        className="rounded-14 bg-surface-soft px-3 py-2"
                       >
-                        {tag.value}
-                      </span>
+                        <p className="text-[11px] font-semibold text-muted">
+                          {tag.label}
+                        </p>
+                        <p className="mt-0.5 text-sm font-bold text-foreground">
+                          {tag.value}
+                        </p>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -323,7 +355,7 @@ export default function PersonPreviewPanel({
                   </p>
 
                   <div className="mt-2.5 grid grid-cols-3 gap-2">
-                    {profile.photos.slice(1, 7).map((photo) => (
+                    {profile.photos.slice(1).map((photo) => (
                       <div
                         key={photo.id}
                         className="relative h-20 overflow-hidden rounded-14"
@@ -416,7 +448,7 @@ export default function PersonPreviewPanel({
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
