@@ -147,36 +147,34 @@ export default function ComunidadesPage() {
 
   return (
     <div>
-      <div className="sticky top-[calc(var(--safe-top)+4.5rem)] z-(--z-sticky-header) -mx-4 -mt-6 bg-background/85 px-4 pb-3 pt-6 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        <div className="flex items-center gap-2">
-          <form
-            onSubmit={handleFilterSubmit}
-            className="flex h-14 min-w-0 flex-1 items-center rounded-full border border-border bg-surface pl-5 pr-1.5 shadow-soft transition-all duration-180 focus-within:border-primary focus-within:ring-4 focus-within:ring-mint-100"
-          >
-            <SearchInput
-              bare
-              value={cityInput}
-              onChange={(event) => setCityInput(event.target.value)}
-              onClear={clearCitySearch}
-              placeholder="Buscar ciudad, barrio o comunidad"
-            />
-          </form>
+      <div className="sticky top-[calc(var(--safe-top)+4.5rem)] z-(--z-sticky-header) flex items-center gap-2 py-3">
+        <form
+          onSubmit={handleFilterSubmit}
+          className="flex h-14 min-w-0 flex-1 items-center rounded-full border border-border bg-surface pl-5 pr-1.5 shadow-soft transition-all duration-180 focus-within:border-primary focus-within:ring-4 focus-within:ring-mint-100"
+        >
+          <SearchInput
+            bare
+            value={cityInput}
+            onChange={(event) => setCityInput(event.target.value)}
+            onClear={clearCitySearch}
+            placeholder="Buscar ciudad, barrio o comunidad"
+          />
+        </form>
 
-          <button
-            type="button"
-            onClick={() => setFiltersOpen((current) => !current)}
-            aria-expanded={filtersOpen}
-            aria-label="Filtros"
-            title="Filtros"
-            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border shadow-soft transition-colors duration-180 ${
-              filtersOpen || isCommunityFiltersActive(filters)
-                ? "border-primary/30 bg-mint-100 text-primary-dark"
-                : "border-border bg-surface text-secondary hover:bg-surface-soft"
-            }`}
-          >
-            <FilterIcon />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setFiltersOpen((current) => !current)}
+          aria-expanded={filtersOpen}
+          aria-label="Filtros"
+          title="Filtros"
+          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border shadow-soft transition-colors duration-180 ${
+            filtersOpen || isCommunityFiltersActive(filters)
+              ? "border-primary/30 bg-mint-100 text-primary-dark"
+              : "border-border bg-surface text-secondary hover:bg-surface-soft"
+          }`}
+        >
+          <FilterIcon />
+        </button>
       </div>
 
       {filtersOpen && (
@@ -280,10 +278,10 @@ export default function ComunidadesPage() {
         <Link
           href={actionHref}
           aria-label={actionLabel}
-          className="fixed bottom-24 right-5 z-30 flex h-14 items-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-white shadow-soft transition active:scale-95 sm:hidden"
+          title={actionLabel}
+          className="fixed bottom-24 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-soft transition active:scale-95 sm:hidden"
         >
-          {myCommunity ? <UsersIcon /> : <PlusIcon />}
-          {myCommunity ? "Mi comunidad" : "Crear"}
+          <HomeIcon />
         </Link>
       )}
     </div>
@@ -342,6 +340,24 @@ function UsersIcon() {
       <circle cx="17" cy="7" r="2.5" />
       <path d="M2.5 20a5.5 5.5 0 0 1 11 0" />
       <path d="M14 14.5a4.5 4.5 0 0 1 7.5 3.5" />
+    </svg>
+  );
+}
+
+function HomeIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5.5 w-5.5"
+      aria-hidden="true"
+    >
+      <path d="m3 11 9-8 9 8" />
+      <path d="M5 10v10h14V10" />
     </svg>
   );
 }
