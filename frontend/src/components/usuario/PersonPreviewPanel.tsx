@@ -51,10 +51,16 @@ export default function PersonPreviewPanel({
   const [closing, setClosing] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef(0);
 
   useEffect(() => {
-    const raf = requestAnimationFrame(() => setEntered(true));
-    return () => cancelAnimationFrame(raf);
+    // Doble rAF: si solo esperamos un frame, el navegador a veces pinta
+    // el estado inicial (translate-y-full) y el final en el mismo
+    // frame, y la transición no llega a animarse (aparece de golpe).
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = requestAnimationFrame(() => setEntered(true));
+    });
+    return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
   function handleClose() {
@@ -68,12 +74,37 @@ export default function PersonPreviewPanel({
       if (event.key === "Escape") handleClose();
     }
 
+    // overflow:hidden en body no basta en iOS Safari (el scroll de fondo
+    // sigue rebotando) — fijamos el body en su posición actual con
+    // position:fixed, y la restauramos al cerrar, para bloquear de
+    // verdad el scroll de la página de detrás mientras el modal esté
+    // abierto.
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const previousStyle = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+    };
+
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+
     document.addEventListener("keydown", handleKeyDown);
-    document.body.style.overflow = "hidden";
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
+      body.style.position = previousStyle.position;
+      body.style.top = previousStyle.top;
+      body.style.left = previousStyle.left;
+      body.style.right = previousStyle.right;
+      body.style.width = previousStyle.width;
+      window.scrollTo(0, scrollY);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -115,12 +146,16 @@ export default function PersonPreviewPanel({
         type="button"
         aria-label="Cerrar"
         onClick={handleClose}
-        className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+        className={cn(
+          "absolute inset-0 bg-black/40 transition-opacity duration-300 ease-out",
+          entered && !closing ? "opacity-100" : "opacity-0"
+        )}
       />
 
       <div
+        style={{ willChange: "transform" }}
         className={cn(
-          "relative flex w-full flex-col overflow-hidden bg-surface shadow-2xl transition-transform duration-300 ease-out sm:max-w-lg sm:rounded-24",
+          "relative flex w-full flex-col overflow-hidden bg-surface shadow-2xl transition-transform duration-300 ease-out will-change-transform sm:max-w-lg sm:rounded-24",
           expanded
             ? "h-dvh rounded-t-none sm:h-[85dvh]"
             : "max-h-[85dvh] rounded-t-24",
@@ -163,60 +198,66 @@ export default function PersonPreviewPanel({
               expanded ? "overflow-y-auto overscroll-contain" : "overflow-hidden"
             )}
           >
-            <div className="relative h-56 w-full shrink-0 overflow-hidden bg-mint-100 sm:h-64">
-              {coverPhoto ? (
-                <Image
-                  src={coverPhoto}
-                  alt=""
-                  fill
-                  unoptimized
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center">
-                  <UserAvatar
-                    firstName={profile.first_name}
-                    lastName={profile.last_name}
-                    userId={profile.id}
-                    imageUrl={profile.avatar_url}
-                    size="xl"
-                  />
+            <div className="p-5 pt-8 sm:p-6 sm:pt-8">
+              <div className="flex items-start gap-4">
+                <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-18 bg-mint-100 sm:h-28 sm:w-28">
+                  {coverPhoto || profile.avatar_url ? (
+                    <Image
+                      src={coverPhoto ?? profile.avatar_url!}
+                      alt=""
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <UserAvatar
+                        firstName={profile.first_name}
+                        lastName={profile.last_name}
+                        userId={profile.id}
+                        imageUrl={profile.avatar_url}
+                        size="xl"
+                      />
+                    </div>
+                  )}
+
+                  {profile.is_online && (
+                    <span
+                      title="En línea"
+                      className="absolute bottom-1.5 right-1.5 h-3.5 w-3.5 rounded-full border-2 border-surface bg-emerald-500"
+                    />
+                  )}
                 </div>
-              )}
 
-              {profile.is_online && (
-                <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-primary-dark shadow-soft backdrop-blur">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  En línea
-                </span>
-              )}
-            </div>
+                <div className="min-w-0 flex-1 pt-1">
+                  <h2 className="text-xl font-bold leading-tight text-foreground sm:text-2xl">
+                    {fullName || "Persona de CoFlow"}
+                  </h2>
 
-            <div className="p-5 sm:p-6">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-2xl font-bold text-foreground">
-                  {fullName || "Persona de CoFlow"}
-                </h2>
+                  {metaLine && (
+                    <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-secondary">
+                      {metaLine}
+                      <LocationIcon />
+                    </p>
+                  )}
 
-                {profile.is_verified && (
-                  <VerifiedIcon className="h-5 w-5 shrink-0 text-primary" />
-                )}
+                  {profile.occupation && (
+                    <p className="mt-1.5 flex items-center gap-1.5 text-sm text-secondary">
+                      <BriefcaseIcon />
+                      {profile.occupation}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {metaLine && (
-                <p className="mt-1 text-sm font-semibold text-secondary">
-                  {metaLine}
-                </p>
+              {profile.is_verified && (
+                <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-mint-100 px-3 py-1.5 text-xs font-bold text-primary-dark">
+                  <VerifiedIcon className="h-3.5 w-3.5" />
+                  Perfil verificado
+                </span>
               )}
 
-              {profile.occupation && (
-                <p className="mt-1 flex items-center gap-1.5 text-sm text-secondary">
-                  <BriefcaseIcon />
-                  {profile.occupation}
-                </p>
-              )}
-
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap gap-2">
                 {profile.is_owner && (
                   <span className="inline-flex items-center rounded-full bg-surface-muted px-3 py-1 text-xs font-bold text-brand-dark">
                     Propietario
@@ -236,7 +277,7 @@ export default function PersonPreviewPanel({
               )}
 
               <div className="mt-5 grid grid-cols-2 gap-3">
-                <div className="rounded-14 bg-surface-soft px-4 py-3">
+                <div className="rounded-18 border border-border bg-surface-muted px-4 py-3">
                   <p className="text-xs font-semibold text-muted">
                     Presupuesto
                   </p>
@@ -245,7 +286,7 @@ export default function PersonPreviewPanel({
                   </p>
                 </div>
 
-                <div className="rounded-14 bg-surface-soft px-4 py-3">
+                <div className="rounded-18 border border-border bg-surface-muted px-4 py-3">
                   <p className="text-xs font-semibold text-muted">
                     Comunidad
                   </p>
@@ -377,6 +418,24 @@ export default function PersonPreviewPanel({
         )}
       </div>
     </div>
+  );
+}
+
+function LocationIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-3.5 w-3.5 shrink-0"
+      aria-hidden="true"
+    >
+      <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </svg>
   );
 }
 
