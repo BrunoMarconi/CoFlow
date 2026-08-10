@@ -188,16 +188,10 @@ export default function ComunidadesPage() {
         </div>
       )}
 
-      <header className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-balance font-rounded text-4xl font-semibold leading-[1.1] tracking-[-0.01em] text-brand-dark sm:text-[42px]">
-            Encuentra tu comunidad
-          </h1>
-
-          <p className="mt-3 text-[15px] leading-[1.55] text-secondary sm:text-base">
-            Pisos y grupos de convivencia cerca de ti.
-          </p>
-        </div>
+      <header className="mt-6 flex items-center justify-between gap-4">
+        <h1 className="font-rounded text-lg font-semibold text-brand-dark">
+          Comunidades
+        </h1>
 
         {!loadingMyCommunity && (
           <PrimaryButton href={actionHref} className="hidden shrink-0 sm:inline-flex">

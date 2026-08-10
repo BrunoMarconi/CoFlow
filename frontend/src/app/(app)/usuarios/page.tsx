@@ -107,14 +107,10 @@ export default function UsuariosPage() {
         </div>
       )}
 
-      <header className="mt-7">
-        <h1 className="text-balance font-rounded text-4xl font-semibold leading-[1.1] tracking-[-0.01em] text-brand-dark sm:text-[42px]">
-          Encuentra a tu compañero
+      <header className="mt-6">
+        <h1 className="font-rounded text-lg font-semibold text-brand-dark">
+          Personas
         </h1>
-
-        <p className="mt-3 text-[15px] leading-[1.55] text-secondary sm:text-base">
-          Perfiles de personas que buscan piso como tú.
-        </p>
       </header>
 
       <section className="mt-8">
