@@ -14,6 +14,9 @@ type SearchInputProps = Omit<
   /** Sin caja propia (borde/fondo/sombra) — para incrustarlo dentro de
    * una barra compuesta (input + acciones) que ya aporta el contenedor. */
   bare?: boolean;
+  /** La barra compuesta que lo envuelve ya renderiza su propio icono
+   * (p. ej. uno con layoutId compartido) — evita duplicarlo. */
+  showIcon?: boolean;
 };
 
 export default function SearchInput({
@@ -21,6 +24,7 @@ export default function SearchInput({
   onClear,
   value,
   bare = false,
+  showIcon = true,
   ...props
 }: SearchInputProps) {
   const showClear = Boolean(onClear && value);
@@ -34,7 +38,7 @@ export default function SearchInput({
         className
       )}
     >
-      <SearchIcon />
+      {showIcon && <SearchIcon />}
 
       <input
         type="text"

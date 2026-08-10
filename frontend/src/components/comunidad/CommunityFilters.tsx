@@ -38,13 +38,13 @@ export function isCommunityFiltersActive(
   );
 }
 
-const JOIN_TYPE_OPTIONS: { value: CommunityJoinType | "ALL"; label: string }[] = [
+export const JOIN_TYPE_OPTIONS: { value: CommunityJoinType | "ALL"; label: string }[] = [
   { value: "ALL", label: "Todos" },
   { value: "OPEN", label: "Entrada inmediata" },
   { value: "REQUEST", label: "Con solicitud" },
 ];
 
-const URGENCY_OPTIONS: { value: CommunityUrgency | "ALL"; label: string }[] = [
+export const URGENCY_OPTIONS: { value: CommunityUrgency | "ALL"; label: string }[] = [
   { value: "ALL", label: "Todas" },
   { value: "NORMAL", label: "Sin prisa" },
   { value: "SOON", label: "Próximamente" },

@@ -7,6 +7,7 @@ import BottomNavigation from "@/components/layout/BottomNavigation";
 import EmailVerificationBanner from "@/components/layout/EmailVerificationBanner";
 import ProfileCompletionBanner from "@/components/layout/ProfileCompletionBanner";
 import SwipeNavigation from "@/components/layout/SwipeNavigation";
+import ExplorerTabs from "@/components/explorer/ExplorerTabs";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { cn } from "@/lib/utils";
 import { NAV_TRANSITION } from "@/lib/navTransition";
@@ -44,6 +45,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
               <>
                 <EmailVerificationBanner />
                 <ProfileCompletionBanner />
+                <ExplorerTabs />
               </>
             )}
             <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">

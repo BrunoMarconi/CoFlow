@@ -1,35 +1,42 @@
 "use client";
 
-import {
-  FormEvent,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { MotionConfig } from "framer-motion";
+import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 
 import { useCommunities } from "@/hooks/useCommunities";
 import { useAuth } from "@/hooks/useAuth";
 import CommunityGrid from "@/components/comunidad/CommunityGrid";
 import CommunityFilters, {
+  JOIN_TYPE_OPTIONS,
+  URGENCY_OPTIONS,
   defaultCommunityFilters,
   isCommunityFiltersActive,
   type CommunityFilterState,
 } from "@/components/comunidad/CommunityFilters";
+import { COMMUNITY_PROFILE_TYPE_LABELS } from "@/lib/communityProfileType";
+import ExplorerSearchBar from "@/components/explorer/ExplorerSearchBar";
+import ExplorerFilterToggle from "@/components/explorer/ExplorerFilterToggle";
+import ActiveFilterChips, {
+  type ActiveChip,
+} from "@/components/explorer/ActiveFilterChips";
 import SectionHeader from "@/components/ui/SectionHeader";
-import SearchInput from "@/components/ui/SearchInput";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
+import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
+
+const SEARCH_BAR_LAYOUT_ID = "community-search-bar";
+const SEARCH_ICON_LAYOUT_ID = "community-search-icon";
 
 export default function ComunidadesPage() {
-  const [cityInput, setCityInput] = useState("");
-  const [cityFilter, setCityFilter] = useState("");
+  const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<CommunityFilterState>(
     defaultCommunityFilters
   );
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const searchParams = useSearchParams();
   const justLeft = searchParams.get("left") === "1";
@@ -48,10 +55,21 @@ export default function ComunidadesPage() {
     loadingMore,
     loadMore,
   } = useCommunities({
-    city: cityFilter || undefined,
     profile_type:
       filters.profileType !== "ALL" ? filters.profileType : undefined,
   });
+
+  const searchedCommunities = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase();
+
+    if (!normalizedSearch) return communities;
+
+    return communities.filter(
+      (community) =>
+        community.name.toLowerCase().includes(normalizedSearch) ||
+        community.city.toLowerCase().includes(normalizedSearch)
+    );
+  }, [communities, search]);
 
   const matchesFilters = useMemo(() => {
     const maxBudgetValue = filters.maxBudget
@@ -99,22 +117,22 @@ export default function ComunidadesPage() {
 
   const withSpots = useMemo(
     () =>
-      communities
+      searchedCommunities
         .filter(
           (community) => community.open_spots > 0 && !community.is_full
         )
         .filter(matchesFilters),
-    [communities, matchesFilters]
+    [searchedCommunities, matchesFilters]
   );
 
   const withoutSpots = useMemo(
     () =>
-      communities
+      searchedCommunities
         .filter(
           (community) => !(community.open_spots > 0 && !community.is_full)
         )
         .filter(matchesFilters),
-    [communities, matchesFilters]
+    [searchedCommunities, matchesFilters]
   );
 
   const visibleCommunities = useMemo(
@@ -122,21 +140,103 @@ export default function ComunidadesPage() {
     [filters.showNoSpots, withSpots, withoutSpots]
   );
 
-  function handleFilterSubmit(
-    event: FormEvent<HTMLFormElement>
-  ) {
-    event.preventDefault();
-    setCityFilter(cityInput.trim());
+  const hasQuery = search.trim().length > 0;
+  const showFiltersPanel = !hasQuery || filtersOpen;
+  const resultCount = visibleCommunities.length;
+
+  const activeChips = useMemo<ActiveChip[]>(() => {
+    const chips: ActiveChip[] = [];
+
+    if (filters.maxBudget) {
+      chips.push({
+        key: "maxBudget",
+        label: `Hasta ${filters.maxBudget} €`,
+        onRemove: () =>
+          setFilters((current) => ({ ...current, maxBudget: "" })),
+      });
+    }
+
+    if (filters.moveInBefore) {
+      chips.push({
+        key: "moveInBefore",
+        label: `Antes de ${filters.moveInBefore}`,
+        onRemove: () =>
+          setFilters((current) => ({ ...current, moveInBefore: "" })),
+      });
+    }
+
+    if (filters.joinType !== "ALL") {
+      const option = JOIN_TYPE_OPTIONS.find(
+        (item) => item.value === filters.joinType
+      );
+
+      if (option) {
+        chips.push({
+          key: "joinType",
+          label: option.label,
+          onRemove: () =>
+            setFilters((current) => ({ ...current, joinType: "ALL" })),
+        });
+      }
+    }
+
+    if (filters.urgency !== "ALL") {
+      const option = URGENCY_OPTIONS.find(
+        (item) => item.value === filters.urgency
+      );
+
+      if (option) {
+        chips.push({
+          key: "urgency",
+          label: option.label,
+          onRemove: () =>
+            setFilters((current) => ({ ...current, urgency: "ALL" })),
+        });
+      }
+    }
+
+    if (filters.profileType !== "ALL") {
+      chips.push({
+        key: "profileType",
+        label: COMMUNITY_PROFILE_TYPE_LABELS[filters.profileType],
+        onRemove: () =>
+          setFilters((current) => ({ ...current, profileType: "ALL" })),
+      });
+    }
+
+    if (filters.showNoSpots) {
+      chips.push({
+        key: "showNoSpots",
+        label: "Con y sin plazas",
+        onRemove: () =>
+          setFilters((current) => ({ ...current, showNoSpots: false })),
+      });
+    }
+
+    return chips;
+  }, [filters]);
+
+  function closeSearch() {
+    setSearchOpen(false);
   }
 
-  function clearCitySearch() {
-    setCityInput("");
-    setCityFilter("");
-  }
+  useEffect(() => {
+    if (!searchOpen) return;
 
-  function clearAllFilters() {
-    setFilters(defaultCommunityFilters);
-  }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+
+      if (filtersOpen) {
+        setFiltersOpen(false);
+        return;
+      }
+
+      closeSearch();
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [searchOpen, filtersOpen]);
 
   const actionHref = myCommunity
     ? `/comunidades/${myCommunity.id}`
@@ -146,122 +246,179 @@ export default function ComunidadesPage() {
     ? "Ver mi comunidad"
     : "Crear comunidad";
 
+  // Mismo bloque de resultados en la vista normal y dentro del modo
+  // búsqueda: se reutiliza tal cual, nunca se duplica.
+  const resultsBlock = loading ? (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <SkeletonCard key={index} withCover coverClassName="h-32 sm:h-36" />
+      ))}
+    </div>
+  ) : error ? (
+    <div className="rounded-18 border border-red-100 bg-red-50 p-8 text-center">
+      <p className="font-bold text-red-700">
+        No hemos podido cargar las comunidades
+      </p>
+
+      <p className="mt-2 text-sm text-red-600">{error}</p>
+
+      <SecondaryButton onClick={refetch} className="mt-5">
+        Volver a intentarlo
+      </SecondaryButton>
+    </div>
+  ) : (
+    <>
+      <CommunityGrid
+        communities={visibleCommunities}
+        ownCommunityId={myCommunity?.id}
+      />
+
+      {hasMore && (
+        <div className="mt-6 flex justify-center">
+          <SecondaryButton onClick={loadMore} disabled={loadingMore}>
+            {loadingMore ? "Cargando..." : "Cargar más comunidades"}
+          </SecondaryButton>
+        </div>
+      )}
+    </>
+  );
+
+  const resultsCounter = !loading && !error && (
+    <span className="inline-flex">
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={resultCount}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: MOTION_DURATION.fast }}
+        >
+          {resultCount}{" "}
+          {resultCount === 1 ? "comunidad encontrada" : "comunidades encontradas"}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+
   return (
     <MotionConfig reducedMotion="user">
     <div>
       <div className="sticky top-[calc(var(--safe-top)+4.5rem)] z-(--z-sticky-header) -mx-4 -mt-6 bg-background/85 px-4 pb-3 pt-2 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        <div className="flex items-center gap-2">
-          <form
-            onSubmit={handleFilterSubmit}
-            className="flex h-14 min-w-0 flex-1 items-center rounded-full border border-border bg-surface pl-5 pr-1.5 shadow-soft transition-all duration-180 focus-within:border-primary focus-within:ring-4 focus-within:ring-mint-100"
-          >
-            <SearchInput
-              bare
-              value={cityInput}
-              onChange={(event) => setCityInput(event.target.value)}
-              onClear={clearCitySearch}
-              placeholder="Buscar ciudad, barrio o comunidad"
-            />
-          </form>
-
-          <button
-            type="button"
-            onClick={() => setFiltersOpen((current) => !current)}
-            aria-expanded={filtersOpen}
-            aria-label="Filtros"
-            title="Filtros"
-            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border shadow-soft transition-colors duration-180 ${
-              filtersOpen || isCommunityFiltersActive(filters)
-                ? "border-primary/30 bg-mint-100 text-primary-dark"
-                : "border-border bg-surface text-secondary hover:bg-surface-soft"
-            }`}
-          >
-            <FilterIcon />
-          </button>
-        </div>
-      </div>
-
-      {filtersOpen && (
-        <div className="mt-4">
-          <CommunityFilters
-            filters={filters}
-            onChange={setFilters}
-            onClear={clearAllFilters}
-            resultCount={visibleCommunities.length}
-          />
-        </div>
-      )}
-
-      <header className="mt-6 flex items-center justify-between gap-4">
-        <h1 className="font-rounded text-lg font-semibold text-brand-dark">
-          Comunidades
-        </h1>
-
-        {!loadingMyCommunity && (
-          <PrimaryButton href={actionHref} className="hidden shrink-0 sm:inline-flex">
-            {myCommunity ? <UsersIcon /> : <PlusIcon />}
-            {actionLabel}
-          </PrimaryButton>
-        )}
-      </header>
-
-      {justLeft && (
-        <p className="mt-5 rounded-14 border border-primary/30 bg-mint-50 px-5 py-4 text-sm font-semibold text-primary-dark">
-          Has abandonado la comunidad correctamente.
-        </p>
-      )}
-
-      <section className="mt-8">
-        <SectionHeader
-          title={
-            cityFilter
-              ? `Comunidades en ${cityFilter}`
-              : "Comunidades recomendadas"
+        <ExplorerSearchBar
+          layoutIdBar={SEARCH_BAR_LAYOUT_ID}
+          layoutIdIcon={SEARCH_ICON_LAYOUT_ID}
+          searchOpen={searchOpen}
+          onOpen={() => setSearchOpen(true)}
+          onBack={closeSearch}
+          value={search}
+          onChange={setSearch}
+          onClear={() => setSearch("")}
+          collapsedPlaceholder="Buscar comunidades..."
+          placeholder="Buscar comunidades..."
+          rightSlot={
+            hasQuery && (
+              <ExplorerFilterToggle
+                animateEntrance
+                active={filtersOpen || isCommunityFiltersActive(filters)}
+                onClick={() => setFiltersOpen((current) => !current)}
+              />
+            )
           }
-          className="mb-5"
         />
 
-        {loading && (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <SkeletonCard key={index} withCover coverClassName="h-32 sm:h-36" />
-            ))}
-          </div>
+        {searchOpen && hasQuery && !filtersOpen && (
+          <ActiveFilterChips chips={activeChips} />
         )}
+      </div>
 
-        {!loading && error && (
-          <div className="rounded-18 border border-red-100 bg-red-50 p-8 text-center">
-            <p className="font-bold text-red-700">
-              No hemos podido cargar las comunidades
-            </p>
+      <AnimatePresence mode="wait" initial={false}>
+        {!searchOpen ? (
+          <motion.div
+            key="normal-mode"
+            initial={{ opacity: 0, x: -15 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -15 }}
+            transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+          >
+            <header className="mt-6 flex items-center justify-between gap-4">
+              <h1 className="font-rounded text-lg font-semibold text-brand-dark">
+                Comunidades
+              </h1>
 
-            <p className="mt-2 text-sm text-red-600">
-              {error}
-            </p>
+              {!loadingMyCommunity && (
+                <PrimaryButton href={actionHref} className="hidden shrink-0 sm:inline-flex">
+                  {myCommunity ? <UsersIcon /> : <PlusIcon />}
+                  {actionLabel}
+                </PrimaryButton>
+              )}
+            </header>
 
-            <SecondaryButton onClick={refetch} className="mt-5">
-              Volver a intentarlo
-            </SecondaryButton>
-          </div>
-        )}
-
-        {!loading && !error && (
-          <>
-            <CommunityGrid
-              communities={visibleCommunities}
-              ownCommunityId={myCommunity?.id}
-            />
-
-            {hasMore && (
-              <div className="mt-6 flex justify-center">
-                <SecondaryButton onClick={loadMore} disabled={loadingMore}>
-                  {loadingMore ? "Cargando..." : "Cargar más comunidades"}
-                </SecondaryButton>
-              </div>
+            {justLeft && (
+              <p className="mt-5 rounded-14 border border-primary/30 bg-mint-50 px-5 py-4 text-sm font-semibold text-primary-dark">
+                Has abandonado la comunidad correctamente.
+              </p>
             )}
-          </>
+
+            <section className="mt-8">
+              <SectionHeader
+                title="Comunidades recomendadas"
+                subtitle={resultsCounter}
+                className="mb-5"
+              />
+
+              {resultsBlock}
+            </section>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="search-mode"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 30 }}
+            transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+            className="mt-4"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              {showFiltersPanel ? (
+                <motion.div
+                  key="filters-panel"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+                >
+                  <p className="mb-3 text-sm font-bold text-brand-dark">
+                    Buscar comunidades
+                  </p>
+
+                  <CommunityFilters
+                    filters={filters}
+                    onChange={setFilters}
+                    onClear={() => setFilters(defaultCommunityFilters)}
+                    resultCount={resultCount}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="results-panel"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+                >
+                  <SectionHeader
+                    title="Resultados"
+                    subtitle={resultsCounter}
+                    className="mb-5"
+                  />
+
+                  {resultsBlock}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         )}
-      </section>
+      </AnimatePresence>
 
       {!loadingMyCommunity && (
         <Link
@@ -275,25 +432,6 @@ export default function ComunidadesPage() {
       )}
     </div>
     </MotionConfig>
-  );
-}
-
-function FilterIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-5 w-5"
-      aria-hidden="true"
-    >
-      <path d="M4 6h16" />
-      <path d="M7 12h10" />
-      <path d="M10 18h4" />
-    </svg>
   );
 }
 
