@@ -216,15 +216,6 @@ export default function ComunidadesPage() {
               ? `Comunidades en ${cityFilter}`
               : "Comunidades recomendadas"
           }
-          subtitle={
-            !loading && !error
-              ? `${visibleCommunities.length} ${
-                  visibleCommunities.length === 1
-                    ? "comunidad compatible"
-                    : "comunidades compatibles"
-                }`
-              : undefined
-          }
           className="mb-5"
         />
 

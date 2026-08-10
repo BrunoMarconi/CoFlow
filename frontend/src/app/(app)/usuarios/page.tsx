@@ -117,7 +117,7 @@ export default function UsuariosPage() {
 
       <section className="mt-8">
         <SectionHeader
-          title="Personas"
+          title="Personas recomendadas"
           subtitle={
             !loading
               ? `${visibleUsers.length} ${

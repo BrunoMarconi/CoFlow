@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, ViewTransition } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
 import BottomNavigation from "@/components/layout/BottomNavigation";
@@ -9,6 +9,7 @@ import ProfileCompletionBanner from "@/components/layout/ProfileCompletionBanner
 import SwipeNavigation from "@/components/layout/SwipeNavigation";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { cn } from "@/lib/utils";
+import { NAV_TRANSITION } from "@/lib/navTransition";
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const { isChatActive } = useMobileChrome();
@@ -45,7 +46,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 <ProfileCompletionBanner />
               </>
             )}
-            <SwipeNavigation>{children}</SwipeNavigation>
+            <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
+              <SwipeNavigation>{children}</SwipeNavigation>
+            </ViewTransition>
           </div>
         </main>
       </div>

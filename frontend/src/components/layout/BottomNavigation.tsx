@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { useKeyboardVisible } from "@/hooks/useKeyboardVisible";
 import { getNotifications } from "@/services/notifications";
+import { getTabTransitionTypes } from "@/lib/navTransition";
 import {
   CompassIcon,
   UsersIcon,
@@ -115,6 +116,7 @@ export default function BottomNavigation() {
               key={link.href}
               href={link.href}
               aria-current={active ? "page" : undefined}
+              transitionTypes={getTabTransitionTypes(pathname, link.href)}
               className="relative flex flex-1 flex-col items-center justify-center gap-0.5 px-1 transition active:scale-95 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
             >
               <span className="relative">

@@ -19,6 +19,7 @@ import {
   HomeIcon,
   type IconProps,
 } from "@/components/layout/NavIcons";
+import { getTabTransitionTypes } from "@/lib/navTransition";
 
 type NavLink = {
   href: string;
@@ -111,6 +112,7 @@ export default function Sidebar() {
               key={link.href}
               link={link}
               active={isActive(link.href)}
+              transitionTypes={getTabTransitionTypes(pathname, link.href)}
             />
           ))}
         </NavGroup>
@@ -121,6 +123,7 @@ export default function Sidebar() {
               key={link.href}
               link={link}
               active={isActive(link.href)}
+              transitionTypes={getTabTransitionTypes(pathname, link.href)}
             />
           ))}
         </NavGroup>
@@ -181,9 +184,11 @@ function NavGroup({
 function SidebarLink({
   link,
   active,
+  transitionTypes,
 }: {
   link: NavLink;
   active: boolean;
+  transitionTypes?: string[];
 }) {
   const Icon = link.icon;
 
@@ -191,6 +196,7 @@ function SidebarLink({
     <Link
       href={link.href}
       aria-current={active ? "page" : undefined}
+      transitionTypes={transitionTypes}
       className={cn(
         "flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
         active
