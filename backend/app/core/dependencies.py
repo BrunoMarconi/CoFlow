@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
@@ -8,6 +10,12 @@ from app.database.models.user import User
 from app.database.session import get_db
 
 security = HTTPBearer()
+
+# Ventana mínima entre escrituras de last_active_at: no hace falta
+# actualizarlo en cada petición (varias por segundo en uso normal),
+# solo lo suficiente para que "En línea" (ver user_service.is_online)
+# sea razonablemente reciente sin generar un UPDATE por request.
+_LAST_ACTIVE_WRITE_THROTTLE = timedelta(seconds=60)
 
 
 def get_current_user(
@@ -34,6 +42,16 @@ def get_current_user(
             status_code=401,
             detail="User not found"
         )
+
+    now = datetime.now(timezone.utc)
+
+    if (
+        user.last_active_at is None
+        or now - user.last_active_at > _LAST_ACTIVE_WRITE_THROTTLE
+    ):
+        user.last_active_at = now
+        db.commit()
+        db.refresh(user)
 
     return user
 

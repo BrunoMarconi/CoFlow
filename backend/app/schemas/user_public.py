@@ -64,3 +64,11 @@ class PublicUserProfileResponse(BaseModel):
     is_looking_for_roommates: bool = True
     avatar_url: str | None = None
     photos: list[UserPhotoResponse] = Field(default_factory=list)
+    age: int | None = None
+    occupation: str | None = None
+    bio: str | None = None
+    # Calculados en UserService.build_public_profile: is_verified a
+    # partir de is_email_verified, is_online a partir de
+    # last_active_at. No son columnas del modelo.
+    is_verified: bool = False
+    is_online: bool = False

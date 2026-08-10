@@ -48,6 +48,11 @@ export interface UserPublicProfile {
   is_looking_for_roommates: boolean;
   avatar_url: string | null;
   photos: UserPhoto[];
+  age: number | null;
+  occupation: string | null;
+  bio: string | null;
+  is_verified: boolean;
+  is_online: boolean;
 }
 
 export interface GetPublicUsersParams {

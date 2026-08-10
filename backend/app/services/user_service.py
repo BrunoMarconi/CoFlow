@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from fastapi import HTTPException
@@ -21,6 +22,10 @@ from app.schemas.user_public import (
 )
 
 MAX_LIMIT = 100
+
+# Umbral para considerar a alguien "En línea": su última actividad
+# registrada (ver get_current_user) debe estar dentro de esta ventana.
+ONLINE_THRESHOLD = timedelta(minutes=5)
 
 
 class UserService:
@@ -105,11 +110,22 @@ class UserService:
                 else:
                     connection_status = "PENDING_RECEIVED"
 
+        is_online = (
+            user.last_active_at is not None
+            and datetime.now(timezone.utc) - user.last_active_at
+            < ONLINE_THRESHOLD
+        )
+
         return PublicUserProfileResponse(
             id=user.id,
             first_name=user.first_name,
             last_name=user.last_name,
             rental_budget=user.rental_budget,
+            age=user.age,
+            occupation=user.occupation,
+            bio=user.bio,
+            is_verified=user.is_email_verified,
+            is_online=is_online,
             preferences=(
                 PublicUserPreferencesResponse.model_validate(preferences)
                 if preferences is not None

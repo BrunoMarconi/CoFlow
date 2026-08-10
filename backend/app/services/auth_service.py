@@ -129,6 +129,11 @@ class AuthService:
         current_user.is_looking_for_roommates = (
             data.is_looking_for_roommates
         )
+        current_user.age = data.age
+        current_user.occupation = (
+            data.occupation.strip() if data.occupation else None
+        )
+        current_user.bio = data.bio.strip() if data.bio else None
 
         db.commit()
         db.refresh(current_user)

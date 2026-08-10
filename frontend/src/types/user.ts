@@ -8,4 +8,7 @@ export interface UpdateProfileRequest {
   phone?: string | null;
   rental_budget?: number | null;
   is_looking_for_roommates: boolean;
+  age?: number | null;
+  occupation?: string | null;
+  bio?: string | null;
 }

@@ -33,6 +33,9 @@ export interface User {
   email_verification_enabled: boolean;
   avatar_url: string | null;
   photos: UserPhoto[];
+  age: number | null;
+  occupation: string | null;
+  bio: string | null;
 }
 
 export interface RegisterResponse {

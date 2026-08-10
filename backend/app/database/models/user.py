@@ -74,6 +74,26 @@ class User(Base):
         String(255),
         nullable=True,
     )
+    age: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+    occupation: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+    bio: Mapped[str | None] = mapped_column(
+        String(160),
+        nullable=True,
+    )
+    # Se actualiza (con throttling) en get_current_user en cada
+    # petición autenticada — ver app/core/dependencies.py. A partir de
+    # aquí se calcula is_online en el perfil público (sin guardar un
+    # booleano aparte que podría quedar desincronizado).
+    last_active_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

@@ -41,8 +41,8 @@ export default function UserCard({
 
   const statusLabel = CONNECTION_LABELS[connectionStatus];
 
-  const communityLabel = user.community
-    ? user.community.name
+  const locationLabel = user.community
+    ? user.community.city
     : user.is_owner
       ? "Propietario"
       : "Busca comunidad";
@@ -76,30 +76,51 @@ export default function UserCard({
       className="flex h-full cursor-pointer flex-col rounded-18 border border-border bg-surface p-4 shadow-soft transition-all duration-180 ease-out sm:p-5 sm:hover:-translate-y-0.5 sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]"
     >
       <div className="flex items-start gap-3">
-        <UserAvatar
-          firstName={user.first_name}
-          lastName={user.last_name}
-          userId={user.id}
-          imageUrl={user.avatar_url}
-          size="lg"
-        />
+        <div className="relative shrink-0">
+          <UserAvatar
+            firstName={user.first_name}
+            lastName={user.last_name}
+            userId={user.id}
+            imageUrl={user.avatar_url}
+            size="lg"
+          />
+
+          {user.is_online && (
+            <span
+              aria-label="En línea"
+              title="En línea"
+              className="absolute bottom-0.5 right-0.5 h-3.5 w-3.5 rounded-full border-2 border-surface bg-emerald-500"
+            />
+          )}
+        </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-base font-bold text-foreground">
-            {fullName || "Persona de CoFlow"}
-          </h3>
+          <div className="flex min-w-0 items-center gap-1.5">
+            <h3 className="truncate text-base font-bold text-foreground">
+              {fullName || "Persona de CoFlow"}
+              {user.age !== null && (
+                <span className="font-semibold text-secondary">
+                  , {user.age}
+                </span>
+              )}
+            </h3>
 
-          <div className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-secondary">
-            <HomeIcon />
-            <span className="truncate">{communityLabel}</span>
+            {user.is_verified && (
+              <VerifiedIcon className="h-4 w-4 shrink-0 text-primary" />
+            )}
           </div>
 
-          {user.community && (
+          {user.occupation && (
             <div className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-secondary">
-              <LocationIcon />
-              <span className="truncate">{user.community.city}</span>
+              <BriefcaseIcon />
+              <span className="truncate">{user.occupation}</span>
             </div>
           )}
+
+          <div className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-secondary">
+            <LocationIcon />
+            <span className="truncate">{locationLabel}</span>
+          </div>
         </div>
 
         {statusLabel && (
@@ -108,6 +129,12 @@ export default function UserCard({
           </span>
         )}
       </div>
+
+      {user.bio && (
+        <p className="mt-3 line-clamp-2 text-sm leading-5 text-secondary">
+          {user.bio}
+        </p>
+      )}
 
       {traits.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
@@ -166,24 +193,6 @@ export default function UserCard({
   );
 }
 
-function HomeIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-3.5 w-3.5 shrink-0"
-      aria-hidden="true"
-    >
-      <path d="m3 11 9-8 9 8" />
-      <path d="M5 10v10h14V10" />
-    </svg>
-  );
-}
-
 function LocationIcon() {
   return (
     <svg
@@ -198,6 +207,45 @@ function LocationIcon() {
     >
       <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
       <circle cx="12" cy="10" r="2.5" />
+    </svg>
+  );
+}
+
+function BriefcaseIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-3.5 w-3.5 shrink-0"
+      aria-hidden="true"
+    >
+      <rect x="2" y="7" width="20" height="14" rx="2" />
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+    </svg>
+  );
+}
+
+function VerifiedIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M12 2 9.5 4.5 6 4l-.5 3.5L2 9l2 3-2 3 3.5 1.5L6 20l3.5-.5L12 22l2.5-2.5L18 20l.5-3.5L22 15l-2-3 2-3-3.5-1.5L18 4l-3.5.5Z" />
+      <path
+        d="m8.5 12.3 2.2 2.2 4.3-4.8"
+        stroke="white"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
     </svg>
   );
 }
