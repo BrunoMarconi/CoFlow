@@ -2,7 +2,7 @@
 
 :root {
   /* --- Guía de marca CoFlow (oklch) ---------------------------------- */
-  --background: oklch(0.985 0.004 95);
+  --background: #ffffff;
   --foreground: oklch(0.22 0.02 150); /* text-primary */
   --surface: #ffffff;
   --surface-soft: oklch(0.97 0.01 150); /* = surface-muted */
