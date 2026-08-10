@@ -1,92 +1,149 @@
+"use client";
+
 import Link from "next/link";
-import Avatar from "@/components/ui/Avatar";
+import Image from "next/image";
+import { useState } from "react";
 import AvatarUploader from "@/components/perfil/AvatarUploader";
 import type { User } from "@/types/auth";
 
 export default function ProfileHeader({
   user,
   isOwner = false,
+  cityLabel,
   onAvatarUpdated,
+  onShare,
+  shared,
 }: {
   user: User;
   isOwner?: boolean;
+  cityLabel?: string | null;
   onAvatarUpdated: () => Promise<void>;
+  onShare: () => void;
+  shared: boolean;
 }) {
+  const [imageError, setImageError] = useState(false);
   const fullName = `${user.first_name} ${user.last_name}`.trim();
-  const missingAvatar = !user.avatar_url;
-  const missingOtherFields = !user.phone || user.rental_budget === null;
+
+  const initials = fullName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+
+  const metaLine = [
+    user.age !== null ? `${user.age} años` : null,
+    cityLabel,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  const budgetLabel =
+    user.rental_budget !== null
+      ? `${user.rental_budget.toLocaleString("es-ES")} €/mes`
+      : null;
 
   return (
-    <header className="relative overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
-      <div className="h-28 bg-gradient-to-br from-mint-100 via-mint-50 to-surface sm:h-36" />
-
-      <div className="relative px-5 pb-6 sm:px-8 sm:pb-8">
-        <div className="-mt-12 flex flex-col gap-5 sm:-mt-14 sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex items-end gap-4">
-            <div className="relative rounded-full border-4 border-surface bg-surface shadow-soft">
-              <Avatar name={fullName} imageUrl={user.avatar_url} size={88} />
-              <AvatarUploader
-                hasAvatar={Boolean(user.avatar_url)}
-                onUpdated={onAvatarUpdated}
-              />
+    <section className="rounded-18 border border-border bg-surface p-5 shadow-soft sm:p-6">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-18 bg-mint-100 sm:h-32 sm:w-32">
+          {user.avatar_url && !imageError ? (
+            <Image
+              src={user.avatar_url}
+              alt={fullName}
+              fill
+              unoptimized
+              onError={() => setImageError(true)}
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-primary-dark">
+              {initials || "?"}
             </div>
+          )}
 
-            <div className="pb-1">
-              <h1 className="text-2xl font-bold tracking-tight text-brand-dark sm:text-3xl">
-                {fullName}
-              </h1>
+          <AvatarUploader
+            hasAvatar={Boolean(user.avatar_url)}
+            onUpdated={onAvatarUpdated}
+          />
+        </div>
 
-              <p className="mt-1 text-sm text-muted">
-                Perfil de CoFlow
-              </p>
-            </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-2xl font-bold tracking-tight text-brand-dark sm:text-3xl">
+              {fullName}
+            </h1>
+
+            {user.is_email_verified && (
+              <VerifiedIcon className="h-5 w-5 shrink-0 text-primary" />
+            )}
+
+            {isOwner && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-dark px-2.5 py-1 text-[11px] font-bold text-white">
+                Propietario
+              </span>
+            )}
           </div>
 
-          <Link
-            href="/perfil/editar"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-14 border border-border bg-surface px-5 text-sm font-bold text-brand-dark shadow-soft transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-mint-50"
-          >
-            <EditIcon />
-            Editar perfil
-          </Link>
-        </div>
-
-        <div className="mt-6 flex flex-wrap gap-2">
-          <span className="inline-flex items-center gap-2 rounded-full bg-mint-50 px-3 py-2 text-xs font-bold text-primary-dark">
-            <span className="h-2 w-2 rounded-full bg-primary" />
-            Perfil activo
-          </span>
-
-          {user.onboarding_completed && (
-            <span className="inline-flex items-center gap-2 rounded-full bg-surface-soft px-3 py-2 text-xs font-bold text-secondary">
-              <CheckIcon />
-              Preferencias completadas
-            </span>
+          {metaLine && (
+            <p className="mt-1 text-sm font-semibold text-secondary">
+              {metaLine}
+            </p>
           )}
 
-          {isOwner && (
-            <span className="inline-flex items-center gap-2 rounded-full bg-brand-dark px-3 py-2 text-xs font-bold text-white shadow-soft">
-              <KeyIcon />
-              Propietario
-            </span>
+          {(budgetLabel || user.occupation) && (
+            <div className="mt-4 flex flex-wrap gap-x-6 gap-y-3">
+              {budgetLabel && (
+                <div className="flex items-center gap-2">
+                  <WalletIcon className="h-4 w-4 shrink-0 text-muted" />
+                  <div>
+                    <p className="text-[11px] font-semibold text-muted">
+                      Presupuesto
+                    </p>
+                    <p className="text-sm font-bold text-brand-dark">
+                      {budgetLabel}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {user.occupation && (
+                <div className="flex items-center gap-2">
+                  <BriefcaseIcon className="h-4 w-4 shrink-0 text-muted" />
+                  <div>
+                    <p className="text-[11px] font-semibold text-muted">
+                      Ocupación
+                    </p>
+                    <p className="text-sm font-bold text-brand-dark">
+                      {user.occupation}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
-          {missingAvatar ? (
-            <span className="inline-flex items-center gap-2 rounded-full bg-mint-100 px-3 py-2 text-xs font-bold text-primary-dark">
-              <CameraSmallIcon />
-              Añade tu foto — genera más confianza
-            </span>
-          ) : (
-            missingOtherFields && (
-              <span className="inline-flex items-center gap-2 rounded-full bg-surface-soft px-3 py-2 text-xs font-bold text-secondary">
-                <InfoSmallIcon />
-                Perfil incompleto
-              </span>
-            )
-          )}
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link
+              href="/perfil/editar"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-14 bg-brand px-5 text-sm font-bold text-white shadow-button transition hover:bg-brand-dark"
+            >
+              <EditIcon />
+              Editar perfil
+            </Link>
+
+            <button
+              type="button"
+              onClick={onShare}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-14 border border-border bg-surface px-5 text-sm font-bold text-brand-dark transition hover:border-primary/30 hover:bg-mint-50"
+            >
+              <ShareIcon />
+              {shared ? "¡Enlace copiado!" : "Compartir perfil"}
+            </button>
+          </div>
         </div>
       </div>
-    </header>
+    </section>
   );
 }
 
@@ -108,76 +165,74 @@ function EditIcon() {
   );
 }
 
-function KeyIcon() {
+function ShareIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-3.5 w-3.5"
-      aria-hidden="true"
-    >
-      <circle cx="8" cy="15" r="4" />
-      <path d="m10.8 12.2 8.5-8.5" />
-      <path d="m16.5 6 2.5 2.5" />
-      <path d="m14 8.5 2.5 2.5" />
-    </svg>
-  );
-}
-
-function CameraSmallIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-3.5 w-3.5"
-      aria-hidden="true"
-    >
-      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z" />
-      <circle cx="12" cy="13" r="3.5" />
-    </svg>
-  );
-}
-
-function InfoSmallIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-3.5 w-3.5"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 8h.01" />
-      <path d="M11 12h1v4h1" />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
       className="h-4 w-4"
       aria-hidden="true"
     >
-      <path d="m5 12 4 4L19 6" />
+      <path d="M12 3v13" />
+      <path d="m7 8 5-5 5 5" />
+      <path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
+    </svg>
+  );
+}
+
+function WalletIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <rect x="2" y="6" width="20" height="14" rx="2.5" />
+      <path d="M2 10h20" />
+      <path d="M17 15h.01" />
+    </svg>
+  );
+}
+
+function BriefcaseIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <rect x="2" y="7" width="20" height="14" rx="2" />
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+    </svg>
+  );
+}
+
+function VerifiedIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M12 2 9.5 4.5 6 4l-.5 3.5L2 9l2 3-2 3 3.5 1.5L6 20l3.5-.5L12 22l2.5-2.5L18 20l.5-3.5L22 15l-2-3 2-3-3.5-1.5L18 4l-3.5.5Z" />
+      <path
+        d="m8.5 12.3 2.2 2.2 4.3-4.8"
+        stroke="white"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
     </svg>
   );
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import ProfileHeader from "@/components/perfil/ProfileHeader";
+import TrustProfileCard from "@/components/perfil/TrustProfileCard";
 import ProfileInfo from "@/components/perfil/ProfileInfo";
 import Preferences from "@/components/perfil/Preferences";
 import RoommateSearchCard from "@/components/perfil/RoommateSearchCard";
@@ -17,7 +18,7 @@ import {
 import type { OnboardingAnswers } from "@/types/onboarding";
 
 export default function PerfilPage() {
-  const { user, loading, ownerProfile, refresh } = useAuth();
+  const { user, loading, ownerProfile, community, refresh } = useAuth();
 
   const [answers, setAnswers] = useState<
     Partial<OnboardingAnswers>
@@ -25,6 +26,8 @@ export default function PerfilPage() {
 
   const [loadingAnswers, setLoadingAnswers] =
     useState(true);
+
+  const [shared, setShared] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -55,6 +58,29 @@ export default function PerfilPage() {
     };
   }, []);
 
+  async function handleShare() {
+    if (!user) return;
+
+    const url = `${window.location.origin}/personas/${user.id}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ url, title: "Mi perfil en CoFlow" });
+        return;
+      } catch {
+        // El usuario canceló el share nativo; probamos copiar el enlace.
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    } catch {
+      // Sin permisos de portapapeles: no hacemos nada más.
+    }
+  }
+
   if (loading || !user || loadingAnswers) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -64,28 +90,19 @@ export default function PerfilPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6">
+    <div className="mx-auto w-full max-w-3xl space-y-6">
       <ProfileHeader
         user={user}
         isOwner={ownerProfile !== null}
+        cityLabel={community?.city ?? null}
         onAvatarUpdated={async () => {
           await refresh();
         }}
+        onShare={handleShare}
+        shared={shared}
       />
 
-      <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-        <div className="space-y-6">
-          <ProfileInfo user={user} />
-          <RoommateSearchCard
-            user={user}
-            onUpdated={async () => {
-              await refresh();
-            }}
-          />
-        </div>
-
-        <Preferences answers={answers} />
-      </div>
+      <TrustProfileCard user={user} />
 
       <ProfilePhotoGallery
         photos={user.photos}
@@ -99,6 +116,24 @@ export default function PerfilPage() {
         }}
         onReorder={async (photoIds) => {
           await reorderUserPhotos(photoIds);
+          await refresh();
+        }}
+      />
+
+      {user.bio && (
+        <section className="rounded-18 border border-border bg-surface p-5 shadow-soft sm:p-6">
+          <h2 className="text-lg font-bold text-brand-dark">Sobre mí</h2>
+          <p className="mt-3 text-sm leading-6 text-secondary">{user.bio}</p>
+        </section>
+      )}
+
+      <Preferences answers={answers} />
+
+      <ProfileInfo user={user} />
+
+      <RoommateSearchCard
+        user={user}
+        onUpdated={async () => {
           await refresh();
         }}
       />

@@ -205,15 +205,11 @@ export default function Preferences({ answers }: PreferencesProps) {
     <section className="rounded-18 border border-border bg-surface p-5 shadow-soft sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.15em] text-primary">
-            Tu forma de convivir
-          </p>
-
-          <h2 className="mt-2 text-xl font-bold text-brand-dark">
-            Preferencias
+          <h2 className="text-lg font-bold text-brand-dark">
+            Convivencia y hábitos
           </h2>
 
-          <p className="mt-2 max-w-lg text-sm leading-6 text-muted">
+          <p className="mt-1 text-sm leading-6 text-muted">
             Una vista rápida de tus hábitos y del tipo de hogar que buscas.
           </p>
         </div>
@@ -226,31 +222,20 @@ export default function Preferences({ answers }: PreferencesProps) {
         </Link>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         {featuredPreferences.map((preference) => {
           const value = answers[preference.key];
 
           if (!value) return null;
 
           return (
-            <div
+            <span
               key={preference.key}
-              className="rounded-18 border border-border bg-surface-muted p-4"
+              className="inline-flex items-center gap-1.5 rounded-full bg-mint-50 px-3 py-2 text-xs font-bold text-primary-dark [&_svg]:h-3.5 [&_svg]:w-3.5"
             >
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-14 bg-surface text-primary shadow-soft">
-                  <PreferenceIcon name={preference.icon} />
-                </span>
-
-                <p className="text-xs font-bold uppercase tracking-wide text-muted">
-                  {preference.shortLabel}
-                </p>
-              </div>
-
-              <p className="mt-3 text-sm font-bold leading-6 text-brand-dark">
-                {value}
-              </p>
-            </div>
+              <PreferenceIcon name={preference.icon} />
+              {value}
+            </span>
           );
         })}
       </div>
