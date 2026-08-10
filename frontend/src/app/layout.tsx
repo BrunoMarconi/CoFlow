@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fredoka, Geist_Mono, Manrope } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 
 import AuthProvider from "@/providers/AuthProvider";
 import QueryProvider from "@/providers/QueryProvider";
@@ -7,23 +7,18 @@ import RouteProgressBar from "@/components/layout/RouteProgressBar";
 
 import "./globals.css";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
+// Una sola familia para todo (texto de cuerpo y titulares, utilidades
+// font-sans y font-rounded) — cálida y geométrica, en la línea de la
+// tipografía de Airbnb (Cereal, que no está disponible como Google
+// Font). Antes se mezclaban Manrope + Fredoka; se unificó a esta.
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-// Redondita, a juego con las formas circulares del logo. No sustituye
-// a Manrope como fuente base: se usa puntual con la utilidad
-// `font-rounded` en titulares, nunca en texto de cuerpo/UI.
-const fredoka = Fredoka({
-  variable: "--font-fredoka",
-  weight: ["500", "600", "700"],
   subsets: ["latin"],
 });
 
@@ -88,7 +83,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${manrope.variable} ${geistMono.variable} ${fredoka.variable} h-full scroll-smooth antialiased`}
+      className={`${plusJakartaSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full bg-background font-sans text-brand-dark">
         <QueryProvider>

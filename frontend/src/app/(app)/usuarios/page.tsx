@@ -108,7 +108,7 @@ export default function UsuariosPage() {
       )}
 
       <header className="mt-7">
-        <h1 className="font-rounded text-4xl font-semibold leading-[1.1] tracking-[-0.01em] text-brand-dark sm:text-[42px]">
+        <h1 className="text-balance font-rounded text-4xl font-semibold leading-[1.1] tracking-[-0.01em] text-brand-dark sm:text-[42px]">
           Encuentra a tu compañero
         </h1>
 

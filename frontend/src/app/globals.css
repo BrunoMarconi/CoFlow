@@ -78,9 +78,9 @@
   --shadow-soft: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-button: 0 1px 2px 0 rgb(0 0 0 / 0.06);
 
-  --font-sans: var(--font-manrope);
+  --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
-  --font-rounded: var(--font-fredoka);
+  --font-rounded: var(--font-jakarta);
 
   /* Toda la app usa font-semibold/font-bold muy libremente (labels,
      botones, chips...); con el peso por defecto de Tailwind se veía
@@ -113,7 +113,7 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-manrope), Arial, Helvetica, sans-serif;
+  font-family: var(--font-jakarta), Arial, Helvetica, sans-serif;
 }
 
 img,

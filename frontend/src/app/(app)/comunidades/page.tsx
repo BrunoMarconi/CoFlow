@@ -190,7 +190,7 @@ export default function ComunidadesPage() {
 
       <header className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="font-rounded text-4xl font-semibold leading-[1.1] tracking-[-0.01em] text-brand-dark sm:text-[42px]">
+          <h1 className="text-balance font-rounded text-4xl font-semibold leading-[1.1] tracking-[-0.01em] text-brand-dark sm:text-[42px]">
             Encuentra tu comunidad
           </h1>
 
