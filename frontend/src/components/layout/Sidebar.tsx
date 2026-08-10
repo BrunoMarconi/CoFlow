@@ -7,40 +7,17 @@ import { useAuth } from "@/hooks/useAuth";
 import Avatar from "@/components/ui/Avatar";
 import Logo from "@/components/ui/Logo";
 import {
-  BookmarkIcon,
-  CompassIcon,
-  KeyIcon,
   LogoutIcon,
-  MessageIcon,
   PlusIcon,
-  ProfileIcon,
-  SettingsIcon,
-  UsersIcon,
-  HomeIcon,
-  type IconProps,
 } from "@/components/layout/NavIcons";
+import Icon3D from "@/components/layout/Icon3D";
 import { getTabTransitionTypes } from "@/lib/navTransition";
 
 type NavLink = {
   href: string;
   label: string;
-  icon: (props: IconProps) => React.ReactElement;
+  icon3d?: string;
 };
-
-const ICON_COLORS: Record<string, { bg: string; text: string }> = {
-  "/mi-comunidad": { bg: "bg-mint-100", text: "text-primary-dark" },
-  "/comunidades": { bg: "bg-mint-100", text: "text-primary-dark" },
-  "/usuarios": { bg: "bg-blue-100", text: "text-blue-600" },
-  "/mensajes": { bg: "bg-amber-100", text: "text-amber-600" },
-  "/personas/guardadas": { bg: "bg-rose-100", text: "text-rose-600" },
-  "/crear/comunidad": { bg: "bg-mint-100", text: "text-primary-dark" },
-  "/perfil": { bg: "bg-violet-100", text: "text-violet-600" },
-  "/propietarios": { bg: "bg-indigo-100", text: "text-indigo-600" },
-  "/propietarios/perfil": { bg: "bg-indigo-100", text: "text-indigo-600" },
-  "/ajustes": { bg: "bg-slate-200", text: "text-slate-600" },
-};
-
-const DEFAULT_ICON_COLOR = { bg: "bg-surface-soft", text: "text-secondary" };
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -48,39 +25,60 @@ export default function Sidebar() {
 
   const principalLinks: NavLink[] = [
     ...(community
-      ? [{ href: "/mi-comunidad", label: "Tu comunidad", icon: HomeIcon }]
+      ? [
+          {
+            href: "/mi-comunidad",
+            label: "Tu comunidad",
+            icon3d: "/icons/3d/house.png",
+          },
+        ]
       : []),
     {
       href: "/comunidades",
       label: community ? "Explorar" : "Explorar comunidades",
-      icon: CompassIcon,
+      icon3d: "/icons/3d/compass.png",
     },
-    { href: "/usuarios", label: "Personas", icon: UsersIcon },
-    { href: "/mensajes", label: "Mensajes", icon: MessageIcon },
+    {
+      href: "/usuarios",
+      label: "Personas",
+      icon3d: "/icons/3d/busts-in-silhouette.png",
+    },
+    {
+      href: "/mensajes",
+      label: "Mensajes",
+      icon3d: "/icons/3d/speech-balloon.png",
+    },
     {
       href: "/personas/guardadas",
       label: "Guardados",
-      icon: BookmarkIcon,
+      icon3d: "/icons/3d/bookmark.png",
     },
     ...(!community
       ? [
           {
             href: "/crear/comunidad",
             label: "Crear comunidad",
-            icon: PlusIcon,
           },
         ]
       : []),
   ];
 
   const accountLinks: NavLink[] = [
-    { href: "/perfil", label: "Mi perfil", icon: ProfileIcon },
+    {
+      href: "/perfil",
+      label: "Mi perfil",
+      icon3d: "/icons/3d/bust-in-silhouette.png",
+    },
     {
       href: ownerProfile ? "/propietarios" : "/propietarios/perfil",
       label: "Publicar un piso",
-      icon: KeyIcon,
+      icon3d: "/icons/3d/key.png",
     },
-    { href: "/ajustes", label: "Ajustes", icon: SettingsIcon },
+    {
+      href: "/ajustes",
+      label: "Ajustes",
+      icon3d: "/icons/3d/gear.png",
+    },
   ];
 
   function isActive(href: string) {
@@ -205,9 +203,6 @@ function SidebarLink({
   active: boolean;
   transitionTypes?: string[];
 }) {
-  const Icon = link.icon;
-  const color = ICON_COLORS[link.href] ?? DEFAULT_ICON_COLOR;
-
   return (
     <Link
       href={link.href}
@@ -220,18 +215,17 @@ function SidebarLink({
           : "text-muted hover:bg-surface-soft hover:text-foreground"
       )}
     >
-      <span
-        className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors duration-180",
-          active ? color.bg : "bg-transparent"
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center">
+        {link.icon3d ? (
+          <Icon3D src={link.icon3d} active={active} size={26} />
+        ) : (
+          <PlusIcon
+            className={cn(
+              "h-5 w-5 shrink-0",
+              active ? "text-primary" : "text-muted"
+            )}
+          />
         )}
-      >
-        <Icon
-          className={cn(
-            "h-5 w-5 shrink-0",
-            active ? color.text : "text-muted"
-          )}
-        />
       </span>
       <span className="truncate">{link.label}</span>
     </Link>

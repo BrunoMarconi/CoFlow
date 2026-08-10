@@ -8,14 +8,8 @@ import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { useKeyboardVisible } from "@/hooks/useKeyboardVisible";
 import { getNotifications } from "@/services/notifications";
 import { getTabTransitionTypes } from "@/lib/navTransition";
-import {
-  CompassIcon,
-  UsersIcon,
-  MessageIcon,
-  ProfileIcon,
-  MoreIcon,
-  type IconProps,
-} from "@/components/layout/NavIcons";
+import { MoreIcon } from "@/components/layout/NavIcons";
+import Icon3D from "@/components/layout/Icon3D";
 
 const SECONDARY_PREFIXES = [
   "/mas",
@@ -28,55 +22,42 @@ const SECONDARY_PREFIXES = [
 const LINKS: {
   href: string;
   label: string;
-  icon: (props: IconProps) => React.ReactElement;
+  icon3d?: string;
   isActive: (pathname: string) => boolean;
-  activeBg: string;
-  activeText: string;
 }[] = [
   {
     href: "/comunidades",
     label: "Explorar",
-    icon: CompassIcon,
+    icon3d: "/icons/3d/compass.png",
     isActive: (pathname) =>
       pathname.startsWith("/comunidades") || pathname.startsWith("/mi-comunidad"),
-    activeBg: "bg-mint-100",
-    activeText: "text-primary-dark",
   },
   {
     href: "/usuarios",
     label: "Personas",
-    icon: UsersIcon,
+    icon3d: "/icons/3d/busts-in-silhouette.png",
     isActive: (pathname) =>
       pathname.startsWith("/usuarios") ||
       (pathname.startsWith("/personas") &&
         !pathname.startsWith("/personas/guardadas")),
-    activeBg: "bg-blue-100",
-    activeText: "text-blue-600",
   },
   {
     href: "/mensajes",
     label: "Mensajes",
-    icon: MessageIcon,
+    icon3d: "/icons/3d/speech-balloon.png",
     isActive: (pathname) => pathname.startsWith("/mensajes"),
-    activeBg: "bg-amber-100",
-    activeText: "text-amber-600",
   },
   {
     href: "/perfil",
     label: "Perfil",
-    icon: ProfileIcon,
+    icon3d: "/icons/3d/bust-in-silhouette.png",
     isActive: (pathname) => pathname.startsWith("/perfil"),
-    activeBg: "bg-violet-100",
-    activeText: "text-violet-600",
   },
   {
     href: "/mas",
     label: "Más",
-    icon: MoreIcon,
     isActive: (pathname) =>
       SECONDARY_PREFIXES.some((prefix) => pathname.startsWith(prefix)),
-    activeBg: "bg-slate-200",
-    activeText: "text-slate-600",
   },
 ];
 
@@ -121,7 +102,6 @@ export default function BottomNavigation() {
       <div className="nav-glass mx-auto flex h-16 max-w-md items-stretch rounded-full">
         {LINKS.map((link) => {
           const active = link.isActive(pathname);
-          const Icon = link.icon;
 
           return (
             <Link
@@ -131,18 +111,17 @@ export default function BottomNavigation() {
               transitionTypes={getTabTransitionTypes(pathname, link.href)}
               className="relative flex flex-1 flex-col items-center justify-center gap-0.5 px-1 transition active:scale-95 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
             >
-              <span
-                className={cn(
-                  "relative flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-180",
-                  active && link.activeBg
+              <span className="relative flex h-7 w-7 items-center justify-center">
+                {link.icon3d ? (
+                  <Icon3D src={link.icon3d} active={active} size={26} />
+                ) : (
+                  <MoreIcon
+                    className={cn(
+                      "h-5 w-5 shrink-0",
+                      active ? "text-brand-dark" : "text-muted"
+                    )}
+                  />
                 )}
-              >
-                <Icon
-                  className={cn(
-                    "h-5 w-5 shrink-0",
-                    active ? link.activeText : "text-muted"
-                  )}
-                />
 
                 {link.href === "/mensajes" && hasUnreadMessages && (
                   <span

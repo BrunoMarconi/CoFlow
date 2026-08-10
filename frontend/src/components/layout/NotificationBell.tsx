@@ -9,6 +9,7 @@ import {
   markNotificationRead,
 } from "@/services/notifications";
 import type { AppNotification } from "@/types/notification";
+import Icon3D from "@/components/layout/Icon3D";
 
 export default function NotificationBell() {
   const router = useRouter();
@@ -110,13 +111,13 @@ export default function NotificationBell() {
         onClick={() => setOpen((current) => !current)}
         aria-label="Notificaciones"
         aria-expanded={open}
-        className={`relative flex h-11 w-11 items-center justify-center rounded-full transition active:scale-95 ${
-          unreadCount > 0
-            ? "bg-amber-100 text-amber-600 hover:bg-amber-200"
-            : "text-muted hover:bg-surface-soft hover:text-brand-dark"
-        }`}
+        className="relative flex h-11 w-11 items-center justify-center rounded-full transition hover:bg-surface-soft active:scale-95"
       >
-        <BellIcon />
+        <Icon3D
+          src="/icons/3d/bell.png"
+          active={unreadCount > 0}
+          size={26}
+        />
 
         {unreadCount > 0 && (
           <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
@@ -209,20 +210,3 @@ function formatNotificationDate(value: string) {
   }).format(date);
 }
 
-function BellIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-5 w-5"
-      aria-hidden="true"
-    >
-      <path d="M6 8a6 6 0 0 1 12 0c0 4 1.5 6 2 6.5H4C4.5 14 6 12 6 8Z" />
-      <path d="M10 19a2 2 0 0 0 4 0" />
-    </svg>
-  );
-}
