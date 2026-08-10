@@ -6,6 +6,7 @@ import { useUsers } from "@/hooks/useUsers";
 import UserGrid from "@/components/usuario/UserGrid";
 import PersonPreviewPanel from "@/components/usuario/PersonPreviewPanel";
 import UserFilters, {
+  COMMUNITY_STATUS_OPTIONS,
   defaultUserFilters,
   isUserFiltersActive,
   type UserFilterState,
@@ -22,6 +23,12 @@ import {
 
 const SEARCH_BAR_LAYOUT_ID = "people-search-bar";
 const SEARCH_ICON_LAYOUT_ID = "people-search-icon";
+
+type ActiveChip = {
+  key: string;
+  label: string;
+  onRemove: () => void;
+};
 
 export default function UsuariosPage() {
   const [search, setSearch] = useState("");
@@ -77,6 +84,48 @@ export default function UsuariosPage() {
     });
   }, [users, search, filters]);
 
+  const hasQuery = search.trim().length > 0;
+  const showFiltersPanel = !hasQuery || filtersOpen;
+  const resultCount = visibleUsers.length;
+
+  const activeChips = useMemo<ActiveChip[]>(() => {
+    const chips: ActiveChip[] = [];
+
+    if (filters.city) {
+      chips.push({
+        key: "city",
+        label: filters.city,
+        onRemove: () => setFilters((current) => ({ ...current, city: "" })),
+      });
+    }
+
+    if (filters.maxBudget) {
+      chips.push({
+        key: "maxBudget",
+        label: `Hasta ${filters.maxBudget} €`,
+        onRemove: () =>
+          setFilters((current) => ({ ...current, maxBudget: "" })),
+      });
+    }
+
+    if (filters.communityStatus !== "ALL") {
+      const option = COMMUNITY_STATUS_OPTIONS.find(
+        (item) => item.value === filters.communityStatus
+      );
+
+      if (option) {
+        chips.push({
+          key: "communityStatus",
+          label: option.label,
+          onRemove: () =>
+            setFilters((current) => ({ ...current, communityStatus: "ALL" })),
+        });
+      }
+    }
+
+    return chips;
+  }, [filters]);
+
   function closeSearch() {
     setSearchOpen(false);
   }
@@ -85,18 +134,22 @@ export default function UsuariosPage() {
     if (!searchOpen) return;
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") closeSearch();
+      if (event.key !== "Escape") return;
+
+      if (filtersOpen) {
+        setFiltersOpen(false);
+        return;
+      }
+
+      closeSearch();
     }
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [searchOpen]);
+  }, [searchOpen, filtersOpen]);
 
-  const resultCount = visibleUsers.length;
-
-  // Mismo bloque de resultados en ambos modos (normal y búsqueda): se
-  // renderiza en el que esté activo en cada momento, nunca en los
-  // dos a la vez, así que no hay grid duplicado ni doble coste.
+  // Mismo bloque de resultados que la vista normal de Personas: se
+  // reutiliza tal cual dentro del modo búsqueda, nunca se duplica.
   const resultsBlock = loading ? (
     <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: 6 }).map((_, index) => (
@@ -114,7 +167,11 @@ export default function UsuariosPage() {
     </motion.p>
   ) : (
     <>
-      <UserGrid users={visibleUsers} onOpen={setOpenUserId} />
+      <UserGrid
+        users={visibleUsers}
+        onOpen={setOpenUserId}
+        staggerChildren={searchOpen ? 0.025 : 0.04}
+      />
 
       {hasMore && (
         <div className="mt-6 flex justify-center">
@@ -206,7 +263,7 @@ export default function UsuariosPage() {
               <button
                 type="button"
                 onClick={closeSearch}
-                aria-label="Volver"
+                aria-label="Volver a Personas"
                 className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-secondary transition-colors duration-200 hover:bg-surface-soft hover:text-brand-dark"
               >
                 <ArrowLeftIcon />
@@ -226,26 +283,61 @@ export default function UsuariosPage() {
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   onClear={() => setSearch("")}
-                  placeholder="Buscar por nombre, zona o intereses..."
+                  placeholder="Buscar personas..."
                 />
               </motion.div>
 
-              <motion.button
-                type="button"
-                onClick={() => setFiltersOpen((current) => !current)}
-                aria-expanded={filtersOpen}
-                aria-label="Filtros"
-                title="Filtros"
-                whileTap={{ scale: 0.92 }}
-                transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-                className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border shadow-soft transition-colors duration-200 ${
-                  filtersOpen || isUserFiltersActive(filters)
-                    ? "border-primary/30 bg-mint-100 text-primary-dark"
-                    : "border-border bg-surface text-secondary hover:bg-surface-soft"
-                }`}
-              >
-                <FilterIcon />
-              </motion.button>
+              {hasQuery && (
+                <motion.button
+                  type="button"
+                  onClick={() => setFiltersOpen((current) => !current)}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  aria-expanded={filtersOpen}
+                  aria-label="Filtros"
+                  title="Filtros"
+                  whileTap={{ scale: 0.92 }}
+                  transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border shadow-soft transition-colors duration-200 ${
+                    filtersOpen || isUserFiltersActive(filters)
+                      ? "border-primary/30 bg-mint-100 text-primary-dark"
+                      : "border-border bg-surface text-secondary hover:bg-surface-soft"
+                  }`}
+                >
+                  <FilterIcon />
+                </motion.button>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {searchOpen && hasQuery && !filtersOpen && activeChips.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+              className="mt-3 flex flex-wrap gap-1.5"
+            >
+              {activeChips.map((chip) => (
+                <motion.button
+                  key={chip.key}
+                  type="button"
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+                  onClick={chip.onRemove}
+                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-mint-50 px-3 py-1.5 text-xs font-bold text-primary-dark"
+                >
+                  {chip.label}
+                  <CloseIcon />
+                </motion.button>
+              ))}
             </motion.div>
           )}
         </AnimatePresence>
@@ -255,9 +347,9 @@ export default function UsuariosPage() {
         {!searchOpen ? (
           <motion.div
             key="normal-mode"
-            initial={{ opacity: 0, scale: 0.985 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.985 }}
+            initial={{ opacity: 0, x: -15 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -15 }}
             transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
           >
             {filtersOpen && (
@@ -290,30 +382,50 @@ export default function UsuariosPage() {
         ) : (
           <motion.div
             key="search-mode"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 30 }}
             transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
             className="mt-4"
           >
-            {filtersOpen && (
-              <div className="mb-4">
-                <UserFilters
-                  filters={filters}
-                  onChange={setFilters}
-                  onClear={() => setFilters(defaultUserFilters)}
-                  resultCount={resultCount}
-                />
-              </div>
-            )}
+            <AnimatePresence mode="wait" initial={false}>
+              {showFiltersPanel ? (
+                <motion.div
+                  key="filters-panel"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+                >
+                  <p className="mb-3 text-sm font-bold text-brand-dark">
+                    Buscar personas
+                  </p>
 
-            <SectionHeader
-              title={search ? "Resultados" : "Personas recomendadas"}
-              subtitle={resultsCounter}
-              className="mb-5"
-            />
+                  <UserFilters
+                    filters={filters}
+                    onChange={setFilters}
+                    onClear={() => setFilters(defaultUserFilters)}
+                    resultCount={resultCount}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="results-panel"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+                >
+                  <SectionHeader
+                    title="Resultados"
+                    subtitle={resultsCounter}
+                    className="mb-5"
+                  />
 
-            {resultsBlock}
+                  {resultsBlock}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>
@@ -383,6 +495,23 @@ function ArrowLeftIcon() {
     >
       <path d="M19 12H5" />
       <path d="m11 18-6-6 6-6" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      className="h-3 w-3"
+      aria-hidden="true"
+    >
+      <path d="m6 6 12 12" />
+      <path d="m18 6-12 12" />
     </svg>
   );
 }

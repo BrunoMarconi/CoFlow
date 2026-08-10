@@ -22,7 +22,7 @@ export function isUserFiltersActive(filters: UserFilterState): boolean {
   );
 }
 
-const COMMUNITY_STATUS_OPTIONS: {
+export const COMMUNITY_STATUS_OPTIONS: {
   value: UserFilterState["communityStatus"];
   label: string;
 }[] = [

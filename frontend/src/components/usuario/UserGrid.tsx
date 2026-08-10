@@ -1,17 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import UserCard from "./UserCard";
 import EmptyState from "@/components/ui/EmptyState";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import type { UserPublicProfile } from "@/types/userPublic";
-
-const containerVariants = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.04 },
-  },
-};
 
 const itemVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -25,9 +18,14 @@ const itemVariants = {
 export default function UserGrid({
   users,
   onOpen,
+  staggerChildren = 0.04,
 }: {
   users: UserPublicProfile[];
   onOpen: (userId: string) => void;
+  /** ms/1000 entre cards al entrar — por defecto el de siempre; se
+   * puede pasar uno más corto (p. ej. desde resultados de búsqueda en
+   * vivo) sin duplicar este componente. */
+  staggerChildren?: number;
 }) {
   if (users.length === 0) {
     return (
@@ -38,6 +36,13 @@ export default function UserGrid({
     );
   }
 
+  const containerVariants = {
+    hidden: {},
+    show: {
+      transition: { staggerChildren },
+    },
+  };
+
   return (
     <motion.div
       variants={containerVariants}
@@ -45,11 +50,18 @@ export default function UserGrid({
       animate="show"
       className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3"
     >
-      {users.map((user) => (
-        <motion.div key={user.id} variants={itemVariants}>
-          <UserCard user={user} onOpen={onOpen} />
-        </motion.div>
-      ))}
+      <AnimatePresence initial={false}>
+        {users.map((user) => (
+          <motion.div
+            key={user.id}
+            layout
+            variants={itemVariants}
+            exit={{ opacity: 0 }}
+          >
+            <UserCard user={user} onOpen={onOpen} />
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </motion.div>
   );
 }
