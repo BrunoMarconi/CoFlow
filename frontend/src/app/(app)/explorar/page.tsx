@@ -11,8 +11,6 @@ import { useCommunities } from "@/hooks/useCommunities";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import ExplorerSearchBar from "@/components/explorer/ExplorerSearchBar";
 import UserAvatar from "@/components/ui/UserAvatar";
-import AvatarGroup from "@/components/ui/AvatarGroup";
-import CommunityCover from "@/components/ui/CommunityCover";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import EmptyState from "@/components/ui/EmptyState";
 import Spinner from "@/components/ui/Spinner";
@@ -32,6 +30,14 @@ type Segment = "all" | "people" | "communities";
 
 const PREVIEW_COUNT_MIXED = 8;
 const PREVIEW_COUNT_FOCUSED = 12;
+
+/* Ligero desfase en abanico para los avatares del hero — puramente
+ * decorativo, cubre hasta 3 posiciones. */
+const HERO_AVATAR_OFFSETS = [
+  "left-0 top-3 rotate-[-6deg]",
+  "left-9 top-0 rotate-[4deg]",
+  "left-18 top-4 rotate-[-3deg]",
+];
 
 export default function ExplorarPage() {
   const router = useRouter();
@@ -78,15 +84,10 @@ export default function ExplorarPage() {
     ? { opacity: 0 }
     : { opacity: 0, y: -distance };
 
-  const heroAvatars = users.slice(0, 6).map((person) => ({
-    id: person.id,
-    firstName: person.first_name,
-    lastName: person.last_name,
-    imageUrl: person.avatar_url,
-  }));
+  const heroPeople = users.slice(0, 3);
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-8 pb-4">
+    <div className="mx-auto w-full max-w-5xl space-y-7">
       <ExplorerSearchBar
         layoutIdBar="explorar-search-bar"
         layoutIdIcon="explorar-search-icon"
@@ -96,11 +97,7 @@ export default function ExplorarPage() {
         value=""
         onChange={() => {}}
         onClear={() => {}}
-        collapsedPlaceholder={
-          segment === "communities"
-            ? "Buscar comunidades..."
-            : "Buscar personas..."
-        }
+        collapsedPlaceholder="Buscar personas o comunidades"
         placeholder=""
       />
 
@@ -128,36 +125,47 @@ export default function ExplorarPage() {
         </SegmentPill>
       </div>
 
-      <section className="relative overflow-hidden rounded-24 border border-border bg-surface p-5 sm:p-6">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full bg-mint-100 blur-3xl"
-        />
+      <section className="flex items-center justify-between gap-4 rounded-24 border border-border bg-surface p-5 sm:p-6">
+        <div className="min-w-0">
+          <p className="font-rounded text-xl font-semibold leading-snug text-brand-dark">
+            Encuentra a tu gente
+          </p>
 
-        <p className="font-rounded text-lg font-semibold leading-snug text-brand-dark sm:text-xl">
-          Encuentra a tu gente
-        </p>
+          <p className="mt-1.5 max-w-[30ch] text-[13px] leading-5 text-secondary">
+            Descubre personas y comunidades con las que compartir tu
+            próxima etapa.
+          </p>
 
-        <p className="mt-1 max-w-sm text-sm leading-5 text-secondary">
-          Descubre personas y comunidades con las que compartir tu
-          próxima etapa.
-        </p>
+          <Link
+            href="/usuarios"
+            className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-primary-dark transition hover:text-brand-dark"
+          >
+            Explorar personas
+            <ChevronIcon className="h-3.5 w-3.5" />
+          </Link>
+        </div>
 
-        <Link
-          href="/usuarios"
-          className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-primary-dark transition hover:text-brand-dark"
-        >
-          Explorar personas
-          <ChevronIcon className="h-3.5 w-3.5" />
-        </Link>
-
-        {heroAvatars.length > 0 && (
-          <AvatarGroup
-            members={heroAvatars}
-            max={6}
-            size="md"
-            className="relative mt-4"
-          />
+        {heroPeople.length > 0 && (
+          <div className="relative h-20 w-28 shrink-0 sm:h-24 sm:w-32">
+            {heroPeople.map((person, index) => (
+              <div
+                key={person.id}
+                style={{ zIndex: heroPeople.length - index }}
+                className={cn(
+                  "absolute overflow-hidden rounded-full border-2 border-surface shadow-soft",
+                  HERO_AVATAR_OFFSETS[index]
+                )}
+              >
+                <UserAvatar
+                  firstName={person.first_name}
+                  lastName={person.last_name}
+                  userId={person.id}
+                  imageUrl={person.avatar_url}
+                  size={isDesktop ? "xl" : "lg"}
+                />
+              </div>
+            ))}
+          </div>
         )}
       </section>
 
@@ -177,6 +185,8 @@ export default function ExplorarPage() {
               loading={usersLoading}
               isEmpty={users.length === 0}
               emptyMessage="Todavía no hay personas para mostrar."
+              skeletonWidth="w-56"
+              skeletonHeight="h-64"
             >
               {users
                 .slice(
@@ -184,7 +194,7 @@ export default function ExplorarPage() {
                   segment === "all" ? PREVIEW_COUNT_MIXED : PREVIEW_COUNT_FOCUSED
                 )
                 .map((person) => (
-                  <PersonPreviewCard key={person.id} person={person} />
+                  <ExplorePersonCard key={person.id} person={person} />
                 ))}
             </DiscoveryRow>
           )}
@@ -196,6 +206,8 @@ export default function ExplorarPage() {
               loading={communitiesLoading}
               isEmpty={communities.length === 0}
               emptyMessage="Todavía no hay comunidades para mostrar."
+              skeletonWidth="w-68"
+              skeletonHeight="h-56"
             >
               {communities
                 .slice(
@@ -203,7 +215,7 @@ export default function ExplorarPage() {
                   segment === "all" ? PREVIEW_COUNT_MIXED : PREVIEW_COUNT_FOCUSED
                 )
                 .map((item) => (
-                  <CommunityPreviewCard
+                  <ExploreCommunityCard
                     key={item.id}
                     item={item}
                     isOwn={item.id === community?.id}
@@ -271,6 +283,8 @@ function DiscoveryRow({
   loading,
   isEmpty,
   emptyMessage,
+  skeletonWidth,
+  skeletonHeight,
   children,
 }: {
   title: string;
@@ -278,45 +292,53 @@ function DiscoveryRow({
   loading: boolean;
   isEmpty: boolean;
   emptyMessage: string;
+  skeletonWidth: string;
+  skeletonHeight: string;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="text-[15px] font-bold text-brand-dark">{title}</h2>
+      <div className="mb-3 flex items-baseline justify-between gap-3">
+        <h2 className="font-rounded text-[21px] font-semibold text-brand-dark">
+          {title}
+        </h2>
 
         <Link
           href={viewAllHref}
-          className="text-xs font-bold text-primary-dark transition hover:text-brand-dark"
+          className="shrink-0 text-sm font-bold text-primary-dark transition hover:text-brand-dark"
         >
           Ver todas
         </Link>
       </div>
 
       {loading ? (
-        <div className="scroll-fade-x flex gap-3 overflow-x-auto pb-1">
+        <div className="flex gap-3 overflow-x-auto pb-1">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="w-[68vw] shrink-0 sm:w-48">
-              <SkeletonCard withCover coverClassName="h-40" className="[&>div:last-child]:hidden" />
+            <div key={index} className={cn(skeletonWidth, "shrink-0")}>
+              <SkeletonCard
+                withCover
+                coverClassName={skeletonHeight}
+                className="[&>div:last-child]:hidden"
+              />
             </div>
           ))}
         </div>
       ) : isEmpty ? (
         <EmptyState title={emptyMessage} />
       ) : (
-        <div className="scroll-fade-x flex gap-3 overflow-x-auto pb-1 snap-x snap-proximity">
+        <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
           {children}
+          <div aria-hidden="true" className="w-1 shrink-0" />
         </div>
       )}
     </div>
   );
 }
 
-/** Teaser compacto para el Home — la ficha completa vive en
- * /personas/[id]. Usa los mismos datos que UserCard, pero con una
- * presentación fotográfica pensada para un carrusel, no para
- * búsqueda profunda. */
-function PersonPreviewCard({ person }: { person: UserPublicProfile }) {
+/** Preview compacto para el Home — no es la ficha de búsqueda
+ * profunda (esa vive en /usuarios vía UserCard). Solo foto/avatar,
+ * nombre y un único dato de contexto real. */
+function ExplorePersonCard({ person }: { person: UserPublicProfile }) {
   const fullName = `${person.first_name} ${person.last_name}`.trim();
   const hasPhoto = Boolean(person.avatar_url);
 
@@ -329,72 +351,53 @@ function PersonPreviewCard({ person }: { person: UserPublicProfile }) {
   return (
     <Link
       href={`/personas/${person.id}`}
-      className="block w-[68vw] shrink-0 snap-start sm:w-48"
+      className="block w-56 shrink-0 rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
       <motion.div
         whileTap={{ scale: 0.97 }}
         transition={{ duration: MOTION_DURATION.fast }}
-        className="relative h-56 overflow-hidden rounded-18 bg-mint-50 sm:h-52"
+        className="overflow-hidden rounded-18 border border-border bg-surface"
       >
-        {hasPhoto ? (
-          <Image
-            src={person.avatar_url!}
-            alt=""
-            fill
-            unoptimized
-            sizes="(min-width: 640px) 192px, 68vw"
-            className="object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <UserAvatar
-              firstName={person.first_name}
-              lastName={person.last_name}
-              userId={person.id}
-              size="xl"
+        <div className="relative h-48 bg-surface-muted">
+          {hasPhoto ? (
+            <Image
+              src={person.avatar_url!}
+              alt=""
+              fill
+              unoptimized
+              sizes="224px"
+              className="object-cover"
             />
-          </div>
-        )}
-
-        {hasPhoto && (
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 to-transparent" />
-        )}
-
-        {person.is_verified && (
-          <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-primary">
-            <VerifiedIcon className="h-3.5 w-3.5" />
-          </span>
-        )}
-
-        <div
-          className={cn(
-            "absolute inset-x-0 bottom-0 p-2.5",
-            hasPhoto ? "text-white" : "text-brand-dark"
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <div className="rounded-full ring-4 ring-border/50">
+                <UserAvatar
+                  firstName={person.first_name}
+                  lastName={person.last_name}
+                  userId={person.id}
+                  size="lg"
+                />
+              </div>
+            </div>
           )}
-        >
-          <p className="truncate text-sm font-bold">
+
+          {person.is_verified && (
+            <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-primary shadow-soft">
+              <VerifiedIcon className="h-3.5 w-3.5" />
+            </span>
+          )}
+        </div>
+
+        <div className="p-2.5">
+          <p className="truncate text-sm font-bold text-brand-dark">
             {fullName || "Persona de CoFlow"}
             {person.age !== null && (
-              <span
-                className={cn(
-                  "font-medium",
-                  hasPhoto ? "text-white/85" : "text-secondary"
-                )}
-              >
-                , {person.age}
-              </span>
+              <span className="font-medium text-secondary">, {person.age}</span>
             )}
           </p>
 
           {subtitle && (
-            <p
-              className={cn(
-                "truncate text-xs",
-                hasPhoto ? "text-white/80" : "text-secondary"
-              )}
-            >
-              {subtitle}
-            </p>
+            <p className="truncate text-xs text-muted">{subtitle}</p>
           )}
         </div>
       </motion.div>
@@ -402,48 +405,79 @@ function PersonPreviewCard({ person }: { person: UserPublicProfile }) {
   );
 }
 
-/** Teaser compacto de comunidad para el Home — usa CommunityCover
- * (mismo componente que la card completa) pero con metadatos
- * reducidos a lo esencial; el detalle vive en /comunidades/[id]. */
-function CommunityPreviewCard({
+/** Preview compacto de comunidad — cover real si existe, si no una
+ * composición de avatares limpia (sin verde plano). Metadata máxima
+ * de dos líneas; nada de CTA interno. */
+function ExploreCommunityCard({
   item,
   isOwn,
 }: {
   item: Community;
   isOwn: boolean;
 }) {
-  const visibleMembers = item.members.slice(0, 4).map((member) => ({
-    id: member.id.toString(),
-    firstName: member.user.first_name,
-    lastName: member.user.last_name,
-    imageUrl: member.user.avatar_url,
-  }));
+  const visibleMembers = item.members.slice(0, 3);
 
   return (
     <Link
       href={`/comunidades/${item.id}`}
-      className="block w-[72vw] shrink-0 snap-start sm:w-52"
+      className="block w-68 shrink-0 rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
       <motion.div
         whileTap={{ scale: 0.97 }}
         transition={{ duration: MOTION_DURATION.fast }}
         className="overflow-hidden rounded-18 border border-border bg-surface"
       >
-        <CommunityCover
-          name={item.name}
-          coverColor={item.cover_color}
-          coverImageUrl={item.cover_image_url}
-          members={visibleMembers}
-          memberCount={item.member_count}
-          isOwn={isOwn}
-          className="h-28"
-        />
+        <div className="relative h-30 bg-surface-muted">
+          {item.cover_image_url ? (
+            <Image
+              src={item.cover_image_url}
+              alt=""
+              fill
+              unoptimized
+              sizes="272px"
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center -space-x-3">
+              {visibleMembers.length > 0 ? (
+                visibleMembers.map((member) => (
+                  <UserAvatar
+                    key={member.id}
+                    firstName={member.user.first_name}
+                    lastName={member.user.last_name}
+                    userId={member.user.id}
+                    imageUrl={member.user.avatar_url}
+                    size="lg"
+                    className="border-2 border-surface"
+                  />
+                ))
+              ) : (
+                <div className="rounded-full ring-4 ring-border/50">
+                  <UserAvatar
+                    firstName={item.name}
+                    userId={String(item.id)}
+                    size="lg"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="p-2.5">
-          <p className="truncate text-sm font-bold text-brand-dark">
-            {item.name}
-          </p>
-          <p className="mt-0.5 truncate text-xs text-secondary">
+          <div className="flex items-center gap-1.5">
+            <p className="truncate text-sm font-bold text-brand-dark">
+              {item.name}
+            </p>
+
+            {isOwn && (
+              <span className="shrink-0 rounded-full bg-mint-50 px-1.5 py-0.5 text-[10px] font-bold text-primary-dark">
+                Tuya
+              </span>
+            )}
+          </div>
+
+          <p className="truncate text-xs text-muted">
             {item.city}
             {" · "}
             {item.member_count}{" "}
