@@ -67,7 +67,7 @@ export default function CommunityFilters({
   }
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-5">
+    <div className="rounded-24 border border-border bg-surface p-4 shadow-soft sm:p-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label
@@ -92,7 +92,7 @@ export default function CommunityFilters({
                 update({ maxBudget: event.target.value })
               }
               placeholder="Sin límite"
-              className="h-12 w-full rounded-xl border border-line bg-surface pl-9 pr-4 text-base text-foreground outline-none transition focus:border-brand"
+              className="h-11.5 w-full rounded-14 border border-border bg-surface pl-9 pr-4 text-[15px] text-foreground outline-none transition-all duration-180 placeholder:text-muted hover:border-secondary/40 focus:border-primary focus:ring-4 focus:ring-mint-100"
             />
           </div>
         </div>
@@ -112,7 +112,7 @@ export default function CommunityFilters({
             onChange={(event) =>
               update({ moveInBefore: event.target.value })
             }
-            className="h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-foreground outline-none transition focus:border-brand"
+            className="h-11.5 w-full rounded-14 border border-border bg-surface px-4 text-[15px] text-foreground outline-none transition-all duration-180 hover:border-secondary/40 focus:border-primary focus:ring-4 focus:ring-mint-100"
           />
         </div>
       </div>
@@ -128,10 +128,10 @@ export default function CommunityFilters({
               key={option.value}
               type="button"
               onClick={() => update({ joinType: option.value })}
-              className={`min-h-11 rounded-xl border px-4 text-sm font-bold transition ${
+              className={`min-h-11 rounded-14 border px-4 text-sm font-bold transition-colors duration-200 ${
                 filters.joinType === option.value
-                  ? "border-brand bg-brand/10 text-brand-dark"
-                  : "border-line bg-surface text-muted hover:border-brand/40"
+                  ? "border-primary/30 bg-mint-100 text-primary-dark"
+                  : "border-border bg-surface text-muted hover:border-primary/30"
               }`}
             >
               {option.label}
@@ -149,10 +149,10 @@ export default function CommunityFilters({
               key={option.value}
               type="button"
               onClick={() => update({ urgency: option.value })}
-              className={`min-h-11 rounded-xl border px-4 text-sm font-bold transition ${
+              className={`min-h-11 rounded-14 border px-4 text-sm font-bold transition-colors duration-200 ${
                 filters.urgency === option.value
-                  ? "border-brand bg-brand/10 text-brand-dark"
-                  : "border-line bg-surface text-muted hover:border-brand/40"
+                  ? "border-primary/30 bg-mint-100 text-primary-dark"
+                  : "border-border bg-surface text-muted hover:border-primary/30"
               }`}
             >
               {option.label}
@@ -170,10 +170,10 @@ export default function CommunityFilters({
           <button
             type="button"
             onClick={() => update({ profileType: "ALL" })}
-            className={`min-h-11 rounded-xl border px-4 text-sm font-bold transition ${
+            className={`min-h-11 rounded-14 border px-4 text-sm font-bold transition-colors duration-200 ${
               filters.profileType === "ALL"
-                ? "border-brand bg-brand/10 text-brand-dark"
-                : "border-line bg-surface text-muted hover:border-brand/40"
+                ? "border-primary/30 bg-mint-100 text-primary-dark"
+                : "border-border bg-surface text-muted hover:border-primary/30"
             }`}
           >
             Todos
@@ -184,10 +184,10 @@ export default function CommunityFilters({
               key={option.value}
               type="button"
               onClick={() => update({ profileType: option.value })}
-              className={`min-h-11 rounded-xl border px-4 text-sm font-bold transition ${
+              className={`min-h-11 rounded-14 border px-4 text-sm font-bold transition-colors duration-200 ${
                 filters.profileType === option.value
-                  ? "border-brand bg-brand/10 text-brand-dark"
-                  : "border-line bg-surface text-muted hover:border-brand/40"
+                  ? "border-primary/30 bg-mint-100 text-primary-dark"
+                  : "border-border bg-surface text-muted hover:border-primary/30"
               }`}
             >
               {option.label}
@@ -196,7 +196,7 @@ export default function CommunityFilters({
         </div>
       </div>
 
-      <label className="mt-4 flex min-h-11 items-center gap-3 rounded-xl border border-line px-4 text-sm font-semibold text-foreground">
+      <label className="mt-4 flex min-h-11 items-center gap-3 rounded-14 border border-border px-4 text-sm font-semibold text-foreground">
         <input
           type="checkbox"
           checked={filters.showNoSpots}
@@ -212,12 +212,12 @@ export default function CommunityFilters({
         <button
           type="button"
           onClick={onClear}
-          className="flex h-12 w-full items-center justify-center rounded-xl border border-line bg-surface text-sm font-bold text-foreground transition hover:bg-surface-soft sm:w-auto"
+          className="flex h-12 w-full items-center justify-center rounded-14 border border-border bg-surface text-sm font-bold text-foreground transition-colors duration-200 hover:bg-surface-soft sm:w-auto"
         >
           Limpiar filtros
         </button>
 
-        <p className="flex h-12 flex-1 items-center justify-center rounded-xl bg-surface-soft text-sm font-bold text-brand-dark sm:justify-start sm:px-4">
+        <p className="flex h-12 flex-1 items-center justify-center rounded-14 bg-surface-soft text-sm font-bold text-brand-dark sm:justify-start sm:px-4">
           {resultCount}{" "}
           {resultCount === 1
             ? "comunidad encontrada"

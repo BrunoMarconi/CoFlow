@@ -20,6 +20,7 @@ import ActiveFilterChips, {
 import SectionHeader from "@/components/ui/SectionHeader";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
+import EmptyState from "@/components/ui/EmptyState";
 import {
   MOTION_DURATION,
   MOTION_EASE,
@@ -261,14 +262,22 @@ export default function UsuariosPage() {
               ))}
             </div>
           ) : resultCount === 0 ? (
-            <motion.p
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
-              className="rounded-18 border border-dashed border-border bg-surface-muted p-8 text-center text-sm text-muted"
-            >
-              No encontramos personas con esos filtros.
-            </motion.p>
+            <EmptyState
+              title="No encontramos personas con esos filtros"
+              description="Prueba a cambiar la ciudad, el presupuesto o la situación de convivencia."
+              action={
+                (hasQuery || isUserFiltersActive(filters)) && (
+                  <SecondaryButton
+                    onClick={() => {
+                      setSearch("");
+                      setFilters(defaultUserFilters);
+                    }}
+                  >
+                    Restablecer filtros
+                  </SecondaryButton>
+                )
+              }
+            />
           ) : (
             <>
               <UserGrid

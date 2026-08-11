@@ -24,6 +24,7 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
+import ErrorState from "@/components/ui/ErrorState";
 import HomeFab from "@/components/explorer/HomeFab";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 
@@ -247,17 +248,12 @@ export default function ComunidadesPage() {
       ))}
     </div>
   ) : error ? (
-    <div className="rounded-18 border border-red-100 bg-red-50 p-8 text-center">
-      <p className="font-bold text-red-700">
-        No hemos podido cargar las comunidades
-      </p>
-
-      <p className="mt-2 text-sm text-red-600">{error}</p>
-
-      <SecondaryButton onClick={refetch} className="mt-5">
-        Volver a intentarlo
-      </SecondaryButton>
-    </div>
+    <ErrorState
+      title="No hemos podido cargar las comunidades"
+      description={error}
+      onRetry={refetch}
+      retryLabel="Volver a intentarlo"
+    />
   ) : (
     <>
       <CommunityGrid
@@ -323,16 +319,17 @@ export default function ComunidadesPage() {
         )}
       </div>
 
-      <AnimatePresence mode="wait" initial={false}>
-        {!searchOpen ? (
+      <AnimatePresence initial={false}>
+        {!searchOpen && (
           <motion.div
-            key="normal-mode"
-            initial={{ opacity: 0, x: -15 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -15 }}
-            transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+            key="header"
+            initial={{ opacity: 0, y: -12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.98 }}
+            transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+            className="mt-6"
           >
-            <header className="mt-6 flex items-center justify-between gap-4">
+            <header className="flex items-center justify-between gap-4">
               <h1 className="font-rounded text-lg font-semibold text-brand-dark">
                 Comunidades
               </h1>
@@ -350,67 +347,48 @@ export default function ComunidadesPage() {
                 Has abandonado la comunidad correctamente.
               </p>
             )}
-
-            <section className="mt-8">
-              <SectionHeader
-                title="Comunidades recomendadas"
-                subtitle={resultsCounter}
-                className="mb-5"
-              />
-
-              {resultsBlock}
-            </section>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="search-mode"
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 30 }}
-            transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
-            className="mt-4"
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              {showFiltersPanel ? (
-                <motion.div
-                  key="filters-panel"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-                >
-                  <p className="mb-3 text-sm font-bold text-brand-dark">
-                    Buscar comunidades
-                  </p>
-
-                  <CommunityFilters
-                    filters={filters}
-                    onChange={setFilters}
-                    onClear={() => setFilters(defaultCommunityFilters)}
-                    resultCount={resultCount}
-                  />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="results-panel"
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-                >
-                  <SectionHeader
-                    title="Resultados"
-                    subtitle={resultsCounter}
-                    className="mb-5"
-                  />
-
-                  {resultsBlock}
-                </motion.div>
-              )}
-            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence initial={false}>
+        {searchOpen && showFiltersPanel && (
+          <motion.div
+            key="filters-panel"
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{
+              opacity: 0,
+              y: -6,
+              scale: 0.98,
+              transition: { duration: MOTION_DURATION.fast, ease: MOTION_EASE.out },
+            }}
+            transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+            className="mt-4"
+          >
+            <p className="mb-3 text-sm font-bold text-brand-dark">
+              Buscar comunidades
+            </p>
+
+            <CommunityFilters
+              filters={filters}
+              onChange={setFilters}
+              onClear={() => setFilters(defaultCommunityFilters)}
+              resultCount={resultCount}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <section className="mt-8">
+        <SectionHeader
+          title={searchOpen ? "Resultados" : "Comunidades recomendadas"}
+          subtitle={resultsCounter}
+          className="mb-5"
+        />
+
+        {resultsBlock}
+      </section>
 
       <HomeFab />
     </div>
