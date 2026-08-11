@@ -8,6 +8,7 @@ import EmailVerificationBanner from "@/components/layout/EmailVerificationBanner
 import ProfileCompletionBanner from "@/components/layout/ProfileCompletionBanner";
 import SwipeNavigation from "@/components/layout/SwipeNavigation";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
+import ExplorerTransitionProvider from "@/providers/ExplorerTransitionProvider";
 import { cn } from "@/lib/utils";
 import { NAV_TRANSITION } from "@/lib/navTransition";
 
@@ -15,6 +16,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const { isChatActive } = useMobileChrome();
 
   return (
+    <ExplorerTransitionProvider>
     <div className="min-h-dvh bg-background">
       <Navbar />
 
@@ -55,5 +57,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
       <BottomNavigation />
     </div>
+    </ExplorerTransitionProvider>
   );
 }

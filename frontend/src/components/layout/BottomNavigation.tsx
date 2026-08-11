@@ -8,6 +8,7 @@ import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { useKeyboardVisible } from "@/hooks/useKeyboardVisible";
 import { getNotifications } from "@/services/notifications";
 import { getTabTransitionTypes } from "@/lib/navTransition";
+import { useExplorerLinkClick } from "@/components/explorer/useExplorerLinkClick";
 import {
   CompassIcon,
   UsersIcon,
@@ -107,46 +108,66 @@ export default function BottomNavigation() {
       className="fixed inset-x-0 bottom-0 z-(--z-bottom-nav) border-t border-border bg-surface pb-(--safe-bottom) md:hidden"
     >
       <div className="mx-auto flex h-20 max-w-md items-stretch">
-        {LINKS.map((link) => {
-          const active = link.isActive(pathname);
-          const Icon = link.icon;
-
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              aria-current={active ? "page" : undefined}
-              transitionTypes={getTabTransitionTypes(pathname, link.href)}
-              className="relative flex flex-1 flex-col items-center justify-center gap-1 px-1 transition active:scale-95 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
-            >
-              <span className="relative">
-                <Icon
-                  className={cn(
-                    "h-7 w-7 shrink-0",
-                    active ? "text-brand-dark" : "text-muted"
-                  )}
-                />
-
-                {link.href === "/mensajes" && hasUnreadMessages && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary ring-2 ring-white/80"
-                  />
-                )}
-              </span>
-
-              <span
-                className={cn(
-                  "text-[11px] leading-none",
-                  active ? "font-bold text-brand-dark" : "font-semibold text-muted"
-                )}
-              >
-                {link.label}
-              </span>
-            </Link>
-          );
-        })}
+        {LINKS.map((link) => (
+          <BottomNavLink
+            key={link.href}
+            link={link}
+            active={link.isActive(pathname)}
+            transitionTypes={getTabTransitionTypes(pathname, link.href)}
+            showUnreadDot={link.href === "/mensajes" && hasUnreadMessages}
+          />
+        ))}
       </div>
     </nav>
+  );
+}
+
+function BottomNavLink({
+  link,
+  active,
+  transitionTypes,
+  showUnreadDot,
+}: {
+  link: (typeof LINKS)[number];
+  active: boolean;
+  transitionTypes?: string[];
+  showUnreadDot: boolean;
+}) {
+  const Icon = link.icon;
+  const handleClick = useExplorerLinkClick(link.href);
+
+  return (
+    <Link
+      href={link.href}
+      aria-current={active ? "page" : undefined}
+      transitionTypes={transitionTypes}
+      onClick={handleClick}
+      className="relative flex flex-1 flex-col items-center justify-center gap-1 px-1 transition active:scale-95 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
+    >
+      <span className="relative">
+        <Icon
+          className={cn(
+            "h-7 w-7 shrink-0",
+            active ? "text-brand-dark" : "text-muted"
+          )}
+        />
+
+        {showUnreadDot && (
+          <span
+            aria-hidden="true"
+            className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary ring-2 ring-white/80"
+          />
+        )}
+      </span>
+
+      <span
+        className={cn(
+          "text-[11px] leading-none",
+          active ? "font-bold text-brand-dark" : "font-semibold text-muted"
+        )}
+      >
+        {link.label}
+      </span>
+    </Link>
   );
 }

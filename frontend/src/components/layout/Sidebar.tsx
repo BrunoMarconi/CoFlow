@@ -20,6 +20,7 @@ import {
   type IconProps,
 } from "@/components/layout/NavIcons";
 import { getTabTransitionTypes } from "@/lib/navTransition";
+import { useExplorerLinkClick } from "@/components/explorer/useExplorerLinkClick";
 
 type NavLink = {
   href: string;
@@ -191,12 +192,14 @@ function SidebarLink({
   transitionTypes?: string[];
 }) {
   const Icon = link.icon;
+  const handleClick = useExplorerLinkClick(link.href);
 
   return (
     <Link
       href={link.href}
       aria-current={active ? "page" : undefined}
       transitionTypes={transitionTypes}
+      onClick={handleClick}
       className={cn(
         "flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
         active
