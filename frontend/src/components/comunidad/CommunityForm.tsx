@@ -33,9 +33,9 @@ const COVER_COLOR_OPTIONS: {
   { value: "forest", label: "Verde oscuro" },
 ];
 
-type PreferenceKey = keyof CommunityPreferencesCreate;
+export type PreferenceKey = keyof CommunityPreferencesCreate;
 
-type PreferenceQuestion = {
+export type PreferenceQuestion = {
   key: PreferenceKey;
   title: string;
   description: string;
@@ -53,7 +53,7 @@ type CommunityFormProps = {
   onCancel?: () => void;
 };
 
-const preferenceQuestions: PreferenceQuestion[] = [
+export const preferenceQuestions: PreferenceQuestion[] = [
   {
     key: "cleanliness",
     title: "¿Qué nivel de limpieza esperáis?",

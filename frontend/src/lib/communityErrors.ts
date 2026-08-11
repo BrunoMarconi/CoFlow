@@ -129,6 +129,24 @@ function describeValidationField(loc: unknown): string | null {
   return FIELD_LABELS[key] ?? null;
 }
 
+/** Algunas rutas sensibles (crear comunidad, conectar banco, emitir
+ * pasaporte...) devuelven un detail estructurado `{code, message}` en
+ * vez de un string plano — ver `require_verified_email` en el backend.
+ * Se comprueba explícitamente en vez de asumir que todo detail es
+ * string o array. */
+export function isEmailNotVerifiedError(error: unknown): boolean {
+  if (!axios.isAxiosError(error)) return false;
+
+  const detail = error.response?.data?.detail;
+
+  return Boolean(
+    detail &&
+      typeof detail === "object" &&
+      !Array.isArray(detail) &&
+      (detail as { code?: unknown }).code === "EMAIL_NOT_VERIFIED"
+  );
+}
+
 export function getCommunityErrorMessage(
   error: unknown,
   fallback: string
@@ -144,6 +162,11 @@ export function getCommunityErrorMessage(
     }
 
     return KNOWN_ERRORS[detail] ?? detail;
+  }
+
+  if (detail && typeof detail === "object" && !Array.isArray(detail)) {
+    const message = (detail as { message?: unknown }).message;
+    if (typeof message === "string") return message;
   }
 
   if (Array.isArray(detail) && detail.length > 0) {
