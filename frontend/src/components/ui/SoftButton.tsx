@@ -28,8 +28,8 @@ export default function SoftButton({
     "transition-all duration-180 ease-out hover:-translate-y-0.5",
     "disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0",
     active
-      ? "border-primary/30 bg-mint-100 text-primary-dark"
-      : "border-transparent bg-mint-50 text-primary-dark hover:bg-mint-100",
+      ? "border-primary/40 bg-surface text-primary-dark shadow-soft"
+      : "border-border bg-surface text-primary-dark shadow-soft hover:border-primary/30",
     className
   );
 

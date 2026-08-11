@@ -476,7 +476,7 @@ export default function CommunityForm({
             </p>
           </div>
 
-          <span className="hidden rounded-full bg-mint-50 px-4 py-2 text-sm font-bold text-primary-dark sm:inline-flex">
+          <span className="hidden rounded-full border border-border bg-surface px-4 py-2 text-sm font-bold text-primary-dark shadow-soft sm:inline-flex">
             {step === 1
               ? "Información"
               : `${answeredPreferences}/8 respondidas`}

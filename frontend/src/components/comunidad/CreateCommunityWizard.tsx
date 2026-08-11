@@ -299,7 +299,7 @@ export default function CreateCommunityWizard({
               type="button"
               onClick={onCancel}
               aria-label="Volver"
-              className="flex h-11 w-11 items-center justify-start text-brand-dark transition hover:text-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-mint-100"
+              className="flex h-11 w-11 items-center justify-start text-brand-dark transition hover:text-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/10"
             >
               <ArrowLeftIcon />
             </button>
@@ -347,7 +347,7 @@ export default function CreateCommunityWizard({
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
               aria-label="Volver al paso anterior"
-              className="flex h-11 w-11 items-center justify-start text-brand-dark transition hover:text-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-mint-100"
+              className="flex h-11 w-11 items-center justify-start text-brand-dark transition hover:text-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/10"
           >
             <ArrowLeftIcon />
           </button>
@@ -409,7 +409,7 @@ export default function CreateCommunityWizard({
             type="button"
             onClick={() => setStep(3)}
               aria-label="Volver al paso anterior"
-              className="flex h-11 w-11 items-center justify-start text-brand-dark transition hover:text-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-mint-100"
+              className="flex h-11 w-11 items-center justify-start text-brand-dark transition hover:text-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/10"
           >
             <ArrowLeftIcon />
           </button>
@@ -471,7 +471,7 @@ export default function CreateCommunityWizard({
             <button
               type="button"
               onClick={handleContinueStep1}
-              className="relative mt-6 flex h-14 w-full items-center justify-center rounded-24 bg-primary px-14 text-base font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-mint-200 sm:mt-7 sm:h-16 sm:px-16 sm:text-lg"
+              className="relative mt-6 flex h-14 w-full items-center justify-center rounded-24 bg-primary px-14 text-base font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/15 sm:mt-7 sm:h-16 sm:px-16 sm:text-lg"
             >
               Continuar
               <span className="absolute right-6">
@@ -768,7 +768,7 @@ export default function CreateCommunityWizard({
                     <p className="truncate text-base font-bold text-brand-dark">
                       {user.first_name} {user.last_name}
                     </p>
-                    <span className="mt-1 inline-flex rounded-full bg-mint-50 px-2.5 py-1 text-xs font-bold text-primary-dark">
+                    <span className="mt-1 inline-flex rounded-full border border-primary/20 bg-surface px-2.5 py-1 text-xs font-bold text-primary-dark shadow-soft">
                       Creador
                     </span>
                   </div>
@@ -824,7 +824,7 @@ export default function CreateCommunityWizard({
               </div>
 
               {invitationToken && (
-                <div className="mt-4 flex items-center gap-2 rounded-14 bg-mint-50 px-4 py-3 text-sm font-semibold text-primary-dark">
+                <div className="mt-4 flex items-center gap-2 rounded-14 border border-border bg-surface px-4 py-3 text-sm font-semibold text-primary-dark shadow-soft">
                   <CheckCircleIcon className="h-5 w-5" />
                   Enlace de invitación listo
                 </div>
@@ -929,7 +929,7 @@ export default function CreateCommunityWizard({
                 <div className="mt-5 flex gap-4 overflow-x-auto pb-2">
                   {user && (
                     <div className="w-24 shrink-0 rounded-18 border border-border p-3 text-center">
-                      <span className="inline-flex rounded-full bg-mint-50 px-2 py-0.5 text-[10px] font-bold text-primary-dark">
+                      <span className="inline-flex rounded-full border border-primary/20 bg-surface px-2 py-0.5 text-[10px] font-bold text-primary-dark shadow-soft">
                         Creador
                       </span>
                       <div className="mx-auto mt-2 w-fit">
@@ -968,7 +968,7 @@ export default function CreateCommunityWizard({
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
-                  <span className="rounded-full bg-mint-50 px-3 py-1.5 text-primary-dark">
+                  <span className="rounded-full border border-border bg-surface px-3 py-1.5 text-primary-dark shadow-soft">
                     {community.member_count} confirmados
                   </span>
                   <span className="rounded-full bg-surface-soft px-3 py-1.5 text-secondary">
@@ -1030,7 +1030,7 @@ export default function CreateCommunityWizard({
                 )}
 
                 {invitationToken && (
-                  <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-mint-50 px-3 py-1.5 text-xs font-bold text-primary-dark">
+                  <span className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-surface px-3 py-1.5 text-xs font-bold text-primary-dark shadow-soft">
                     <CheckCircleIcon className="h-3.5 w-3.5" />
                     Enlace para invitar disponible
                   </span>
@@ -1038,7 +1038,7 @@ export default function CreateCommunityWizard({
               </div>
             </div>
 
-            <div className="rounded-18 bg-mint-50 p-5">
+            <div className="rounded-18 border border-border bg-surface p-5 shadow-soft">
               <p className="text-sm font-bold text-primary-dark">
                 Próximo paso
               </p>

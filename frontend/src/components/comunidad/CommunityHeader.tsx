@@ -146,7 +146,7 @@ export default function CommunityHeader({
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={MOTION_SPRING.snappy}
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-mint-50 px-4 py-2 text-xs font-bold text-primary-dark"
+              className="mt-5 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-xs font-bold text-primary-dark shadow-soft"
             >
               <ShieldIcon />
               {verifiedPercentage}% de perfiles verificados
@@ -555,7 +555,7 @@ function CommunityPreferencesBlock({
         {items.map((item) => (
           <span
             key={item.key}
-            className="inline-flex items-center gap-1.5 rounded-full bg-mint-50 px-3 py-2 text-xs font-bold text-primary-dark [&_svg]:h-3.5 [&_svg]:w-3.5"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-2 text-xs font-bold text-primary-dark shadow-soft [&_svg]:h-3.5 [&_svg]:w-3.5"
           >
             {item.icon}
             {item.value}

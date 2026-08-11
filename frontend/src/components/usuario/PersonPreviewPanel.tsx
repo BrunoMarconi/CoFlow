@@ -350,7 +350,7 @@ export default function PersonPreviewPanel({
               {profile.is_verified && (
                 <motion.span
                   variants={infoItem}
-                  className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-mint-100 px-3 py-1.5 text-xs font-bold text-primary-dark"
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-surface px-3 py-1.5 text-xs font-bold text-primary-dark shadow-soft"
                 >
                   <VerifiedIcon className="h-3.5 w-3.5" />
                   Perfil verificado

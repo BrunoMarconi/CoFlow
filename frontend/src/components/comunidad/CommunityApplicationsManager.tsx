@@ -111,7 +111,7 @@ export default function CommunityApplicationsManager({
         </p>
 
         {pendingCount > 0 && (
-          <span className="rounded-full bg-mint-100 px-2.5 py-0.5 text-xs font-bold text-primary-dark">
+          <span className="rounded-full border border-primary/20 bg-surface px-2.5 py-0.5 text-xs font-bold text-primary-dark shadow-soft">
             {pendingCount}
           </span>
         )}

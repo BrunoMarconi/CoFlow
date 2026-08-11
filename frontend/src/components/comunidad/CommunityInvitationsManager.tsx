@@ -144,7 +144,7 @@ export default function CommunityInvitationsManager({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={MOTION_SPRING.snappy}
-              className="inline-flex items-center gap-1.5 rounded-full bg-mint-100 px-3 py-1.5 text-xs font-bold text-primary-dark"
+              className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-surface px-3 py-1.5 text-xs font-bold text-primary-dark shadow-soft"
             >
               <CheckIcon />
               Invitación generada

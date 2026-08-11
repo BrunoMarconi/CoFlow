@@ -135,7 +135,7 @@ export default function UserCard({
         </div>
 
         {statusLabel && (
-          <span className="shrink-0 rounded-full bg-mint-100 px-2.5 py-1 text-[11px] font-bold text-primary-dark">
+          <span className="shrink-0 rounded-full border border-primary/20 bg-surface px-2.5 py-1 text-[11px] font-bold text-primary-dark shadow-soft">
             {statusLabel}
           </span>
         )}
@@ -160,7 +160,7 @@ export default function UserCard({
                   ease: MOTION_EASE.out,
                   delay: index * 0.03,
                 }}
-                className="inline-flex items-center rounded-full bg-mint-50 px-2.5 py-1 text-[11px] font-bold text-primary-dark"
+                className="inline-flex items-center rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-bold text-primary-dark shadow-soft"
               >
                 {trait}
               </motion.span>

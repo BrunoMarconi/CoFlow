@@ -41,7 +41,7 @@ export default function EditarPerfilPage() {
 
       <section className="mt-6 rounded-24 border border-border bg-surface p-5 shadow-soft sm:p-6">
         <div className="flex items-center gap-5">
-          <Link href="/perfil#fotos" className="relative shrink-0 rounded-full ring-4 ring-mint-50">
+          <Link href="/perfil#fotos" className="relative shrink-0 rounded-full border-4 border-white shadow-soft">
             <Avatar
               name={`${user.first_name} ${user.last_name}`}
               imageUrl={user.avatar_url}

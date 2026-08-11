@@ -12,9 +12,11 @@
   --brand-hover: oklch(0.24 0.05 155); /* = primary-hover */
   --brand-dark: oklch(0.22 0.05 155); /* = primary-dark */
   --line: oklch(0.9 0.005 150); /* = border */
-  --mint-50: oklch(0.94 0.035 155);
-  --mint-100: oklch(0.94 0.035 155);
-  --mint-200: oklch(0.88 0.05 155);
+  /* Las superficies claras son siempre blancas. El verde se reserva para
+     acciones, iconos, texto y bordes activos; nunca como "mancha" de fondo. */
+  --mint-50: #ffffff;
+  --mint-100: #ffffff;
+  --mint-200: #ffffff;
   --danger: #dc2626;
   --warning: #d97706;
 
@@ -147,7 +149,7 @@ a {
 }
 
 ::selection {
-  background: var(--mint-200);
+  background: color-mix(in srgb, var(--primary) 18%, white);
   color: var(--brand-dark);
 }
 

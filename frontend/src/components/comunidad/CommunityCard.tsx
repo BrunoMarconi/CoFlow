@@ -98,7 +98,7 @@ export default function CommunityCard({
           <div className="flex flex-1 flex-col">
             {isLookingForMembers ? (
               <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                <span className="inline-flex items-center rounded-full bg-mint-50 px-2.5 py-1 text-xs font-bold text-primary-dark">
+                <span className="inline-flex items-center rounded-full border border-border bg-surface px-2.5 py-1 text-xs font-bold text-primary-dark shadow-soft">
                   {community.open_spots}{" "}
                   {community.open_spots === 1 ? "plaza libre" : "plazas libres"}
                 </span>

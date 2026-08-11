@@ -680,7 +680,7 @@ function CommunityAvatar() {
 
 function CommunityBadge() {
   return (
-    <span className="shrink-0 rounded-full bg-mint-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-dark">
+    <span className="shrink-0 rounded-full border border-primary/20 bg-surface px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-dark shadow-soft">
       Comunidad
     </span>
   );
@@ -712,7 +712,7 @@ function ConversationPreview({
           </p>
 
           {badge && (
-            <span className="shrink-0 rounded-full bg-mint-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary-dark">
+            <span className="shrink-0 rounded-full border border-primary/20 bg-surface px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary-dark shadow-soft">
               {badge}
             </span>
           )}

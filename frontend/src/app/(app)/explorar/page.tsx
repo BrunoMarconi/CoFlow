@@ -512,7 +512,7 @@ function ExploreCommunityCard({
             </p>
 
             {isOwn && (
-              <span className="shrink-0 rounded-full bg-mint-50 px-1.5 py-0.5 text-[10px] font-bold text-primary-dark">
+              <span className="shrink-0 rounded-full border border-primary/20 bg-surface px-1.5 py-0.5 text-[10px] font-bold text-primary-dark shadow-soft">
                 Tuya
               </span>
             )}

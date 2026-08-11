@@ -36,7 +36,7 @@ export default function SearchInput({
       className={cn(
         "flex min-w-0 flex-1 items-center gap-3",
         !bare &&
-          "h-12 rounded-full border border-border bg-surface px-5 shadow-soft transition-all duration-180 focus-within:border-primary focus-within:ring-4 focus-within:ring-mint-100",
+          "h-12 rounded-full border border-border bg-surface px-5 shadow-soft transition-all duration-180 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10",
         className
       )}
     >

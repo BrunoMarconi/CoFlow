@@ -34,7 +34,7 @@ export default function ActiveFilterChips({ chips }: { chips: ActiveChip[] }) {
               whileTap={{ scale: 0.95 }}
               transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
               onClick={chip.onRemove}
-              className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-mint-50 px-3 py-1.5 text-xs font-bold text-primary-dark"
+              className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-surface px-3 py-1.5 text-xs font-bold text-primary-dark shadow-soft"
             >
               {chip.label}
               <CloseIcon />

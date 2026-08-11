@@ -96,7 +96,7 @@ export default function UserFilters({
             value={filters.city}
             onChange={(event) => update({ city: event.target.value })}
             placeholder="Ej. Málaga"
-            className="h-11.5 w-full rounded-14 border border-border bg-surface px-4 text-[15px] text-foreground outline-none transition-all duration-180 placeholder:text-muted hover:border-secondary/40 focus:border-primary focus:ring-4 focus:ring-mint-100"
+            className="h-11.5 w-full rounded-14 border border-border bg-surface px-4 text-[15px] text-foreground shadow-soft outline-none transition-all duration-180 placeholder:text-muted hover:border-secondary/40 focus:border-primary focus:ring-4 focus:ring-primary/10"
           />
         </div>
 
@@ -123,7 +123,7 @@ export default function UserFilters({
                 update({ maxBudget: event.target.value })
               }
               placeholder="Sin límite"
-              className="h-11.5 w-full rounded-14 border border-border bg-surface pl-9 pr-4 text-[15px] text-foreground outline-none transition-all duration-180 placeholder:text-muted hover:border-secondary/40 focus:border-primary focus:ring-4 focus:ring-mint-100"
+              className="h-11.5 w-full rounded-14 border border-border bg-surface pl-9 pr-4 text-[15px] text-foreground shadow-soft outline-none transition-all duration-180 placeholder:text-muted hover:border-secondary/40 focus:border-primary focus:ring-4 focus:ring-primary/10"
             />
           </div>
         </div>

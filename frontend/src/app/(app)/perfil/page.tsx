@@ -111,7 +111,7 @@ export default function PerfilPage() {
       <section className="overflow-hidden rounded-24 border border-border bg-surface shadow-[0_10px_30px_rgba(26,55,43,0.07)]">
         <div className="p-5 sm:p-7">
           <div className="flex items-center gap-4 sm:gap-6">
-            <div className="shrink-0 rounded-full ring-4 ring-mint-50">
+            <div className="shrink-0 rounded-full border-4 border-white shadow-soft">
               <Avatar
                 name={`${user.first_name} ${user.last_name}`}
                 imageUrl={user.avatar_url}
@@ -190,7 +190,7 @@ export default function PerfilPage() {
 
       <Link
         href={ownerHref}
-        className="grid min-h-32 grid-cols-[42%_1fr_auto] items-center overflow-hidden rounded-24 border border-primary/20 bg-mint-50/60 transition hover:bg-mint-50"
+        className="grid min-h-32 grid-cols-[42%_1fr_auto] items-center overflow-hidden rounded-24 border border-border bg-surface shadow-soft transition hover:border-primary/25"
       >
         <div className="relative h-full min-h-32">
           <Image

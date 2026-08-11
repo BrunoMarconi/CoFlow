@@ -8,11 +8,11 @@ interface BadgeProps {
 }
 
 const variants = {
-  default: "bg-surface-soft text-secondary",
-  success: "bg-mint-100 text-primary-dark",
+  default: "border-border bg-surface text-secondary",
+  success: "border-primary/25 bg-surface text-primary-dark",
   warning: "bg-amber-100 text-amber-700",
   danger: "bg-red-100 text-red-700",
-  info: "bg-surface-soft text-brand-dark",
+  info: "border-border bg-surface text-brand-dark",
 };
 
 export default function Badge({
@@ -23,7 +23,7 @@ export default function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold",
+        "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold shadow-soft",
         variants[variant],
         className
       )}

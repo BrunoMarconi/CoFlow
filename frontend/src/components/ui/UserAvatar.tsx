@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 const TONES = [
   "bg-primary text-white",
   "bg-brand-dark text-white",
-  "bg-mint-200 text-brand-dark",
+  "border-border bg-surface text-brand-dark",
 ];
 
 const SIZES = {

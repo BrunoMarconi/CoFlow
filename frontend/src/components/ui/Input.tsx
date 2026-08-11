@@ -67,11 +67,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                   : undefined
             }
             className={clsx(
-              "h-11.5 w-full rounded-14 border bg-surface px-4 text-[15px] text-foreground",
+              "h-11.5 w-full rounded-14 border bg-surface px-4 text-[15px] text-foreground shadow-soft",
               "outline-none transition-all duration-180",
               "placeholder:text-muted",
               "hover:border-secondary/40",
-              "focus:border-primary focus:ring-4 focus:ring-mint-100",
+              "focus:border-primary focus:ring-4 focus:ring-primary/10",
               leftElement && "pl-11",
               error
                 ? "border-red-400 focus:border-red-500 focus:ring-red-500/10"

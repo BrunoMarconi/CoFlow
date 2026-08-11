@@ -110,8 +110,8 @@ function PassportCard({
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
       className={`rounded-18 border p-4 ${
         verified
-          ? "border-primary/20 bg-mint-50"
-          : "border-border bg-surface"
+          ? "border-primary/25 bg-surface shadow-soft"
+          : "border-border bg-surface shadow-soft"
       }`}
     >
       <div className="flex items-start justify-between gap-2">

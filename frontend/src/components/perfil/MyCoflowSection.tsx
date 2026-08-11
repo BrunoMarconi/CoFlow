@@ -144,7 +144,7 @@ function StatCard({
         className="flex h-full flex-col gap-1 rounded-18 border border-border bg-surface p-3.5 transition-colors duration-180 hover:bg-surface-soft"
       >
         {badge && (
-          <span className="mb-1 inline-flex w-max items-center rounded-full bg-mint-100 px-2 py-0.5 text-[10px] font-bold text-primary-dark">
+          <span className="mb-1 inline-flex w-max items-center rounded-full border border-primary/20 bg-surface px-2 py-0.5 text-[10px] font-bold text-primary-dark shadow-soft">
             {badge}
           </span>
         )}

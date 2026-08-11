@@ -526,7 +526,7 @@ export default function PropertyForm({
         </div>
       </header>
 
-      <div className="mt-6 flex gap-2.5 rounded-2xl border border-mint-200 bg-mint-50 px-4 py-3 text-sm leading-6 text-primary-dark">
+      <div className="mt-6 flex gap-2.5 rounded-2xl border border-border bg-surface px-4 py-3 text-sm leading-6 text-primary-dark shadow-soft">
         <InfoIcon />
         <p>{STEP_TIPS[step - 1]}</p>
       </div>
@@ -810,7 +810,7 @@ export default function PropertyForm({
         {step === 5 && (
           <div className="space-y-8">
             {draftSavedNotice && (
-              <div className="flex items-center gap-2 rounded-2xl border border-mint-200 bg-mint-50 px-4 py-3 text-sm font-semibold text-primary-dark">
+              <div className="flex items-center gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-primary-dark shadow-soft">
                 <CheckCircleIcon />
                 Borrador guardado. Puedes volver más tarde y seguir donde lo
                 dejaste.

@@ -53,7 +53,7 @@ export default function PageHeader({
               {chips.map((chip) => (
                 <span
                   key={chip}
-                  className="inline-flex items-center rounded-full bg-mint-50 px-3 py-1.5 text-xs font-bold text-primary-dark"
+                  className="inline-flex items-center rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-bold text-primary-dark shadow-soft"
                 >
                   {chip}
                 </span>

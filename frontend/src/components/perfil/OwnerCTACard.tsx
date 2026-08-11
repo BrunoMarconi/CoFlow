@@ -12,7 +12,7 @@ export default function OwnerCTACard({ isOwner }: { isOwner: boolean }) {
     >
       <motion.div
         whileTap={{ scale: MOTION_HOME_TAP_SCALE }}
-        className="flex items-center gap-3.5 rounded-18 border border-primary/20 bg-mint-50 p-4 transition-colors duration-180 hover:bg-mint-100 sm:p-5"
+        className="flex items-center gap-3.5 rounded-18 border border-border bg-surface p-4 shadow-soft transition duration-180 hover:border-primary/25 sm:p-5"
       >
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 bg-surface text-primary shadow-soft">
           <KeyIcon />

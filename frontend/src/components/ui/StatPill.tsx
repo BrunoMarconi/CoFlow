@@ -13,7 +13,7 @@ export default function StatPill({
   return (
     <span
       className={cn(
-        "inline-flex h-7 items-center gap-1.5 rounded-full bg-mint-50 px-3 text-xs font-bold text-primary-dark",
+        "inline-flex h-7 items-center gap-1.5 rounded-full border border-border bg-surface px-3 text-xs font-bold text-primary-dark shadow-soft",
         className
       )}
     >

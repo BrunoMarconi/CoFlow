@@ -57,12 +57,12 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                 : undefined
           }
           className={clsx(
-            "min-h-32 w-full resize-none rounded-14 border bg-surface px-4 py-4",
+            "min-h-32 w-full resize-none rounded-14 border bg-surface px-4 py-4 shadow-soft",
             "text-[15px] leading-6 text-foreground outline-none",
             "placeholder:text-muted",
             "transition-all duration-180",
             "hover:border-secondary/40",
-            "focus:border-primary focus:ring-4 focus:ring-mint-100",
+            "focus:border-primary focus:ring-4 focus:ring-primary/10",
             error
               ? "border-red-400 focus:border-red-500 focus:ring-red-500/10"
               : "border-border",
