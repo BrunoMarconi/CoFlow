@@ -1,6 +1,35 @@
 "use client";
 
 import { motion } from "framer-motion";
+import {
+  MOTION_DURATION,
+  MOTION_EASE,
+  MOTION_STAGGER_TIGHT,
+} from "@/lib/motionTokens";
+
+// Los bloques del panel "nacen" de la SearchBar: entran con un
+// stagger ajustado y un pequeño delay inicial para que se noten
+// desplegándose justo cuando la barra termina su transformación de
+// layout, no simultáneamente con ella.
+const containerVariants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: MOTION_STAGGER_TIGHT,
+      delayChildren: 0.16,
+    },
+  },
+};
+
+const blockVariants = {
+  hidden: { opacity: 0, scale: 0.96, y: -4 },
+  show: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { duration: MOTION_DURATION.normal, ease: MOTION_EASE.out },
+  },
+};
 
 export interface UserFilterState {
   city: string;
@@ -47,8 +76,13 @@ export default function UserFilters({
   }
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-5">
-      <div className="grid gap-4 sm:grid-cols-2">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-5"
+    >
+      <motion.div variants={blockVariants} className="grid gap-4 sm:grid-cols-2">
         <div>
           <label
             htmlFor="user-filter-city"
@@ -93,9 +127,9 @@ export default function UserFilters({
             />
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="mt-4">
+      <motion.div variants={blockVariants} className="mt-4">
         <p className="mb-1.5 text-xs font-semibold text-muted">
           Situación de convivencia
         </p>
@@ -118,9 +152,9 @@ export default function UserFilters({
             </motion.button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+      <motion.div variants={blockVariants} className="mt-5 flex flex-col gap-3 sm:flex-row">
         <motion.button
           type="button"
           onClick={onClear}
@@ -135,7 +169,7 @@ export default function UserFilters({
           {resultCount}{" "}
           {resultCount === 1 ? "persona encontrada" : "personas encontradas"}
         </p>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

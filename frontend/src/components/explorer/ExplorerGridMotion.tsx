@@ -50,6 +50,7 @@ export default function ExplorerGridMotion({
 
   return (
     <motion.div
+      layout="position"
       variants={VARIANTS}
       initial={initial}
       animate={animate}

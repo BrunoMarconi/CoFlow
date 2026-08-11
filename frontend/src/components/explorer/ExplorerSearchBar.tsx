@@ -3,14 +3,23 @@
 import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import SearchInput from "@/components/ui/SearchInput";
-import { MOTION_DURATION, MOTION_SPRING } from "@/lib/motionTokens";
+import {
+  MOTION_DURATION,
+  MOTION_EASE,
+  MOTION_SEARCH_LIFT_DURATION,
+  MOTION_SPRING,
+} from "@/lib/motionTokens";
 
-/** Barra de búsqueda de dos estados (trigger colapsado <-> input
- * expandido con flecha atrás) compartida por Personas y Comunidades.
- * El layoutId es local a cada página — no sobrevive un cambio de
- * ruta real, pero al usar exactamente la misma forma/posición en
- * ambas, el cambio Personas<->Comunidades ya se siente continuo
- * gracias a la transición de página existente (nav-forward/nav-back). */
+const COLLAPSED_SHADOW = "0 1px 2px rgba(13,59,42,0.06)";
+const EXPANDED_SHADOW = "0 14px 32px -10px rgba(13,59,42,0.28)";
+
+/** Barra de búsqueda de dos estados (trigger colapsado <-> header
+ * expandido) compartida por Personas y Comunidades — el corazón
+ * visual de "Search Mode". Misma barra física en todo momento vía
+ * layoutId (nunca se sustituye por otra): al pulsarla se "despega"
+ * (tap + sombra + z-index) y luego layoutId anima su transformación
+ * completa en anchura/posición usando el spring controlado ya
+ * existente en CoFlow (MOTION_SPRING.gentle, sin rebote). */
 export default function ExplorerSearchBar({
   layoutIdBar,
   layoutIdIcon,
@@ -52,11 +61,21 @@ export default function ExplorerSearchBar({
             layoutId={layoutIdBar}
             onClick={onOpen}
             whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.985 }}
-            transition={MOTION_SPRING.gentle}
-            className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-full border border-border bg-surface pl-5 pr-4 text-left shadow-soft"
+            whileTap={{ scale: 0.975 }}
+            animate={{ boxShadow: COLLAPSED_SHADOW }}
+            transition={{
+              layout: MOTION_SPRING.gentle,
+              boxShadow: { duration: MOTION_DURATION.fast },
+              scale: { duration: MOTION_SEARCH_LIFT_DURATION },
+            }}
+            className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-full border border-border bg-surface pl-5 pr-4 text-left"
           >
-            <motion.span layoutId={layoutIdIcon} className="inline-flex shrink-0">
+            <motion.span
+              layoutId={layoutIdIcon}
+              animate={{ rotate: 0 }}
+              transition={{ layout: MOTION_SPRING.gentle }}
+              className="inline-flex shrink-0"
+            >
               <SearchIcon />
             </motion.span>
 
@@ -72,27 +91,43 @@ export default function ExplorerSearchBar({
       ) : (
         <motion.div
           key="expanded"
-          className="flex items-center gap-2"
+          className="relative z-10 flex items-center gap-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: MOTION_DURATION.fast }}
         >
-          <button
+          <motion.button
             type="button"
             onClick={onBack}
             aria-label="Volver"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-secondary transition-colors duration-200 hover:bg-surface-soft hover:text-brand-dark"
           >
             <ArrowLeftIcon />
-          </button>
+          </motion.button>
 
           <motion.div
             layoutId={layoutIdBar}
-            transition={MOTION_SPRING.gentle}
-            className="flex h-14 min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-surface pl-5 pr-2 shadow-soft"
+            animate={{ boxShadow: EXPANDED_SHADOW }}
+            transition={{
+              layout: MOTION_SPRING.gentle,
+              boxShadow: { duration: MOTION_DURATION.normal },
+            }}
+            className="flex h-14 min-w-0 flex-1 items-center gap-2 rounded-full border border-primary/25 bg-surface pl-5 pr-2"
           >
-            <motion.span layoutId={layoutIdIcon} className="inline-flex shrink-0">
+            <motion.span
+              layoutId={layoutIdIcon}
+              animate={{ rotate: [0, -7, 0] }}
+              transition={{
+                layout: MOTION_SPRING.gentle,
+                rotate: { duration: MOTION_DURATION.slow, ease: MOTION_EASE.out },
+              }}
+              className="inline-flex shrink-0"
+            >
               <SearchIcon />
             </motion.span>
 

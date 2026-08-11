@@ -20,10 +20,22 @@ import ActiveFilterChips, {
 import SectionHeader from "@/components/ui/SectionHeader";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
-import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
+import {
+  MOTION_DURATION,
+  MOTION_EASE,
+  MOTION_STAGGER_TIGHT,
+} from "@/lib/motionTokens";
 
 const SEARCH_BAR_LAYOUT_ID = "people-search-bar";
 const SEARCH_ICON_LAYOUT_ID = "people-search-icon";
+
+// Título "Personas": desaparece por completo al entrar en Search
+// Mode (no se queda como fondo, a diferencia de las cards — ver
+// UserGrid/recede) para que no distraiga del header de búsqueda.
+const titleVariants = {
+  hidden: { opacity: 0, y: -12, scale: 0.98 },
+  visible: { opacity: 1, y: 0, scale: 1 },
+};
 
 export default function UsuariosPage() {
   const [search, setSearch] = useState("");
@@ -143,40 +155,7 @@ export default function UsuariosPage() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [searchOpen, filtersOpen]);
 
-  // Mismo bloque de resultados que la vista normal de Personas: se
-  // reutiliza tal cual dentro del modo búsqueda, nunca se duplica.
-  const resultsBlock = loading ? (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-      {Array.from({ length: 6 }).map((_, index) => (
-        <SkeletonCard key={index} />
-      ))}
-    </div>
-  ) : resultCount === 0 ? (
-    <motion.p
-      initial={{ opacity: 0, y: 5 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
-      className="rounded-18 border border-dashed border-border bg-surface-muted p-8 text-center text-sm text-muted"
-    >
-      No encontramos personas con esos filtros.
-    </motion.p>
-  ) : (
-    <>
-      <UserGrid
-        users={visibleUsers}
-        onOpen={setOpenUserId}
-        staggerChildren={searchOpen ? 0.025 : 0.04}
-      />
-
-      {hasMore && (
-        <div className="mt-6 flex justify-center">
-          <SecondaryButton onClick={loadMore} disabled={loadingMore}>
-            {loadingMore ? "Cargando..." : "Cargar más personas"}
-          </SecondaryButton>
-        </div>
-      )}
-    </>
-  );
+  const sectionTitle = searchOpen ? "Resultados" : "Personas recomendadas";
 
   const resultsCounter = !loading && (
     <span className="inline-flex">
@@ -207,8 +186,8 @@ export default function UsuariosPage() {
           value={search}
           onChange={setSearch}
           onClear={() => setSearch("")}
-          collapsedPlaceholder="Buscar por nombre, zona o intereses..."
-          placeholder="Buscar personas..."
+          collapsedPlaceholder="Buscar por nombre o ciudad..."
+          placeholder="Buscar por nombre o ciudad..."
           rightSlot={
             hasQuery && (
               <ExplorerFilterToggle
@@ -225,83 +204,93 @@ export default function UsuariosPage() {
         )}
       </div>
 
-      <AnimatePresence mode="wait" initial={false}>
-        {!searchOpen ? (
-          <motion.div
-            key="normal-mode"
-            initial={{ opacity: 0, x: -15 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -15 }}
-            transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+      <AnimatePresence initial={false}>
+        {!searchOpen && (
+          <motion.header
+            key="title"
+            variants={titleVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+            className="mt-6"
           >
-            <header className="mt-6">
-              <h1 className="font-rounded text-lg font-semibold text-brand-dark">
-                Personas
-              </h1>
-            </header>
+            <h1 className="font-rounded text-lg font-semibold text-brand-dark">
+              Personas
+            </h1>
+          </motion.header>
+        )}
+      </AnimatePresence>
 
-            <ExplorerGridMotion>
-              <section className="mt-8">
-                <SectionHeader
-                  title="Personas recomendadas"
-                  subtitle={resultsCounter}
-                  className="mb-5"
-                />
-
-                {resultsBlock}
-              </section>
-            </ExplorerGridMotion>
-          </motion.div>
-        ) : (
+      <AnimatePresence initial={false}>
+        {searchOpen && showFiltersPanel && (
           <motion.div
-            key="search-mode"
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 30 }}
+            key="filters-panel"
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{
+              opacity: 0,
+              y: -6,
+              scale: 0.98,
+              transition: { duration: MOTION_DURATION.fast, ease: MOTION_EASE.out },
+            }}
             transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
             className="mt-4"
           >
-            <AnimatePresence mode="wait" initial={false}>
-              {showFiltersPanel ? (
-                <motion.div
-                  key="filters-panel"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-                >
-                  <p className="mb-3 text-sm font-bold text-brand-dark">
-                    Buscar personas
-                  </p>
-
-                  <UserFilters
-                    filters={filters}
-                    onChange={setFilters}
-                    onClear={() => setFilters(defaultUserFilters)}
-                    resultCount={resultCount}
-                  />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="results-panel"
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-                >
-                  <SectionHeader
-                    title="Resultados"
-                    subtitle={resultsCounter}
-                    className="mb-5"
-                  />
-
-                  {resultsBlock}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <UserFilters
+              filters={filters}
+              onChange={setFilters}
+              onClear={() => setFilters(defaultUserFilters)}
+              resultCount={resultCount}
+            />
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ExplorerGridMotion>
+        <section className="mt-8">
+          <SectionHeader
+            title={sectionTitle}
+            subtitle={resultsCounter}
+            className="mb-5"
+          />
+
+          {loading ? (
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <SkeletonCard key={index} />
+              ))}
+            </div>
+          ) : resultCount === 0 ? (
+            <motion.p
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+              className="rounded-18 border border-dashed border-border bg-surface-muted p-8 text-center text-sm text-muted"
+            >
+              No encontramos personas con esos filtros.
+            </motion.p>
+          ) : (
+            <>
+              <UserGrid
+                users={visibleUsers}
+                onOpen={setOpenUserId}
+                staggerChildren={searchOpen ? MOTION_STAGGER_TIGHT : 0.04}
+                recede={searchOpen && showFiltersPanel}
+                highlightFirst={hasQuery}
+              />
+
+              {hasMore && (
+                <div className="mt-6 flex justify-center">
+                  <SecondaryButton onClick={loadMore} disabled={loadingMore}>
+                    {loadingMore ? "Cargando..." : "Cargar más personas"}
+                  </SecondaryButton>
+                </div>
+              )}
+            </>
+          )}
+        </section>
+      </ExplorerGridMotion>
 
       <AnimatePresence>
         {openUserId && (

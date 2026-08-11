@@ -37,3 +37,23 @@ export const MOTION_SPRING = {
 /** Stagger muy ligero para listas de info dentro de un panel/modal —
  * nunca debe notarse como una "animación", solo suavizar la entrada. */
 export const MOTION_STAGGER_CHILDREN = 0.05;
+
+/* --- Search Mode (Personas/Comunidades) ------------------------------
+ * Tokens específicos de la coreografía "SearchBar se convierte en
+ * header": la transformación de layout principal reutiliza
+ * MOTION_SPRING.gentle (ya es un spring controlado, sin rebote
+ * perceptible, ~300-380ms sentidos) — estos dos son los únicos
+ * valores nuevos que introduce Search Mode, y viven aquí para que
+ * cualquier otra pantalla que adopte el mismo patrón los reutilice
+ * en vez de inventar números sueltos. */
+
+/** Duración del "despegue" físico de la SearchBar al pulsarla — tap
+ * scale-down + recuperación, antes de que arranque la transformación
+ * de layout. */
+export const MOTION_SEARCH_LIFT_DURATION = 0.1;
+
+/** Stagger ajustado (20-30ms) para elementos que "nacen" de un
+ * elemento en movimiento (filtros desplegándose desde la SearchBar,
+ * resultados reorganizándose en tiempo real) — a diferencia de
+ * MOTION_STAGGER_CHILDREN, aquí la coreografía SÍ debe notarse. */
+export const MOTION_STAGGER_TIGHT = 0.025;

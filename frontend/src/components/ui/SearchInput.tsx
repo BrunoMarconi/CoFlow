@@ -1,7 +1,9 @@
 "use client";
 
 import type { InputHTMLAttributes } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 
 type SearchInputProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -47,16 +49,23 @@ export default function SearchInput({
         {...props}
       />
 
-      {showClear && (
-        <button
-          type="button"
-          onClick={onClear}
-          aria-label="Borrar búsqueda"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-muted"
-        >
-          <CloseIcon />
-        </button>
-      )}
+      <AnimatePresence>
+        {showClear && (
+          <motion.button
+            type="button"
+            onClick={onClear}
+            aria-label="Borrar búsqueda"
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.7 }}
+            whileTap={{ scale: 0.85 }}
+            transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-muted"
+          >
+            <CloseIcon />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
