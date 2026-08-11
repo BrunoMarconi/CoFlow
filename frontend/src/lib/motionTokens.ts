@@ -105,18 +105,25 @@ export const MOTION_GROUP_TRAVEL_MS = 450;
  * "Entrar en tu espacio dentro de CoFlow": la pantalla actual se aleja
  * ligeramente (HomeTransitionProvider + AppShell) y Tu Comunidad
  * aparece desde profundidad (la propia página destino, al montar, lee
- * homeTransitionState). Timeline ~220-300ms:
- *   0ms    tap — tap keyframes en el icono
- *   0-130ms pantalla actual se aleja (scale/opacity/blur)
- *   130ms  MOTION_HOME_PORTAL_EXIT_MS: navega de verdad
- *   130-300ms Tu Comunidad entra desde profundidad */
+ * homeTransitionState). Timeline ~300ms:
+ *   0ms    tap — keyframes en el icono, MOTION_DURATION.fast (150ms)
+ *   0-150ms pantalla actual se aleja (scale/opacity/blur), misma duración
+ *   150ms  MOTION_HOME_PORTAL_EXIT_MS: navega de verdad
+ *   150-300ms Tu Comunidad entra desde profundidad, MOTION_DURATION.fast
+ * Importante: el tap del icono y la salida de pantalla deben durar lo
+ * mismo (o menos) que MOTION_HOME_PORTAL_EXIT_MS — si duran más, la
+ * navegación real desmonta la página a mitad de su animación y esta
+ * se ve cortada/casi imperceptible (el bug original: el tap duraba
+ * 300ms pero la página se cortaba a los 130ms, así que el icono nunca
+ * llegaba a mostrar el rebote). */
 
 /** Cuánto espera HomeTransitionProvider antes de navegar de verdad —
- * el tiempo justo para que la pantalla actual empiece a alejarse
- * antes del corte de página (misma razón que MOTION_GROUP_TRAVEL_MS). */
-export const MOTION_HOME_PORTAL_EXIT_MS = 130;
+ * el tiempo justo para que la pantalla actual y el tap del icono
+ * (MOTION_DURATION.fast) terminen antes del corte de página. */
+export const MOTION_HOME_PORTAL_EXIT_MS = 150;
 
 /** Keyframes del tap en la casita: se presiona, sobra un poco por
  * encima de 1 al soltar y se asienta — el "rebote" es un keyframe con
- * ease, no un spring con bounce real. */
+ * ease, no un spring con bounce real. Se anima en MOTION_DURATION.fast
+ * (ver MOTION_HOME_PORTAL_EXIT_MS: debe caber en ese tiempo). */
 export const MOTION_HOME_TAP_SCALE = [1, 0.92, 1.04, 1];

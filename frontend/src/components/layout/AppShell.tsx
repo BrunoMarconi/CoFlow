@@ -79,7 +79,13 @@ function AppShellContent({ children }: { children: ReactNode }) {
             )}
             <motion.div
               animate={contentAnimate}
-              transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+              transition={{
+                // fast (150ms), no normal: debe caber dentro de
+                // MOTION_HOME_PORTAL_EXIT_MS o la navegación real
+                // desmonta esta pantalla a mitad de la salida.
+                duration: MOTION_DURATION.fast,
+                ease: MOTION_EASE.out,
+              }}
             >
               <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
                 <SwipeNavigation>{children}</SwipeNavigation>

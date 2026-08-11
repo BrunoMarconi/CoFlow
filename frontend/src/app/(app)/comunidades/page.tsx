@@ -277,7 +277,7 @@ export default function ComunidadesPage() {
     if (!prefersReducedMotionForHomeFab) {
       homeIconControls.start(
         { scale: MOTION_HOME_TAP_SCALE },
-        { duration: MOTION_DURATION.slow, ease: MOTION_EASE.out }
+        { duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }
       );
     }
 
