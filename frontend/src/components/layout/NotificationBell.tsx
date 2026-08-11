@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
   AnimatePresence,
@@ -58,6 +59,7 @@ export default function NotificationBell() {
   const [error, setError] = useState("");
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const bellControls = useAnimationControls();
   const previousUnreadRef = useRef(unreadCount);
 
@@ -65,12 +67,15 @@ export default function NotificationBell() {
     if (!open) return;
 
     function handleClickOutside(event: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
+      const target = event.target as Node;
+
+      // En móvil el panel se portalea a document.body (ver más abajo),
+      // así que ya no cuelga de containerRef — hay que comprobar los
+      // dos.
+      if (containerRef.current?.contains(target)) return;
+      if (panelRef.current?.contains(target)) return;
+
+      setOpen(false);
     }
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -271,6 +276,85 @@ export default function NotificationBell() {
     </motion.ul>
   );
 
+  // Siempre se portalea a document.body y siempre se posiciona con
+  // fixed (nunca absolute relativo a containerRef): el botón vive
+  // dentro del <header> de Navbar, envuelto además en un div
+  // "rounded-full ... backdrop-blur-xl" — ese backdrop-filter crea un
+  // containing block nuevo para position:fixed (rompía el bottom
+  // sheet móvil) y, sin portal, ese mismo wrapper recortaba el panel
+  // de escritorio en anchos intermedios (~640-768px, donde el resto
+  // de la app ya se considera "móvil" pero este breakpoint sm: no).
+  const panel = (
+    <>
+      {!isDesktop && (
+        <motion.button
+          type="button"
+          aria-label="Cerrar notificaciones"
+          onClick={() => setOpen(false)}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: MOTION_DURATION.normal }}
+          className="fixed inset-0 z-(--z-modal) bg-black/20"
+        />
+      )}
+
+      <motion.div
+        ref={panelRef}
+        initial={panelInitial}
+        animate={panelAnimate}
+        exit={panelExit}
+        transition={panelTransition}
+        drag={canDrag ? "y" : false}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0, bottom: 0.6 }}
+        onDragEnd={handleDragEnd}
+        style={{
+          willChange: "transform",
+          transformOrigin: isDesktop ? "top right" : undefined,
+        }}
+        className="fixed inset-x-0 bottom-0 z-(--z-modal) max-h-[75dvh] overflow-hidden rounded-t-24 border border-border bg-surface shadow-2xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-[calc(var(--safe-top)+4.5rem)] sm:w-96 sm:rounded-18 sm:shadow-soft"
+      >
+        {!isDesktop && (
+          <div className="flex shrink-0 justify-center pb-1 pt-2.5">
+            <span className="h-1.5 w-10 rounded-full bg-border" />
+          </div>
+        )}
+
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div className="flex items-center gap-2">
+            <motion.div
+              layoutId={open ? "notification-bell-icon" : undefined}
+              transition={{ layout: MOTION_SPRING.gentle }}
+            >
+              <Icon3D src="/icons/3d/bell.png" active size={20} />
+            </motion.div>
+
+            <p className="text-sm font-bold text-brand-dark">
+              Notificaciones
+            </p>
+          </div>
+
+          {hasUnread && (
+            <motion.button
+              type="button"
+              onClick={handleMarkAllRead}
+              whileTap={{ scale: 0.96 }}
+              transition={{ duration: MOTION_DURATION.fast }}
+              className="text-xs font-bold text-primary-dark hover:text-brand-dark"
+            >
+              Marcar todas como leídas
+            </motion.button>
+          )}
+        </div>
+
+        <div className="max-h-[calc(75dvh-3.5rem)] overflow-y-auto sm:max-h-96">
+          {listContent}
+        </div>
+      </motion.div>
+    </>
+  );
+
   return (
     <div ref={containerRef} className="relative">
       <motion.button
@@ -317,75 +401,7 @@ export default function NotificationBell() {
       </motion.button>
 
       <AnimatePresence>
-        {open && (
-          <>
-            {!isDesktop && (
-              <motion.button
-                type="button"
-                aria-label="Cerrar notificaciones"
-                onClick={() => setOpen(false)}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: MOTION_DURATION.normal }}
-                className="fixed inset-0 z-(--z-modal) bg-black/20"
-              />
-            )}
-
-            <motion.div
-              initial={panelInitial}
-              animate={panelAnimate}
-              exit={panelExit}
-              transition={panelTransition}
-              drag={canDrag ? "y" : false}
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={{ top: 0, bottom: 0.6 }}
-              onDragEnd={handleDragEnd}
-              style={{
-                willChange: "transform",
-                transformOrigin: isDesktop ? "top right" : undefined,
-              }}
-              className="fixed inset-x-0 bottom-0 z-(--z-modal) max-h-[75dvh] overflow-hidden rounded-t-24 border border-border bg-surface shadow-2xl sm:absolute sm:inset-x-auto sm:bottom-auto sm:right-0 sm:top-16 sm:w-96 sm:rounded-18 sm:shadow-soft"
-            >
-              {!isDesktop && (
-                <div className="flex shrink-0 justify-center pb-1 pt-2.5">
-                  <span className="h-1.5 w-10 rounded-full bg-border" />
-                </div>
-              )}
-
-              <div className="flex items-center justify-between border-b border-border px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <motion.div
-                    layoutId={open ? "notification-bell-icon" : undefined}
-                    transition={{ layout: MOTION_SPRING.gentle }}
-                  >
-                    <Icon3D src="/icons/3d/bell.png" active size={20} />
-                  </motion.div>
-
-                  <p className="text-sm font-bold text-brand-dark">
-                    Notificaciones
-                  </p>
-                </div>
-
-                {hasUnread && (
-                  <motion.button
-                    type="button"
-                    onClick={handleMarkAllRead}
-                    whileTap={{ scale: 0.96 }}
-                    transition={{ duration: MOTION_DURATION.fast }}
-                    className="text-xs font-bold text-primary-dark hover:text-brand-dark"
-                  >
-                    Marcar todas como leídas
-                  </motion.button>
-                )}
-              </div>
-
-              <div className="max-h-[calc(75dvh-3.5rem)] overflow-y-auto sm:max-h-96">
-                {listContent}
-              </div>
-            </motion.div>
-          </>
-        )}
+        {open && createPortal(panel, document.body)}
       </AnimatePresence>
     </div>
   );
