@@ -59,7 +59,7 @@ export default function EditProfileForm({ user, onSubmit }: EditProfileFormProps
     <form onSubmit={handleSubmit} className="space-y-6">
       <ProfileGroup title="Tu presentación">
         <NavigationRow
-          href="/perfil#fotos"
+          href="/perfil/fotos"
           icon={<PhotosIcon />}
           title="Fotos"
           subtitle={`${user.photos.length} ${user.photos.length === 1 ? "foto añadida" : "fotos añadidas"}`}
