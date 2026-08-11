@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { MOTION_SPRING } from "@/lib/motionTokens";
 import { useAuth } from "@/hooks/useAuth";
 import Avatar from "@/components/ui/Avatar";
 import Logo from "@/components/ui/Logo";
@@ -114,6 +116,9 @@ export default function Sidebar() {
               link={link}
               active={isActive(link.href)}
               transitionTypes={getTabTransitionTypes(pathname, link.href)}
+              isSectionLink={
+                link.href === "/comunidades" || link.href === "/usuarios"
+              }
             />
           ))}
         </NavGroup>
@@ -186,10 +191,15 @@ function SidebarLink({
   link,
   active,
   transitionTypes,
+  isSectionLink = false,
 }: {
   link: NavLink;
   active: boolean;
   transitionTypes?: string[];
+  /** Solo Personas/Comunidades comparten el indicador con layoutId —
+   * es la señal visual de que arranca la transición "agrupar/abrir"
+   * (ver ExplorerTransitionProvider), no un rediseño general de nav. */
+  isSectionLink?: boolean;
 }) {
   const Icon = link.icon;
   const handleClick = useExplorerLinkClick(link.href);
@@ -201,19 +211,34 @@ function SidebarLink({
       transitionTypes={transitionTypes}
       onClick={handleClick}
       className={cn(
-        "flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
-        active
-          ? "bg-mint-50 text-primary-dark"
-          : "text-muted hover:bg-surface-soft hover:text-foreground"
+        "relative flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+        !isSectionLink &&
+          (active
+            ? "bg-mint-50 text-primary-dark"
+            : "text-muted hover:bg-surface-soft hover:text-foreground"),
+        isSectionLink && (active ? "text-primary-dark" : "text-muted hover:text-foreground")
       )}
     >
-      <Icon
-        className={cn(
-          "h-5 w-5 shrink-0",
-          active ? "text-primary" : "text-muted"
-        )}
-      />
-      <span className="truncate">{link.label}</span>
+      {isSectionLink && active && (
+        <motion.span
+          layoutId="section-indicator-desktop"
+          transition={MOTION_SPRING.gentle}
+          className="absolute inset-0 rounded-10 bg-mint-50"
+        />
+      )}
+
+      <motion.span
+        whileTap={isSectionLink ? { scale: 0.96 } : undefined}
+        className="relative z-10 flex items-center gap-3"
+      >
+        <Icon
+          className={cn(
+            "h-5 w-5 shrink-0",
+            active ? "text-primary" : "text-muted"
+          )}
+        />
+        <span className="truncate">{link.label}</span>
+      </motion.span>
     </Link>
   );
 }

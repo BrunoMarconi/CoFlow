@@ -22,12 +22,27 @@ const itemVariants = {
   },
 };
 
+// "La card nace alrededor de las personas": solo las primeras cards
+// visibles reciben la construcción escalonada — el resto del grid
+// usa la entrada simple de siempre (rendimiento, ver item 10 del
+// pedido: máximo de elementos protagonistas de la coreografía).
+const MAX_STAGED_CARDS = 6;
+
 export default function CommunityGrid({
   communities,
   ownCommunityId,
+  arriving = false,
+  leaving = false,
 }: {
   communities: Community[];
   ownCommunityId?: number;
+  /** Se acaba de llegar desde Personas: las primeras cards se
+   * construyen alrededor de su grupo de avatares en vez de aparecer
+   * de golpe — ver CommunityCard. */
+  arriving?: boolean;
+  /** Saliendo hacia Personas: las primeras cards se abren (la
+   * metadata se retira, el grupo de avatares queda protagonista). */
+  leaving?: boolean;
 }) {
   if (communities.length === 0) {
     return (
@@ -45,11 +60,13 @@ export default function CommunityGrid({
       animate="show"
       className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]"
     >
-      {communities.map((community) => (
+      {communities.map((community, index) => (
         <motion.div key={community.id} variants={itemVariants} className="h-full">
           <CommunityCard
             community={community}
             isOwn={community.id === ownCommunityId}
+            arriving={arriving && index < MAX_STAGED_CARDS}
+            leaving={leaving && index < MAX_STAGED_CARDS}
           />
         </motion.div>
       ))}

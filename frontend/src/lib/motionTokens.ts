@@ -57,3 +57,20 @@ export const MOTION_SEARCH_LIFT_DURATION = 0.1;
  * resultados reorganizándose en tiempo real) — a diferencia de
  * MOTION_STAGGER_CHILDREN, aquí la coreografía SÍ debe notarse. */
 export const MOTION_STAGGER_TIGHT = 0.025;
+
+/* --- Transición Personas <-> Comunidades ------------------------------
+ * "Las personas se agrupan para formar comunidades" (y a la inversa).
+ * Ver providers/ExplorerTransitionProvider.tsx y
+ * components/explorer/AvatarClusterLayer.tsx. */
+
+/** Spring para el "morph" de avatares agrupándose en clusters:
+ * damping alto a propósito (sin rebote perceptible, movimiento muy
+ * controlado) — más lento que MOTION_SPRING.snappy porque aquí el
+ * recorrido debe leerse como "personas reuniéndose", no como un
+ * detalle de UI reaccionando a un tap. */
+export const MOTION_GROUP_MORPH: Transition = {
+  type: "spring",
+  stiffness: 260,
+  damping: 32,
+  mass: 1,
+};

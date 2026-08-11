@@ -3,7 +3,10 @@
 import { type ReactNode, useState } from "react";
 import { motion } from "framer-motion";
 import { useExplorerTransition } from "@/providers/ExplorerTransitionProvider";
-import { consumeArrivingDirection } from "@/lib/explorerTransitionState";
+import {
+  consumeArrivingDirection,
+  type ExplorerDirection,
+} from "@/lib/explorerTransitionState";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 
 const VARIANTS = {
@@ -34,11 +37,20 @@ const VARIANTS = {
  * Motion y funciona en cualquier navegador. */
 export default function ExplorerGridMotion({
   children,
+  arriving: arrivingProp,
 }: {
   children: ReactNode;
+  /** El singleton de explorerTransitionState solo se puede leer una
+   * vez: si la página ya lo consumió para otra cosa (p. ej. elegir
+   * qué UserCards se "reconstruyen" alrededor del avatar), pásalo
+   * aquí en vez de dejar que este componente lo consuma también. */
+  arriving?: ExplorerDirection;
 }) {
   const { leaving } = useExplorerTransition();
-  const [arriving] = useState(() => consumeArrivingDirection());
+  const [ownArriving] = useState(() =>
+    arrivingProp === undefined ? consumeArrivingDirection() : null
+  );
+  const arriving = arrivingProp !== undefined ? arrivingProp : ownArriving;
 
   const animate =
     leaving === "group" ? "groupOut" : leaving === "spread" ? "spreadOut" : "visible";

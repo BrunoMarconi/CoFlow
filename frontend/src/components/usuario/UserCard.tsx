@@ -16,12 +16,32 @@ const CONNECTION_LABELS: Record<string, string> = {
   ACCEPTED: "Conectados",
 };
 
+// Contenido secundario de la card (nombre/ocupación/ubicación/bio/
+// chips/acciones): en fase "flying" se retira rápido para que el
+// avatar quede como protagonista — ver AvatarClusterLayer.
+const secondaryVariants = {
+  visible: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 3 },
+};
+
 export default function UserCard({
   user,
   onOpen,
+  flying = false,
+  arriving = false,
 }: {
   user: UserPublicProfile;
   onOpen: (userId: string) => void;
+  /** Personas -> Comunidades en curso: esta card está entre las
+   * elegidas para "liberar" a su persona hacia un cluster. El avatar
+   * cede su layoutId a AvatarClusterLayer (deja de pasarlo aquí) y el
+   * resto de la card se repliega. */
+  flying?: boolean;
+  /** Se acaba de llegar desde Comunidades ("las comunidades se abren
+   * y revelan a las personas"): el avatar aparece primero y el resto
+   * de la card se construye alrededor con un pequeño retraso, en vez
+   * de aparecer todo de golpe. */
+  arriving?: boolean;
 }) {
   const {
     saved,
@@ -81,13 +101,27 @@ export default function UserCard({
       }}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.985 }}
-      transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
-      className="flex h-full cursor-pointer flex-col rounded-18 border border-border bg-surface p-4 shadow-soft transition-shadow duration-200 ease-out sm:p-5 sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]"
+      animate={{
+        scale: flying ? 0.98 : 1,
+        opacity: flying ? 0.3 : 1,
+        boxShadow: flying ? "none" : "0 1px 2px rgba(13,59,42,0.06)",
+      }}
+      transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+      className={`flex h-full cursor-pointer flex-col rounded-18 border p-4 sm:p-5 ${
+        flying
+          ? "border-transparent"
+          : "border-border transition-shadow duration-200 ease-out sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]"
+      }`}
     >
       <div className="flex items-start gap-3">
         <motion.div
-          layoutId={`person-avatar-${user.id}`}
-          transition={MOTION_SPRING.gentle}
+          layoutId={flying ? undefined : `person-avatar-${user.id}`}
+          animate={{ scale: flying ? 0.92 : 1 }}
+          transition={
+            flying
+              ? { duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }
+              : MOTION_SPRING.gentle
+          }
           className="relative shrink-0"
         >
           <UserAvatar
@@ -107,11 +141,21 @@ export default function UserCard({
           )}
         </motion.div>
 
-        <div className="min-w-0 flex-1">
+        <motion.div
+          variants={secondaryVariants}
+          initial={arriving ? "hidden" : false}
+          animate={flying ? "hidden" : "visible"}
+          transition={{
+            duration: MOTION_DURATION.fast,
+            ease: MOTION_EASE.out,
+            delay: arriving ? 0.12 : 0,
+          }}
+          className="min-w-0 flex-1"
+        >
           <div className="flex min-w-0 items-center gap-1.5">
             <h3 className="truncate text-base font-bold text-foreground">
               <motion.span
-                layoutId={`person-name-${user.id}`}
+                layoutId={flying ? undefined : `person-name-${user.id}`}
                 transition={MOTION_SPRING.gentle}
                 className="inline"
               >
@@ -147,12 +191,12 @@ export default function UserCard({
             <LocationIcon />
             <span className="truncate">{locationLabel}</span>
           </div>
-        </div>
+        </motion.div>
 
         {statusLabel && (
           <motion.span
             initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            animate={{ opacity: flying ? 0 : 1, scale: 1 }}
             transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
             className="shrink-0 rounded-full bg-mint-100 px-2.5 py-1 text-[11px] font-bold text-primary-dark"
           >
@@ -161,82 +205,93 @@ export default function UserCard({
         )}
       </div>
 
-      {user.bio && (
-        <p className="mt-3 line-clamp-2 text-sm leading-5 text-secondary">
-          {user.bio}
-        </p>
-      )}
+      <motion.div
+        variants={secondaryVariants}
+        initial={arriving ? "hidden" : false}
+        animate={flying ? "hidden" : "visible"}
+        transition={{
+          duration: MOTION_DURATION.fast,
+          ease: MOTION_EASE.out,
+          delay: arriving ? 0.16 : 0,
+        }}
+      >
+        {user.bio && (
+          <p className="mt-3 line-clamp-2 text-sm leading-5 text-secondary">
+            {user.bio}
+          </p>
+        )}
 
-      {traits.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {traits.slice(0, 3).map((trait, index) => (
-            <motion.span
-              key={trait}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{
-                duration: MOTION_DURATION.normal,
-                ease: MOTION_EASE.out,
-                delay: index * 0.03,
-              }}
-              className="inline-flex items-center rounded-full bg-mint-50 px-2.5 py-1 text-[11px] font-bold text-primary-dark"
-            >
-              {trait}
-            </motion.span>
-          ))}
+        {traits.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {traits.slice(0, 3).map((trait, index) => (
+              <motion.span
+                key={trait}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{
+                  duration: MOTION_DURATION.normal,
+                  ease: MOTION_EASE.out,
+                  delay: index * 0.03,
+                }}
+                className="inline-flex items-center rounded-full bg-mint-50 px-2.5 py-1 text-[11px] font-bold text-primary-dark"
+              >
+                {trait}
+              </motion.span>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-4 flex items-center gap-2 border-t border-border pt-3 text-xs font-semibold text-muted">
+          <WalletIcon />
+          Presupuesto
+          <span className="font-bold text-brand-dark">{budgetLabel}</span>
         </div>
-      )}
 
-      <div className="mt-4 flex items-center gap-2 border-t border-border pt-3 text-xs font-semibold text-muted">
-        <WalletIcon />
-        Presupuesto
-        <span className="font-bold text-brand-dark">{budgetLabel}</span>
-      </div>
-
-      <div className="mt-3 flex items-center gap-2">
-        <motion.button
-          type="button"
-          onClick={handlePrimaryAction}
-          disabled={connecting || connectionStatus === "PENDING_SENT"}
-          whileTap={{ scale: 0.96 }}
-          transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-          className="flex h-10 flex-1 items-center justify-center gap-2 rounded-14 bg-brand px-4 text-sm font-bold text-white transition-colors duration-200 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <MessageIcon />
-          {connectionStatus === "ACCEPTED"
-            ? "Enviar mensaje"
-            : connectionStatus === "PENDING_SENT"
-              ? "Solicitud enviada"
-              : connectionStatus === "PENDING_RECEIVED"
-                ? "Responder solicitud"
-                : connecting
-                  ? "Enviando..."
-                  : "Conectar"}
-        </motion.button>
-
-        <motion.button
-          type="button"
-          onClick={handleSave}
-          disabled={savingToggle}
-          aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
-          aria-pressed={saved}
-          whileTap={{ scale: 0.9 }}
-          transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
-            saved
-              ? "border-primary/30 bg-mint-100 text-primary-dark"
-              : "border-border bg-surface text-muted hover:border-primary/40"
-          }`}
-        >
-          <motion.span
-            animate={{ scale: saved ? [1, 1.15, 1] : 1 }}
-            transition={{ duration: MOTION_DURATION.slow, ease: MOTION_EASE.out }}
-            className="inline-flex"
+        <div className="mt-3 flex items-center gap-2">
+          <motion.button
+            type="button"
+            onClick={handlePrimaryAction}
+            disabled={connecting || connectionStatus === "PENDING_SENT"}
+            whileTap={{ scale: 0.96 }}
+            transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+            className="flex h-10 flex-1 items-center justify-center gap-2 rounded-14 bg-brand px-4 text-sm font-bold text-white transition-colors duration-200 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <HeartIcon filled={saved} />
-          </motion.span>
-        </motion.button>
-      </div>
+            <MessageIcon />
+            {connectionStatus === "ACCEPTED"
+              ? "Enviar mensaje"
+              : connectionStatus === "PENDING_SENT"
+                ? "Solicitud enviada"
+                : connectionStatus === "PENDING_RECEIVED"
+                  ? "Responder solicitud"
+                  : connecting
+                    ? "Enviando..."
+                    : "Conectar"}
+          </motion.button>
+
+          <motion.button
+            type="button"
+            onClick={handleSave}
+            disabled={savingToggle}
+            aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
+            aria-pressed={saved}
+            whileTap={{ scale: 0.9 }}
+            transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
+              saved
+                ? "border-primary/30 bg-mint-100 text-primary-dark"
+                : "border-border bg-surface text-muted hover:border-primary/40"
+            }`}
+          >
+            <motion.span
+              animate={{ scale: saved ? [1, 1.15, 1] : 1 }}
+              transition={{ duration: MOTION_DURATION.slow, ease: MOTION_EASE.out }}
+              className="inline-flex"
+            >
+              <HeartIcon filled={saved} />
+            </motion.span>
+          </motion.button>
+        </div>
+      </motion.div>
     </motion.article>
   );
 }

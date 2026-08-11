@@ -30,6 +30,8 @@ export default function UserGrid({
   staggerChildren = 0.04,
   recede = false,
   highlightFirst = false,
+  flyingIds,
+  arriving = false,
 }: {
   users: UserPublicProfile[];
   onOpen: (userId: string) => void;
@@ -44,6 +46,13 @@ export default function UserGrid({
   /** El primer resultado entra con un acento sutil (borde/sombra) sin
    * cambiar de tamaño ni romper la jerarquía visual. */
   highlightFirst?: boolean;
+  /** IDs de las personas elegidas para "liberarse" hacia
+   * AvatarClusterLayer durante Personas -> Comunidades (ver
+   * usuarios/page.tsx) — sus cards ceden el protagonismo al avatar. */
+  flyingIds?: Set<string>;
+  /** Se acaba de llegar desde Comunidades: las cards se construyen
+   * alrededor del avatar en vez de aparecer de golpe. */
+  arriving?: boolean;
 }) {
   if (users.length === 0) {
     return (
@@ -92,7 +101,12 @@ export default function UserGrid({
                   : undefined
               }
             >
-              <UserCard user={user} onOpen={onOpen} />
+              <UserCard
+                user={user}
+                onOpen={onOpen}
+                flying={flyingIds?.has(user.id) ?? false}
+                arriving={arriving}
+              />
             </motion.div>
           ))}
         </AnimatePresence>
