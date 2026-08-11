@@ -3,8 +3,8 @@ import ListRow from "@/components/perfil/ListRow";
 export default function AccountSection() {
   return (
     <div className="divide-y divide-border rounded-18 border border-border bg-surface">
-      <ListRow icon={<BellIcon />} label="Notificaciones" href="/ajustes" />
-      <ListRow icon={<LockIcon />} label="Privacidad y seguridad" href="/ajustes" />
+      <ListRow icon={<BellIcon />} label="Notificaciones" href="/notificaciones" />
+      <ListRow icon={<LockIcon />} label="Privacidad y seguridad" href="/ajustes/privacidad" />
       <ListRow icon={<SlidersIcon />} label="Preferencias" href="/ajustes" />
       <ListRow icon={<GlobeIcon />} label="Idioma" />
     </div>

@@ -230,7 +230,7 @@ export default function PerfilPage() {
         <h2 className="px-1 text-sm font-bold text-primary-dark">Cuenta</h2>
         <div className="divide-y divide-border rounded-18 border border-border bg-surface">
           <ProfileMenuRow href="/notificaciones" icon={<BellIcon />} label="Notificaciones" />
-          <ProfileMenuRow href="/ajustes" icon={<LockIcon />} label="Privacidad y seguridad" />
+          <ProfileMenuRow href="/ajustes/privacidad" icon={<LockIcon />} label="Privacidad y seguridad" />
           <ProfileMenuRow icon={<HelpIcon />} label="Centro de ayuda" />
         </div>
       </section>
