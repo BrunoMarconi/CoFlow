@@ -9,6 +9,7 @@ import BottomNavigation from "@/components/layout/BottomNavigation";
 import EmailVerificationBanner from "@/components/layout/EmailVerificationBanner";
 import ProfileCompletionBanner from "@/components/layout/ProfileCompletionBanner";
 import SwipeNavigation from "@/components/layout/SwipeNavigation";
+import Toaster from "@/components/ui/Toast";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { useAuth } from "@/hooks/useAuth";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -219,6 +220,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       <BottomNavigation />
+      <Toaster />
     </div>
   );
 }
