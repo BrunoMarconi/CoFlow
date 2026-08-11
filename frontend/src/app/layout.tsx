@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import localFont from "next/font/local";
 
 import AuthProvider from "@/providers/AuthProvider";
 import QueryProvider from "@/providers/QueryProvider";
@@ -7,19 +7,32 @@ import RouteProgressBar from "@/components/layout/RouteProgressBar";
 
 import "./globals.css";
 
+// Autohospedadas (next/font/local) en vez de next/font/google: la
+// versión Google descarga los .woff2 desde fonts.gstatic.com durante
+// el build, y si esa red no está disponible en la máquina de build
+// (p. ej. Vercel en algún momento puntual) el build entero falla con
+// "Module not found" en el CSS del font — justo lo que pasó en
+// producción. Los ficheros (subset latin, mismo peso variable que ya
+// servía Google) viven en src/fonts/ y no dependen de red en build.
+//
 // Una sola familia para todo (texto de cuerpo y titulares, utilidades
 // font-sans y font-rounded) — cálida y geométrica, en la línea de la
 // tipografía de Airbnb (Cereal, que no está disponible como Google
 // Font). Antes se mezclaban Manrope + Fredoka; se unificó a esta.
-const plusJakartaSans = Plus_Jakarta_Sans({
+const plusJakartaSans = localFont({
+  src: "../fonts/PlusJakartaSans.woff2",
   variable: "--font-jakarta",
-  weight: ["400", "500", "600", "700", "800"],
-  subsets: ["latin"],
+  weight: "400 800",
+  style: "normal",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: "../fonts/GeistMono.woff2",
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: "100 900",
+  style: "normal",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
