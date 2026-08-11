@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import EditProfileForm from "@/components/perfil/EditProfileForm";
+import AvatarUploader from "@/components/perfil/AvatarUploader";
 import Avatar from "@/components/ui/Avatar";
 import Spinner from "@/components/ui/Spinner";
 import { updateProfile } from "@/services/users";
@@ -41,16 +41,19 @@ export default function EditarPerfilPage() {
 
       <section className="mt-6 rounded-24 border border-border bg-surface p-5 shadow-soft sm:p-6">
         <div className="flex items-center gap-5">
-          <Link href="/perfil/fotos" className="relative shrink-0 rounded-full border-4 border-white shadow-soft">
+          <div className="relative shrink-0 rounded-full border-4 border-white shadow-soft">
             <Avatar
               name={`${user.first_name} ${user.last_name}`}
               imageUrl={user.avatar_url}
               size={96}
             />
-            <span className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white ring-2 ring-white">
-              <PencilIcon />
-            </span>
-          </Link>
+            <AvatarUploader
+              hasAvatar={Boolean(user.avatar_url)}
+              onUpdated={async () => {
+                await refresh();
+              }}
+            />
+          </div>
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
@@ -87,10 +90,6 @@ function computeProfileCompletion(user: NonNullable<ReturnType<typeof useAuth>["
 
 function ArrowLeftIcon() {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>;
-}
-
-function PencilIcon() {
-  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true"><path d="m4 16-1 5 5-1L19 9l-4-4L4 16Z" /><path d="m13 7 4 4" /></svg>;
 }
 
 function VerifiedIcon() {
