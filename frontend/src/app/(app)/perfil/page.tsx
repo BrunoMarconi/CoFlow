@@ -9,11 +9,10 @@ import Avatar from "@/components/ui/Avatar";
 import TrustSection from "@/components/perfil/TrustProfileCard";
 import YourProfileSection from "@/components/perfil/YourProfileSection";
 import RoommateSearchCard from "@/components/perfil/RoommateSearchCard";
-import ProfilePhotoGallery from "@/components/perfil/ProfilePhotoGallery";
 import DangerZoneSection from "@/components/perfil/DangerZoneSection";
 import Spinner from "@/components/ui/Spinner";
 import { getMyOnboarding } from "@/services/onboarding";
-import { getSavedProfiles, deleteUserPhoto, reorderUserPhotos, uploadUserPhotos } from "@/services/users";
+import { getSavedProfiles } from "@/services/users";
 import { getConnectionRequests, getConnections } from "@/services/connections";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import type { OnboardingAnswers } from "@/types/onboarding";
@@ -243,24 +242,6 @@ export default function PerfilPage() {
           answers={answers}
           cityLabel={community?.city ?? null}
         />
-
-        <div id="fotos">
-          <ProfilePhotoGallery
-            photos={user.photos}
-            onUpload={async (files) => {
-              await uploadUserPhotos(files);
-              await refresh();
-            }}
-            onDelete={async (photoId) => {
-              await deleteUserPhoto(photoId);
-              await refresh();
-            }}
-            onReorder={async (photoIds) => {
-              await reorderUserPhotos(photoIds);
-              await refresh();
-            }}
-          />
-        </div>
 
         <RoommateSearchCard
           user={user}
