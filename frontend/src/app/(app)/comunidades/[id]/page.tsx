@@ -5,9 +5,12 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MotionConfig } from "framer-motion";
+import { motion, MotionConfig, useReducedMotion } from "framer-motion";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { consumeArrivingHome } from "@/lib/homeTransitionState";
+import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 
 import CommunityHeader from "@/components/comunidad/CommunityHeader";
 import CommunityOwnerActions from "@/components/comunidad/CommunityOwnerActions";
@@ -21,6 +24,15 @@ import {
 export default function ComunidadDetallePage() {
   const params = useParams<{ id: string }>();
   const { user, loading: authLoading, refreshCommunity } = useAuth();
+  const prefersReducedMotion = useReducedMotion();
+  const isDesktop = useMediaQuery("(min-width: 640px)");
+
+  // "Entrar en tu espacio": si se llegó desde el icono de la casita
+  // (FAB móvil de Comunidades cuando ya tienes una), esta pantalla
+  // nace desde profundidad — ver HomeTransitionProvider. Para el
+  // resto de visitas (listado, enlace directo a otra comunidad) el
+  // flag está a false y no cambia nada.
+  const [arrivingHome] = useState(() => consumeArrivingHome());
 
   const queryClient = useQueryClient();
   const communityQueryKey = ["community-detail", params.id];
@@ -119,9 +131,20 @@ export default function ComunidadDetallePage() {
     community.current_user_role === "OWNER" ||
     user?.id === community.owner_id;
 
+  const enterInitial = prefersReducedMotion
+    ? { opacity: 0 }
+    : isDesktop
+      ? { opacity: 0, scale: 1.015, y: 3 }
+      : { opacity: 0, scale: 1.035, y: 6 };
+
   return (
     <MotionConfig reducedMotion="user">
-    <div className="mx-auto w-full max-w-5xl">
+    <motion.div
+      initial={arrivingHome ? enterInitial : false}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+      className="mx-auto w-full max-w-5xl"
+    >
       <Link
         href="/comunidades"
         className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-muted transition hover:text-brand-dark"
@@ -146,7 +169,7 @@ export default function ComunidadDetallePage() {
           />
         </div>
       )}
-    </div>
+    </motion.div>
     </MotionConfig>
   );
 }

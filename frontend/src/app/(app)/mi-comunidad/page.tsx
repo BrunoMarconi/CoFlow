@@ -3,7 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { consumeArrivingHome } from "@/lib/homeTransitionState";
+import {
+  MOTION_DURATION,
+  MOTION_EASE,
+  MOTION_STAGGER_TIGHT,
+} from "@/lib/motionTokens";
 import Spinner from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
 import CommunityChat from "@/components/comunidad/CommunityChat";
@@ -32,6 +40,15 @@ export default function MiComunidadPage() {
   const { user, community, communityLoading } = useAuth();
   const { setChatActive } = useMobileChrome();
   const searchParams = useSearchParams();
+  const prefersReducedMotion = useReducedMotion();
+  const isDesktop = useMediaQuery("(min-width: 640px)");
+
+  // "Entrar en tu espacio": si se llegó a través del icono de la
+  // casita, esta pantalla nace desde profundidad en vez de aparecer
+  // de golpe — ver HomeTransitionProvider/homeTransitionState. Se lee
+  // una sola vez al montar (esta página sí se remonta en cada
+  // navegación, a diferencia del wrapper de AppShell).
+  const [arrivingHome] = useState(() => consumeArrivingHome());
 
   const [tab, setTab] = useState<Tab>(
     isValidTab(searchParams.get("tab")) ? (searchParams.get("tab") as Tab) : "resumen"
@@ -121,9 +138,29 @@ export default function MiComunidadPage() {
       : []),
   ];
 
+  const enterInitial = prefersReducedMotion
+    ? { opacity: 0 }
+    : isDesktop
+      ? { opacity: 0, scale: 1.015, y: 3 }
+      : { opacity: 0, scale: 1.035, y: 6 };
+
   return (
-    <div className="mx-auto w-full max-w-5xl">
-      <header className="rounded-18 border border-line bg-surface p-3.5 sm:p-5">
+    <motion.div
+      initial={arrivingHome ? enterInitial : false}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+      className="mx-auto w-full max-w-5xl"
+    >
+      <motion.header
+        initial={arrivingHome ? { opacity: 0, y: 6 } : false}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: MOTION_DURATION.fast,
+          ease: MOTION_EASE.out,
+          delay: arrivingHome ? MOTION_STAGGER_TIGHT : 0,
+        }}
+        className="rounded-18 border border-line bg-surface p-3.5 sm:p-5"
+      >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h1 className="truncate text-lg font-bold text-foreground sm:text-2xl">
@@ -172,7 +209,7 @@ export default function MiComunidadPage() {
             {statusLabel}
           </span>
         </div>
-      </header>
+      </motion.header>
 
       {!isOwner && (
         <div className="mt-3">
@@ -182,7 +219,14 @@ export default function MiComunidadPage() {
 
       <CommunityTabs tab={tab} tabs={tabs} onChange={setTab} />
 
-      <div
+      <motion.div
+        initial={arrivingHome ? { opacity: 0, y: 6 } : false}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: MOTION_DURATION.fast,
+          ease: MOTION_EASE.out,
+          delay: arrivingHome ? MOTION_STAGGER_TIGHT * 2 : 0,
+        }}
         role="tabpanel"
         id={`panel-${tab}`}
         aria-labelledby={`tab-${tab}`}
@@ -213,8 +257,8 @@ export default function MiComunidadPage() {
             onOpenSolicitudes={() => setTab("solicitudes")}
           />
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

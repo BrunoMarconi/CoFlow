@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, ViewTransition } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
 import BottomNavigation from "@/components/layout/BottomNavigation";
@@ -9,14 +10,42 @@ import ProfileCompletionBanner from "@/components/layout/ProfileCompletionBanner
 import SwipeNavigation from "@/components/layout/SwipeNavigation";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import ExplorerTransitionProvider from "@/providers/ExplorerTransitionProvider";
+import HomeTransitionProvider, {
+  useHomeTransition,
+} from "@/providers/HomeTransitionProvider";
 import { cn } from "@/lib/utils";
 import { NAV_TRANSITION } from "@/lib/navTransition";
+import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 
 export default function AppShell({ children }: { children: ReactNode }) {
+  return (
+    <HomeTransitionProvider>
+      <ExplorerTransitionProvider>
+        <AppShellContent>{children}</AppShellContent>
+      </ExplorerTransitionProvider>
+    </HomeTransitionProvider>
+  );
+}
+
+function AppShellContent({ children }: { children: ReactNode }) {
   const { isChatActive } = useMobileChrome();
+  const { leavingHome } = useHomeTransition();
+  const prefersReducedMotion = useReducedMotion();
+
+  // Portal a "Tu comunidad" (icono casita): la pantalla actual se
+  // aleja ligeramente antes de que HomeTransitionProvider navegue de
+  // verdad — la entrada desde profundidad en el otro extremo vive en
+  // la propia página destino (lee homeTransitionState al montar, ver
+  // mi-comunidad/page.tsx y comunidades/[id]/page.tsx), porque a
+  // diferencia de este wrapper, esas páginas sí se remontan en cada
+  // navegación.
+  const contentAnimate = !leavingHome
+    ? { opacity: 1, scale: 1, filter: "blur(0px)" }
+    : prefersReducedMotion
+      ? { opacity: 0 }
+      : { opacity: 0, scale: 0.985, filter: "blur(1px)" };
 
   return (
-    <ExplorerTransitionProvider>
     <div className="min-h-dvh bg-background">
       <Navbar />
 
@@ -48,15 +77,19 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 <ProfileCompletionBanner />
               </>
             )}
-            <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
-              <SwipeNavigation>{children}</SwipeNavigation>
-            </ViewTransition>
+            <motion.div
+              animate={contentAnimate}
+              transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+            >
+              <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
+                <SwipeNavigation>{children}</SwipeNavigation>
+              </ViewTransition>
+            </motion.div>
           </div>
         </main>
       </div>
 
       <BottomNavigation />
     </div>
-    </ExplorerTransitionProvider>
   );
 }

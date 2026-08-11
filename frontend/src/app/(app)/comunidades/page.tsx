@@ -3,7 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { AnimatePresence, motion, MotionConfig } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  MotionConfig,
+  useAnimationControls,
+  useReducedMotion,
+} from "framer-motion";
 
 import { useCommunities } from "@/hooks/useCommunities";
 import { useAuth } from "@/hooks/useAuth";
@@ -28,7 +34,12 @@ import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import { useExplorerTransition } from "@/providers/ExplorerTransitionProvider";
 import { consumeArrivingDirection } from "@/lib/explorerTransitionState";
-import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
+import { useHomeIconClick } from "@/hooks/useHomeIconClick";
+import {
+  MOTION_DURATION,
+  MOTION_EASE,
+  MOTION_HOME_TAP_SCALE,
+} from "@/lib/motionTokens";
 
 const SEARCH_BAR_LAYOUT_ID = "community-search-bar";
 const SEARCH_ICON_LAYOUT_ID = "community-search-icon";
@@ -255,6 +266,24 @@ export default function ComunidadesPage() {
     ? "Ver mi comunidad"
     : "Crear comunidad";
 
+  // El FAB de la casita solo hace el "portal" cuando ya lleva a tu
+  // comunidad real — crear una comunidad nueva no es "entrar en tu
+  // espacio", así que ese caso navega normal.
+  const homeIconControls = useAnimationControls();
+  const prefersReducedMotionForHomeFab = useReducedMotion();
+  const handleHomeFabClick = useHomeIconClick(actionHref);
+
+  function handleHomeFabTap(event: React.MouseEvent<HTMLAnchorElement>) {
+    if (!prefersReducedMotionForHomeFab) {
+      homeIconControls.start(
+        { scale: MOTION_HOME_TAP_SCALE },
+        { duration: MOTION_DURATION.slow, ease: MOTION_EASE.out }
+      );
+    }
+
+    if (myCommunity) handleHomeFabClick(event);
+  }
+
   // Mismo bloque de resultados en la vista normal y dentro del modo
   // búsqueda: se reutiliza tal cual, nunca se duplica.
   const resultsBlock = loading ? (
@@ -438,9 +467,12 @@ export default function ComunidadesPage() {
           href={actionHref}
           aria-label={actionLabel}
           title={actionLabel}
+          onClick={handleHomeFabTap}
           className="fixed right-5 bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+1rem)] z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-soft transition active:scale-95 sm:hidden"
         >
-          <HomeIcon />
+          <motion.span animate={homeIconControls} className="inline-flex">
+            <HomeIcon />
+          </motion.span>
         </Link>
       )}
     </div>

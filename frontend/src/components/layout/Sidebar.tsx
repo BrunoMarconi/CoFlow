@@ -1,11 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useAnimationControls, useReducedMotion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { MOTION_SPRING } from "@/lib/motionTokens";
+import {
+  MOTION_DURATION,
+  MOTION_EASE,
+  MOTION_HOME_TAP_SCALE,
+  MOTION_SPRING,
+} from "@/lib/motionTokens";
 import { useAuth } from "@/hooks/useAuth";
+import { useHomeIconClick } from "@/hooks/useHomeIconClick";
 import Avatar from "@/components/ui/Avatar";
 import Logo from "@/components/ui/Logo";
 import {
@@ -119,6 +125,7 @@ export default function Sidebar() {
               isSectionLink={
                 link.href === "/comunidades" || link.href === "/usuarios"
               }
+              isHomeLink={link.href === "/mi-comunidad"}
             />
           ))}
         </NavGroup>
@@ -192,6 +199,7 @@ function SidebarLink({
   active,
   transitionTypes,
   isSectionLink = false,
+  isHomeLink = false,
 }: {
   link: NavLink;
   active: boolean;
@@ -200,16 +208,37 @@ function SidebarLink({
    * es la señal visual de que arranca la transición "agrupar/abrir"
    * (ver ExplorerTransitionProvider), no un rediseño general de nav. */
   isSectionLink?: boolean;
+  /** El icono de la casita ("Tu comunidad"): tap con pequeño rebote
+   * en el propio icono y transición de "portal" en vez de navegación
+   * normal — ver HomeTransitionProvider. */
+  isHomeLink?: boolean;
 }) {
   const Icon = link.icon;
-  const handleClick = useExplorerLinkClick(link.href);
+  const explorerClick = useExplorerLinkClick(link.href);
+  const homeClick = useHomeIconClick(link.href);
+  const iconControls = useAnimationControls();
+  const prefersReducedMotion = useReducedMotion();
+
+  const handleClick = isHomeLink ? homeClick : explorerClick;
+
+  function handleIconTap() {
+    if (!isHomeLink || prefersReducedMotion) return;
+
+    iconControls.start(
+      { scale: MOTION_HOME_TAP_SCALE },
+      { duration: MOTION_DURATION.slow, ease: MOTION_EASE.out }
+    );
+  }
 
   return (
     <Link
       href={link.href}
       aria-current={active ? "page" : undefined}
       transitionTypes={transitionTypes}
-      onClick={handleClick}
+      onClick={(event) => {
+        handleIconTap();
+        handleClick(event);
+      }}
       className={cn(
         "relative flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
         !isSectionLink &&
@@ -231,12 +260,14 @@ function SidebarLink({
         whileTap={isSectionLink ? { scale: 0.96 } : undefined}
         className="relative z-10 flex items-center gap-3"
       >
-        <Icon
-          className={cn(
-            "h-5 w-5 shrink-0",
-            active ? "text-primary" : "text-muted"
-          )}
-        />
+        <motion.span animate={iconControls} className="inline-flex shrink-0">
+          <Icon
+            className={cn(
+              "h-5 w-5 shrink-0",
+              active ? "text-primary" : "text-muted"
+            )}
+          />
+        </motion.span>
         <span className="truncate">{link.label}</span>
       </motion.span>
     </Link>

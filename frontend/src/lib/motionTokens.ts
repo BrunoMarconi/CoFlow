@@ -100,3 +100,23 @@ export const MOTION_GROUP_MORPH_DELAY = 0.06;
  * MOTION_GROUP_MORPH.duration terminen y el cluster tenga un
  * instante de asentamiento visible antes del corte de página. */
 export const MOTION_GROUP_TRAVEL_MS = 450;
+
+/* --- Portal a "Tu comunidad" (icono casita) ---------------------------
+ * "Entrar en tu espacio dentro de CoFlow": la pantalla actual se aleja
+ * ligeramente (HomeTransitionProvider + AppShell) y Tu Comunidad
+ * aparece desde profundidad (la propia página destino, al montar, lee
+ * homeTransitionState). Timeline ~220-300ms:
+ *   0ms    tap — tap keyframes en el icono
+ *   0-130ms pantalla actual se aleja (scale/opacity/blur)
+ *   130ms  MOTION_HOME_PORTAL_EXIT_MS: navega de verdad
+ *   130-300ms Tu Comunidad entra desde profundidad */
+
+/** Cuánto espera HomeTransitionProvider antes de navegar de verdad —
+ * el tiempo justo para que la pantalla actual empiece a alejarse
+ * antes del corte de página (misma razón que MOTION_GROUP_TRAVEL_MS). */
+export const MOTION_HOME_PORTAL_EXIT_MS = 130;
+
+/** Keyframes del tap en la casita: se presiona, sobra un poco por
+ * encima de 1 al soltar y se asienta — el "rebote" es un keyframe con
+ * ease, no un spring con bounce real. */
+export const MOTION_HOME_TAP_SCALE = [1, 0.92, 1.04, 1];
