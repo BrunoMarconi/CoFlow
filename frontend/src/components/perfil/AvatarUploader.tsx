@@ -74,7 +74,11 @@ export default function AvatarUploader({
 
       <button
         type="button"
-        onClick={() => inputRef.current?.click()}
+        onClick={(event) => {
+          event.stopPropagation();
+          event.preventDefault();
+          inputRef.current?.click();
+        }}
         disabled={busy}
         aria-label={hasAvatar ? "Cambiar foto de perfil" : "Añadir foto de perfil"}
         title={hasAvatar ? "Cambiar foto" : "Añadir foto"}
@@ -86,7 +90,11 @@ export default function AvatarUploader({
       {hasAvatar && (
         <button
           type="button"
-          onClick={handleRemove}
+          onClick={(event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            handleRemove();
+          }}
           disabled={busy}
           aria-label="Quitar foto de perfil"
           title="Quitar foto"

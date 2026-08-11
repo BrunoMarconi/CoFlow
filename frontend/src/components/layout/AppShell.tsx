@@ -26,6 +26,11 @@ import {
   MOTION_HOME_NAV_DURATION_DESKTOP,
   MOTION_HOME_NAV_DURATION_MOBILE,
   MOTION_HOME_NAV_REDUCED_DURATION,
+  MOTION_PROFILE_PUBLIC_NAV_DISTANCE_DESKTOP,
+  MOTION_PROFILE_PUBLIC_NAV_DISTANCE_MOBILE,
+  MOTION_PROFILE_PUBLIC_NAV_DURATION,
+  MOTION_PROFILE_PUBLIC_NAV_REDUCED_DURATION,
+  MOTION_PROFILE_PUBLIC_NAV_TILT_DEG,
 } from "@/lib/motionTokens";
 
 function isHomeRoute(pathname: string, ownCommunityHref: string | null) {
@@ -38,7 +43,7 @@ function isExplorerRoute(pathname: string) {
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const { isChatActive } = useMobileChrome();
-  const { community } = useAuth();
+  const { user, community } = useAuth();
   const prefersReducedMotion = useReducedMotion();
   const isDesktop = useMediaQuery("(min-width: 640px)");
   const pathname = usePathname();
@@ -59,6 +64,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const contentControls = useAnimationControls();
   const previousPathnameRef = useRef(pathname);
   const ownCommunityHref = community ? `/comunidades/${community.id}` : null;
+  const ownPublicProfileHref = user ? `/personas/${user.id}` : null;
 
   useEffect(() => {
     if (previousPathnameRef.current === pathname) return;
@@ -93,9 +99,34 @@ export default function AppShell({ children }: { children: ReactNode }) {
       return;
     }
 
+    // 3) Perfil <-> Perfil público (el propio): la única transición
+    // "protagonista" de la app — más recorrido/duración que el resto y
+    // un toque de inclinación 3D, a propósito (ver motionTokens.ts).
+    const wasProfile = prevPathname === "/perfil";
+    const wasOwnPublicProfile =
+      ownPublicProfileHref !== null && prevPathname === ownPublicProfileHref;
+    const isProfile = pathname === "/perfil";
+    const isOwnPublicProfile =
+      ownPublicProfileHref !== null && pathname === ownPublicProfileHref;
+
+    if (
+      (wasProfile && isOwnPublicProfile) ||
+      (wasOwnPublicProfile && isProfile)
+    ) {
+      enterFrom(isOwnPublicProfile ? "right" : "left", {
+        distanceMobile: MOTION_PROFILE_PUBLIC_NAV_DISTANCE_MOBILE,
+        distanceDesktop: MOTION_PROFILE_PUBLIC_NAV_DISTANCE_DESKTOP,
+        durationMobile: MOTION_PROFILE_PUBLIC_NAV_DURATION,
+        durationDesktop: MOTION_PROFILE_PUBLIC_NAV_DURATION,
+        reducedDuration: MOTION_PROFILE_PUBLIC_NAV_REDUCED_DURATION,
+        tiltDeg: MOTION_PROFILE_PUBLIC_NAV_TILT_DEG,
+      });
+      return;
+    }
+
     // Cualquier otra navegación: contenido visible al instante, sin
     // animación de ningún tipo.
-    contentControls.set({ x: 0, opacity: 1 });
+    contentControls.set({ x: 0, opacity: 1, rotateY: 0 });
 
     function enterFrom(
       side: "left" | "right",
@@ -105,10 +136,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
         durationMobile: number;
         durationDesktop: number;
         reducedDuration: number;
+        tiltDeg?: number;
       }
     ) {
       if (prefersReducedMotion) {
-        contentControls.set({ opacity: 0, x: 0 });
+        contentControls.set({ opacity: 0, x: 0, rotateY: 0 });
         contentControls.start(
           { opacity: 1 },
           { duration: tokens.reducedDuration, ease: MOTION_EASE.out }
@@ -123,16 +155,21 @@ export default function AppShell({ children }: { children: ReactNode }) {
         ? tokens.durationDesktop
         : tokens.durationMobile;
       const fromX = side === "right" ? distance : -distance;
+      const fromTilt = tokens.tiltDeg
+        ? side === "right"
+          ? tokens.tiltDeg
+          : -tokens.tiltDeg
+        : 0;
 
-      contentControls.set({ x: fromX, opacity: 0 });
+      contentControls.set({ x: fromX, opacity: 0, rotateY: fromTilt });
       contentControls.start(
-        { x: 0, opacity: 1 },
+        { x: 0, opacity: 1, rotateY: 0 },
         { duration, ease: MOTION_EASE.out }
       );
     }
     // Solo debe reaccionar a cambios de ruta reales — isDesktop/
-    // prefersReducedMotion/ownCommunityHref se leen en el momento, no
-    // deben retrigger.
+    // prefersReducedMotion/ownCommunityHref/ownPublicProfileHref se
+    // leen en el momento, no deben retrigger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
@@ -168,7 +205,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 <ProfileCompletionBanner />
               </>
             )}
-            <motion.div animate={contentControls} initial={false}>
+            <motion.div
+              animate={contentControls}
+              initial={false}
+              style={{ transformPerspective: 1000 }}
+            >
               <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
                 <SwipeNavigation>{children}</SwipeNavigation>
               </ViewTransition>

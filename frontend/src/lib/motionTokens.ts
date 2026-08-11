@@ -106,3 +106,26 @@ export const MOTION_HOME_NAV_REDUCED_DURATION = 0.09;
 
 /** whileTap de la casita — solo scale, nada más. */
 export const MOTION_HOME_TAP_SCALE = 0.94;
+
+/* --- Perfil <-> Perfil público (propio) --------------------------------
+ * Única transición "especial" de la app: al pulsar la cabecera de
+ * identidad en Perfil, la pantalla entrante gira levemente en el eje Y
+ * (perspectiva sutil, no un flip de carta) mientras se desliza y funde.
+ * Misma arquitectura que el resto de cruces de AppShell (imperative
+ * controls sobre el contenido ya montado, sin retrasar la navegación),
+ * pero con más recorrido y duración porque el propio pedido la marca
+ * como la pieza "premium" de la pantalla — el resto de la app debe
+ * seguir sintiéndose instantánea, esta es la única excepción medida. */
+
+export const MOTION_PROFILE_PUBLIC_NAV_DISTANCE_MOBILE = 24;
+export const MOTION_PROFILE_PUBLIC_NAV_DISTANCE_DESKTOP = 16;
+
+/** ~280ms — dentro del objetivo 250-320ms del pedido. */
+export const MOTION_PROFILE_PUBLIC_NAV_DURATION = 0.28;
+
+/** Inclinación 3D sutil (grados) con la que entra/sale el contenido —
+ * lejos de un flip de 90°, solo un toque de profundidad. */
+export const MOTION_PROFILE_PUBLIC_NAV_TILT_DEG = 6;
+
+/** Con prefers-reduced-motion: solo fade, sin desplazamiento ni giro. */
+export const MOTION_PROFILE_PUBLIC_NAV_REDUCED_DURATION = 0.1;
