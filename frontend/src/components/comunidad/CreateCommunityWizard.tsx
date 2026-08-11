@@ -313,19 +313,19 @@ export default function CreateCommunityWizard({
             <div className="h-full w-1/4 rounded-full bg-primary" />
           </div>
 
-          <div className="mt-10 flex h-16 w-16 items-center justify-center rounded-full bg-mint-50 text-primary sm:mt-12">
+          <div className="mt-7 flex h-14 w-14 items-center justify-center rounded-full bg-mint-50 text-primary sm:mt-12 sm:h-16 sm:w-16">
             <CommunityPeopleIcon />
           </div>
 
-          <h1 className="mt-5 text-[2.5rem] font-bold leading-[1.05] tracking-[-0.04em] text-brand-dark sm:text-5xl">
+          <h1 className="mt-4 text-3xl font-bold leading-[1.08] tracking-[-0.04em] text-brand-dark sm:mt-5 sm:text-5xl">
             Crear comunidad
           </h1>
 
-          <p className="mt-4 max-w-lg text-lg leading-8 text-secondary sm:text-xl">
+          <p className="mt-3 max-w-lg text-base leading-7 text-secondary sm:mt-4 sm:text-xl sm:leading-8">
             Empieza creando el espacio que compartiréis juntos.
           </p>
 
-          <div className="relative mx-auto mt-3 aspect-[16/8] w-full max-w-xl sm:mt-5">
+          <div className="relative mx-auto mt-1 aspect-[16/7] w-full max-w-xl sm:mt-5 sm:aspect-[16/8]">
             <Image
               src="/images/create-community-living-room.png"
               alt="Un salón acogedor con sofá verde, plantas y una mesa compartida"
@@ -364,11 +364,11 @@ export default function CreateCommunityWizard({
             <span className="h-1 rounded-full bg-border" />
           </div>
 
-          <h1 className="mt-12 text-[2.35rem] font-bold leading-[1.08] tracking-[-0.04em] text-brand-dark sm:text-5xl">
+          <h1 className="mt-8 text-3xl font-bold leading-[1.08] tracking-[-0.04em] text-brand-dark sm:mt-12 sm:text-5xl">
             ¿Cómo queréis convivir?
           </h1>
 
-          <p className="mt-4 max-w-xl text-lg leading-8 text-secondary sm:text-xl">
+          <p className="mt-3 max-w-xl text-base leading-7 text-secondary sm:mt-4 sm:text-xl sm:leading-8">
             Contadnos lo esencial para encontrar personas que encajen con
             vuestra comunidad.
           </p>
@@ -389,15 +389,15 @@ export default function CreateCommunityWizard({
             <span className="h-1 rounded-full bg-border" />
           </div>
 
-          <div className="mt-12 flex h-16 w-16 items-center justify-center rounded-full bg-mint-50 text-primary">
+          <div className="mt-8 flex h-14 w-14 items-center justify-center rounded-full bg-mint-50 text-primary sm:mt-12 sm:h-16 sm:w-16">
             <AddPeopleIcon />
           </div>
 
-          <h1 className="mt-5 text-[2.35rem] font-bold leading-[1.08] tracking-[-0.04em] text-brand-dark sm:text-5xl">
+          <h1 className="mt-4 text-3xl font-bold leading-[1.08] tracking-[-0.04em] text-brand-dark sm:mt-5 sm:text-5xl">
             Añade a tu gente
           </h1>
 
-          <p className="mt-4 max-w-xl text-lg leading-8 text-secondary sm:text-xl">
+          <p className="mt-3 max-w-xl text-base leading-7 text-secondary sm:mt-4 sm:text-xl sm:leading-8">
             Podéis crear la comunidad en solitario y añadir personas cuando
             queráis.
           </p>
@@ -430,15 +430,15 @@ export default function CreateCommunityWizard({
       <div
         className={cn(
           step === 1 && "mx-auto mt-2 max-w-2xl",
-          step === 2 && "mx-auto mt-10 max-w-2xl",
-          step === 3 && "mx-auto mt-10 max-w-2xl",
-          step === 4 && "mx-auto mt-10 max-w-2xl"
+          step === 2 && "mx-auto mt-7 max-w-2xl sm:mt-10",
+          step === 3 && "mx-auto mt-7 max-w-2xl sm:mt-10",
+          step === 4 && "mx-auto mt-7 max-w-2xl sm:mt-10"
         )}
       >
         {step === 1 && (
           <section>
             <div className="space-y-5">
-              <div className="rounded-24 border border-border/70 bg-surface p-5 shadow-[0_12px_35px_rgba(26,55,43,0.08)] sm:p-7">
+              <div className="rounded-24 border border-border/70 bg-surface p-4 shadow-[0_12px_35px_rgba(26,55,43,0.08)] sm:p-7">
                 <Input
                   label="¿Cómo se llamará vuestra comunidad?"
                   value={name}
@@ -447,11 +447,11 @@ export default function CreateCommunityWizard({
                   minLength={NAME_MIN_LENGTH}
                   maxLength={120}
                   required
-                  className="h-16 rounded-18 px-5 text-lg sm:text-xl"
+                  className="h-14 rounded-18 px-4 text-base sm:h-16 sm:px-5 sm:text-xl"
                 />
               </div>
 
-              <div className="rounded-24 border border-border/70 bg-surface p-5 shadow-[0_12px_35px_rgba(26,55,43,0.08)] sm:p-7">
+              <div className="rounded-24 border border-border/70 bg-surface p-4 shadow-[0_12px_35px_rgba(26,55,43,0.08)] sm:p-7">
                 <Input
                   label="¿Dónde buscáis?"
                   value={city}
@@ -461,7 +461,7 @@ export default function CreateCommunityWizard({
                   autoComplete="address-level2"
                   required
                   leftElement={<LocationPinIcon />}
-                  className="h-16 rounded-18 pl-13 pr-5 text-lg sm:text-xl"
+                  className="h-14 rounded-18 pl-12 pr-4 text-base sm:h-16 sm:pl-13 sm:pr-5 sm:text-xl"
                 />
               </div>
             </div>
@@ -471,7 +471,7 @@ export default function CreateCommunityWizard({
             <button
               type="button"
               onClick={handleContinueStep1}
-              className="relative mt-7 flex h-16 w-full items-center justify-center rounded-24 bg-primary px-16 text-lg font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-mint-200"
+              className="relative mt-6 flex h-14 w-full items-center justify-center rounded-24 bg-primary px-14 text-base font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-mint-200 sm:mt-7 sm:h-16 sm:px-16 sm:text-lg"
             >
               Continuar
               <span className="absolute right-6">
@@ -482,7 +482,7 @@ export default function CreateCommunityWizard({
         )}
 
         {step === 2 && (
-          <section className="space-y-10">
+          <section className="space-y-8 sm:space-y-10">
             {emailNotVerified && (
               <div className="rounded-18 border border-amber-200 bg-amber-50 px-4 py-4 text-sm font-semibold leading-6 text-amber-800">
                 Tu correo todavía no está verificado. Confirma tu email
@@ -520,7 +520,7 @@ export default function CreateCommunityWizard({
                     onClick={() => setMonthlyRent(String(amount))}
                     aria-pressed={monthlyRent === String(amount)}
                     className={cn(
-                      "min-h-16 rounded-18 border px-3 text-base font-semibold transition-colors",
+                      "min-h-14 rounded-18 border px-3 text-sm font-semibold transition-colors sm:min-h-16 sm:text-base",
                       monthlyRent === String(amount)
                         ? "border-primary bg-mint-50 text-primary-dark"
                         : "border-border bg-surface text-foreground hover:border-primary/40"
@@ -730,7 +730,7 @@ export default function CreateCommunityWizard({
               type="button"
               onClick={handleCreateCommunity}
               disabled={submitting}
-              className="flex h-16 w-full items-center justify-center gap-2 rounded-24 bg-primary px-6 text-lg font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-24 bg-primary px-6 text-base font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 sm:h-16 sm:text-lg"
             >
               {submitting ? (
                 <>
@@ -753,7 +753,7 @@ export default function CreateCommunityWizard({
 
         {step === 3 && community && user && (
           <section>
-            <div className="rounded-24 border border-border bg-surface p-5 shadow-[0_12px_35px_rgba(26,55,43,0.08)] sm:p-7">
+            <div className="rounded-24 border border-border bg-surface p-4 shadow-[0_12px_35px_rgba(26,55,43,0.08)] sm:p-7">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-4">
                   <UserAvatar
@@ -804,7 +804,7 @@ export default function CreateCommunityWizard({
                   type="button"
                   onClick={handleShareInvitation}
                   disabled={invitationLoading}
-                  className="flex h-16 items-center justify-center gap-3 rounded-18 bg-primary px-5 text-base font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex h-14 items-center justify-center gap-3 rounded-18 bg-primary px-4 text-sm font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 sm:h-16 sm:px-5 sm:text-base"
                 >
                   <ShareIcon />
                   {invitationLoading
@@ -816,7 +816,7 @@ export default function CreateCommunityWizard({
                   type="button"
                   onClick={handleCopyInvitation}
                   disabled={invitationLoading}
-                  className="flex h-16 items-center justify-center gap-3 rounded-18 border border-border bg-surface px-5 text-base font-bold text-brand-dark transition hover:border-primary/40 hover:bg-mint-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex h-14 items-center justify-center gap-3 rounded-18 border border-border bg-surface px-4 text-sm font-bold text-brand-dark transition hover:border-primary/40 hover:bg-mint-50 disabled:cursor-not-allowed disabled:opacity-60 sm:h-16 sm:px-5 sm:text-base"
                 >
                   <CopyIcon />
                   Copiar enlace
@@ -833,11 +833,11 @@ export default function CreateCommunityWizard({
 
             {invitationError && <ErrorBanner message={invitationError} />}
 
-            <div className="mt-10 space-y-3">
+            <div className="mt-8 space-y-2 sm:mt-10 sm:space-y-3">
               <button
                 type="button"
                 onClick={() => setStep(4)}
-                className="flex h-16 w-full items-center justify-center gap-2 rounded-24 bg-primary px-6 text-lg font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover"
+                className="flex h-14 w-full items-center justify-center gap-2 rounded-24 bg-primary px-6 text-base font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover sm:h-16 sm:text-lg"
               >
                 Continuar
                 <ArrowRightIcon />
@@ -874,18 +874,18 @@ export default function CreateCommunityWizard({
                 <CheckCircleIcon className="h-10 w-10" />
               </div>
 
-              <h1 className="mt-7 text-[2.35rem] font-bold leading-[1.08] tracking-[-0.04em] text-brand-dark sm:text-5xl">
+              <h1 className="mt-5 text-3xl font-bold leading-[1.08] tracking-[-0.04em] text-brand-dark sm:mt-7 sm:text-5xl">
                 ¡Tu comunidad está lista!
               </h1>
 
-              <p className="mx-auto mt-4 max-w-lg text-lg leading-8 text-secondary">
+              <p className="mx-auto mt-3 max-w-lg text-base leading-7 text-secondary sm:mt-4 sm:text-lg sm:leading-8">
                 Ya podéis empezar a encontrar personas que encajen con
                 vuestra forma de convivir.
               </p>
             </div>
 
             <div className="overflow-hidden rounded-24 border border-border bg-surface shadow-[0_12px_35px_rgba(26,55,43,0.08)]">
-              <div className="relative h-40 overflow-hidden bg-mint-50">
+              <div className="relative h-32 overflow-hidden bg-mint-50 sm:h-40">
                 <Image
                   src="/images/create-community-living-room.png"
                   alt="Ilustración de un espacio de convivencia compartido"
@@ -1052,7 +1052,7 @@ export default function CreateCommunityWizard({
               <button
                 type="button"
                 onClick={handleEnterCommunity}
-                className="flex h-16 w-full items-center justify-center gap-3 rounded-24 bg-primary px-6 text-lg font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover"
+                className="flex h-14 w-full items-center justify-center gap-3 rounded-24 bg-primary px-6 text-base font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover sm:h-16 sm:text-lg"
               >
                 Entrar en mi comunidad
                 <ArrowRightIcon />

@@ -107,6 +107,18 @@ html {
   overflow-x: hidden;
 }
 
+/* Densidad móvil global.
+   La interfaz se diseñó inicialmente sobre mockups de gran formato y en
+   teléfonos reales quedaba sobredimensionada. Reducir la raíz solo en móvil
+   compacta de forma proporcional tipografía, espacios, tarjetas, controles y
+   las dos barras de navegación basadas en rem. Tablet y escritorio conservan
+   la escala original de 16px. */
+@media (max-width: 639px) {
+  html {
+    font-size: 15px;
+  }
+}
+
 body {
   min-height: 100vh;
   min-height: 100dvh;
