@@ -57,11 +57,22 @@ export default function NotificationBell() {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // document solo existe en cliente — el portal se crea una vez
+  // montado para no reventar el render en servidor.
+  const [mounted, setMounted] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const bellControls = useAnimationControls();
   const previousUnreadRef = useRef(unreadCount);
+
+  useEffect(() => {
+    // Patrón estándar de "solo en cliente" para poder llamar a
+    // createPortal — no hay forma honesta de saber esto antes de
+    // montar (no sincroniza con ningún sistema externo real).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -400,9 +411,11 @@ export default function NotificationBell() {
         </AnimatePresence>
       </motion.button>
 
-      <AnimatePresence>
-        {open && createPortal(panel, document.body)}
-      </AnimatePresence>
+      {mounted &&
+        createPortal(
+          <AnimatePresence>{open && panel}</AnimatePresence>,
+          document.body
+        )}
     </div>
   );
 }
