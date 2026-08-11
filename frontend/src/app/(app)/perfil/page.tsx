@@ -229,6 +229,7 @@ export default function PerfilPage() {
         <h2 className="px-1 text-sm font-bold text-primary-dark">Cuenta</h2>
         <div className="divide-y divide-border rounded-18 border border-border bg-surface">
           <ProfileMenuRow href="/notificaciones" icon={<BellIcon />} label="Notificaciones" />
+          <ProfileMenuRow href="/invitaciones" icon={<InvitationIcon />} label="Invitaciones" />
           <ProfileMenuRow href="/ajustes/privacidad" icon={<LockIcon />} label="Privacidad y seguridad" />
           <ProfileMenuRow href="/ayuda" icon={<HelpIcon />} label="Centro de ayuda" />
         </div>
@@ -412,6 +413,10 @@ function LockIcon() {
 
 function HelpIcon() {
   return <MenuIcon path={<><circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 3.5M12 17h.01" /></>} />;
+}
+
+function InvitationIcon() {
+  return <MenuIcon path={<><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>} />;
 }
 
 function MenuIcon({ path }: { path: React.ReactNode }) {
