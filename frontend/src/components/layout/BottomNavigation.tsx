@@ -11,7 +11,6 @@ import { useKeyboardVisible } from "@/hooks/useKeyboardVisible";
 import { getNotifications } from "@/services/notifications";
 import { getTabTransitionTypes } from "@/lib/navTransition";
 import { useExplorerLinkClick } from "@/components/explorer/useExplorerLinkClick";
-import { useHomeAwareLinkClick } from "@/hooks/useHomeAwareLinkClick";
 import {
   CompassIcon,
   UsersIcon,
@@ -142,13 +141,7 @@ function BottomNavLink({
   isSectionLink?: boolean;
 }) {
   const Icon = link.icon;
-  const explorerClick = useExplorerLinkClick(link.href);
-  const homeClick = useHomeAwareLinkClick(link.href);
-
-  function handleClick(event: React.MouseEvent<HTMLAnchorElement>) {
-    explorerClick(event);
-    homeClick(event);
-  }
+  const handleClick = useExplorerLinkClick(link.href);
 
   return (
     <Link

@@ -15,6 +15,7 @@ import ExplorerSearchBar from "@/components/explorer/ExplorerSearchBar";
 import ExplorerFilterToggle from "@/components/explorer/ExplorerFilterToggle";
 import ExplorerGridMotion from "@/components/explorer/ExplorerGridMotion";
 import AvatarClusterLayer from "@/components/explorer/AvatarClusterLayer";
+import HomeFab from "@/components/explorer/HomeFab";
 import ActiveFilterChips, {
   type ActiveChip,
 } from "@/components/explorer/ActiveFilterChips";
@@ -342,6 +343,8 @@ export default function UsuariosPage() {
           />
         )}
       </AnimatePresence>
+
+      <HomeFab />
     </div>
     </MotionConfig>
   );

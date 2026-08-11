@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { MOTION_HOME_TAP_SCALE, MOTION_SPRING } from "@/lib/motionTokens";
 import { useAuth } from "@/hooks/useAuth";
-import { useHomeAwareLinkClick } from "@/hooks/useHomeAwareLinkClick";
 import Avatar from "@/components/ui/Avatar";
 import Logo from "@/components/ui/Logo";
 import {
@@ -204,19 +203,12 @@ function SidebarLink({
    * (ver ExplorerTransitionProvider), no un rediseño general de nav. */
   isSectionLink?: boolean;
   /** El icono de la casita ("Tu comunidad"): solo feedback de tap en
-   * el propio icono, la navegación pasa por HomeTransitionProvider
-   * igual que cualquier otro link relacionado con Tu Comunidad (ver
-   * useHomeAwareLinkClick, que decide solo por la ruta). */
+   * el propio icono — la navegación es un <Link> normal, AppShell
+   * detecta el cruce de ruta hacia/desde Tu Comunidad por sí solo. */
   isHomeLink?: boolean;
 }) {
   const Icon = link.icon;
-  const explorerClick = useExplorerLinkClick(link.href);
-  const homeClick = useHomeAwareLinkClick(link.href);
-
-  function handleClick(event: React.MouseEvent<HTMLAnchorElement>) {
-    explorerClick(event);
-    homeClick(event);
-  }
+  const handleClick = useExplorerLinkClick(link.href);
 
   return (
     <Link

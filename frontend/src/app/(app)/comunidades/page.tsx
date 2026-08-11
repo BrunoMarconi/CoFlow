@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 
@@ -26,14 +25,10 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
+import HomeFab from "@/components/explorer/HomeFab";
 import { useExplorerTransition } from "@/providers/ExplorerTransitionProvider";
 import { consumeArrivingDirection } from "@/lib/explorerTransitionState";
-import { useHomeAwareLinkClick } from "@/hooks/useHomeAwareLinkClick";
-import {
-  MOTION_DURATION,
-  MOTION_EASE,
-  MOTION_HOME_TAP_SCALE,
-} from "@/lib/motionTokens";
+import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 
 const SEARCH_BAR_LAYOUT_ID = "community-search-bar";
 const SEARCH_ICON_LAYOUT_ID = "community-search-icon";
@@ -252,20 +247,6 @@ export default function ComunidadesPage() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [searchOpen, filtersOpen]);
 
-  const actionHref = myCommunity
-    ? `/comunidades/${myCommunity.id}`
-    : "/crear/comunidad";
-
-  const actionLabel = myCommunity
-    ? "Ver mi comunidad"
-    : "Crear comunidad";
-
-  // useHomeAwareLinkClick ya distingue solo por ruta: si actionHref
-  // es "/crear/comunidad" (todavía no tienes comunidad) no es Tu
-  // Comunidad, así que se comporta como un <Link> normal sin tocar
-  // nada.
-  const handleHomeFabClick = useHomeAwareLinkClick(actionHref);
-
   // Mismo bloque de resultados en la vista normal y dentro del modo
   // búsqueda: se reutiliza tal cual, nunca se duplica.
   const resultsBlock = loading ? (
@@ -367,10 +348,10 @@ export default function ComunidadesPage() {
                 Comunidades
               </h1>
 
-              {!loadingMyCommunity && (
-                <PrimaryButton href={actionHref} className="hidden shrink-0 sm:inline-flex">
-                  {myCommunity ? <UsersIcon /> : <PlusIcon />}
-                  {actionLabel}
+              {!loadingMyCommunity && !myCommunity && (
+                <PrimaryButton href="/crear/comunidad" className="hidden shrink-0 sm:inline-flex">
+                  <PlusIcon />
+                  Crear comunidad
                 </PrimaryButton>
               )}
             </header>
@@ -444,22 +425,7 @@ export default function ComunidadesPage() {
         )}
       </AnimatePresence>
 
-      {!loadingMyCommunity && (
-        <Link
-          href={actionHref}
-          aria-label={actionLabel}
-          title={actionLabel}
-          onClick={handleHomeFabClick}
-          className="fixed right-5 bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+1rem)] z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-soft transition active:scale-95 sm:hidden"
-        >
-          <motion.span
-            whileTap={myCommunity ? { scale: MOTION_HOME_TAP_SCALE } : undefined}
-            className="inline-flex"
-          >
-            <HomeIcon />
-          </motion.span>
-        </Link>
-      )}
+      <HomeFab />
     </div>
     </MotionConfig>
   );
@@ -482,40 +448,3 @@ function PlusIcon() {
   );
 }
 
-function UsersIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-5 w-5"
-      aria-hidden="true"
-    >
-      <circle cx="8" cy="8" r="3" />
-      <circle cx="17" cy="7" r="2.5" />
-      <path d="M2.5 20a5.5 5.5 0 0 1 11 0" />
-      <path d="M14 14.5a4.5 4.5 0 0 1 7.5 3.5" />
-    </svg>
-  );
-}
-
-function HomeIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-5.5 w-5.5"
-      aria-hidden="true"
-    >
-      <path d="m3 11 9-8 9 8" />
-      <path d="M5 10v10h14V10" />
-    </svg>
-  );
-}

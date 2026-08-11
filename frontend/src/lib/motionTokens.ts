@@ -101,30 +101,29 @@ export const MOTION_GROUP_MORPH_DELAY = 0.06;
  * instante de asentamiento visible antes del corte de página. */
 export const MOTION_GROUP_TRAVEL_MS = 450;
 
-/* --- Ir a "Tu comunidad" (icono casita): slide vertical ---------------
- * Nada de portal/zoom/shared element: un slide vertical simple entre
- * dos pantallas completas. Al ENTRAR a Tu Comunidad, la pantalla
- * actual baja y se desvanece, Tu Comunidad entra desde arriba. Al
- * SALIR es la inversa. Todo vive en AppShell (persistente — nunca
- * remonta la bottom nav ni el header) usando animation controls
- * imperativos, porque a diferencia de una página normal, AppShell no
- * se remonta con la navegación y por tanto no puede usar `initial`.
- * Solo tween/easing (MOTION_EASE.standard), sin spring — ver
- * HomeTransitionProvider. */
+/* --- Personas <-> Tu Comunidad: crossfade rápido -----------------------
+ * Prioridad absoluta: velocidad percibida. La navegación ya no espera
+ * a ninguna animación (antes se retrasaba el router.push para poder
+ * mostrar una salida "bonita" — eso es justo lo que hacía sentir la
+ * app lenta). Ahora AppShell simplemente detecta el cambio de ruta
+ * (comparando si la anterior/nueva son "Tu Comunidad") y anima SOLO
+ * la entrada de la pantalla que ya está montada — no hay fase de
+ * salida real, la pantalla anterior se destruye al instante con la
+ * navegación dura. Sin stagger, sin blur, sin scale/zoom, sin spring:
+ * un fade + desplazamiento horizontal mínimo con easing simple. */
 
-/** Cuánto espera HomeTransitionProvider antes de navegar de verdad —
- * debe coincidir con MOTION_HOME_EXIT_DURATION para que la salida no
- * se corte a mitad. */
-export const MOTION_HOME_EXIT_MS = 200;
+/** Distancia horizontal del crossfade — más perceptible en móvil, casi
+ * nula en desktop (misma idea, menos recorrido). */
+export const MOTION_HOME_NAV_DISTANCE_MOBILE = 8;
+export const MOTION_HOME_NAV_DISTANCE_DESKTOP = 5;
 
-/** Duración de la salida (180-220ms) y la entrada (220-280ms). */
-export const MOTION_HOME_EXIT_DURATION = 0.2;
-export const MOTION_HOME_ENTER_DURATION = 0.25;
+/** Duración total del crossfade: ~140ms en móvil, ~120ms en desktop —
+ * casi imperceptible a propósito. */
+export const MOTION_HOME_NAV_DURATION_MOBILE = 0.14;
+export const MOTION_HOME_NAV_DURATION_DESKTOP = 0.12;
 
-/** Distancia del slide vertical — más evidente en móvil, más contenida
- * en desktop (misma dirección, menos recorrido). */
-export const MOTION_HOME_SLIDE_MOBILE = 28;
-export const MOTION_HOME_SLIDE_DESKTOP = 18;
+/** Con prefers-reduced-motion: solo fade, más corto todavía. */
+export const MOTION_HOME_NAV_REDUCED_DURATION = 0.09;
 
 /** whileTap de la casita — solo scale, nada más. */
 export const MOTION_HOME_TAP_SCALE = 0.94;
