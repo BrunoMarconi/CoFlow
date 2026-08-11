@@ -1,19 +1,24 @@
-// Mismo patrón que explorerTransitionState.ts: un singleton de módulo
-// (no React) para decirle a la página destino, justo al montar, que
-// llegó a través del "portal" de la casita — sobrevive la navegación
-// porque Next no destruye el runtime JS entre rutas, solo desmonta el
-// árbol de React.
-let arrivingHome = false;
+export type HomeDirection = "enter" | "exit" | null;
 
-export function setArrivingHome() {
-  arrivingHome = true;
+// Mismo patrón que explorerTransitionState.ts: un singleton de módulo
+// (no React) para decirle a AppShell, justo cuando cambia la ruta,
+// con qué dirección llegó — sobrevive la navegación porque Next no
+// destruye el runtime JS entre rutas, solo desmonta el árbol de React.
+//
+// "enter": se entró a Tu Comunidad (la nueva pantalla llega desde
+// arriba). "exit": se salió de Tu Comunidad de vuelta a otra pantalla
+// (la nueva pantalla llega desde abajo).
+let arrivingDirection: HomeDirection = null;
+
+export function setArrivingHomeDirection(direction: HomeDirection) {
+  arrivingDirection = direction;
 }
 
-/** Se lee una sola vez, al montar la página destino, y se limpia acto
- * seguido — una visita normal (recarga, enlace directo, navegación
- * desde cualquier otro sitio) no debe heredar la animación. */
-export function consumeArrivingHome(): boolean {
-  const value = arrivingHome;
-  arrivingHome = false;
+/** Se lee una sola vez, justo cuando AppShell detecta el cambio de
+ * ruta, y se limpia acto seguido — una navegación normal (no
+ * relacionada con la casita) no debe heredar ninguna animación. */
+export function consumeArrivingHomeDirection(): HomeDirection {
+  const value = arrivingDirection;
+  arrivingDirection = null;
   return value;
 }

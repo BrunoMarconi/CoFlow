@@ -101,29 +101,30 @@ export const MOTION_GROUP_MORPH_DELAY = 0.06;
  * instante de asentamiento visible antes del corte de página. */
 export const MOTION_GROUP_TRAVEL_MS = 450;
 
-/* --- Portal a "Tu comunidad" (icono casita) ---------------------------
- * "Entrar en tu espacio dentro de CoFlow": la pantalla actual se aleja
- * ligeramente (HomeTransitionProvider + AppShell) y Tu Comunidad
- * aparece desde profundidad (la propia página destino, al montar, lee
- * homeTransitionState). Timeline ~300ms:
- *   0ms    tap — keyframes en el icono, MOTION_DURATION.fast (150ms)
- *   0-150ms pantalla actual se aleja (scale/opacity/blur), misma duración
- *   150ms  MOTION_HOME_PORTAL_EXIT_MS: navega de verdad
- *   150-300ms Tu Comunidad entra desde profundidad, MOTION_DURATION.fast
- * Importante: el tap del icono y la salida de pantalla deben durar lo
- * mismo (o menos) que MOTION_HOME_PORTAL_EXIT_MS — si duran más, la
- * navegación real desmonta la página a mitad de su animación y esta
- * se ve cortada/casi imperceptible (el bug original: el tap duraba
- * 300ms pero la página se cortaba a los 130ms, así que el icono nunca
- * llegaba a mostrar el rebote). */
+/* --- Ir a "Tu comunidad" (icono casita): slide vertical ---------------
+ * Nada de portal/zoom/shared element: un slide vertical simple entre
+ * dos pantallas completas. Al ENTRAR a Tu Comunidad, la pantalla
+ * actual baja y se desvanece, Tu Comunidad entra desde arriba. Al
+ * SALIR es la inversa. Todo vive en AppShell (persistente — nunca
+ * remonta la bottom nav ni el header) usando animation controls
+ * imperativos, porque a diferencia de una página normal, AppShell no
+ * se remonta con la navegación y por tanto no puede usar `initial`.
+ * Solo tween/easing (MOTION_EASE.standard), sin spring — ver
+ * HomeTransitionProvider. */
 
 /** Cuánto espera HomeTransitionProvider antes de navegar de verdad —
- * el tiempo justo para que la pantalla actual y el tap del icono
- * (MOTION_DURATION.fast) terminen antes del corte de página. */
-export const MOTION_HOME_PORTAL_EXIT_MS = 150;
+ * debe coincidir con MOTION_HOME_EXIT_DURATION para que la salida no
+ * se corte a mitad. */
+export const MOTION_HOME_EXIT_MS = 200;
 
-/** Keyframes del tap en la casita: se presiona, sobra un poco por
- * encima de 1 al soltar y se asienta — el "rebote" es un keyframe con
- * ease, no un spring con bounce real. Se anima en MOTION_DURATION.fast
- * (ver MOTION_HOME_PORTAL_EXIT_MS: debe caber en ese tiempo). */
-export const MOTION_HOME_TAP_SCALE = [1, 0.92, 1.04, 1];
+/** Duración de la salida (180-220ms) y la entrada (220-280ms). */
+export const MOTION_HOME_EXIT_DURATION = 0.2;
+export const MOTION_HOME_ENTER_DURATION = 0.25;
+
+/** Distancia del slide vertical — más evidente en móvil, más contenida
+ * en desktop (misma dirección, menos recorrido). */
+export const MOTION_HOME_SLIDE_MOBILE = 28;
+export const MOTION_HOME_SLIDE_DESKTOP = 18;
+
+/** whileTap de la casita — solo scale, nada más. */
+export const MOTION_HOME_TAP_SCALE = 0.94;

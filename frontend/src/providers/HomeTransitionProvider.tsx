@@ -5,22 +5,32 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
-import { setArrivingHome } from "@/lib/homeTransitionState";
-import { MOTION_HOME_PORTAL_EXIT_MS } from "@/lib/motionTokens";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  setArrivingHomeDirection,
+  type HomeDirection,
+} from "@/lib/homeTransitionState";
+import { MOTION_HOME_EXIT_MS } from "@/lib/motionTokens";
 
 interface HomeTransitionContextValue {
-  /** true mientras la pantalla actual está jugando su animación de
-   * salida hacia Tu Comunidad, justo antes de navegar de verdad. */
-  leavingHome: boolean;
-  /** Reemplaza la navegación normal del icono de la casita: deja que
-   * la pantalla actual se aleje (ver AppShell) y solo entonces navega. */
-  requestHomeNavigate: (target: string) => void;
+  /** No-null mientras la pantalla actual está jugando su salida —
+   * "enter" si vamos hacia Tu Comunidad, "exit" si salimos de ella.
+   * Lo consume AppShell para animar el slide vertical. */
+  homeDirection: HomeDirection;
+  /** true si `href` es "Tu comunidad" (/mi-comunidad o la ficha
+   * pública de tu propia comunidad) — para decidir si un click debe
+   * pasar por esta transición o comportarse como un <Link> normal. */
+  isHomeRoute: (href: string) => boolean;
+  /** Sustituye la navegación normal de un link: deja que la pantalla
+   * actual baje/suba y solo entonces navega de verdad. */
+  requestHomeNavigate: (target: string, direction: "enter" | "exit") => void;
 }
 
 const HomeTransitionContext =
@@ -34,8 +44,16 @@ export default function HomeTransitionProvider({
   const router = useRouter();
   const pathname = usePathname();
   const reducedMotion = useReducedMotion();
-  const [leavingHome, setLeavingHome] = useState(false);
+  const { community } = useAuth();
+  const [homeDirection, setHomeDirection] = useState<HomeDirection>(null);
   const timeoutRef = useRef<number | null>(null);
+
+  const ownCommunityHref = community ? `/comunidades/${community.id}` : null;
+
+  const isHomeRoute = useCallback(
+    (href: string) => href === "/mi-comunidad" || href === ownCommunityHref,
+    [ownCommunityHref]
+  );
 
   const clearPendingTimeout = useCallback(() => {
     if (timeoutRef.current !== null) {
@@ -45,26 +63,25 @@ export default function HomeTransitionProvider({
   }, []);
 
   const requestHomeNavigate = useCallback(
-    (target: string) => {
-      // Una petición nueva siempre reemplaza a la anterior — igual
-      // que ExplorerTransitionProvider, para que no se pueda quedar
-      // bloqueado esperando una navegación anterior.
+    (target: string, direction: "enter" | "exit") => {
+      // Una petición nueva siempre reemplaza a la anterior — para que
+      // no se pueda quedar bloqueado esperando una navegación previa.
       clearPendingTimeout();
 
       if (reducedMotion) {
-        setArrivingHome();
+        setArrivingHomeDirection(direction);
         router.push(target);
         return;
       }
 
-      setLeavingHome(true);
+      setHomeDirection(direction);
 
       timeoutRef.current = window.setTimeout(() => {
-        setArrivingHome();
+        setArrivingHomeDirection(direction);
         router.push(target);
-        setLeavingHome(false);
+        setHomeDirection(null);
         timeoutRef.current = null;
-      }, MOTION_HOME_PORTAL_EXIT_MS);
+      }, MOTION_HOME_EXIT_MS);
     },
     [clearPendingTimeout, reducedMotion, router]
   );
@@ -78,13 +95,16 @@ export default function HomeTransitionProvider({
     if (previousPathnameRef.current === pathname) return;
     previousPathnameRef.current = pathname;
     clearPendingTimeout();
-    setLeavingHome(false);
+    setHomeDirection(null);
   }, [pathname, clearPendingTimeout]);
 
+  const value = useMemo(
+    () => ({ homeDirection, isHomeRoute, requestHomeNavigate }),
+    [homeDirection, isHomeRoute, requestHomeNavigate]
+  );
+
   return (
-    <HomeTransitionContext.Provider
-      value={{ leavingHome, requestHomeNavigate }}
-    >
+    <HomeTransitionContext.Provider value={value}>
       {children}
     </HomeTransitionContext.Provider>
   );

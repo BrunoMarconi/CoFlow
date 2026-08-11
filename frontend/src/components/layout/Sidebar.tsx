@@ -1,17 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useAnimationControls, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import {
-  MOTION_DURATION,
-  MOTION_EASE,
-  MOTION_HOME_TAP_SCALE,
-  MOTION_SPRING,
-} from "@/lib/motionTokens";
+import { MOTION_HOME_TAP_SCALE, MOTION_SPRING } from "@/lib/motionTokens";
 import { useAuth } from "@/hooks/useAuth";
-import { useHomeIconClick } from "@/hooks/useHomeIconClick";
+import { useHomeAwareLinkClick } from "@/hooks/useHomeAwareLinkClick";
 import Avatar from "@/components/ui/Avatar";
 import Logo from "@/components/ui/Logo";
 import {
@@ -208,26 +203,19 @@ function SidebarLink({
    * es la señal visual de que arranca la transición "agrupar/abrir"
    * (ver ExplorerTransitionProvider), no un rediseño general de nav. */
   isSectionLink?: boolean;
-  /** El icono de la casita ("Tu comunidad"): tap con pequeño rebote
-   * en el propio icono y transición de "portal" en vez de navegación
-   * normal — ver HomeTransitionProvider. */
+  /** El icono de la casita ("Tu comunidad"): solo feedback de tap en
+   * el propio icono, la navegación pasa por HomeTransitionProvider
+   * igual que cualquier otro link relacionado con Tu Comunidad (ver
+   * useHomeAwareLinkClick, que decide solo por la ruta). */
   isHomeLink?: boolean;
 }) {
   const Icon = link.icon;
   const explorerClick = useExplorerLinkClick(link.href);
-  const homeClick = useHomeIconClick(link.href);
-  const iconControls = useAnimationControls();
-  const prefersReducedMotion = useReducedMotion();
+  const homeClick = useHomeAwareLinkClick(link.href);
 
-  const handleClick = isHomeLink ? homeClick : explorerClick;
-
-  function handleIconTap() {
-    if (!isHomeLink || prefersReducedMotion) return;
-
-    iconControls.start(
-      { scale: MOTION_HOME_TAP_SCALE },
-      { duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }
-    );
+  function handleClick(event: React.MouseEvent<HTMLAnchorElement>) {
+    explorerClick(event);
+    homeClick(event);
   }
 
   return (
@@ -235,10 +223,7 @@ function SidebarLink({
       href={link.href}
       aria-current={active ? "page" : undefined}
       transitionTypes={transitionTypes}
-      onClick={(event) => {
-        handleIconTap();
-        handleClick(event);
-      }}
+      onClick={handleClick}
       className={cn(
         "relative flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
         !isSectionLink &&
@@ -260,7 +245,10 @@ function SidebarLink({
         whileTap={isSectionLink ? { scale: 0.96 } : undefined}
         className="relative z-10 flex items-center gap-3"
       >
-        <motion.span animate={iconControls} className="inline-flex shrink-0">
+        <motion.span
+          whileTap={isHomeLink ? { scale: MOTION_HOME_TAP_SCALE } : undefined}
+          className="inline-flex shrink-0"
+        >
           <Icon
             className={cn(
               "h-5 w-5 shrink-0",

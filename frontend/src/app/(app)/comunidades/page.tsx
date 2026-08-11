@@ -3,13 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import {
-  AnimatePresence,
-  motion,
-  MotionConfig,
-  useAnimationControls,
-  useReducedMotion,
-} from "framer-motion";
+import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 
 import { useCommunities } from "@/hooks/useCommunities";
 import { useAuth } from "@/hooks/useAuth";
@@ -34,7 +28,7 @@ import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import { useExplorerTransition } from "@/providers/ExplorerTransitionProvider";
 import { consumeArrivingDirection } from "@/lib/explorerTransitionState";
-import { useHomeIconClick } from "@/hooks/useHomeIconClick";
+import { useHomeAwareLinkClick } from "@/hooks/useHomeAwareLinkClick";
 import {
   MOTION_DURATION,
   MOTION_EASE,
@@ -266,23 +260,11 @@ export default function ComunidadesPage() {
     ? "Ver mi comunidad"
     : "Crear comunidad";
 
-  // El FAB de la casita solo hace el "portal" cuando ya lleva a tu
-  // comunidad real — crear una comunidad nueva no es "entrar en tu
-  // espacio", así que ese caso navega normal.
-  const homeIconControls = useAnimationControls();
-  const prefersReducedMotionForHomeFab = useReducedMotion();
-  const handleHomeFabClick = useHomeIconClick(actionHref);
-
-  function handleHomeFabTap(event: React.MouseEvent<HTMLAnchorElement>) {
-    if (!prefersReducedMotionForHomeFab) {
-      homeIconControls.start(
-        { scale: MOTION_HOME_TAP_SCALE },
-        { duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }
-      );
-    }
-
-    if (myCommunity) handleHomeFabClick(event);
-  }
+  // useHomeAwareLinkClick ya distingue solo por ruta: si actionHref
+  // es "/crear/comunidad" (todavía no tienes comunidad) no es Tu
+  // Comunidad, así que se comporta como un <Link> normal sin tocar
+  // nada.
+  const handleHomeFabClick = useHomeAwareLinkClick(actionHref);
 
   // Mismo bloque de resultados en la vista normal y dentro del modo
   // búsqueda: se reutiliza tal cual, nunca se duplica.
@@ -467,10 +449,13 @@ export default function ComunidadesPage() {
           href={actionHref}
           aria-label={actionLabel}
           title={actionLabel}
-          onClick={handleHomeFabTap}
+          onClick={handleHomeFabClick}
           className="fixed right-5 bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+1rem)] z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-soft transition active:scale-95 sm:hidden"
         >
-          <motion.span animate={homeIconControls} className="inline-flex">
+          <motion.span
+            whileTap={myCommunity ? { scale: MOTION_HOME_TAP_SCALE } : undefined}
+            className="inline-flex"
+          >
             <HomeIcon />
           </motion.span>
         </Link>
