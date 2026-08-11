@@ -59,7 +59,7 @@ function CommunityCard({ community }: { community: Community | null }) {
           whileTap={{ scale: MOTION_HOME_TAP_SCALE }}
           className="flex items-center gap-3 rounded-18 border border-border bg-surface p-4 transition-colors duration-180 hover:bg-surface-soft sm:p-5"
         >
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 bg-mint-50 text-primary">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center text-primary">
             <HomeIcon />
           </span>
 
@@ -92,7 +92,7 @@ function CommunityCard({ community }: { community: Community | null }) {
         whileTap={{ scale: MOTION_HOME_TAP_SCALE }}
         className="flex items-center gap-3 rounded-18 border border-border bg-surface p-4 transition-colors duration-180 hover:bg-surface-soft sm:p-5"
       >
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 bg-mint-50 text-primary">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center text-primary">
           <HomeIcon />
         </span>
 

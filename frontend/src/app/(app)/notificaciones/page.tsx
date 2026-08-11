@@ -132,7 +132,7 @@ function NotificationGroup({ title, notifications, onOpen, prominent = false }: 
       <div className={cn("mt-3 overflow-hidden rounded-18 border border-border bg-surface", prominent ? "grid gap-3 border-0 bg-transparent md:grid-cols-2" : "divide-y divide-border")}>
         {notifications.map((notification) => (
           <button key={notification.id} type="button" onClick={() => onOpen(notification)} className={cn("flex w-full items-start gap-3 p-4 text-left transition hover:bg-surface-soft", prominent && "rounded-18 border border-border bg-surface shadow-soft")}>
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-mint-50 text-primary">{getTypeIcon(notification.type)}</span>
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center text-primary">{getTypeIcon(notification.type)}</span>
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-3"><p className="text-sm font-bold leading-5 text-brand-dark">{notification.title}</p><time className="shrink-0 text-[10px] text-muted">{formatNotificationDate(notification.created_at)}</time></div>
               <p className="mt-1 text-xs leading-5 text-secondary">{notification.message}</p>
@@ -147,7 +147,7 @@ function NotificationGroup({ title, notifications, onOpen, prominent = false }: 
 }
 
 function EmptyState() {
-  return <div className="mt-10 rounded-24 border border-dashed border-border p-10 text-center"><span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-mint-50 text-primary"><BellIcon /></span><p className="mt-4 text-base font-bold text-brand-dark">Todo al día</p><p className="mt-1 text-sm text-muted">No tienes notificaciones en esta categoría.</p></div>;
+  return <div className="mt-10 rounded-24 border border-dashed border-border p-10 text-center"><span className="mx-auto flex h-14 w-14 items-center justify-center text-primary"><BellIcon /></span><p className="mt-4 text-base font-bold text-brand-dark">Todo al día</p><p className="mt-1 text-sm text-muted">No tienes notificaciones en esta categoría.</p></div>;
 }
 
 function getCategory(type: NotificationType): Exclude<Category, "ALL"> {

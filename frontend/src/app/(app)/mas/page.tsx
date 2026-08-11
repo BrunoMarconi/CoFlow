@@ -54,7 +54,7 @@ export default function MasPage() {
                 index > 0 ? "border-t border-border" : ""
               }`}
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-mint-50 text-primary-dark">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center text-primary-dark">
                 <Icon className="h-5 w-5" />
               </span>
 

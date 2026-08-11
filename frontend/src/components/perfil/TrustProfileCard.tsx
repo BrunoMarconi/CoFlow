@@ -66,7 +66,7 @@ function IdentityCard({
       className="flex flex-col gap-3 rounded-18 border border-border bg-surface p-4"
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-mint-50 text-primary">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center text-primary">
           <ShieldIcon />
         </span>
 
@@ -162,7 +162,7 @@ function EmailCard({ verified, email }: { verified: boolean; email: string }) {
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
       className="flex items-center gap-3 rounded-18 border border-border bg-surface p-4 transition-colors duration-180 hover:bg-surface-soft"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-mint-50 text-primary">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center text-primary">
         <MailIcon />
       </span>
 

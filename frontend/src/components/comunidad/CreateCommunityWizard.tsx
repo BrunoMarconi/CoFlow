@@ -313,7 +313,7 @@ export default function CreateCommunityWizard({
             <div className="h-full w-1/4 rounded-full bg-primary" />
           </div>
 
-          <div className="mt-7 flex h-14 w-14 items-center justify-center rounded-full bg-mint-50 text-primary sm:mt-12 sm:h-16 sm:w-16">
+          <div className="mt-7 flex h-14 w-14 items-center justify-center text-primary sm:mt-12 sm:h-16 sm:w-16">
             <CommunityPeopleIcon />
           </div>
 
@@ -389,7 +389,7 @@ export default function CreateCommunityWizard({
             <span className="h-1 rounded-full bg-border" />
           </div>
 
-          <div className="mt-8 flex h-14 w-14 items-center justify-center rounded-full bg-mint-50 text-primary sm:mt-12 sm:h-16 sm:w-16">
+          <div className="mt-8 flex h-14 w-14 items-center justify-center text-primary sm:mt-12 sm:h-16 sm:w-16">
             <AddPeopleIcon />
           </div>
 
@@ -579,7 +579,7 @@ export default function CreateCommunityWizard({
               />
 
               <div className="relative mt-4 rounded-18 border border-border bg-surface p-4 pl-16">
-                <span className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-mint-50 text-primary">
+                <span className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-primary">
                   <CalendarIcon />
                 </span>
                 <label

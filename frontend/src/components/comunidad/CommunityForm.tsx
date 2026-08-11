@@ -910,7 +910,7 @@ export default function CommunityForm({
                       className="rounded-18 border border-border bg-surface p-5 shadow-soft sm:p-7"
                     >
                       <div className="flex items-start gap-4">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-14 bg-mint-50 text-sm font-bold text-primary-dark">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center text-sm font-bold text-primary-dark">
                           {questionIndex + 1}
                         </span>
 

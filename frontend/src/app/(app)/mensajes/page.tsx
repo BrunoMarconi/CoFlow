@@ -566,7 +566,7 @@ function InboxHeader() {
             href="/usuarios"
             aria-label="Nueva conversación"
             title="Nueva conversación"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-mint-50 text-primary-dark transition-colors duration-200 hover:bg-mint-100"
+            className="flex h-9 w-9 items-center justify-center text-primary-dark transition-colors duration-200 hover:text-primary"
           >
             <ComposeIcon />
           </Link>

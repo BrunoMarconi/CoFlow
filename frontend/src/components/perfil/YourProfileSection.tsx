@@ -83,7 +83,7 @@ export default function YourProfileSection({
             whileTap={{ scale: MOTION_HOME_TAP_SCALE }}
             className="flex h-full flex-col gap-3 rounded-18 border border-border bg-surface p-4 transition-colors duration-180 hover:bg-surface-soft"
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-mint-50 text-primary">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center text-primary">
               <PhotosIcon />
             </span>
 
@@ -153,7 +153,7 @@ function SummaryCard({
           wide ? "items-center gap-3.5" : "h-full flex-col gap-3"
         }`}
       >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-mint-50 text-primary">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center text-primary">
           {icon}
         </span>
 

@@ -88,7 +88,7 @@ export default function ComunidadDetallePage() {
   if (notFound || !community) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-6 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-18 bg-mint-50 text-primary">
+        <div className="flex h-16 w-16 items-center justify-center text-primary">
           <SearchIcon />
         </div>
 

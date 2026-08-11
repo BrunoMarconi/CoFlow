@@ -163,7 +163,7 @@ export default function PerfilPage() {
           href={`/personas/${user.id}`}
           className="flex h-14 items-center gap-3 border-t border-border px-5 text-sm font-semibold text-foreground transition hover:bg-surface-soft sm:px-7"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-mint-50 text-primary">
+          <span className="flex h-9 w-9 items-center justify-center text-primary">
             <EyeIcon />
           </span>
           <span className="flex-1">Ver perfil público</span>

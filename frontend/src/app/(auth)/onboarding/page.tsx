@@ -506,11 +506,9 @@ export default function OnboardingPage() {
   if (completed) {
     return (
       <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-surface-muted px-6 py-12">
-        <div className="absolute left-[-100px] top-[-100px] h-80 w-80 rounded-full bg-mint-200/40 blur-3xl" />
-        <div className="absolute bottom-[-120px] right-[-100px] h-96 w-96 rounded-full bg-mint-200/30 blur-3xl" />
 
         <section className="relative w-full max-w-2xl animate-[fadeIn_500ms_ease-out] rounded-18 border border-primary/30 bg-surface p-8 text-center shadow-soft md:p-14">
-          <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-mint-100">
+          <div className="mx-auto flex h-24 w-24 items-center justify-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-3xl text-white shadow-soft">
               ✓
             </div>
@@ -629,8 +627,6 @@ export default function OnboardingPage() {
         />
       </div>
 
-      <div className="absolute left-[-140px] top-20 h-96 w-96 rounded-full bg-mint-200/30 blur-3xl" />
-      <div className="absolute bottom-[-140px] right-[-100px] h-96 w-96 rounded-full bg-mint-200/20 blur-3xl" />
 
       <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-8 md:px-10">
         <button
@@ -717,7 +713,7 @@ export default function OnboardingPage() {
                     className="h-32 w-32 rounded-full border-4 border-surface object-cover shadow-soft"
                   />
                 ) : (
-                  <span className="flex h-32 w-32 items-center justify-center rounded-full bg-mint-100 text-primary-dark">
+                  <span className="flex h-32 w-32 items-center justify-center text-primary-dark">
                     <CameraIcon />
                   </span>
                 )}

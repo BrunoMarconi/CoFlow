@@ -235,7 +235,7 @@ export default function ExplorarPage() {
           whileTap={{ scale: 0.985 }}
           className="flex items-center gap-3 rounded-14 border border-border bg-surface p-3 transition-colors duration-180 hover:bg-surface-soft"
         >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-12 bg-mint-50 text-primary">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center text-primary">
             <SparkleIcon />
           </span>
 

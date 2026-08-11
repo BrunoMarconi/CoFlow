@@ -176,7 +176,7 @@ function EditableBlock({ icon, title, children }: { icon: ReactNode; title: stri
 }
 
 function IconTile({ children }: { children: ReactNode }) {
-  return <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 bg-mint-50 text-primary">{children}</span>;
+  return <span className="flex h-11 w-11 shrink-0 items-center justify-center text-primary">{children}</span>;
 }
 
 function ChevronIcon() {
