@@ -197,7 +197,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           <div
             className={cn(
               "mx-auto w-full max-w-7xl sm:px-6 sm:py-6 lg:px-8",
-              isChatActive ? "px-0 py-0" : "px-4 py-4 sm:py-6"
+              isChatActive ? "px-0 py-0" : "px-5 py-4 sm:px-6 sm:py-6"
             )}
           >
             {!isChatActive && (

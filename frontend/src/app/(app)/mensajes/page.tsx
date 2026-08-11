@@ -231,7 +231,7 @@ export default function MensajesPage() {
 
   if (loading) {
     return (
-      <div className="-mx-4 -my-6 flex flex-col border-t border-border sm:-mx-6 lg:-mx-8">
+      <div className="-mx-5 -my-4 flex flex-col border-t border-border sm:-mx-6 sm:-my-6 lg:-mx-8">
         <InboxHeader />
         {Array.from({ length: 5 }).map((_, index) => (
           <div
@@ -253,7 +253,7 @@ export default function MensajesPage() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="-mx-4 -my-6 flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] flex-col sm:-mx-6 sm:h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] lg:-mx-8">
+    <div className="-mx-5 -my-4 flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] flex-col sm:-mx-6 sm:-my-6 sm:h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] lg:-mx-8">
       {/* Móvil: solo lista, cada fila navega al hilo a pantalla completa ya existente. */}
       <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto border-t border-border sm:hidden">

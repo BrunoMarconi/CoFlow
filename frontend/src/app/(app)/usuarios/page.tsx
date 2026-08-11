@@ -177,7 +177,7 @@ export default function UsuariosPage() {
   return (
     <MotionConfig reducedMotion="user">
     <div>
-      <div className="sticky top-[calc(var(--safe-top)+4.5rem)] z-(--z-sticky-header) -mx-4 -mt-6 bg-background/85 px-4 pb-3 pt-2 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div className="sticky top-[calc(var(--safe-top)+4.5rem)] z-(--z-sticky-header) -mx-5 -mt-4 bg-background/85 px-5 pb-3 pt-2 backdrop-blur-xl sm:-mx-6 sm:-mt-6 sm:px-6 lg:-mx-8 lg:px-8">
         <ExplorerSearchBar
           layoutIdBar={SEARCH_BAR_LAYOUT_ID}
           layoutIdIcon={SEARCH_ICON_LAYOUT_ID}

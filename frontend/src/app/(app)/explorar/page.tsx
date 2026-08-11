@@ -327,7 +327,7 @@ function DiscoveryRow({
       ) : isEmpty ? (
         <EmptyState title={emptyMessage} />
       ) : (
-        <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+        <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:px-0">
           {children}
           <div aria-hidden="true" className="w-1 shrink-0" />
         </div>
