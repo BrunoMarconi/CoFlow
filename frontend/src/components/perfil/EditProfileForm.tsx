@@ -124,7 +124,7 @@ export default function EditProfileForm({ user, onSubmit }: EditProfileFormProps
             leftElement={<span className="text-sm font-semibold">€</span>}
           />
         </EditableBlock>
-        <NavigationRow href="/onboarding?edit=true" icon={<HomeIcon />} title="Preferencias de vivienda" subtitle="Ubicación y estilo de convivencia" />
+        <NavigationRow href="/perfil/preferencias" icon={<HomeIcon />} title="Preferencias de vivienda" subtitle="Presupuesto y estilo de convivencia" />
       </ProfileGroup>
 
       <div className="sticky bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))] z-20 -mx-5 border-y border-border bg-surface/95 px-5 py-3 backdrop-blur-xl sm:static sm:mx-0 sm:rounded-18 sm:border">
