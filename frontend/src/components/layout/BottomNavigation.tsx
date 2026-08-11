@@ -2,15 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { MOTION_SPRING } from "@/lib/motionTokens";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { useKeyboardVisible } from "@/hooks/useKeyboardVisible";
 import { getNotifications } from "@/services/notifications";
 import { getTabTransitionTypes } from "@/lib/navTransition";
-import { useExplorerLinkClick } from "@/components/explorer/useExplorerLinkClick";
 import {
   CompassIcon,
   UsersIcon,
@@ -117,7 +114,6 @@ export default function BottomNavigation() {
             active={link.isActive(pathname)}
             transitionTypes={getTabTransitionTypes(pathname, link.href)}
             showUnreadDot={link.href === "/mensajes" && hasUnreadMessages}
-            isSectionLink={link.href === "/comunidades" || link.href === "/usuarios"}
           />
         ))}
       </div>
@@ -130,31 +126,22 @@ function BottomNavLink({
   active,
   transitionTypes,
   showUnreadDot,
-  isSectionLink = false,
 }: {
   link: (typeof LINKS)[number];
   active: boolean;
   transitionTypes?: string[];
   showUnreadDot: boolean;
-  /** Solo Personas/Comunidades comparten el indicador con layoutId —
-   * señal de arranque de la transición "agrupar/abrir". */
-  isSectionLink?: boolean;
 }) {
   const Icon = link.icon;
-  const handleClick = useExplorerLinkClick(link.href);
 
   return (
     <Link
       href={link.href}
       aria-current={active ? "page" : undefined}
       transitionTypes={transitionTypes}
-      onClick={handleClick}
       className="relative flex flex-1 flex-col items-center justify-center gap-1 px-1 transition active:scale-95 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
     >
-      <motion.span
-        whileTap={isSectionLink ? { scale: 0.96 } : undefined}
-        className="relative"
-      >
+      <span className="relative">
         <Icon
           className={cn(
             "h-7 w-7 shrink-0",
@@ -168,7 +155,7 @@ function BottomNavLink({
             className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary ring-2 ring-white/80"
           />
         )}
-      </motion.span>
+      </span>
 
       <span
         className={cn(
@@ -178,14 +165,6 @@ function BottomNavLink({
       >
         {link.label}
       </span>
-
-      {isSectionLink && active && (
-        <motion.span
-          layoutId="section-indicator-mobile"
-          transition={MOTION_SPRING.gentle}
-          className="absolute bottom-1.5 h-1 w-5 rounded-full bg-brand-dark"
-        />
-      )}
     </Link>
   );
 }

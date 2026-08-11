@@ -2,11 +2,10 @@
 // páginas de mensajes: une la etiqueta que lleva cada <Link
 // transitionTypes={[...]}> con el nombre de la animación CSS
 // direccional definida en globals.css (.nav-forward / .nav-back).
-// Nota: la transición Personas<->Comunidades NO usa este mecanismo —
-// la View Transitions API nativa no está soportada en Safari, así que
-// esa animación se resuelve aparte con Framer Motion (ver
-// ExplorerTransitionProvider), interceptando el propio click del link
-// en vez de pasar por <Link transitionTypes>.
+// Nota: Personas<->Comunidades NO usa este mecanismo — ese par tiene
+// su propio crossfade rápido en Framer Motion (ver AppShell), así que
+// aquí se excluye explícitamente para no apilar las dos animaciones
+// una encima de la otra en el mismo click.
 export const NAV_TRANSITION = {
   "nav-forward": "nav-forward",
   "nav-back": "nav-back",
@@ -20,10 +19,18 @@ export const NAV_TRANSITION = {
 // destino está más a la derecha, atrás si está más a la izquierda.
 const TAB_ROUTES = ["/comunidades", "/usuarios", "/pisos", "/perfil"];
 
+// Este par ya tiene su propio crossfade (AppShell) — no debe
+// coger también el nav-forward/nav-back genérico.
+const EXPLORER_PAIR = new Set(["/comunidades", "/usuarios"]);
+
 export function getTabTransitionTypes(
   pathname: string,
   targetHref: string
 ): string[] | undefined {
+  if (EXPLORER_PAIR.has(targetHref) && EXPLORER_PAIR.has(pathname)) {
+    return undefined;
+  }
+
   const currentIndex = TAB_ROUTES.findIndex((route) =>
     pathname.startsWith(route)
   );

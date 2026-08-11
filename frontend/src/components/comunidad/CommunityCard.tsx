@@ -3,37 +3,14 @@ import { motion } from "framer-motion";
 import CommunityCover from "@/components/ui/CommunityCover";
 import AvatarGroup from "@/components/ui/AvatarGroup";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
-import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import type { Community } from "@/types/community";
-
-// Metadata (título/ubicación/badges/footer): en la construcción
-// escalonada al llegar desde Personas entra justo después del grupo
-// de avatares, no a la vez — "la card nace alrededor de las
-// personas". Al salir hacia Personas ("las comunidades se abren"),
-// es lo primero en desvanecerse.
-const metadataVariants = {
-  hidden: { opacity: 0, y: 3 },
-  visible: { opacity: 1, y: 0 },
-};
 
 export default function CommunityCard({
   community,
   isOwn = false,
-  arriving = false,
-  leaving = false,
 }: {
   community: Community;
   isOwn?: boolean;
-  /** Se acaba de llegar desde Personas ("personas se agrupan para
-   * formar comunidades"): el grupo de avatares (real, de
-   * community.members) aparece primero y el resto de la card se
-   * construye alrededor con un stagger corto. Solo se pasa a las
-   * primeras cards visibles — ver CommunityGrid. */
-  arriving?: boolean;
-  /** Comunidades -> Personas en curso ("la comunidad se abre"): la
-   * metadata se retira primero, el grupo de avatares queda como
-   * protagonista. */
-  leaving?: boolean;
 }) {
   const location = community.neighborhood
     ? `${community.neighborhood}, ${community.city}`
@@ -58,17 +35,6 @@ export default function CommunityCard({
       <motion.article
         whileHover={{ y: -2 }}
         whileTap={{ scale: 0.985 }}
-        initial={arriving ? { opacity: 0, scale: 0.985 } : false}
-        animate={
-          leaving
-            ? { opacity: 0.35, scale: 0.98 }
-            : { opacity: 1, scale: 1 }
-        }
-        transition={{
-          duration: MOTION_DURATION.normal,
-          ease: MOTION_EASE.out,
-          delay: arriving ? 0.03 : 0,
-        }}
         className={`flex h-full flex-col overflow-hidden rounded-18 border shadow-soft transition-shadow duration-200 ease-out sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)] ${
           isLookingForMembers
             ? "border-border bg-surface"
@@ -102,41 +68,18 @@ export default function CommunityCard({
         </div>
 
         <div className="flex flex-1 flex-col p-4 sm:p-5">
-          <motion.div
-            variants={metadataVariants}
-            initial={arriving ? "hidden" : false}
-            animate={leaving ? "hidden" : "visible"}
-            transition={{
-              duration: MOTION_DURATION.fast,
-              ease: MOTION_EASE.out,
-              delay: arriving ? 0.08 : 0,
-            }}
-          >
+          <div>
             <h3 className="truncate font-rounded text-xl font-semibold tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark">
-              <motion.span
-                layoutId={`community-name-${community.id}`}
-                transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
-                className="inline"
-              >
-                {community.name}
-              </motion.span>
+              <span className="inline">{community.name}</span>
             </h3>
 
             <div className="mt-1 flex items-center gap-1.5 text-sm font-medium text-secondary">
               <LocationIcon />
               <span className="truncate">{location}</span>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={arriving ? { opacity: 0, scale: 0.9 } : false}
-            animate={{
-              opacity: 1,
-              scale: leaving ? 1.06 : 1,
-            }}
-            transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-            className="mt-2.5 flex items-center gap-2"
-          >
+          <div className="mt-2.5 flex items-center gap-2">
             <AvatarGroup
               members={visibleMembers.map((member) => ({
                 id: member.id.toString(),
@@ -150,19 +93,9 @@ export default function CommunityCard({
               {community.member_count}{" "}
               {community.member_count === 1 ? "miembro" : "miembros"}
             </span>
-          </motion.div>
+          </div>
 
-          <motion.div
-            variants={metadataVariants}
-            initial={arriving ? "hidden" : false}
-            animate={leaving ? "hidden" : "visible"}
-            transition={{
-              duration: MOTION_DURATION.fast,
-              ease: MOTION_EASE.out,
-              delay: arriving ? 0.13 : 0,
-            }}
-            className="flex flex-1 flex-col"
-          >
+          <div className="flex flex-1 flex-col">
             {isLookingForMembers ? (
               <div className="mt-3 flex flex-wrap items-center gap-1.5">
                 <span className="inline-flex items-center rounded-full bg-mint-50 px-2.5 py-1 text-xs font-bold text-primary-dark">
@@ -199,7 +132,7 @@ export default function CommunityCard({
               {isOwn ? "Mi comunidad" : "Ver comunidad"}
               <ArrowIcon />
             </span>
-          </motion.div>
+          </div>
         </div>
       </motion.article>
     </Link>

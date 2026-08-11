@@ -3,11 +3,7 @@
 import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { useUserConnection } from "@/hooks/useUserConnection";
-import {
-  MOTION_DURATION,
-  MOTION_EASE,
-  MOTION_SPRING,
-} from "@/lib/motionTokens";
+import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import type { UserPublicProfile } from "@/types/userPublic";
 
 const CONNECTION_LABELS: Record<string, string> = {
@@ -16,32 +12,12 @@ const CONNECTION_LABELS: Record<string, string> = {
   ACCEPTED: "Conectados",
 };
 
-// Contenido secundario de la card (nombre/ocupación/ubicación/bio/
-// chips/acciones): en fase "flying" se retira rápido para que el
-// avatar quede como protagonista — ver AvatarClusterLayer.
-const secondaryVariants = {
-  visible: { opacity: 1, y: 0 },
-  hidden: { opacity: 0, y: 3 },
-};
-
 export default function UserCard({
   user,
   onOpen,
-  flying = false,
-  arriving = false,
 }: {
   user: UserPublicProfile;
   onOpen: (userId: string) => void;
-  /** Personas -> Comunidades en curso: esta card está entre las
-   * elegidas para "liberar" a su persona hacia un cluster. El avatar
-   * cede su layoutId a AvatarClusterLayer (deja de pasarlo aquí) y el
-   * resto de la card se repliega. */
-  flying?: boolean;
-  /** Se acaba de llegar desde Comunidades ("las comunidades se abren
-   * y revelan a las personas"): el avatar aparece primero y el resto
-   * de la card se construye alrededor con un pequeño retraso, en vez
-   * de aparecer todo de golpe. */
-  arriving?: boolean;
 }) {
   const {
     saved,
@@ -101,29 +77,10 @@ export default function UserCard({
       }}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.985 }}
-      animate={{
-        scale: flying ? 0.98 : 1,
-        opacity: flying ? 0.3 : 1,
-        boxShadow: flying ? "none" : "0 1px 2px rgba(13,59,42,0.06)",
-      }}
-      transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-      className={`flex h-full cursor-pointer flex-col rounded-18 border p-4 sm:p-5 ${
-        flying
-          ? "border-transparent"
-          : "border-border transition-shadow duration-200 ease-out sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]"
-      }`}
+      className="flex h-full cursor-pointer flex-col rounded-18 border border-border p-4 transition-shadow duration-200 ease-out sm:p-5 sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]"
     >
       <div className="flex items-start gap-3">
-        <motion.div
-          layoutId={flying ? undefined : `person-avatar-${user.id}`}
-          animate={{ scale: flying ? 0.92 : 1 }}
-          transition={
-            flying
-              ? { duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }
-              : MOTION_SPRING.gentle
-          }
-          className="relative shrink-0"
-        >
+        <div className="relative shrink-0">
           <UserAvatar
             firstName={user.first_name}
             lastName={user.last_name}
@@ -139,28 +96,12 @@ export default function UserCard({
               className="absolute bottom-0.5 right-0.5 h-3.5 w-3.5 rounded-full border-2 border-surface bg-emerald-500"
             />
           )}
-        </motion.div>
+        </div>
 
-        <motion.div
-          variants={secondaryVariants}
-          initial={arriving ? "hidden" : false}
-          animate={flying ? "hidden" : "visible"}
-          transition={{
-            duration: MOTION_DURATION.fast,
-            ease: MOTION_EASE.out,
-            delay: arriving ? 0.12 : 0,
-          }}
-          className="min-w-0 flex-1"
-        >
+        <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-1.5">
             <h3 className="truncate text-base font-bold text-foreground">
-              <motion.span
-                layoutId={flying ? undefined : `person-name-${user.id}`}
-                transition={MOTION_SPRING.gentle}
-                className="inline"
-              >
-                {fullName || "Persona de CoFlow"}
-              </motion.span>
+              <span className="inline">{fullName || "Persona de CoFlow"}</span>
               {user.age !== null && (
                 <span className="font-semibold text-secondary">
                   , {user.age}
@@ -191,30 +132,16 @@ export default function UserCard({
             <LocationIcon />
             <span className="truncate">{locationLabel}</span>
           </div>
-        </motion.div>
+        </div>
 
         {statusLabel && (
-          <motion.span
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: flying ? 0 : 1, scale: 1 }}
-            transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
-            className="shrink-0 rounded-full bg-mint-100 px-2.5 py-1 text-[11px] font-bold text-primary-dark"
-          >
+          <span className="shrink-0 rounded-full bg-mint-100 px-2.5 py-1 text-[11px] font-bold text-primary-dark">
             {statusLabel}
-          </motion.span>
+          </span>
         )}
       </div>
 
-      <motion.div
-        variants={secondaryVariants}
-        initial={arriving ? "hidden" : false}
-        animate={flying ? "hidden" : "visible"}
-        transition={{
-          duration: MOTION_DURATION.fast,
-          ease: MOTION_EASE.out,
-          delay: arriving ? 0.16 : 0,
-        }}
-      >
+      <div>
         {user.bio && (
           <p className="mt-3 line-clamp-2 text-sm leading-5 text-secondary">
             {user.bio}
@@ -291,7 +218,7 @@ export default function UserCard({
             </motion.span>
           </motion.button>
         </div>
-      </motion.div>
+      </div>
     </motion.article>
   );
 }

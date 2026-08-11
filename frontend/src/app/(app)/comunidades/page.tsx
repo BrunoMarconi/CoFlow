@@ -17,7 +17,6 @@ import CommunityFilters, {
 import { COMMUNITY_PROFILE_TYPE_LABELS } from "@/lib/communityProfileType";
 import ExplorerSearchBar from "@/components/explorer/ExplorerSearchBar";
 import ExplorerFilterToggle from "@/components/explorer/ExplorerFilterToggle";
-import ExplorerGridMotion from "@/components/explorer/ExplorerGridMotion";
 import ActiveFilterChips, {
   type ActiveChip,
 } from "@/components/explorer/ActiveFilterChips";
@@ -26,8 +25,6 @@ import PrimaryButton from "@/components/ui/PrimaryButton";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import HomeFab from "@/components/explorer/HomeFab";
-import { useExplorerTransition } from "@/providers/ExplorerTransitionProvider";
-import { consumeArrivingDirection } from "@/lib/explorerTransitionState";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 
 const SEARCH_BAR_LAYOUT_ID = "community-search-bar";
@@ -40,12 +37,6 @@ export default function ComunidadesPage() {
   );
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-
-  // "Las comunidades se abren y revelan a las personas" (y a la
-  // inversa) — ver ExplorerTransitionProvider/explorerTransitionState.
-  const { leaving } = useExplorerTransition();
-  const [arriving] = useState(() => consumeArrivingDirection());
-  const isSpreading = leaving === "spread";
 
   const searchParams = useSearchParams();
   const justLeft = searchParams.get("left") === "1";
@@ -272,8 +263,6 @@ export default function ComunidadesPage() {
       <CommunityGrid
         communities={visibleCommunities}
         ownCommunityId={myCommunity?.id}
-        arriving={arriving === "group"}
-        leaving={isSpreading}
       />
 
       {hasMore && (
@@ -362,17 +351,15 @@ export default function ComunidadesPage() {
               </p>
             )}
 
-            <ExplorerGridMotion arriving={arriving}>
-              <section className="mt-8">
-                <SectionHeader
-                  title="Comunidades recomendadas"
-                  subtitle={resultsCounter}
-                  className="mb-5"
-                />
+            <section className="mt-8">
+              <SectionHeader
+                title="Comunidades recomendadas"
+                subtitle={resultsCounter}
+                className="mb-5"
+              />
 
-                {resultsBlock}
-              </section>
-            </ExplorerGridMotion>
+              {resultsBlock}
+            </section>
           </motion.div>
         ) : (
           <motion.div

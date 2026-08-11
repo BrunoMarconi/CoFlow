@@ -13,8 +13,6 @@ import UserFilters, {
 } from "@/components/usuario/UserFilters";
 import ExplorerSearchBar from "@/components/explorer/ExplorerSearchBar";
 import ExplorerFilterToggle from "@/components/explorer/ExplorerFilterToggle";
-import ExplorerGridMotion from "@/components/explorer/ExplorerGridMotion";
-import AvatarClusterLayer from "@/components/explorer/AvatarClusterLayer";
 import HomeFab from "@/components/explorer/HomeFab";
 import ActiveFilterChips, {
   type ActiveChip,
@@ -22,18 +20,11 @@ import ActiveFilterChips, {
 import SectionHeader from "@/components/ui/SectionHeader";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
-import { useExplorerTransition } from "@/providers/ExplorerTransitionProvider";
-import { consumeArrivingDirection } from "@/lib/explorerTransitionState";
 import {
   MOTION_DURATION,
   MOTION_EASE,
   MOTION_STAGGER_TIGHT,
 } from "@/lib/motionTokens";
-
-// "Las personas se agrupan para formar comunidades": máximo de
-// avatares reales que protagonizan el cluster al salir hacia
-// Comunidades — capado por rendimiento (ver AvatarClusterLayer).
-const MAX_CLUSTER_AVATARS = 6;
 
 const SEARCH_BAR_LAYOUT_ID = "people-search-bar";
 const SEARCH_ICON_LAYOUT_ID = "people-search-icon";
@@ -54,13 +45,6 @@ export default function UsuariosPage() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [openUserId, setOpenUserId] = useState<string | null>(null);
-
-  // Dirección de la transición Personas<->Comunidades: `leaving` es
-  // reactivo (esta página sigue montada mientras se anima la salida);
-  // `arriving` se lee una sola vez al montar, si se llegó desde
-  // Comunidades (ver ExplorerTransitionProvider/explorerTransitionState).
-  const { leaving } = useExplorerTransition();
-  const [arriving] = useState(() => consumeArrivingDirection());
 
   const maxBudget = filters.maxBudget ? Number(filters.maxBudget) : undefined;
 
@@ -110,26 +94,6 @@ export default function UsuariosPage() {
   const hasQuery = search.trim().length > 0;
   const showFiltersPanel = !hasQuery || filtersOpen;
   const resultCount = visibleUsers.length;
-
-  // Personas visibles elegidas para protagonizar el cluster —
-  // siempre datos reales, nunca más de MAX_CLUSTER_AVATARS (60fps).
-  const clusterPeople = useMemo(
-    () =>
-      visibleUsers.slice(0, MAX_CLUSTER_AVATARS).map((user) => ({
-        id: user.id,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        avatarUrl: user.avatar_url,
-      })),
-    [visibleUsers]
-  );
-
-  const flyingIds = useMemo(
-    () => new Set(clusterPeople.map((person) => person.id)),
-    [clusterPeople]
-  );
-
-  const isGrouping = leaving === "group";
 
   const activeChips = useMemo<ActiveChip[]>(() => {
     const chips: ActiveChip[] = [];
@@ -241,11 +205,11 @@ export default function UsuariosPage() {
       </div>
 
       <AnimatePresence initial={false}>
-        {!searchOpen && !leaving && (
+        {!searchOpen && (
           <motion.header
             key="title"
             variants={titleVariants}
-            initial={arriving ? "hidden" : "visible"}
+            initial="visible"
             animate="visible"
             exit="hidden"
             transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
@@ -256,10 +220,6 @@ export default function UsuariosPage() {
             </h1>
           </motion.header>
         )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {isGrouping && <AvatarClusterLayer people={clusterPeople} />}
       </AnimatePresence>
 
       <AnimatePresence initial={false}>
@@ -287,8 +247,7 @@ export default function UsuariosPage() {
         )}
       </AnimatePresence>
 
-      <ExplorerGridMotion arriving={arriving}>
-        <section className="mt-8">
+      <section className="mt-8">
           <SectionHeader
             title={sectionTitle}
             subtitle={resultsCounter}
@@ -318,8 +277,6 @@ export default function UsuariosPage() {
                 staggerChildren={searchOpen ? MOTION_STAGGER_TIGHT : 0.04}
                 recede={searchOpen && showFiltersPanel}
                 highlightFirst={hasQuery}
-                flyingIds={isGrouping ? flyingIds : undefined}
-                arriving={arriving === "spread"}
               />
 
               {hasMore && (
@@ -332,7 +289,6 @@ export default function UsuariosPage() {
             </>
           )}
         </section>
-      </ExplorerGridMotion>
 
       <AnimatePresence>
         {openUserId && (

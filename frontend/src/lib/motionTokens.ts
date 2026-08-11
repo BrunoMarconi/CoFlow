@@ -58,48 +58,27 @@ export const MOTION_SEARCH_LIFT_DURATION = 0.1;
  * MOTION_STAGGER_CHILDREN, aquí la coreografía SÍ debe notarse. */
 export const MOTION_STAGGER_TIGHT = 0.025;
 
-/* --- Transición Personas <-> Comunidades ------------------------------
- * "Las personas se agrupan para formar comunidades" (y a la inversa).
- * Ver providers/ExplorerTransitionProvider.tsx y
- * components/explorer/AvatarClusterLayer.tsx.
- *
- * Timeline completo (~700ms), navegación real incluida:
- *   0ms     tap — selector e indicador reaccionan al instante
- *   0-160ms metadata de las cards sale, superficies pierden presencia
- *   60ms    los avatares empiezan a viajar (MOTION_GROUP_MORPH_DELAY)
- *   ~360ms  terminan de viajar (60 + duración del spring)
- *   360-450ms asentamiento — el cluster ya se ve completo y quieto
- *   450ms   MOTION_GROUP_TRAVEL_MS: solo AQUÍ navega de verdad
- *   450-700ms la CommunityCard se construye alrededor (ya montada
- *             en la ruta destino) — avatar-group ya visible de
- *             inmediato, superficie/título/metadata entran después
- * La navegación real no puede empezar antes de que el cluster se vea
- * prácticamente terminado, o la animación se corta a mitad — por eso
- * MOTION_GROUP_TRAVEL_MS ya no reutiliza MOTION_DURATION.fast (eso
- * era la causa del corte: el layout se desmontaba a los 150ms, antes
- * de que el spring del cluster llegara a asentarse). */
+/* --- Personas <-> Comunidades: crossfade rápido ------------------------
+ * Reemplaza por completo la antigua transición "las personas se
+ * agrupan para formar comunidades" (avatar-cluster/group-morph) — se
+ * sentía protagonista y lenta (~700ms). Aquí la prioridad es
+ * velocidad percibida: mismo mecanismo que Personas <-> Tu Comunidad
+ * (ver más abajo) — AppShell detecta el cambio de ruta y anima solo
+ * la entrada del contenido que ya está montado, sin retrasar la
+ * navegación ni una vez. Sin stagger, sin cards animándose una a una,
+ * sin blur/scale/spring. */
 
-/** Spring para el "morph" de avatares agrupándose en clusters. Se usa
- * la forma duration+bounce (en vez de stiffness/damping/mass) porque
- * aquí SÍ necesitamos controlar la duración con precisión — bounce: 0
- * garantiza cero rebote, con la desaceleración natural de un spring
- * al acercarse al destino (no es un ease lineal cortado en seco). */
-export const MOTION_GROUP_MORPH: Transition = {
-  type: "spring",
-  duration: 0.3,
-  bounce: 0,
-};
+/** Distancia horizontal — más perceptible en móvil, casi nula en
+ * desktop. */
+export const MOTION_EXPLORER_NAV_DISTANCE_MOBILE = 8;
+export const MOTION_EXPLORER_NAV_DISTANCE_DESKTOP = 5;
 
-/** Pequeño retraso antes de que los avatares empiecen a viajar — deja
- * que la metadata de la card salga primero, para que no se sienta
- * todo simultáneo. */
-export const MOTION_GROUP_MORPH_DELAY = 0.06;
+/** Duración total: ~120ms en móvil, ~110ms en desktop. */
+export const MOTION_EXPLORER_NAV_DURATION_MOBILE = 0.12;
+export const MOTION_EXPLORER_NAV_DURATION_DESKTOP = 0.11;
 
-/** Cuánto espera ExplorerTransitionProvider antes de navegar de
- * verdad: el tiempo justo para que MOTION_GROUP_MORPH_DELAY +
- * MOTION_GROUP_MORPH.duration terminen y el cluster tenga un
- * instante de asentamiento visible antes del corte de página. */
-export const MOTION_GROUP_TRAVEL_MS = 450;
+/** Con prefers-reduced-motion: solo fade. */
+export const MOTION_EXPLORER_NAV_REDUCED_DURATION = 0.08;
 
 /* --- Personas <-> Tu Comunidad: crossfade rápido -----------------------
  * Prioridad absoluta: velocidad percibida. La navegación ya no espera
