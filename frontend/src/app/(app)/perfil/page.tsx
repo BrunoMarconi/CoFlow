@@ -231,7 +231,7 @@ export default function PerfilPage() {
         <div className="divide-y divide-border rounded-18 border border-border bg-surface">
           <ProfileMenuRow href="/notificaciones" icon={<BellIcon />} label="Notificaciones" />
           <ProfileMenuRow href="/ajustes/privacidad" icon={<LockIcon />} label="Privacidad y seguridad" />
-          <ProfileMenuRow icon={<HelpIcon />} label="Centro de ayuda" />
+          <ProfileMenuRow href="/ayuda" icon={<HelpIcon />} label="Centro de ayuda" />
         </div>
       </section>
 

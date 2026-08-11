@@ -58,7 +58,7 @@ const LINKS: {
     label: "Perfil",
     icon: ProfileIcon,
     isActive: (pathname) =>
-      pathname.startsWith("/perfil") || pathname.startsWith("/notificaciones"),
+      pathname.startsWith("/perfil") || pathname.startsWith("/notificaciones") || pathname.startsWith("/ayuda"),
   },
   {
     href: "/mas",

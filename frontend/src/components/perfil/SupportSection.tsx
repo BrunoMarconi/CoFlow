@@ -3,7 +3,7 @@ import ListRow from "@/components/perfil/ListRow";
 export default function SupportSection() {
   return (
     <div className="divide-y divide-border rounded-18 border border-border bg-surface">
-      <ListRow icon={<HelpIcon />} label="Centro de ayuda" />
+      <ListRow icon={<HelpIcon />} label="Centro de ayuda" href="/ayuda" />
       <ListRow icon={<FlagIcon />} label="Reportar un problema" />
       <ListRow icon={<FeedbackIcon />} label="Enviar feedback" />
     </div>
