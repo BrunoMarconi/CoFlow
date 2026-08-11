@@ -60,7 +60,7 @@ export default function YourProfileSection({
         />
 
         <SummaryCard
-          href="/perfil/editar"
+          href="/perfil/preferencias"
           icon={<HomeIcon />}
           title="Preferencias de vivienda"
           subtitle={housingPrefsSubtitle}

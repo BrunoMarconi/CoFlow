@@ -221,7 +221,7 @@ export default function PerfilPage() {
         <div className="divide-y divide-border rounded-18 border border-border bg-surface">
           <ProfileMenuRow href="/perfil/editar" icon={<UserIcon />} label="Editar mi perfil" />
           <ProfileMenuRow href="/pasaporte" icon={<ShieldIcon />} label="Pasaporte de solvencia" />
-          <ProfileMenuRow href="/onboarding?edit=true" icon={<HomeIcon />} label="Preferencias de vivienda" />
+          <ProfileMenuRow href="/perfil/preferencias" icon={<HomeIcon />} label="Preferencias de vivienda" />
           <ProfileMenuRow href="/personas/guardadas" icon={<BookmarkIcon />} label={`Perfiles guardados (${savedCount})`} />
         </div>
       </section>
