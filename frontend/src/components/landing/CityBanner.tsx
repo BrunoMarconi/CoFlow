@@ -3,7 +3,7 @@ import { ArrowRightIcon } from "./icons";
 
 export default function CityBanner() {
   return (
-    <section className="px-4 pb-16 sm:px-6 sm:pb-24 lg:pb-28">
+    <section className="px-5 pb-16 sm:px-8 sm:pb-24 lg:pb-28">
       <div className="mx-auto grid max-w-7xl overflow-hidden rounded-[2.5rem] bg-brand-dark lg:grid-cols-2">
         <div className="relative min-h-70 lg:min-h-95">
           <Image

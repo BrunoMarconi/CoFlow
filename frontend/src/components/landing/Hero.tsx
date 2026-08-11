@@ -33,7 +33,7 @@ function MobileHero() {
       <div className="absolute inset-0 bg-linear-to-t from-brand-dark via-brand-dark/75 to-brand-dark/25" />
       <div className="absolute inset-0 bg-linear-to-b from-black/35 via-transparent to-transparent" />
 
-      <div className="relative flex min-h-[560px] flex-col justify-end px-4 pb-10 pt-28">
+      <div className="relative flex min-h-[560px] flex-col justify-end px-5 pb-10 pt-28">
         <h1 className="max-w-xs text-4xl font-black leading-[1.05] tracking-[-0.035em] text-white min-[375px]:text-[2.75rem] min-[375px]:leading-[1.03]">
           No busques solo una habitación.
           <span className="block text-green-300">
@@ -87,7 +87,7 @@ function MobileCheckItem({ text }: { text: string }) {
 
 function DesktopHero() {
   return (
-    <div className="relative hidden px-6 pb-20 pt-14 sm:block lg:pb-24">
+    <div className="relative hidden px-8 pb-20 pt-14 sm:block lg:pb-24">
       <div className="pointer-events-none absolute left-[-8rem] top-10 h-80 w-80 rounded-full bg-brand/15 blur-3xl" />
       <div className="pointer-events-none absolute right-[-10rem] top-24 h-96 w-96 rounded-full bg-emerald-100/60 blur-3xl" />
 

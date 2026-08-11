@@ -18,7 +18,7 @@ const infoItems = ["Privacidad", "Términos", "Contacto"] as const;
 
 export default function Footer() {
   return (
-    <footer className="border-t border-line bg-white px-4 py-12 sm:px-6">
+    <footer className="border-t border-line bg-white px-5 py-12 sm:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
           <div>

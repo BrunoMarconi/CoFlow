@@ -29,7 +29,7 @@ const previewMessages = [
 
 export default function CommunityPreview() {
   return (
-    <section className="bg-brand/5 px-4 py-12 sm:px-6 sm:py-24 lg:py-28">
+    <section className="bg-brand/5 px-5 py-12 sm:px-8 sm:py-24 lg:py-28">
       <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-brand">

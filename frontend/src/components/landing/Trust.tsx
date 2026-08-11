@@ -4,7 +4,7 @@ import { trustPoints } from "./content";
 
 export default function Trust() {
   return (
-    <section className="px-4 py-12 sm:px-6 sm:py-24 lg:py-28">
+    <section className="px-5 py-12 sm:px-8 sm:py-24 lg:py-28">
       <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] bg-brand-dark px-6 py-12 text-white sm:px-12 sm:py-16">
         <SectionHeader
           eyebrow="Antes de decidir"

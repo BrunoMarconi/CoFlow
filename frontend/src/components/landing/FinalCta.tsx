@@ -3,7 +3,7 @@ import { ArrowRightIcon } from "./icons";
 
 export default function FinalCta() {
   return (
-    <section className="relative overflow-hidden bg-brand-dark px-4 py-16 text-center text-white sm:px-6 sm:py-20">
+    <section className="relative overflow-hidden bg-brand-dark px-5 py-16 text-center text-white sm:px-8 sm:py-20">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full border border-white/15 sm:-right-24 sm:-top-24 sm:h-96 sm:w-96"

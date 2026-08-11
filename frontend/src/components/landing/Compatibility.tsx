@@ -7,7 +7,7 @@ export default function Compatibility() {
   return (
     <section
       id="compatibilidad"
-      className="scroll-mt-24 bg-brand-dark px-4 py-12 text-white sm:px-6 sm:py-24 lg:py-28"
+      className="scroll-mt-24 bg-brand-dark px-5 py-12 text-white sm:px-8 sm:py-24 lg:py-28"
     >
       <div className="mx-auto max-w-7xl">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">

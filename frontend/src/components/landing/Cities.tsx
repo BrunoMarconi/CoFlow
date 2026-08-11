@@ -7,7 +7,7 @@ export default function Cities() {
   return (
     <section
       id="ciudades"
-      className="scroll-mt-24 px-4 py-12 sm:px-6 sm:py-24 lg:py-28"
+      className="scroll-mt-24 px-5 py-12 sm:px-8 sm:py-24 lg:py-28"
     >
       <div className="mx-auto max-w-7xl">
         <SectionHeader

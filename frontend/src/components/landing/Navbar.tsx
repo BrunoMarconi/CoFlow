@@ -16,7 +16,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-4">
+    <header className="sticky inset-x-0 top-0 z-50 px-4 pt-3 sm:px-8 sm:pt-4">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between rounded-2xl border border-white/70 bg-white/90 px-4 shadow-[0_12px_40px_rgba(22,59,46,0.08)] backdrop-blur-xl sm:px-6">
         <Link
           href="/"
