@@ -2,18 +2,18 @@
 // páginas de mensajes: une la etiqueta que lleva cada <Link
 // transitionTypes={[...]}> con el nombre de la animación CSS
 // direccional definida en globals.css (.nav-forward / .nav-back).
+// Importante: solo el <ViewTransition> de AppShell (envolviendo
+// {children} entero) persiste como la misma fibra de React entre
+// navegaciones — es el único boundary donde el emparejamiento
+// old/new de la View Transitions API funciona de forma fiable en una
+// navegación dura. Un <ViewTransition> anidado dentro de una página
+// (que se desmonta y remonta entera junto con la propia navegación)
+// no comparte identidad entre el árbol viejo y el nuevo, así que no
+// dispara animación: por eso "explorer-forward"/"explorer-back" viven
+// en este mismo mapa en vez de en uno aparte para un boundary propio.
 export const NAV_TRANSITION = {
   "nav-forward": "nav-forward",
   "nav-back": "nav-back",
-  default: "none",
-} as const;
-
-// Mapa para el <ViewTransition> anidado solo alrededor del grid de
-// resultados de Personas/Comunidades (ver ExplorerResultsTransition):
-// el resto de la página (header, SearchBar) queda fuera de este
-// boundary y usa el crossfade por defecto del navegador, "aproximadamente
-// estable" como pide la interacción conceptual personas<->comunidades.
-export const EXPLORER_TRANSITION = {
   "explorer-forward": "explorer-forward",
   "explorer-back": "explorer-back",
   default: "none",

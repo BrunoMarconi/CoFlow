@@ -288,13 +288,16 @@ summary::-webkit-details-marker {
   }
 }
 
-/* Transición conceptual Personas <-> Comunidades: aplicada solo al
-   grid de resultados (boundary anidado, ver ExplorerResultsTransition),
-   no a toda la página — el header y la SearchBar quedan fuera y usan
-   el crossfade por defecto del navegador. Personas -> Comunidades
-   sugiere agrupamiento (las cards se encogen y se funden, lo que ya
-   de paso las "acerca" al escalar hacia el centro); Comunidades ->
-   Personas es la inversa (se separan y aparecen individuales). */
+/* Transición conceptual Personas <-> Comunidades: usa el mismo
+   boundary raíz que nav-forward/nav-back (ver comentario en
+   NAV_TRANSITION, lib/navTransition.ts) porque es el único punto
+   donde la View Transitions API empareja de forma fiable el árbol
+   viejo y el nuevo en una navegación dura — un boundary anidado
+   dentro de la propia página no persiste entre rutas y no dispara
+   animación. Personas -> Comunidades sugiere agrupamiento (las cards
+   se encogen y se funden, lo que ya de paso las "acerca" al escalar
+   hacia el centro); Comunidades -> Personas es la inversa (se separan
+   y aparecen individuales). */
 ::view-transition-old(.explorer-forward) {
   animation: 180ms ease-in both explorer-group-out;
 }
@@ -316,13 +319,13 @@ summary::-webkit-details-marker {
   }
   to {
     opacity: 0;
-    scale: 0.88;
+    scale: 0.94;
   }
 }
 @keyframes explorer-group-in {
   from {
     opacity: 0;
-    scale: 0.92;
+    scale: 0.96;
   }
   to {
     opacity: 1;
@@ -336,13 +339,13 @@ summary::-webkit-details-marker {
   }
   to {
     opacity: 0;
-    scale: 1.08;
+    scale: 1.05;
   }
 }
 @keyframes explorer-spread-in {
   from {
     opacity: 0;
-    scale: 0.94;
+    scale: 0.97;
   }
   to {
     opacity: 1;

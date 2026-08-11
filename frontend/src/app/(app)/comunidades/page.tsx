@@ -18,7 +18,6 @@ import CommunityFilters, {
 import { COMMUNITY_PROFILE_TYPE_LABELS } from "@/lib/communityProfileType";
 import ExplorerSearchBar from "@/components/explorer/ExplorerSearchBar";
 import ExplorerFilterToggle from "@/components/explorer/ExplorerFilterToggle";
-import ExplorerResultsTransition from "@/components/explorer/ExplorerResultsTransition";
 import ActiveFilterChips, {
   type ActiveChip,
 } from "@/components/explorer/ActiveFilterChips";
@@ -360,17 +359,15 @@ export default function ComunidadesPage() {
               </p>
             )}
 
-            <ExplorerResultsTransition>
-              <section className="mt-8">
-                <SectionHeader
-                  title="Comunidades recomendadas"
-                  subtitle={resultsCounter}
-                  className="mb-5"
-                />
+            <section className="mt-8">
+              <SectionHeader
+                title="Comunidades recomendadas"
+                subtitle={resultsCounter}
+                className="mb-5"
+              />
 
-                {resultsBlock}
-              </section>
-            </ExplorerResultsTransition>
+              {resultsBlock}
+            </section>
           </motion.div>
         ) : (
           <motion.div
