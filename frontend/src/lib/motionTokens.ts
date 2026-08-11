@@ -61,16 +61,42 @@ export const MOTION_STAGGER_TIGHT = 0.025;
 /* --- Transición Personas <-> Comunidades ------------------------------
  * "Las personas se agrupan para formar comunidades" (y a la inversa).
  * Ver providers/ExplorerTransitionProvider.tsx y
- * components/explorer/AvatarClusterLayer.tsx. */
+ * components/explorer/AvatarClusterLayer.tsx.
+ *
+ * Timeline completo (~700ms), navegación real incluida:
+ *   0ms     tap — selector e indicador reaccionan al instante
+ *   0-160ms metadata de las cards sale, superficies pierden presencia
+ *   60ms    los avatares empiezan a viajar (MOTION_GROUP_MORPH_DELAY)
+ *   ~360ms  terminan de viajar (60 + duración del spring)
+ *   360-450ms asentamiento — el cluster ya se ve completo y quieto
+ *   450ms   MOTION_GROUP_TRAVEL_MS: solo AQUÍ navega de verdad
+ *   450-700ms la CommunityCard se construye alrededor (ya montada
+ *             en la ruta destino) — avatar-group ya visible de
+ *             inmediato, superficie/título/metadata entran después
+ * La navegación real no puede empezar antes de que el cluster se vea
+ * prácticamente terminado, o la animación se corta a mitad — por eso
+ * MOTION_GROUP_TRAVEL_MS ya no reutiliza MOTION_DURATION.fast (eso
+ * era la causa del corte: el layout se desmontaba a los 150ms, antes
+ * de que el spring del cluster llegara a asentarse). */
 
-/** Spring para el "morph" de avatares agrupándose en clusters:
- * damping alto a propósito (sin rebote perceptible, movimiento muy
- * controlado) — más lento que MOTION_SPRING.snappy porque aquí el
- * recorrido debe leerse como "personas reuniéndose", no como un
- * detalle de UI reaccionando a un tap. */
+/** Spring para el "morph" de avatares agrupándose en clusters. Se usa
+ * la forma duration+bounce (en vez de stiffness/damping/mass) porque
+ * aquí SÍ necesitamos controlar la duración con precisión — bounce: 0
+ * garantiza cero rebote, con la desaceleración natural de un spring
+ * al acercarse al destino (no es un ease lineal cortado en seco). */
 export const MOTION_GROUP_MORPH: Transition = {
   type: "spring",
-  stiffness: 260,
-  damping: 32,
-  mass: 1,
+  duration: 0.3,
+  bounce: 0,
 };
+
+/** Pequeño retraso antes de que los avatares empiecen a viajar — deja
+ * que la metadata de la card salga primero, para que no se sienta
+ * todo simultáneo. */
+export const MOTION_GROUP_MORPH_DELAY = 0.06;
+
+/** Cuánto espera ExplorerTransitionProvider antes de navegar de
+ * verdad: el tiempo justo para que MOTION_GROUP_MORPH_DELAY +
+ * MOTION_GROUP_MORPH.duration terminen y el cluster tenga un
+ * instante de asentamiento visible antes del corte de página. */
+export const MOTION_GROUP_TRAVEL_MS = 450;

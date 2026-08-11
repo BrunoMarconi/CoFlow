@@ -5,7 +5,7 @@ import UserAvatar from "@/components/ui/UserAvatar";
 import {
   MOTION_DURATION,
   MOTION_GROUP_MORPH,
-  MOTION_STAGGER_TIGHT,
+  MOTION_GROUP_MORPH_DELAY,
 } from "@/lib/motionTokens";
 
 export interface ClusterPerson {
@@ -71,15 +71,8 @@ export default function AvatarClusterLayer({
               key={person.id}
               layoutId={`person-avatar-${person.id}`}
               transition={{
-                layout: MOTION_GROUP_MORPH,
-                default: {
-                  duration: MOTION_DURATION.normal,
-                  delay:
-                    (clusterIndex * group.length + personIndex) *
-                    MOTION_STAGGER_TIGHT,
-                },
+                layout: { ...MOTION_GROUP_MORPH, delay: MOTION_GROUP_MORPH_DELAY },
               }}
-              animate={{ scale: [1, 0.94, 1] }}
               className="rounded-full ring-2 ring-surface"
               style={{ zIndex: group.length - personIndex }}
             >

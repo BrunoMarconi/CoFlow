@@ -64,7 +64,11 @@ export default function CommunityCard({
             ? { opacity: 0.35, scale: 0.98 }
             : { opacity: 1, scale: 1 }
         }
-        transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+        transition={{
+          duration: MOTION_DURATION.normal,
+          ease: MOTION_EASE.out,
+          delay: arriving ? 0.03 : 0,
+        }}
         className={`flex h-full flex-col overflow-hidden rounded-18 border shadow-soft transition-shadow duration-200 ease-out sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)] ${
           isLookingForMembers
             ? "border-border bg-surface"
@@ -105,7 +109,7 @@ export default function CommunityCard({
             transition={{
               duration: MOTION_DURATION.fast,
               ease: MOTION_EASE.out,
-              delay: arriving ? 0.05 : 0,
+              delay: arriving ? 0.08 : 0,
             }}
           >
             <h3 className="truncate font-rounded text-xl font-semibold tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark">
@@ -155,7 +159,7 @@ export default function CommunityCard({
             transition={{
               duration: MOTION_DURATION.fast,
               ease: MOTION_EASE.out,
-              delay: arriving ? 0.08 : 0,
+              delay: arriving ? 0.13 : 0,
             }}
             className="flex flex-1 flex-col"
           >

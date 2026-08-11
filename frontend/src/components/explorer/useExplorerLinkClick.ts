@@ -14,20 +14,32 @@ const EXPLORER_ROUTES = new Set(["/comunidades", "/usuarios"]);
  * normal de <Link> sin tocar nada. */
 export function useExplorerLinkClick(href: string) {
   const pathname = usePathname();
-  const { requestNavigate } = useExplorerTransition();
+  const { leaving, requestNavigate, cancelLeaving } = useExplorerTransition();
 
   return useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {
       if (!EXPLORER_ROUTES.has(href)) return;
-      if (!EXPLORER_ROUTES.has(pathname) || pathname === href) return;
+      if (!EXPLORER_ROUTES.has(pathname)) return;
       if (event.defaultPrevented || event.button !== 0) return;
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+
+      if (pathname === href) {
+        // Pulsar el link de la sección en la que ya estamos solo
+        // importa si hay una salida en curso hacia la otra — cancela
+        // la navegación diferida y deja que la coreografía revierta
+        // en vez de esperar a que termine para volver enseguida.
+        if (leaving) {
+          event.preventDefault();
+          cancelLeaving();
+        }
         return;
       }
 
       event.preventDefault();
       requestNavigate(href as "/comunidades" | "/usuarios");
     },
-    [href, pathname, requestNavigate]
+    [href, pathname, leaving, requestNavigate, cancelLeaving]
   );
 }
