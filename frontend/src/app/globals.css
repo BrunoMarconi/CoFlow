@@ -288,6 +288,68 @@ summary::-webkit-details-marker {
   }
 }
 
+/* Transición conceptual Personas <-> Comunidades: aplicada solo al
+   grid de resultados (boundary anidado, ver ExplorerResultsTransition),
+   no a toda la página — el header y la SearchBar quedan fuera y usan
+   el crossfade por defecto del navegador. Personas -> Comunidades
+   sugiere agrupamiento (las cards se encogen y se funden, lo que ya
+   de paso las "acerca" al escalar hacia el centro); Comunidades ->
+   Personas es la inversa (se separan y aparecen individuales). */
+::view-transition-old(.explorer-forward) {
+  animation: 180ms ease-in both explorer-group-out;
+}
+::view-transition-new(.explorer-forward) {
+  animation: 220ms ease-out 90ms both explorer-group-in;
+}
+
+::view-transition-old(.explorer-back) {
+  animation: 180ms ease-in both explorer-spread-out;
+}
+::view-transition-new(.explorer-back) {
+  animation: 220ms ease-out 90ms both explorer-spread-in;
+}
+
+@keyframes explorer-group-out {
+  from {
+    opacity: 1;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 0.88;
+  }
+}
+@keyframes explorer-group-in {
+  from {
+    opacity: 0;
+    scale: 0.92;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@keyframes explorer-spread-out {
+  from {
+    opacity: 1;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 1.08;
+  }
+}
+@keyframes explorer-spread-in {
+  from {
+    opacity: 0;
+    scale: 0.94;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(*),
   ::view-transition-new(*),
