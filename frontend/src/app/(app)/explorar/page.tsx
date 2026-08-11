@@ -32,11 +32,12 @@ const PREVIEW_COUNT_MIXED = 8;
 const PREVIEW_COUNT_FOCUSED = 12;
 
 /* Ligero desfase en abanico para los avatares del hero — puramente
- * decorativo, cubre hasta 3 posiciones. */
+ * decorativo, cubre hasta 3 posiciones. Pequeño a propósito: es un
+ * detalle discreto, nunca debe competir con el texto del hero. */
 const HERO_AVATAR_OFFSETS = [
-  "left-0 top-3 rotate-[-6deg]",
-  "left-9 top-0 rotate-[4deg]",
-  "left-18 top-4 rotate-[-3deg]",
+  "left-0 top-1 rotate-[-6deg]",
+  "left-5 top-0 rotate-[4deg]",
+  "left-10 top-1 rotate-[-3deg]",
 ];
 
 export default function ExplorarPage() {
@@ -87,7 +88,7 @@ export default function ExplorarPage() {
   const heroPeople = users.slice(0, 3);
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-7">
+    <div className="mx-auto w-full max-w-5xl space-y-6">
       <ExplorerSearchBar
         layoutIdBar="explorar-search-bar"
         layoutIdIcon="explorar-search-icon"
@@ -125,20 +126,20 @@ export default function ExplorarPage() {
         </SegmentPill>
       </div>
 
-      <section className="flex items-center justify-between gap-4 rounded-24 border border-border bg-surface p-5 sm:p-6">
+      <section className="rounded-24 border border-border bg-surface p-5 sm:flex sm:items-center sm:justify-between sm:gap-6">
         <div className="min-w-0">
-          <p className="font-rounded text-xl font-semibold leading-snug text-brand-dark">
+          <p className="font-rounded text-[24px] font-semibold leading-tight text-brand-dark">
             Encuentra a tu gente
           </p>
 
-          <p className="mt-1.5 max-w-[30ch] text-[13px] leading-5 text-secondary">
+          <p className="mt-1 max-w-[32ch] text-[13px] leading-[18px] text-secondary">
             Descubre personas y comunidades con las que compartir tu
             próxima etapa.
           </p>
 
           <Link
             href="/usuarios"
-            className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-primary-dark transition hover:text-brand-dark"
+            className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-primary-dark transition hover:text-brand-dark"
           >
             Explorar personas
             <ChevronIcon className="h-3.5 w-3.5" />
@@ -146,7 +147,7 @@ export default function ExplorarPage() {
         </div>
 
         {heroPeople.length > 0 && (
-          <div className="relative h-20 w-28 shrink-0 sm:h-24 sm:w-32">
+          <div className="relative mt-3 ml-auto h-8 w-20 sm:mt-0 sm:h-11 sm:w-24 sm:shrink-0">
             {heroPeople.map((person, index) => (
               <div
                 key={person.id}
@@ -161,7 +162,7 @@ export default function ExplorarPage() {
                   lastName={person.last_name}
                   userId={person.id}
                   imageUrl={person.avatar_url}
-                  size={isDesktop ? "xl" : "lg"}
+                  size={isDesktop ? "md" : "sm"}
                 />
               </div>
             ))}
@@ -186,7 +187,7 @@ export default function ExplorarPage() {
               isEmpty={users.length === 0}
               emptyMessage="Todavía no hay personas para mostrar."
               skeletonWidth="w-56"
-              skeletonHeight="h-64"
+              skeletonHeight="h-52"
             >
               {users
                 .slice(
@@ -201,13 +202,13 @@ export default function ExplorarPage() {
 
           {segment !== "people" && (
             <DiscoveryRow
-              title="Comunidades para explorar"
+              title="Comunidades"
               viewAllHref="/comunidades"
               loading={communitiesLoading}
               isEmpty={communities.length === 0}
               emptyMessage="Todavía no hay comunidades para mostrar."
               skeletonWidth="w-68"
-              skeletonHeight="h-56"
+              skeletonHeight="h-48"
             >
               {communities
                 .slice(
@@ -299,7 +300,7 @@ function DiscoveryRow({
   return (
     <div>
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h2 className="font-rounded text-[21px] font-semibold text-brand-dark">
+        <h2 className="whitespace-nowrap font-rounded text-xl font-semibold text-brand-dark">
           {title}
         </h2>
 
@@ -336,17 +337,28 @@ function DiscoveryRow({
 }
 
 /** Preview compacto para el Home — no es la ficha de búsqueda
- * profunda (esa vive en /usuarios vía UserCard). Solo foto/avatar,
- * nombre y un único dato de contexto real. */
+ * profunda (esa vive en /usuarios vía UserCard). Dos variantes según
+ * dato real disponible: con foto, la imagen protagoniza; sin foto, no
+ * reservamos una superficie enorme vacía — card mucho más compacta. */
 function ExplorePersonCard({ person }: { person: UserPublicProfile }) {
-  const fullName = `${person.first_name} ${person.last_name}`.trim();
-  const hasPhoto = Boolean(person.avatar_url);
+  return person.avatar_url ? (
+    <PersonPhotoCard person={person} />
+  ) : (
+    <PersonNoPhotoCard person={person} />
+  );
+}
 
-  const subtitle = person.community
+function personSubtitle(person: UserPublicProfile) {
+  return person.community
     ? person.community.city
     : person.is_owner
       ? "Propietario"
       : "Busca comunidad";
+}
+
+function PersonPhotoCard({ person }: { person: UserPublicProfile }) {
+  const fullName = `${person.first_name} ${person.last_name}`.trim();
+  const subtitle = personSubtitle(person);
 
   return (
     <Link
@@ -358,28 +370,15 @@ function ExplorePersonCard({ person }: { person: UserPublicProfile }) {
         transition={{ duration: MOTION_DURATION.fast }}
         className="overflow-hidden rounded-18 border border-border bg-surface"
       >
-        <div className="relative h-48 bg-surface-muted">
-          {hasPhoto ? (
-            <Image
-              src={person.avatar_url!}
-              alt=""
-              fill
-              unoptimized
-              sizes="224px"
-              className="object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <div className="rounded-full ring-4 ring-border/50">
-                <UserAvatar
-                  firstName={person.first_name}
-                  lastName={person.last_name}
-                  userId={person.id}
-                  size="lg"
-                />
-              </div>
-            </div>
-          )}
+        <div className="relative h-52 bg-surface-muted">
+          <Image
+            src={person.avatar_url!}
+            alt=""
+            fill
+            unoptimized
+            sizes="224px"
+            className="object-cover"
+          />
 
           {person.is_verified && (
             <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-primary shadow-soft">
@@ -389,6 +388,48 @@ function ExplorePersonCard({ person }: { person: UserPublicProfile }) {
         </div>
 
         <div className="p-2.5">
+          <p className="truncate text-sm font-bold text-brand-dark">
+            {fullName || "Persona de CoFlow"}
+            {person.age !== null && (
+              <span className="font-medium text-secondary">, {person.age}</span>
+            )}
+          </p>
+
+          {subtitle && (
+            <p className="truncate text-xs text-muted">{subtitle}</p>
+          )}
+        </div>
+      </motion.div>
+    </Link>
+  );
+}
+
+/** Sin foto: card compacta propia, no una versión vacía de la de
+ * foto. Nada de superficie gigante ni avatar flotando en el vacío. */
+function PersonNoPhotoCard({ person }: { person: UserPublicProfile }) {
+  const fullName = `${person.first_name} ${person.last_name}`.trim();
+  const subtitle = personSubtitle(person);
+
+  return (
+    <Link
+      href={`/personas/${person.id}`}
+      className="block w-52 shrink-0 rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+    >
+      <motion.div
+        whileTap={{ scale: 0.97 }}
+        transition={{ duration: MOTION_DURATION.fast }}
+        className="relative flex h-45 flex-col items-center justify-center gap-2 rounded-18 border border-border bg-surface p-4 text-center shadow-soft"
+      >
+        <ChevronIcon className="absolute right-3 top-3 h-4 w-4 text-border" />
+
+        <UserAvatar
+          firstName={person.first_name}
+          lastName={person.last_name}
+          userId={person.id}
+          size="lg"
+        />
+
+        <div className="min-w-0">
           <p className="truncate text-sm font-bold text-brand-dark">
             {fullName || "Persona de CoFlow"}
             {person.age !== null && (
@@ -427,7 +468,7 @@ function ExploreCommunityCard({
         transition={{ duration: MOTION_DURATION.fast }}
         className="overflow-hidden rounded-18 border border-border bg-surface"
       >
-        <div className="relative h-30 bg-surface-muted">
+        <div className="relative h-28 bg-surface-muted">
           {item.cover_image_url ? (
             <Image
               src={item.cover_image_url}
