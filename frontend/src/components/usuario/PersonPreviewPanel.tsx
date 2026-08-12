@@ -1,87 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import Link from "next/link";
+import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
 import Spinner from "@/components/ui/Spinner";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { useUserConnection } from "@/hooks/useUserConnection";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import {
-  MOTION_DURATION,
-  MOTION_EASE,
-  MOTION_SPRING,
-  MOTION_STAGGER_CHILDREN,
-} from "@/lib/motionTokens";
-import { cn } from "@/lib/utils";
+import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
+import type { PublicUserPreferences, UserPublicProfile } from "@/types/userPublic";
 
-const TAG_KEYS = [
-  "cleanliness",
-  "dishes",
-  "common_objects",
-  "noise",
-  "visits",
-  "sleepovers",
-  "wake_up",
-  "night_noise",
-  "smoking",
-  "alcohol",
-  "pets",
-  "bills",
-  "food",
-  "communication",
-  "conflicts",
-  "rules",
-  "culture",
-  "space",
-  "lifestyle",
-] as const;
-
-const TAG_LABELS: Record<(typeof TAG_KEYS)[number], string> = {
-  cleanliness: "Limpieza",
-  dishes: "Platos",
-  common_objects: "Zonas comunes",
-  noise: "Ambiente",
-  visits: "Visitas",
-  sleepovers: "Pernoctaciones",
-  wake_up: "Rutina",
-  night_noise: "Ruido nocturno",
-  smoking: "Tabaco",
-  alcohol: "Alcohol",
-  pets: "Mascotas",
-  bills: "Facturas",
-  food: "Comida",
-  communication: "Comunicación",
-  conflicts: "Conflictos",
-  rules: "Reglas",
-  culture: "Cultura",
-  space: "Espacio personal",
-  lifestyle: "Convivencia",
-};
-
-// Umbrales para el "arrastra hacia abajo para cerrar" del bottom
-// sheet: basta con superar cualquiera de los dos (distancia o
-// velocidad) para interpretar el gesto como "quiero cerrar".
-const DRAG_CLOSE_OFFSET = 120;
-const DRAG_CLOSE_VELOCITY = 600;
-
-const infoStagger = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: MOTION_STAGGER_CHILDREN },
-  },
-};
-
-const infoItem = {
-  hidden: { opacity: 0, y: 6 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: MOTION_DURATION.normal, ease: MOTION_EASE.out },
-  },
-};
+const PREVIEW_PREFERENCES: Array<{
+  key: keyof PublicUserPreferences;
+  label: string;
+}> = [
+  { key: "lifestyle", label: "Convivencia" },
+  { key: "cleanliness", label: "Limpieza" },
+  { key: "smoking", label: "Tabaco" },
+  { key: "visits", label: "Visitas" },
+  { key: "pets", label: "Mascotas" },
+];
 
 export default function PersonPreviewPanel({
   userId,
@@ -90,7 +30,98 @@ export default function PersonPreviewPanel({
   userId: string;
   onClose: () => void;
 }) {
+  const [mounted, setMounted] = useState(false);
   const { profile, loading, notFound } = usePublicProfile(userId);
+
+  useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+
+    const body = document.body;
+    const scrollY = window.scrollY;
+    const previous = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+    };
+
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      body.style.overflow = previous.overflow;
+      body.style.position = previous.position;
+      body.style.top = previous.top;
+      body.style.width = previous.width;
+      window.scrollTo(0, scrollY);
+    };
+  }, [mounted, onClose]);
+
+  if (!mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[1000] flex items-end justify-center sm:items-center sm:p-5">
+      <motion.button
+        type="button"
+        aria-label="Cerrar vista previa"
+        onClick={onClose}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: MOTION_DURATION.fast }}
+        className="absolute inset-0 bg-black/45 backdrop-blur-[2px]"
+      />
+
+      <motion.section
+        role="dialog"
+        aria-modal="true"
+        aria-label="Vista previa del perfil"
+        initial={{ opacity: 0, y: 30, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 30, scale: 0.98 }}
+        transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+        className="relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-24 border border-border bg-surface shadow-2xl sm:max-w-lg sm:rounded-24"
+      >
+        <div className="flex shrink-0 justify-center pb-1 pt-2.5 sm:hidden">
+          <span className="h-1 w-10 rounded-full bg-border" />
+        </div>
+
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Cerrar"
+          className="absolute right-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-foreground shadow-soft"
+        >
+          <CloseIcon />
+        </button>
+
+        {loading ? (
+          <div className="flex min-h-80 items-center justify-center"><Spinner /></div>
+        ) : notFound || !profile ? (
+          <div className="flex min-h-80 flex-col items-center justify-center px-6 text-center">
+            <p className="text-base font-extrabold text-foreground">No encontramos este perfil</p>
+            <p className="mt-1 text-sm text-secondary">Puede que ya no esté disponible.</p>
+          </div>
+        ) : (
+          <PreviewContent profile={profile} onClose={onClose} />
+        )}
+      </motion.section>
+    </div>,
+    document.body
+  );
+}
+
+function PreviewContent({ profile, onClose }: { profile: UserPublicProfile; onClose: () => void }) {
   const {
     saved,
     savingToggle,
@@ -100,585 +131,136 @@ export default function PersonPreviewPanel({
     connecting,
     connectionError,
     connect,
-    removeConnection,
   } = useUserConnection(profile);
 
-  const [expanded, setExpanded] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const prefersReducedMotion = useReducedMotion();
-  const isDesktop = useMediaQuery("(min-width: 640px)");
-
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-
-    // overflow:hidden en body no basta en iOS Safari (el scroll de fondo
-    // sigue rebotando) — fijamos el body en su posición actual con
-    // position:fixed, y la restauramos al cerrar, para bloquear de
-    // verdad el scroll de la página de detrás mientras el modal esté
-    // abierto.
-    const scrollY = window.scrollY;
-    const body = document.body;
-    const previousStyle = {
-      position: body.style.position,
-      top: body.style.top,
-      left: body.style.left,
-      right: body.style.right,
-      width: body.style.width,
-    };
-
-    body.style.position = "fixed";
-    body.style.top = `-${scrollY}px`;
-    body.style.left = "0";
-    body.style.right = "0";
-    body.style.width = "100%";
-
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      body.style.position = previousStyle.position;
-      body.style.top = previousStyle.top;
-      body.style.left = previousStyle.left;
-      body.style.right = previousStyle.right;
-      body.style.width = previousStyle.width;
-      window.scrollTo(0, scrollY);
-    };
-  }, [onClose]);
-
-  function expandToFullScreen() {
-    if (!expanded) setExpanded(true);
-  }
-
-  function handleDragEnd(
-    _event: MouseEvent | TouchEvent | PointerEvent,
-    info: { offset: { y: number }; velocity: { y: number } }
-  ) {
-    if (
-      info.offset.y > DRAG_CLOSE_OFFSET ||
-      info.velocity.y > DRAG_CLOSE_VELOCITY
-    ) {
-      onClose();
-    }
-  }
-
-  const fullName = profile
-    ? `${profile.first_name} ${profile.last_name}`.trim()
-    : "";
-
-  const metaLine = profile
-    ? [
-        profile.age !== null ? `${profile.age} años` : null,
-        profile.community?.city ?? null,
-      ]
-        .filter(Boolean)
-        .join(" · ")
-    : "";
-
-  const budgetLabel = profile?.rental_budget
-    ? `${profile.rental_budget.toLocaleString("es-ES")} €/mes`
+  const fullName = `${profile.first_name} ${profile.last_name}`.trim();
+  const mainPhoto = [...profile.photos].sort((a, b) => a.position - b.position)[0]?.image_url ?? profile.avatar_url;
+  const budget = profile.rental_budget !== null
+    ? `${profile.rental_budget.toLocaleString("es-ES")} € / mes`
     : "Sin definir";
-
-  const coverPhoto = profile?.photos?.[0]?.image_url ?? null;
-
-  const tags = profile?.preferences
-    ? TAG_KEYS.map((key) => ({
-        key,
-        label: TAG_LABELS[key],
-        value: profile.preferences![key],
-      })).filter((tag) => Boolean(tag.value))
+  const traits = profile.preferences
+    ? PREVIEW_PREFERENCES.map((item) => ({ ...item, value: profile.preferences![item.key] }))
+        .filter((item) => Boolean(item.value))
+        .slice(0, 5)
     : [];
 
-  const overlayTransition = prefersReducedMotion
-    ? { duration: 0.01 }
-    : { duration: MOTION_DURATION.normal, ease: MOTION_EASE.out };
-
-  // Escritorio: modal centrado, aparece con scale+fade (sin desplazamiento).
-  // Móvil: bottom sheet, entra desde abajo con spring natural.
-  const sheetTransition = prefersReducedMotion
-    ? { duration: 0.01 }
-    : MOTION_SPRING.gentle;
-
-  const sheetInitial = prefersReducedMotion
-    ? { opacity: 0 }
-    : isDesktop
-      ? { opacity: 0, scale: 0.96 }
-      : { y: 40, opacity: 0, scale: 0.98 };
-
-  const sheetAnimate = prefersReducedMotion
-    ? { opacity: 1 }
-    : isDesktop
-      ? { opacity: 1, scale: 1 }
-      : { y: 0, opacity: 1, scale: 1 };
-
-  const canDrag = !prefersReducedMotion && !isDesktop && !expanded;
-
   return (
-    <div className="fixed inset-0 z-(--z-modal) flex items-end justify-center sm:items-center">
-      <motion.button
-        type="button"
-        aria-label="Cerrar"
-        onClick={onClose}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={overlayTransition}
-        className="absolute inset-0 bg-black/40"
-      />
-
-      <motion.div
-        initial={sheetInitial}
-        animate={sheetAnimate}
-        exit={sheetInitial}
-        transition={sheetTransition}
-        drag={canDrag ? "y" : false}
-        dragConstraints={{ top: 0, bottom: 0 }}
-        dragElastic={{ top: 0, bottom: 0.6 }}
-        onDragEnd={handleDragEnd}
-        style={{ willChange: "transform" }}
-        className={cn(
-          "relative flex w-full flex-col overflow-hidden bg-surface shadow-2xl sm:max-w-lg sm:rounded-24",
-          expanded
-            ? "h-dvh rounded-t-none sm:h-[85dvh]"
-            : "max-h-[85dvh] rounded-t-24"
-        )}
-      >
-        <div className="flex shrink-0 justify-center pb-1 pt-2.5 sm:hidden">
-          <span className="h-1.5 w-10 rounded-full bg-border" />
+    <>
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <div className="relative h-40 bg-surface sm:h-48">
+          {mainPhoto ? (
+            <Image src={mainPhoto} alt="" fill unoptimized sizes="(max-width: 640px) 100vw, 512px" className="object-cover" />
+          ) : (
+            <div className="flex h-full items-center justify-center bg-surface">
+              <UserAvatar firstName={profile.first_name} lastName={profile.last_name} userId={profile.id} size="xl" />
+            </div>
+          )}
         </div>
 
+        <div className="relative px-5 pb-5 pt-14">
+          <div className="absolute -top-12 left-5 rounded-full border-4 border-white bg-surface shadow-soft">
+            <UserAvatar
+              firstName={profile.first_name}
+              lastName={profile.last_name}
+              userId={profile.id}
+              imageUrl={profile.avatar_url}
+              size="xl"
+            />
+            {profile.is_online && <span className="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-white bg-emerald-500" />}
+          </div>
+
+          <button
+            type="button"
+            onClick={toggleSave}
+            disabled={savingToggle}
+            aria-label={saved ? "Quitar de guardados" : "Guardar perfil"}
+            className="absolute right-5 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-primary shadow-soft disabled:opacity-60"
+          >
+            <HeartIcon filled={saved} />
+          </button>
+
+          <div className="flex items-center gap-2">
+            <h2 className="truncate font-rounded text-2xl font-semibold text-brand-dark">{fullName || "Persona de CoFlow"}</h2>
+            {profile.is_verified && <VerifiedIcon />}
+          </div>
+
+          <p className="mt-1 text-sm text-secondary">
+            {[profile.age !== null ? `${profile.age} años` : null, profile.community?.city ?? null].filter(Boolean).join(" · ") || "Información personal no indicada"}
+          </p>
+
+          <p className="mt-2 text-sm font-bold text-primary-dark">
+            {profile.is_looking_for_roommates ? "Buscando compañero de piso" : "No busca compañero actualmente"}
+          </p>
+
+          {profile.bio && <p className="mt-4 line-clamp-4 text-sm leading-6 text-secondary">{profile.bio}</p>}
+
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <PreviewFact label="Presupuesto" value={budget} />
+            <PreviewFact label="Comunidad" value={profile.community?.name ?? "Sin comunidad"} />
+          </div>
+
+          {traits.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-sm font-extrabold text-foreground">Estilo de convivencia</h3>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {traits.map((trait) => (
+                  <span key={trait.key} className="rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-bold text-primary-dark shadow-soft">
+                    {trait.value}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {connectionError && <p className="mt-4 text-sm font-semibold text-red-600">{connectionError}</p>}
+
+          <Link
+            href={`/personas/${profile.id}`}
+            onClick={onClose}
+            className="mt-5 flex h-11 items-center justify-center gap-2 rounded-14 border border-primary bg-surface text-sm font-bold text-primary-dark shadow-soft"
+          >
+            Ver perfil completo
+            <ArrowRightIcon />
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid shrink-0 grid-cols-2 gap-3 border-t border-border bg-surface p-4">
         <button
           type="button"
-          onClick={onClose}
-          aria-label="Cerrar"
-          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-foreground shadow-soft backdrop-blur transition hover:bg-white"
+          onClick={toggleSave}
+          disabled={savingToggle}
+          className="flex h-12 items-center justify-center gap-2 rounded-14 border border-primary bg-surface text-sm font-bold text-primary-dark shadow-soft disabled:opacity-60"
         >
-          <CloseIcon />
+          <HeartIcon filled={saved} />
+          {saved ? "Guardado" : "Guardar"}
         </button>
 
-        {loading ? (
-          <div className="flex flex-1 items-center justify-center">
-            <Spinner />
-          </div>
-        ) : notFound || !profile ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
-            <p className="text-sm font-bold text-foreground">
-              No hemos encontrado este perfil
-            </p>
-            <p className="text-sm text-muted">
-              Puede que ya no esté disponible.
-            </p>
-          </div>
-        ) : (
-          <div
-            ref={contentRef}
-            onWheel={expandToFullScreen}
-            onTouchMove={expandToFullScreen}
-            className={cn(
-              "flex flex-1 flex-col",
-              expanded ? "overflow-y-auto overscroll-contain" : "overflow-hidden"
-            )}
-          >
-            <motion.div
-              variants={infoStagger}
-              initial="hidden"
-              animate="show"
-              className="p-5 pt-8 sm:p-6 sm:pt-8"
-            >
-              <motion.div variants={infoItem} className="flex items-start gap-4">
-                <motion.div
-                  layoutId={`person-avatar-${userId}`}
-                  transition={MOTION_SPRING.gentle}
-                  className="relative h-24 w-24 shrink-0 overflow-hidden rounded-18 bg-mint-100 sm:h-28 sm:w-28"
-                >
-                  {coverPhoto || profile.avatar_url ? (
-                    <Image
-                      src={coverPhoto ?? profile.avatar_url!}
-                      alt=""
-                      fill
-                      unoptimized
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                      <UserAvatar
-                        firstName={profile.first_name}
-                        lastName={profile.last_name}
-                        userId={profile.id}
-                        imageUrl={profile.avatar_url}
-                        size="xl"
-                      />
-                    </div>
-                  )}
-
-                  {profile.is_online && (
-                    <span
-                      title="En línea"
-                      className="absolute bottom-1.5 right-1.5 h-3.5 w-3.5 rounded-full border-2 border-surface bg-emerald-500"
-                    />
-                  )}
-                </motion.div>
-
-                <div className="min-w-0 flex-1 pt-1">
-                  <h2 className="text-xl font-bold leading-tight text-foreground sm:text-2xl">
-                    <motion.span
-                      layoutId={`person-name-${userId}`}
-                      transition={MOTION_SPRING.gentle}
-                      className="inline"
-                    >
-                      {fullName || "Persona de CoFlow"}
-                    </motion.span>
-                  </h2>
-
-                  {metaLine && (
-                    <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-secondary">
-                      {metaLine}
-                      <LocationIcon />
-                    </p>
-                  )}
-
-                  {profile.occupation && (
-                    <p className="mt-1.5 flex items-center gap-1.5 text-sm text-secondary">
-                      <BriefcaseIcon />
-                      {profile.occupation}
-                    </p>
-                  )}
-                </div>
-              </motion.div>
-
-              {profile.is_verified && (
-                <motion.span
-                  variants={infoItem}
-                  className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-surface px-3 py-1.5 text-xs font-bold text-primary-dark shadow-soft"
-                >
-                  <VerifiedIcon className="h-3.5 w-3.5" />
-                  Perfil verificado
-                </motion.span>
-              )}
-
-              <motion.div variants={infoItem} className="mt-4 flex flex-wrap gap-2">
-                {profile.is_owner && (
-                  <span className="inline-flex items-center rounded-full bg-surface-muted px-3 py-1 text-xs font-bold text-brand-dark">
-                    Propietario
-                  </span>
-                )}
-                <span className="inline-flex items-center rounded-full bg-surface-muted px-3 py-1 text-xs font-bold text-brand-dark">
-                  {profile.is_looking_for_roommates
-                    ? "Busca compañeros de piso"
-                    : "No busca compañeros ahora"}
-                </span>
-              </motion.div>
-
-              {profile.bio && (
-                <motion.p
-                  variants={infoItem}
-                  className="mt-4 text-sm leading-6 text-secondary"
-                >
-                  {profile.bio}
-                </motion.p>
-              )}
-
-              <motion.div variants={infoItem} className="mt-5 grid grid-cols-2 gap-3">
-                <div className="rounded-18 border border-border bg-surface-muted px-4 py-3">
-                  <p className="text-xs font-semibold text-muted">
-                    Presupuesto
-                  </p>
-                  <p className="mt-0.5 text-sm font-bold text-foreground">
-                    {budgetLabel}
-                  </p>
-                </div>
-
-                <div className="rounded-18 border border-border bg-surface-muted px-4 py-3">
-                  <p className="text-xs font-semibold text-muted">
-                    Comunidad
-                  </p>
-                  <p className="mt-0.5 truncate text-sm font-bold text-foreground">
-                    {profile.community ? profile.community.name : "Ninguna todavía"}
-                  </p>
-                </div>
-              </motion.div>
-
-              {tags.length > 0 && (
-                <motion.div variants={infoItem} className="mt-6">
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted">
-                    Estilo de vida y convivencia
-                  </p>
-
-                  <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
-                    {tags.map((tag) => (
-                      <div
-                        key={tag.key}
-                        className="rounded-14 bg-surface-soft px-3 py-2"
-                      >
-                        <p className="text-[11px] font-semibold text-muted">
-                          {tag.label}
-                        </p>
-                        <p className="mt-0.5 text-sm font-bold text-foreground">
-                          {tag.value}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
-              {profile.photos.length > 1 && (
-                <motion.div variants={infoItem} className="mt-6">
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted">
-                    Fotos
-                  </p>
-
-                  <div className="mt-2.5 grid grid-cols-3 gap-2">
-                    {profile.photos.slice(1).map((photo) => (
-                      <div
-                        key={photo.id}
-                        className="relative h-20 overflow-hidden rounded-14"
-                      >
-                        <Image
-                          src={photo.image_url}
-                          alt=""
-                          fill
-                          unoptimized
-                          className="object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
-              {connectionError && (
-                <motion.p
-                  variants={infoItem}
-                  className="mt-4 text-sm font-semibold text-red-600"
-                >
-                  {connectionError}
-                </motion.p>
-              )}
-            </motion.div>
-
-            <div className="mt-auto flex items-center gap-2 border-t border-border bg-surface p-4 sm:p-5">
-              {connectionStatus === "ACCEPTED" && connectionId !== null && (
-                <>
-                  <motion.div
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ duration: MOTION_DURATION.fast }}
-                    className="flex-1"
-                  >
-                    <Link
-                      href={`/mensajes/${connectionId}`}
-                      className="flex h-12 items-center justify-center gap-2 rounded-14 bg-brand px-5 text-sm font-bold text-white shadow-button transition-colors duration-200 hover:bg-brand-dark"
-                    >
-                      <MessageIcon />
-                      Enviar mensaje
-                    </Link>
-                  </motion.div>
-
-                  <motion.button
-                    type="button"
-                    onClick={removeConnection}
-                    disabled={connecting}
-                    aria-label="Eliminar conexión"
-                    title="Eliminar conexión"
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ duration: MOTION_DURATION.fast }}
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-red-200 text-red-600 transition-colors duration-200 hover:bg-red-50 disabled:opacity-60"
-                  >
-                    <CloseIcon />
-                  </motion.button>
-                </>
-              )}
-
-              {connectionStatus === "PENDING_SENT" && (
-                <span className="flex h-12 flex-1 items-center justify-center rounded-14 bg-surface-soft text-sm font-bold text-muted">
-                  Solicitud enviada
-                </span>
-              )}
-
-              {connectionStatus === "PENDING_RECEIVED" && (
-                <motion.div
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ duration: MOTION_DURATION.fast }}
-                  className="flex-1"
-                >
-                  <Link
-                    href="/conexiones"
-                    className="flex h-12 items-center justify-center gap-2 rounded-14 bg-brand px-5 text-sm font-bold text-white shadow-button transition-colors duration-200 hover:bg-brand-dark"
-                  >
-                    Responder solicitud
-                  </Link>
-                </motion.div>
-              )}
-
-              {connectionStatus === "NONE" && (
-                <motion.button
-                  type="button"
-                  onClick={connect}
-                  disabled={connecting || !profile.is_looking_for_roommates}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ duration: MOTION_DURATION.fast }}
-                  className="flex h-12 flex-1 items-center justify-center gap-2 rounded-14 bg-brand px-5 text-sm font-bold text-white shadow-button transition-colors duration-200 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <ConnectIcon />
-                  {connecting ? "Enviando..." : "Conectar"}
-                </motion.button>
-              )}
-
-              <motion.button
-                type="button"
-                onClick={toggleSave}
-                disabled={savingToggle}
-                aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
-                aria-pressed={saved}
-                whileTap={{ scale: 0.88 }}
-                transition={{ duration: MOTION_DURATION.fast }}
-                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
-                  saved
-                    ? "border-primary/30 bg-mint-100 text-primary-dark"
-                    : "border-border bg-surface text-muted hover:border-primary/40"
-                }`}
-              >
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.span
-                    key={saved ? "saved" : "unsaved"}
-                    initial={{ scale: 0.6, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.6, opacity: 0 }}
-                    transition={MOTION_SPRING.snappy}
-                    className="inline-flex"
-                  >
-                    <HeartIcon filled={saved} />
-                  </motion.span>
-                </AnimatePresence>
-              </motion.button>
-            </div>
-          </div>
-        )}
-      </motion.div>
-    </div>
+        <PreviewConnectionAction
+          profile={profile}
+          status={connectionStatus}
+          connectionId={connectionId}
+          connecting={connecting}
+          onConnect={connect}
+        />
+      </div>
+    </>
   );
 }
 
-function LocationIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-3.5 w-3.5 shrink-0"
-      aria-hidden="true"
-    >
-      <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-      <circle cx="12" cy="10" r="2.5" />
-    </svg>
-  );
+function PreviewConnectionAction({ profile, status, connectionId, connecting, onConnect }: { profile: UserPublicProfile; status: UserPublicProfile["connection_status"]; connectionId: number | null; connecting: boolean; onConnect: () => void }) {
+  const activeClass = "flex h-12 items-center justify-center rounded-14 bg-primary px-3 text-sm font-bold text-white shadow-button";
+  if (status === "ACCEPTED" && connectionId !== null) return <Link href={`/mensajes/${connectionId}`} className={activeClass}>Enviar mensaje</Link>;
+  if (status === "PENDING_RECEIVED") return <Link href="/conexiones" className={activeClass}>Responder</Link>;
+  if (status === "PENDING_SENT") return <span className="flex h-12 items-center justify-center rounded-14 border border-border bg-surface text-xs font-bold text-secondary shadow-soft">Solicitud enviada</span>;
+  return <button type="button" onClick={onConnect} disabled={connecting || !profile.is_looking_for_roommates} className={`${activeClass} disabled:opacity-45`}>{connecting ? "Enviando..." : "Conectar"}</button>;
 }
 
-function CloseIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      className="h-4.5 w-4.5"
-      aria-hidden="true"
-    >
-      <path d="m6 6 12 12" />
-      <path d="m18 6-12 12" />
-    </svg>
-  );
+function PreviewFact({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-14 border border-border bg-surface p-3 shadow-soft"><p className="text-[11px] text-secondary">{label}</p><p className="mt-0.5 truncate text-xs font-extrabold text-foreground">{value}</p></div>;
 }
 
-function MessageIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4 shrink-0"
-      aria-hidden="true"
-    >
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" />
-    </svg>
-  );
-}
-
-function ConnectIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4.5 w-4.5 shrink-0"
-      aria-hidden="true"
-    >
-      <circle cx="8" cy="8" r="3" />
-      <circle cx="17" cy="7" r="2.5" />
-      <path d="M2.5 20a5.5 5.5 0 0 1 11 0" />
-      <path d="M14 14.5a4.5 4.5 0 0 1 7.5 3.5" />
-    </svg>
-  );
-}
-
-function HeartIcon({ filled }: { filled: boolean }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill={filled ? "currentColor" : "none"}
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-5 w-5"
-      aria-hidden="true"
-    >
-      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6Z" />
-    </svg>
-  );
-}
-
-function VerifiedIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M12 2 9.5 4.5 6 4l-.5 3.5L2 9l2 3-2 3 3.5 1.5L6 20l3.5-.5L12 22l2.5-2.5L18 20l.5-3.5L22 15l-2-3 2-3-3.5-1.5L18 4l-3.5.5Z" />
-      <path
-        d="m8.5 12.3 2.2 2.2 4.3-4.8"
-        stroke="white"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-    </svg>
-  );
-}
-
-function BriefcaseIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-3.5 w-3.5 shrink-0"
-      aria-hidden="true"
-    >
-      <rect x="2" y="7" width="20" height="14" rx="2" />
-      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-    </svg>
-  );
-}
+function CloseIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-4 w-4" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>; }
+function ArrowRightIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>; }
+function VerifiedIcon() { return <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-white"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-3.5 w-3.5" aria-hidden="true"><path d="m6 12 4 4 8-9" /></svg></span>; }
+function HeartIcon({ filled }: { filled: boolean }) { return <svg viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6Z" /></svg>; }
