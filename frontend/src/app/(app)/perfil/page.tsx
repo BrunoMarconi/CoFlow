@@ -196,15 +196,15 @@ export default function PerfilPage() {
 
       <Link
         href={ownerHref}
-        className="grid min-h-32 grid-cols-[42%_1fr_auto] items-center overflow-hidden rounded-24 border border-border bg-surface shadow-soft transition hover:border-primary/25"
+        className="grid min-h-32 grid-cols-[42%_1fr_auto] items-center overflow-hidden rounded-24 border border-border bg-surface shadow-soft transition hover:border-primary/25 lg:min-h-40 lg:grid-cols-[280px_1fr_auto]"
       >
-        <div className="relative h-full min-h-32">
+        <div className="relative h-full min-h-32 bg-surface-soft/30 lg:min-h-40">
           <Image
             src="/images/profile-owner-house-3d.webp"
             alt="Casa ilustrada"
             fill
             sizes="(max-width: 640px) 42vw, 300px"
-            className="object-cover object-center"
+            className="object-contain object-center p-2 lg:p-5"
           />
         </div>
         <div className="py-4 pr-2">
@@ -302,13 +302,13 @@ function IllustratedCard({
       href={href}
       className="overflow-hidden rounded-24 border border-border bg-surface text-center shadow-soft transition hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="relative h-32 sm:h-44">
+      <div className="relative h-32 bg-surface-soft/30 sm:h-44 lg:h-48">
         <Image
           src={image}
           alt={imageAlt}
           fill
           sizes="(max-width: 640px) 46vw, 320px"
-          className="object-cover"
+          className="object-contain p-3 sm:p-4 lg:p-6"
         />
       </div>
       <div className="px-3 pb-4">

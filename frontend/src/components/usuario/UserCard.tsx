@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
@@ -47,6 +48,8 @@ export default function UserCard({
   const profilePhoto =
     [...user.photos].sort((a, b) => a.position - b.position)[0]?.image_url ||
     user.avatar_url;
+  const [profilePhotoFailed, setProfilePhotoFailed] = useState(false);
+  const hasProfilePhoto = Boolean(profilePhoto) && !profilePhotoFailed;
 
   function handleOpen() {
     onOpen(user.id);
@@ -82,7 +85,7 @@ export default function UserCard({
         {mobileVariant === "featured" ? (
           <div className="h-full overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
             <div className="relative h-36 bg-surface-muted min-[390px]:h-44">
-              {profilePhoto ? (
+              {hasProfilePhoto && profilePhoto ? (
                 <Image
                   src={profilePhoto}
                   alt={fullName}
@@ -90,6 +93,7 @@ export default function UserCard({
                   unoptimized
                   sizes="50vw"
                   className="object-cover"
+                  onError={() => setProfilePhotoFailed(true)}
                 />
               ) : (
                 <div className="flex h-full items-center justify-center bg-surface">
@@ -196,9 +200,9 @@ export default function UserCard({
         )}
       </div>
 
-      <div className="hidden flex-col overflow-hidden rounded-18 border border-border bg-surface shadow-soft transition-shadow duration-200 sm:flex sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]">
-        {profilePhoto && (
-          <div className="relative h-44 bg-surface-muted">
+      <div className="hidden h-full flex-col overflow-hidden rounded-18 border border-border bg-surface shadow-soft transition-shadow duration-200 sm:flex sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]">
+        <div className="relative h-40 shrink-0 border-b border-border bg-surface lg:h-44">
+          {hasProfilePhoto && profilePhoto ? (
             <Image
               src={profilePhoto}
               alt={fullName}
@@ -206,31 +210,35 @@ export default function UserCard({
               unoptimized
               sizes="(min-width:1280px) 33vw, 50vw"
               className="object-cover"
+              onError={() => setProfilePhotoFailed(true)}
             />
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={savingToggle}
-              aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
-              aria-pressed={saved}
-              className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-primary shadow-soft disabled:opacity-60"
-            >
-              <HeartIcon filled={saved} />
-            </button>
-          </div>
-        )}
-
-        <div className="flex flex-col p-4">
-          <div className="flex items-start gap-3">
-            {!profilePhoto && (
+          ) : (
+            <div className="flex h-full items-center justify-center">
               <UserAvatar
                 firstName={user.first_name}
                 lastName={user.last_name}
                 userId={user.id}
-                imageUrl={user.avatar_url}
-                size="lg"
+                imageUrl={null}
+                size="xl"
+                className="border-4 border-white shadow-soft"
               />
-            )}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={savingToggle}
+            aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
+            aria-pressed={saved}
+            className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-primary shadow-soft disabled:opacity-60"
+          >
+            <HeartIcon filled={saved} />
+          </button>
+        </div>
+
+        <div className="flex min-h-52 flex-1 flex-col p-4">
+          <div className="flex items-start gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
                 <h3 className="truncate text-base font-extrabold text-foreground">
@@ -286,18 +294,6 @@ export default function UserCard({
                       : "Conectar"}
             </button>
 
-            {!profilePhoto && (
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={savingToggle}
-                aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
-                aria-pressed={saved}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-primary shadow-soft disabled:opacity-60"
-              >
-                <HeartIcon filled={saved} />
-              </button>
-            )}
           </div>
         </div>
       </div>
