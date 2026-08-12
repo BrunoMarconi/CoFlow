@@ -6,21 +6,27 @@ import { cn } from "@/lib/utils";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { useKeyboardVisible } from "@/hooks/useKeyboardVisible";
 import { useAuth } from "@/hooks/useAuth";
+import { useOwnerMode } from "@/hooks/useOwnerMode";
 import { getTabTransitionTypes } from "@/lib/navTransition";
 import {
   CompassIcon,
   UsersIcon,
   MessageIcon,
   ProfileIcon,
+  HomeIcon,
+  KeyIcon,
+  PlusIcon,
   type IconProps,
 } from "@/components/layout/NavIcons";
 
-const LINKS: {
+type NavigationLink = {
   href: string;
   label: string;
   icon: (props: IconProps) => React.ReactElement;
   isActive: (pathname: string) => boolean;
-}[] = [
+};
+
+const MEMBER_LINKS: NavigationLink[] = [
   {
     href: "/comunidades",
     label: "Explorar",
@@ -52,11 +58,48 @@ const LINKS: {
   },
 ];
 
+const OWNER_LINKS: NavigationLink[] = [
+  {
+    href: "/propietarios",
+    label: "Resumen",
+    icon: HomeIcon,
+    isActive: (pathname) => pathname === "/propietarios",
+  },
+  {
+    href: "/propietarios/pisos",
+    label: "Mis pisos",
+    icon: KeyIcon,
+    isActive: (pathname) =>
+      pathname.startsWith("/propietarios/pisos") &&
+      !pathname.startsWith("/propietarios/pisos/nuevo"),
+  },
+  {
+    href: "/propietarios/pisos/nuevo",
+    label: "Añadir",
+    icon: PlusIcon,
+    isActive: (pathname) => pathname.startsWith("/propietarios/pisos/nuevo"),
+  },
+  {
+    href: "/mensajes",
+    label: "Mensajes",
+    icon: MessageIcon,
+    isActive: (pathname) => pathname.startsWith("/mensajes"),
+  },
+  {
+    href: "/perfil",
+    label: "Perfil",
+    icon: ProfileIcon,
+    isActive: (pathname) => pathname.startsWith("/perfil"),
+  },
+];
+
 export default function BottomNavigation() {
   const pathname = usePathname();
   const { isChatActive } = useMobileChrome();
   const { hasUnreadMessages } = useAuth();
+  const { isOwnerMode } = useOwnerMode();
   const isKeyboardVisible = useKeyboardVisible();
+  const links = isOwnerMode ? OWNER_LINKS : MEMBER_LINKS;
 
   // Nunca debe competir con el compositor de un chat activo ni con el
   // teclado virtual abierto en cualquier formulario.
@@ -68,7 +111,7 @@ export default function BottomNavigation() {
       className="fixed inset-x-0 bottom-0 z-(--z-bottom-nav) border-t border-border bg-surface pb-(--safe-bottom) md:hidden"
     >
       <div className="mx-auto flex h-20 max-w-lg items-stretch px-2">
-        {LINKS.map((link) => (
+        {links.map((link) => (
           <BottomNavLink
             key={link.href}
             link={link}
@@ -88,7 +131,7 @@ function BottomNavLink({
   transitionTypes,
   showUnreadDot,
 }: {
-  link: (typeof LINKS)[number];
+  link: NavigationLink;
   active: boolean;
   transitionTypes?: string[];
   showUnreadDot: boolean;

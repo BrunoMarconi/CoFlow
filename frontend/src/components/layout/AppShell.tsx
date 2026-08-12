@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode, ViewTransition } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, useAnimationControls, useReducedMotion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
@@ -12,9 +12,11 @@ import SwipeNavigation from "@/components/layout/SwipeNavigation";
 import Toaster from "@/components/ui/Toast";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { useAuth } from "@/hooks/useAuth";
+import { useOwnerMode } from "@/hooks/useOwnerMode";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 import { NAV_TRANSITION } from "@/lib/navTransition";
+import OwnerModeTransition from "@/components/layout/OwnerModeTransition";
 import {
   MOTION_EASE,
   MOTION_EXPLORER_NAV_DISTANCE_DESKTOP,
@@ -45,9 +47,11 @@ function isExplorerRoute(pathname: string) {
 export default function AppShell({ children }: { children: ReactNode }) {
   const { isChatActive } = useMobileChrome();
   const { user, community } = useAuth();
+  const { transitionTarget, completeModeSwitch } = useOwnerMode();
   const prefersReducedMotion = useReducedMotion();
   const isDesktop = useMediaQuery("(min-width: 640px)");
   const pathname = usePathname();
+  const router = useRouter();
 
   // Personas <-> Comunidades y Personas/Comunidades <-> Tu Comunidad:
   // la prioridad es velocidad, no la animación. La navegación nunca
@@ -186,6 +190,16 @@ export default function AppShell({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
+  function handleModeTransitionComplete() {
+    const nextMode = completeModeSwitch();
+
+    if (nextMode === "owner") {
+      router.push("/propietarios/pisos");
+    } else if (nextMode === "member") {
+      router.push("/perfil");
+    }
+  }
+
   return (
     <div className="min-h-dvh bg-background">
       <Navbar />
@@ -233,6 +247,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
       <BottomNavigation />
       <Toaster />
+      {transitionTarget && (
+        <OwnerModeTransition
+          target={transitionTarget}
+          onComplete={handleModeTransitionComplete}
+        />
+      )}
     </div>
   );
 }

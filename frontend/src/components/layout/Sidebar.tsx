@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { MOTION_HOME_TAP_SCALE } from "@/lib/motionTokens";
 import { useAuth } from "@/hooks/useAuth";
+import { useOwnerMode } from "@/hooks/useOwnerMode";
 import Avatar from "@/components/ui/Avatar";
 import Logo from "@/components/ui/Logo";
 import {
@@ -32,8 +33,9 @@ type NavLink = {
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, community, ownerProfile, logout } = useAuth();
+  const { isOwnerMode } = useOwnerMode();
 
-  const principalLinks: NavLink[] = [
+  const memberLinks: NavLink[] = [
     ...(community
       ? [{ href: "/mi-comunidad", label: "Tu comunidad", icon: HomeIcon }]
       : []),
@@ -60,18 +62,40 @@ export default function Sidebar() {
       : []),
   ];
 
+  const ownerLinks: NavLink[] = [
+    { href: "/propietarios", label: "Resumen", icon: HomeIcon },
+    { href: "/propietarios/pisos", label: "Mis pisos", icon: KeyIcon },
+    { href: "/propietarios/pisos/nuevo", label: "AÃ±adir piso", icon: PlusIcon },
+    { href: "/mensajes", label: "Mensajes", icon: MessageIcon },
+  ];
+
+  const principalLinks = isOwnerMode ? ownerLinks : memberLinks;
+
   const accountLinks: NavLink[] = [
     { href: "/perfil", label: "Mi perfil", icon: ProfileIcon },
-    {
-      href: ownerProfile ? "/propietarios" : "/propietarios/perfil",
-      label: "Publicar un piso",
-      icon: KeyIcon,
-    },
+    ...(isOwnerMode
+      ? [{ href: "/propietarios/perfil", label: "Perfil de propietario", icon: KeyIcon }]
+      : [
+          {
+            href: ownerProfile ? "/propietarios" : "/propietarios/perfil",
+            label: "Publicar un piso",
+            icon: KeyIcon,
+          },
+        ]),
     { href: "/ajustes", label: "Ajustes", icon: SettingsIcon },
   ];
 
   function isActive(href: string) {
     if (href === "/mi-comunidad") return pathname.startsWith("/mi-comunidad");
+
+    if (href === "/propietarios") return pathname === "/propietarios";
+
+    if (href === "/propietarios/pisos") {
+      return (
+        pathname.startsWith("/propietarios/pisos") &&
+        !pathname.startsWith("/propietarios/pisos/nuevo")
+      );
+    }
 
     if (href === "/usuarios") {
       return (
@@ -96,7 +120,7 @@ export default function Sidebar() {
       className="fixed left-0 top-(--mobile-header-height) z-(--z-sticky-header) hidden h-[calc(100dvh-var(--mobile-header-height))] w-66 shrink-0 flex-col overflow-y-auto border-r border-border bg-surface/90 px-3 py-6 backdrop-blur-xl md:flex"
     >
       <Link
-        href="/comunidades"
+        href={isOwnerMode ? "/propietarios/pisos" : "/comunidades"}
         className="mb-6 flex items-center gap-2.5 px-4"
         aria-label="CoFlow"
       >
@@ -108,14 +132,14 @@ export default function Sidebar() {
       </Link>
 
       <nav className="flex flex-1 flex-col gap-6">
-        <NavGroup label="Principal">
+        <NavGroup label={isOwnerMode ? "Propietario" : "Principal"}>
           {principalLinks.map((link) => (
             <SidebarLink
               key={link.href}
               link={link}
               active={isActive(link.href)}
               transitionTypes={getTabTransitionTypes(pathname, link.href)}
-              isHomeLink={link.href === "/mi-comunidad"}
+              isHomeLink={link.href === "/mi-comunidad" || link.href === "/propietarios"}
             />
           ))}
         </NavGroup>
@@ -146,7 +170,7 @@ export default function Sidebar() {
                 {user.first_name} {user.last_name}
               </p>
               <p className="truncate text-xs text-muted">
-                {user.email}
+                {isOwnerMode ? "Modo propietario" : user.email}
               </p>
             </div>
           </Link>

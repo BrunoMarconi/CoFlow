@@ -1,6 +1,7 @@
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import AppShell from "@/components/layout/AppShell";
 import MobileChromeProvider from "@/providers/MobileChromeProvider";
+import OwnerModeProvider from "@/providers/OwnerModeProvider";
 
 export default function AppLayout({
   children,
@@ -10,7 +11,9 @@ export default function AppLayout({
   return (
     <ProtectedRoute>
       <MobileChromeProvider>
-        <AppShell>{children}</AppShell>
+        <OwnerModeProvider>
+          <AppShell>{children}</AppShell>
+        </OwnerModeProvider>
       </MobileChromeProvider>
     </ProtectedRoute>
   );

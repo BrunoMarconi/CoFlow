@@ -11,6 +11,7 @@ import TrustSection from "@/components/perfil/TrustProfileCard";
 import YourProfileSection from "@/components/perfil/YourProfileSection";
 import RoommateSearchCard from "@/components/perfil/RoommateSearchCard";
 import DangerZoneSection from "@/components/perfil/DangerZoneSection";
+import OwnerModeToggle from "@/components/propietario/OwnerModeToggle";
 import Spinner from "@/components/ui/Spinner";
 import { getMyOnboarding } from "@/services/onboarding";
 import { getSavedProfiles } from "@/services/users";
@@ -265,6 +266,7 @@ export default function PerfilPage() {
       </section>
 
       <DangerZoneSection onLogout={logout} />
+      <OwnerModeToggle />
     </motion.div>
   );
 }
