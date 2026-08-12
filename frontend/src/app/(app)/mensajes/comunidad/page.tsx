@@ -8,6 +8,7 @@ import CommunityChat from "@/components/comunidad/CommunityChat";
 import { HomeIcon } from "@/components/layout/NavIcons";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { markConversationReadNow } from "@/lib/conversationReadState";
+import { markNotificationsForLinkRead } from "@/services/notifications";
 import { NAV_TRANSITION } from "@/lib/navTransition";
 
 export default function MensajesComunidadPage() {
@@ -21,6 +22,7 @@ export default function MensajesComunidadPage() {
 
   useEffect(() => {
     markConversationReadNow("community");
+    void markNotificationsForLinkRead("/mensajes/comunidad").catch(() => {});
   }, []);
 
   if (communityLoading) {

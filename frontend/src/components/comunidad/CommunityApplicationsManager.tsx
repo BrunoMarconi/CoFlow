@@ -104,7 +104,7 @@ export default function CommunityApplicationsManager({
   }
 
   return (
-    <section className="rounded-18 border border-border bg-surface p-5 shadow-soft sm:p-6">
+    <section className="rounded-24 border border-border bg-surface p-4 shadow-soft sm:p-6">
       <div className="flex items-center gap-2">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
           Solicitudes
@@ -136,7 +136,7 @@ export default function CommunityApplicationsManager({
             {loadError}
           </p>
         ) : applications.length === 0 ? (
-          <p className="rounded-18 border border-dashed border-border bg-surface-muted p-6 text-center text-sm text-muted">
+          <p className="rounded-18 border border-border bg-surface p-6 text-center text-sm text-muted">
             Todavía no habéis recibido solicitudes.
           </p>
         ) : (
@@ -206,7 +206,7 @@ function ApplicationRow({
       : "Presupuesto no indicado";
 
   return (
-    <div className="rounded-18 border border-border bg-surface-muted p-4">
+    <div className="rounded-18 border border-border bg-surface p-4 shadow-soft">
       <div className="flex items-start gap-3">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-18 bg-surface text-sm font-bold text-primary-dark shadow-soft">
           {initials || "CF"}
@@ -224,8 +224,8 @@ function ApplicationRow({
             <span
               className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
                 application.status === "PENDING"
-                  ? "bg-mint-100 text-primary-dark"
-                  : "bg-surface text-muted"
+                  ? "border border-primary/25 bg-surface text-primary-dark"
+                  : "border border-border bg-surface text-muted"
               }`}
             >
               {STATUS_LABELS[application.status] ?? application.status}
@@ -245,7 +245,7 @@ function ApplicationRow({
               ).map((key) => (
                 <span
                   key={key}
-                  className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-bold text-muted"
+                  className="rounded-full border border-border bg-surface px-2.5 py-1 text-[10px] font-bold text-muted shadow-soft"
                 >
                   {PREFERENCE_LABELS[key]}:{" "}
                   {application.applicant.preferences?.[key]}

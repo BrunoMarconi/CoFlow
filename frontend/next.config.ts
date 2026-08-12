@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 
 // Dominio público del bucket de Cloudflare R2 (imágenes de usuario:
 // avatares, fotos de perfil, fotos de piso). Puede ser el subdominio
@@ -8,6 +9,9 @@ import type { NextConfig } from "next";
 const r2CustomHostname = process.env.NEXT_PUBLIC_R2_PUBLIC_HOSTNAME;
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   experimental: {
     // Transición nativa (View Transitions API) al entrar/salir de un
     // chat en móvil — ver globals.css (.nav-forward/.nav-back) y

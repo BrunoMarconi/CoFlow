@@ -180,14 +180,14 @@ export default function PerfilPage() {
       <section className="grid grid-cols-2 gap-3 sm:gap-4">
         <IllustratedCard
           href={communityHref}
-          image="/images/profile-community-3d.png"
+          image="/images/profile-community-3d.webp"
           imageAlt="Salón compartido"
           title="Mi comunidad"
           subtitle={community?.name ?? "Encuentra tu comunidad"}
         />
         <IllustratedCard
           href="/conexiones"
-          image="/images/profile-connections-3d.png"
+          image="/images/profile-connections-3d.webp"
           imageAlt="Burbujas de conversación"
           title="Conexiones"
           subtitle={`${connectionsCount} conexiones${pendingReceivedCount > 0 ? ` · ${pendingReceivedCount} pendientes` : ""}`}
@@ -200,7 +200,7 @@ export default function PerfilPage() {
       >
         <div className="relative h-full min-h-32">
           <Image
-            src="/images/profile-owner-house-3d.png"
+            src="/images/profile-owner-house-3d.webp"
             alt="Casa ilustrada"
             fill
             sizes="(max-width: 640px) 42vw, 300px"

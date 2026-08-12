@@ -5,13 +5,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  getNotifications,
   markAllNotificationsRead,
   markNotificationRead,
 } from "@/services/notifications";
-import Spinner from "@/components/ui/Spinner";
+import SkeletonCard from "@/components/ui/SkeletonCard";
 import { cn } from "@/lib/utils";
 import type { AppNotification, NotificationType } from "@/types/notification";
+import EmptyContentState from "@/components/ui/EmptyState";
+import ErrorState from "@/components/ui/ErrorState";
 
 type Category = "ALL" | "INVITATIONS" | "MESSAGES" | "ACTIVITY" | "INFO";
 
@@ -25,18 +26,26 @@ const categories: Array<{ value: Category; label: string; icon: ReactNode }> = [
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const { refreshUnreadCount } = useAuth();
-  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const { notifications, refreshUnreadCount } = useAuth();
   const [category, setCategory] = useState<Category>("ALL");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  async function loadNotifications(showLoading = false) {
+    if (showLoading) setLoading(true);
+    setError("");
+    try {
+      await refreshUnreadCount();
+    } catch {
+      setError("No pudimos cargar tus notificaciones.");
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  }
+
   useEffect(() => {
-    getNotifications({ limit: 100 })
-      .then(setNotifications)
-      .catch(() => setError("No pudimos cargar tus notificaciones."))
-      .finally(() => setLoading(false));
-  }, []);
+    void refreshUnreadCount().finally(() => setLoading(false));
+  }, [refreshUnreadCount]);
 
   const filtered = useMemo(
     () => notifications.filter((item) => category === "ALL" || getCategory(item.type) === category),
@@ -50,7 +59,6 @@ export default function NotificationsPage() {
     if (!notification.is_read) {
       try {
         await markNotificationRead(notification.id);
-        setNotifications((current) => current.map((item) => item.id === notification.id ? { ...item, is_read: true } : item));
         await refreshUnreadCount();
       } catch {
         // La navegación sigue disponible aunque falle el marcado.
@@ -62,7 +70,6 @@ export default function NotificationsPage() {
   async function markAllRead() {
     try {
       await markAllNotificationsRead();
-      setNotifications((current) => current.map((item) => ({ ...item, is_read: true })));
       await refreshUnreadCount();
     } catch {
       setError("No pudimos marcar las notificaciones como leídas.");
@@ -104,9 +111,9 @@ export default function NotificationsPage() {
       {totalUnread > 0 && <button type="button" onClick={markAllRead} className="mt-4 text-sm font-bold text-primary sm:hidden">Marcar todas como leídas</button>}
 
       {loading ? (
-        <div className="flex min-h-72 items-center justify-center"><Spinner /></div>
+        <div className="mt-6 grid gap-3 md:grid-cols-2"><SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
       ) : error ? (
-        <p className="mt-8 rounded-18 border border-red-100 bg-red-50 p-4 text-sm font-semibold text-red-700">{error}</p>
+        <ErrorState className="mt-8" title="No se pudieron cargar" description={error} onRetry={() => void loadNotifications(true)} />
       ) : filtered.length === 0 ? (
         <EmptyState />
       ) : (
@@ -147,7 +154,7 @@ function NotificationGroup({ title, notifications, onOpen, prominent = false }: 
 }
 
 function EmptyState() {
-  return <div className="mt-10 rounded-24 border border-dashed border-border p-10 text-center"><span className="mx-auto flex h-14 w-14 items-center justify-center text-primary"><BellIcon /></span><p className="mt-4 text-base font-bold text-brand-dark">Todo al día</p><p className="mt-1 text-sm text-muted">No tienes notificaciones en esta categoría.</p></div>;
+  return <EmptyContentState className="mt-10" variant="notifications" title="Todo al día" description="No tienes notificaciones pendientes en esta categoría." />;
 }
 
 function getCategory(type: NotificationType): Exclude<Category, "ALL"> {

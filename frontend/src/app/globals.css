@@ -221,6 +221,18 @@ summary::-webkit-details-marker {
   animation: fade-in-up 0.5s ease-out both;
 }
 
+@keyframes skeleton-shimmer {
+  0% { opacity: 0.62; }
+  50% { opacity: 1; }
+  100% { opacity: 0.62; }
+}
+
+.skeleton-shimmer {
+  animation: skeleton-shimmer 1.45s ease-in-out infinite;
+  content-visibility: auto;
+  contain-intrinsic-size: 320px;
+}
+
 /* Fondo del hilo de chat: textura de puntos muy sutil sobre un verde
    casi imperceptible, para separar visualmente las burbujas del fondo
    (referencia: wallpaper de chat tipo WhatsApp, sin imagen real). */

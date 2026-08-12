@@ -125,9 +125,21 @@ export default function AppShell({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Cualquier otra navegación: contenido visible al instante, sin
-    // animación de ningún tipo.
-    contentControls.set({ x: 0, opacity: 1, rotateY: 0 });
+    // El resto de pantallas comparte una entrada mínima y consistente.
+    // No hay animación de salida ni espera antes de navegar.
+    if (prefersReducedMotion) {
+      contentControls.set({ x: 0, y: 0, opacity: 0, rotateY: 0 });
+      contentControls.start(
+        { opacity: 1 },
+        { duration: 0.08, ease: MOTION_EASE.out }
+      );
+    } else {
+      contentControls.set({ x: 0, y: 7, opacity: 0, rotateY: 0 });
+      contentControls.start(
+        { x: 0, y: 0, opacity: 1, rotateY: 0 },
+        { duration: 0.22, ease: MOTION_EASE.out }
+      );
+    }
 
     function enterFrom(
       side: "left" | "right",
@@ -141,7 +153,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       }
     ) {
       if (prefersReducedMotion) {
-        contentControls.set({ opacity: 0, x: 0, rotateY: 0 });
+        contentControls.set({ opacity: 0, x: 0, y: 0, rotateY: 0 });
         contentControls.start(
           { opacity: 1 },
           { duration: tokens.reducedDuration, ease: MOTION_EASE.out }
@@ -162,9 +174,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
           : -tokens.tiltDeg
         : 0;
 
-      contentControls.set({ x: fromX, opacity: 0, rotateY: fromTilt });
+      contentControls.set({ x: fromX, y: 0, opacity: 0, rotateY: fromTilt });
       contentControls.start(
-        { x: 0, opacity: 1, rotateY: 0 },
+        { x: 0, y: 0, opacity: 1, rotateY: 0 },
         { duration, ease: MOTION_EASE.out }
       );
     }

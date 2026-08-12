@@ -16,17 +16,17 @@ export default function SkeletonCard({
   return (
     <div
       className={cn(
-        "animate-pulse overflow-hidden rounded-18 border border-border bg-surface shadow-soft",
+        "skeleton-shimmer overflow-hidden rounded-18 border border-border bg-surface shadow-soft",
         className
       )}
     >
-      {withCover && <div className={cn("bg-surface-muted", coverClassName)} />}
+      {withCover && <div className={cn("bg-[#eef0f2]", coverClassName)} />}
 
       <div className="space-y-3 p-5 sm:p-6">
-        <div className="h-3 w-1/3 rounded-full bg-surface-muted" />
-        <div className="h-5 w-2/3 rounded-full bg-surface-muted" />
-        <div className="h-3 w-full rounded-full bg-surface-muted" />
-        <div className="h-3 w-4/5 rounded-full bg-surface-muted" />
+        <div className="h-3 w-1/3 rounded-full bg-[#e7eaed]" />
+        <div className="h-5 w-2/3 rounded-full bg-[#e7eaed]" />
+        <div className="h-3 w-full rounded-full bg-[#e7eaed]" />
+        <div className="h-3 w-4/5 rounded-full bg-[#e7eaed]" />
       </div>
     </div>
   );

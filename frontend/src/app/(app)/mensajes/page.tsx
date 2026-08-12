@@ -38,6 +38,7 @@ import {
   getPrivateMessages,
 } from "@/services/connections";
 import { getCommunityMessages } from "@/services/communities";
+import { markNotificationsForLinkRead } from "@/services/notifications";
 import type { UserConnection } from "@/types/connection";
 import type { PrivateMessage } from "@/types/privateMessage";
 import type { CommunityMessage } from "@/types/community";
@@ -159,8 +160,10 @@ export default function MensajesPage() {
   useEffect(() => {
     if (communitySelected && community) {
       markConversationReadNow("community");
+      void markNotificationsForLinkRead("/mensajes/comunidad").catch(() => {});
     } else if (effectiveSelectedId !== null) {
       markConversationReadNow(`connection:${effectiveSelectedId}`);
+      void markNotificationsForLinkRead(`/mensajes/${effectiveSelectedId}`).catch(() => {});
     }
   }, [communitySelected, community, effectiveSelectedId]);
 
@@ -301,6 +304,7 @@ export default function MensajesPage() {
         {isEmpty ? (
           <div className="p-6">
             <EmptyState
+              variant="messages"
               title={
                 tab === "unread"
                   ? "No tienes conversaciones sin leer"
@@ -429,6 +433,7 @@ export default function MensajesPage() {
           {isEmpty ? (
             <div className="p-6">
               <EmptyState
+                variant="messages"
                 title={
                   tab === "unread"
                     ? "No tienes conversaciones sin leer"

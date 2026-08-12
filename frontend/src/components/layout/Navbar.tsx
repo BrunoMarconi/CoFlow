@@ -28,9 +28,7 @@ export default function Navbar() {
 
         {user && (
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="rounded-full bg-surface/90 shadow-soft backdrop-blur-xl">
-              <NotificationBell />
-            </div>
+            <NotificationBell />
 
             <Link
               href="/perfil"

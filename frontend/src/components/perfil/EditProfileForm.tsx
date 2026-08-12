@@ -93,9 +93,9 @@ export default function EditProfileForm({ user, onSubmit }: EditProfileFormProps
       </ProfileGroup>
 
       <ProfileGroup title="Convivencia">
-        <NavigationRow href="/onboarding?edit=true" icon={<LeafIcon />} title="Hábitos y estilo de vida" subtitle="Limpieza, convivencia y normas" />
-        <NavigationRow href="/onboarding?edit=true" icon={<PetIcon />} title="Mascotas" subtitle="Preferencias sobre animales" />
-        <NavigationRow href="/onboarding?edit=true" icon={<ClockIcon />} title="Horarios" subtitle="Sueño, ruido y rutina" />
+        <NavigationRow href="/perfil/habitos" icon={<LeafIcon />} title="Hábitos y estilo de vida" subtitle="Limpieza, convivencia y normas" />
+        <NavigationRow href="/perfil/habitos" icon={<PetIcon />} title="Mascotas" subtitle="Preferencias sobre animales" />
+        <NavigationRow href="/perfil/habitos" icon={<ClockIcon />} title="Horarios" subtitle="Sueño, ruido y rutina" />
         <EditableBlock icon={<PeopleIcon />} title="Búsqueda de compañeros">
           <label className="flex items-center justify-between gap-4 rounded-14 bg-surface-soft px-4 py-3">
             <span className="text-sm font-semibold text-foreground">

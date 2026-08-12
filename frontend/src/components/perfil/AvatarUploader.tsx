@@ -13,25 +13,25 @@ const AVATAR_PRESETS = [
     id: "olivo",
     name: "Olivo",
     description: "Cálido y natural",
-    src: "/images/avatar-presets/avatar-olivo.png",
+    src: "/images/avatar-presets/avatar-olivo.webp",
   },
   {
     id: "terracota",
     name: "Terracota",
     description: "Creativa y alegre",
-    src: "/images/avatar-presets/avatar-terracota.png",
+    src: "/images/avatar-presets/avatar-terracota.webp",
   },
   {
     id: "marino",
     name: "Marino",
     description: "Sereno y moderno",
-    src: "/images/avatar-presets/avatar-marino.png",
+    src: "/images/avatar-presets/avatar-marino.webp",
   },
   {
     id: "cielo",
     name: "Cielo",
     description: "Suave y luminoso",
-    src: "/images/avatar-presets/avatar-cielo.png",
+    src: "/images/avatar-presets/avatar-cielo.webp",
   },
 ] as const;
 
@@ -107,8 +107,8 @@ export default function AvatarUploader({
       if (!response.ok) throw new Error("No se pudo cargar el avatar");
 
       const blob = await response.blob();
-      const file = new File([blob], `avatar-coflow-${preset.id}.png`, {
-        type: "image/png",
+      const file = new File([blob], `avatar-coflow-${preset.id}.webp`, {
+        type: "image/webp",
       });
 
       await uploadAvatar(file);

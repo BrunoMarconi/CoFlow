@@ -11,13 +11,8 @@ import {
 } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import {
-  getNotifications,
-  markAllNotificationsRead,
-  markNotificationRead,
-} from "@/services/notifications";
+import { markAllNotificationsRead, markNotificationRead } from "@/services/notifications";
 import type { AppNotification } from "@/types/notification";
-import Icon3D from "@/components/layout/Icon3D";
 import {
   MOTION_DURATION,
   MOTION_EASE,
@@ -49,13 +44,12 @@ const listItem = {
 
 export default function NotificationBell() {
   const router = useRouter();
-  const { unreadCount, refreshUnreadCount } = useAuth();
+  const { unreadCount, notifications, refreshUnreadCount } = useAuth();
   const prefersReducedMotion = useReducedMotion();
   const isDesktop = useMediaQuery("(min-width: 640px)");
 
   const [open, setOpen] = useState(false);
-  const [notifications, setNotifications] = useState<AppNotification[]>([]);
-  const [loading, setLoading] = useState(false);
+  const loading = false;
   const [error, setError] = useState("");
   // document solo existe en cliente — el portal se crea una vez
   // montado para no reventar el render en servidor.
@@ -103,32 +97,8 @@ export default function NotificationBell() {
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
-
-    let active = true;
-
-    function fetchNotifications() {
-      setLoading(true);
-      setError("");
-
-      getNotifications({ limit: 20 })
-        .then((data) => {
-          if (active) setNotifications(data);
-        })
-        .catch(() => {
-          if (active) setError("No pudimos cargar tus notificaciones.");
-        })
-        .finally(() => {
-          if (active) setLoading(false);
-        });
-    }
-
-    fetchNotifications();
-
-    return () => {
-      active = false;
-    };
-  }, [open]);
+    if (open) void refreshUnreadCount();
+  }, [open, refreshUnreadCount]);
 
   // Nueva notificación en tiempo real (refreshUnreadCount ya hace
   // polling en AuthProvider): si el contador sube, la campana hace un
@@ -175,9 +145,6 @@ export default function NotificationBell() {
   async function handleMarkAllRead() {
     try {
       await markAllNotificationsRead();
-      setNotifications((current) =>
-        current.map((item) => ({ ...item, is_read: true }))
-      );
       await refreshUnreadCount();
     } catch {
       setError("No pudimos marcar las notificaciones como leídas.");
@@ -338,7 +305,7 @@ export default function NotificationBell() {
               layoutId={open ? "notification-bell-icon" : undefined}
               transition={{ layout: MOTION_SPRING.gentle }}
             >
-              <Icon3D src="/icons/3d/bell.png" active size={20} />
+              <CoFlowBellIcon className="h-5 w-5 text-primary-dark" />
             </motion.div>
 
             <p className="text-sm font-bold text-brand-dark">
@@ -383,7 +350,7 @@ export default function NotificationBell() {
           animate={bellControls}
           transition={{ layout: MOTION_SPRING.gentle }}
         >
-          <Icon3D src="/icons/3d/bell.png" active size={28} />
+          <CoFlowBellIcon className="h-6 w-6 text-brand-dark" />
         </motion.div>
 
         <AnimatePresence>
@@ -431,4 +398,24 @@ function formatNotificationDate(value: string) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
+}
+
+function CoFlowBellIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.65"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M7.2 10.1c0-3 1.8-5.2 4.8-5.2s4.8 2.2 4.8 5.2c0 3.5 1.2 5.1 2 6H5.2c.8-.9 2-2.5 2-6Z" />
+      <path d="M10 19h4" />
+      <path d="M12 3.1v1.8" />
+      <path d="M18.2 5.3 17 6.5M5.8 5.3 7 6.5" opacity=".65" />
+    </svg>
+  );
 }

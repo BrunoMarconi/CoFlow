@@ -327,7 +327,7 @@ export default function CreateCommunityWizard({
 
           <div className="relative mx-auto mt-1 aspect-[16/7] w-full max-w-xl sm:mt-5 sm:aspect-[16/8]">
             <Image
-              src="/images/create-community-living-room.png"
+              src="/images/create-community-living-room.webp"
               alt="Un salón acogedor con sofá verde, plantas y una mesa compartida"
               fill
               priority
@@ -887,7 +887,7 @@ export default function CreateCommunityWizard({
             <div className="overflow-hidden rounded-24 border border-border bg-surface shadow-[0_12px_35px_rgba(26,55,43,0.08)]">
               <div className="relative h-32 overflow-hidden bg-mint-50 sm:h-40">
                 <Image
-                  src="/images/create-community-living-room.png"
+                  src="/images/create-community-living-room.webp"
                   alt="Ilustración de un espacio de convivencia compartido"
                   fill
                   sizes="(max-width: 640px) 100vw, 672px"

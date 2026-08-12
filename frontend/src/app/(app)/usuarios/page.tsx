@@ -203,6 +203,7 @@ export default function UsuariosPage() {
             </div>
           ) : resultCount === 0 ? (
             <EmptyState
+              variant="search"
               title="No encontramos personas con esos filtros"
               description="Prueba a cambiar la ciudad, el presupuesto o la situación de convivencia."
               action={

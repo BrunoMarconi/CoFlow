@@ -22,7 +22,7 @@ export default function VerificacionPendientePage() {
   useEffect(() => {
     if (!loading && (user?.is_email_verified || !user?.email_verification_enabled)) {
       router.replace(
-        consumePostVerificationOwnerIntent() ? "/propietarios/perfil" : "/"
+        consumePostVerificationOwnerIntent() ? "/propietarios/perfil" : "/onboarding"
       );
     }
   }, [loading, user, router]);

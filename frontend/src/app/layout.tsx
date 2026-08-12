@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import AuthProvider from "@/providers/AuthProvider";
 import QueryProvider from "@/providers/QueryProvider";
 import RouteProgressBar from "@/components/layout/RouteProgressBar";
+import NavigationEffects from "@/components/layout/NavigationEffects";
 
 import "./globals.css";
 
@@ -102,6 +103,7 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>
             <RouteProgressBar />
+            <NavigationEffects />
             {children}
           </AuthProvider>
         </QueryProvider>

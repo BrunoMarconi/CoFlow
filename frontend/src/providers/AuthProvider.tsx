@@ -4,13 +4,15 @@ import { createContext, useCallback, useEffect, useRef, useState, type ReactNode
 import { me as fetchMe } from "@/services/auth";
 import { getMyCommunity } from "@/services/communities";
 import { getMyOwnerProfile } from "@/services/owners";
-import { getUnreadNotificationCount } from "@/services/notifications";
+import { getNotifications } from "@/services/notifications";
 import { getToken, clearToken } from "@/lib/auth";
 import type { User } from "@/types/auth";
 import type { Community } from "@/types/community";
 import type { OwnerProfile } from "@/types/owner";
+import type { AppNotification } from "@/types/notification";
 
-const UNREAD_POLL_INTERVAL_MS = 30000;
+const UNREAD_POLL_INTERVAL_MS = 8000;
+const NOTIFICATIONS_CHANGED_EVENT = "coflow:notifications-changed";
 
 function devLog(...args: unknown[]) {
   if (process.env.NODE_ENV === "development") {
@@ -26,6 +28,8 @@ interface AuthContextValue {
   ownerProfile: OwnerProfile | null;
   ownerProfileLoading: boolean;
   unreadCount: number;
+  hasUnreadMessages: boolean;
+  notifications: AppNotification[];
   refresh: () => Promise<User | null>;
   refreshCommunity: () => Promise<Community | null>;
   refreshOwnerProfile: () => Promise<OwnerProfile | null>;
@@ -43,6 +47,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const [ownerProfile, setOwnerProfile] = useState<OwnerProfile | null>(null);
   const [ownerProfileLoading, setOwnerProfileLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const userRef = useRef<User | null>(null);
 
   // AuthProvider vive una sola vez para toda la sesión de navegación (no
@@ -63,8 +69,16 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const count = await getUnreadNotificationCount();
-      setUnreadCount(count);
+      const latest = await getNotifications({ limit: 100 });
+      setNotifications(latest);
+      setUnreadCount(latest.reduce((total, notification) => total + Number(!notification.is_read), 0));
+      setHasUnreadMessages(
+        latest.some(
+          (notification) =>
+            notification.type === "PRIVATE_MESSAGE_RECEIVED" &&
+            !notification.is_read
+        )
+      );
     } catch {
       // Silencioso: el contador se reintentará en el siguiente polling.
     }
@@ -170,6 +184,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let active = true;
 
+    // El proveedor arranca la única sincronización de sesión al montarse.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh().then((currentUser) => {
       if (!active) return;
 
@@ -218,11 +234,18 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
+    function handleForegroundRefresh() {
+      refreshUnreadCount();
+    }
+
     if (document.visibilityState === "visible") {
       startPolling();
     }
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleForegroundRefresh);
+    window.addEventListener("online", handleForegroundRefresh);
+    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, handleForegroundRefresh);
 
     return () => {
       stopPolling();
@@ -230,6 +253,9 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         "visibilitychange",
         handleVisibilityChange
       );
+      window.removeEventListener("focus", handleForegroundRefresh);
+      window.removeEventListener("online", handleForegroundRefresh);
+      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, handleForegroundRefresh);
     };
   }, [user, refreshUnreadCount]);
 
@@ -239,6 +265,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     setCommunity(null);
     setOwnerProfile(null);
     setUnreadCount(0);
+    setHasUnreadMessages(false);
+    setNotifications([]);
   }
 
   return (
@@ -251,6 +279,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         ownerProfile,
         ownerProfileLoading,
         unreadCount,
+        hasUnreadMessages,
+        notifications,
         refresh,
         refreshCommunity,
         refreshOwnerProfile,

@@ -27,6 +27,7 @@ export default function UserGrid({
   if (users.length === 0) {
     return (
       <EmptyState
+        variant="search"
         title="Todavía no hay personas para mostrar"
         description="A medida que se registren usuarios compatibles, los verás aquí."
       />

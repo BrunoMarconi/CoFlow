@@ -10,6 +10,7 @@ import PrivateChat from "@/components/mensajes/PrivateChat";
 import { getConnections } from "@/services/connections";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { markConversationReadNow } from "@/lib/conversationReadState";
+import { markNotificationsForLinkRead } from "@/services/notifications";
 import { NAV_TRANSITION } from "@/lib/navTransition";
 import type { UserConnection } from "@/types/connection";
 
@@ -35,6 +36,7 @@ export default function MensajesPage() {
   useEffect(() => {
     if (Number.isFinite(connectionId)) {
       markConversationReadNow(`connection:${connectionId}`);
+      void markNotificationsForLinkRead(`/mensajes/${connectionId}`).catch(() => {});
     }
   }, [connectionId]);
 

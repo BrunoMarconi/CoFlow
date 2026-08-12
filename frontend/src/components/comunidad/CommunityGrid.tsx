@@ -32,6 +32,7 @@ export default function CommunityGrid({
   if (communities.length === 0) {
     return (
       <EmptyState
+        variant="community"
         title="Todavía no hay comunidades"
         description="Sé la primera persona en crear una comunidad en esta zona."
       />

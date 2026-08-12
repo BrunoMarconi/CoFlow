@@ -1,29 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { useKeyboardVisible } from "@/hooks/useKeyboardVisible";
-import { getNotifications } from "@/services/notifications";
+import { useAuth } from "@/hooks/useAuth";
 import { getTabTransitionTypes } from "@/lib/navTransition";
 import {
   CompassIcon,
   UsersIcon,
   MessageIcon,
   ProfileIcon,
-  MoreIcon,
   type IconProps,
 } from "@/components/layout/NavIcons";
-
-const SECONDARY_PREFIXES = [
-  "/mas",
-  "/personas/guardadas",
-  "/crear/comunidad",
-  "/propietarios",
-  "/ajustes",
-];
 
 const LINKS: {
   href: string;
@@ -60,43 +50,13 @@ const LINKS: {
     isActive: (pathname) =>
       pathname.startsWith("/perfil") || pathname.startsWith("/notificaciones") || pathname.startsWith("/invitaciones") || pathname.startsWith("/ayuda"),
   },
-  {
-    href: "/mas",
-    label: "Más",
-    icon: MoreIcon,
-    isActive: (pathname) =>
-      SECONDARY_PREFIXES.some((prefix) => pathname.startsWith(prefix)),
-  },
 ];
 
 export default function BottomNavigation() {
   const pathname = usePathname();
   const { isChatActive } = useMobileChrome();
+  const { hasUnreadMessages } = useAuth();
   const isKeyboardVisible = useKeyboardVisible();
-
-  const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-
-    getNotifications({ limit: 20 })
-      .then((data) => {
-        if (!active) return;
-
-        setHasUnreadMessages(
-          data.some(
-            (item) => item.type === "PRIVATE_MESSAGE_RECEIVED" && !item.is_read
-          )
-        );
-      })
-      .catch(() => {
-        // Sin indicador si falla; no mostramos un dato inventado.
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
 
   // Nunca debe competir con el compositor de un chat activo ni con el
   // teclado virtual abierto en cualquier formulario.
@@ -107,7 +67,7 @@ export default function BottomNavigation() {
       aria-label="Navegación principal"
       className="fixed inset-x-0 bottom-0 z-(--z-bottom-nav) border-t border-border bg-surface pb-(--safe-bottom) md:hidden"
     >
-      <div className="mx-auto flex h-20 max-w-md items-stretch">
+      <div className="mx-auto flex h-20 max-w-lg items-stretch px-2">
         {LINKS.map((link) => (
           <BottomNavLink
             key={link.href}
@@ -140,7 +100,7 @@ function BottomNavLink({
       href={link.href}
       aria-current={active ? "page" : undefined}
       transitionTypes={transitionTypes}
-      className="relative flex flex-1 flex-col items-center justify-center gap-1 px-1 transition active:scale-95 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
+      className="relative flex flex-1 flex-col items-center justify-center gap-1 px-2 transition active:scale-95 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
     >
       <span className="relative">
         <Icon

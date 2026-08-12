@@ -31,7 +31,7 @@ export default function ErrorState({
         className
       )}
     >
-      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500 [&>svg]:h-6 [&>svg]:w-6">
+      <div className="mb-4 flex h-20 w-24 items-center justify-center text-red-500 [&>svg]:h-14 [&>svg]:w-14">
         {icon ?? <AlertIcon />}
       </div>
 
@@ -55,17 +55,19 @@ export default function ErrorState({
 function AlertIcon() {
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="0 0 64 64"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.8"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d="M12 9v4" />
-      <path d="M12 17h.01" />
-      <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+      <path d="M9 42c0-12 10-22 23-22s23 10 23 22" />
+      <path d="M18 34c4-4 8-6 14-6s11 2 15 6M25 41c2-2 4-3 7-3s6 1 8 3" />
+      <circle cx="32" cy="48" r="2" fill="currentColor" stroke="none" />
+      <circle cx="50" cy="18" r="9" fill="white" />
+      <path d="M50 14v5M50 23h.1" />
     </svg>
   );
 }

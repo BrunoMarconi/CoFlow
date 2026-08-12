@@ -20,10 +20,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_CLASSES: Record<string, string> = {
-  PENDING: "bg-mint-100 text-primary-dark",
-  ACCEPTED: "bg-mint-100 text-primary-dark",
-  DECLINED: "bg-surface-soft text-muted",
-  CANCELLED: "bg-surface-soft text-muted",
+  PENDING: "border border-primary/25 bg-surface text-primary-dark",
+  ACCEPTED: "border border-primary/25 bg-surface text-primary-dark",
+  DECLINED: "border border-border bg-surface text-muted",
+  CANCELLED: "border border-border bg-surface text-muted",
   EXPIRED: "bg-amber-100 text-amber-700",
 };
 
@@ -174,7 +174,7 @@ export default function CommunityInvitationsManager({
           invitations.map((invitation) => (
             <div
               key={invitation.id}
-              className="rounded-14 border border-line bg-surface-soft p-3"
+              className="rounded-18 border border-border bg-surface p-4 shadow-soft"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span

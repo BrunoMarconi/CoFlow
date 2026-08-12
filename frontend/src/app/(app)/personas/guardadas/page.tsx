@@ -82,6 +82,7 @@ export default function PersonasGuardadasPage() {
               </p>
             ) : profiles.length === 0 ? (
               <EmptyState
+                variant="saved"
                 title="Todavía no tienes perfiles guardados"
                 description="Pulsa el corazón de una persona para poder revisarla más tarde."
                 action={<Link href="/usuarios" className="flex h-11 items-center rounded-14 bg-primary px-5 text-sm font-bold text-white shadow-button">Explorar personas</Link>}
@@ -99,6 +100,7 @@ export default function PersonasGuardadasPage() {
             )
           ) : (
             <EmptyState
+              variant="community"
               title="Guardar comunidades llegará pronto"
               description="Actualmente CoFlow permite guardar perfiles de personas. El guardado de comunidades todavía no está disponible."
               icon={<CommunityIcon />}
