@@ -1,7 +1,8 @@
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
+from app.schemas.storage_media import StorageBackedAvatarResponse
 from app.schemas.user_photo import UserPhotoResponse
 
 
@@ -20,9 +21,7 @@ class UpdateProfileRequest(BaseModel):
     bio: str | None = Field(default=None, max_length=160)
 
 
-class UserResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class UserResponse(StorageBackedAvatarResponse):
     id: UUID
     first_name: str
     last_name: str
@@ -33,7 +32,6 @@ class UserResponse(BaseModel):
     rental_budget: int | None = None
     is_looking_for_roommates: bool
     is_email_verified: bool
-    avatar_url: str | None = None
     photos: list[UserPhotoResponse] = Field(default_factory=list)
     age: int | None = None
     occupation: str | None = None

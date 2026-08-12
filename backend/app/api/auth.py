@@ -108,16 +108,18 @@ def me(
 ):
     return _to_user_response(current_user)
 
-@router.put("/me")
+@router.put("/me", response_model=UserResponse)
 def update_profile(
     data: UpdateProfileRequest,
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    return auth_service.update_profile(
-        current_user,
-        data,
-        db
+    return _to_user_response(
+        auth_service.update_profile(
+            current_user,
+            data,
+            db,
+        )
     )
 
 

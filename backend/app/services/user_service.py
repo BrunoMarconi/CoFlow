@@ -141,7 +141,7 @@ class UserService:
             connection_id=connection_id,
             is_owner=user.owner_profile is not None,
             is_looking_for_roommates=user.is_looking_for_roommates,
-            avatar_url=user.avatar_url,
+            avatar_storage_key=user.avatar_storage_key,
             photos=[
                 UserPhotoResponse.model_validate(photo)
                 for photo in user.photos

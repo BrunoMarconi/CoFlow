@@ -1,15 +1,14 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
+
+from app.schemas.storage_media import StorageBackedImageResponse
 
 
-class UserPhotoResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class UserPhotoResponse(StorageBackedImageResponse):
     id: int
     user_id: UUID
-    image_url: str
     position: int
     created_at: datetime
 

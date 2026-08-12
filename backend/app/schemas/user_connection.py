@@ -4,15 +4,13 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.database.models.user_connection import UserConnectionStatus
+from app.schemas.storage_media import StorageBackedAvatarResponse
 
 
-class UserConnectionParticipantResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class UserConnectionParticipantResponse(StorageBackedAvatarResponse):
     id: UUID
     first_name: str
     last_name: str
-    avatar_url: str | None = None
 
 
 class UserConnectionResponse(BaseModel):

@@ -83,7 +83,11 @@ Repite `alembic upgrade head` manualmente cada vez que añadas una migración nu
    | `CORS_ALLOWED_ORIGINS` | (opcional, vacío por ahora) |
    | `BACKEND_PUBLIC_URL` | La URL que Render te asigne al servicio, ej. `https://coflow-api.onrender.com` (la sabrás tras el primer deploy; actualízala después si hace falta) |
    | `PROPERTY_MARKETPLACE_ENABLED` | `false` |
-   | `ALLOW_LOCAL_MEDIA_IN_PRODUCTION` | `true` — **solo para este despliegue de pruebas temporal** (ver advertencia de la sección 8) |
+   | `R2_ACCOUNT_ID` | Account ID de Cloudflare R2 |
+   | `R2_ACCESS_KEY_ID` | Access Key ID del token de R2 |
+   | `R2_SECRET_ACCESS_KEY` | Secret Access Key del token de R2 |
+   | `R2_BUCKET_NAME` | Nombre del bucket persistente de CoFlow |
+   | `R2_PUBLIC_BASE_URL` | Dominio público del bucket, sin barra final |
    | `TRUELAYER_CLIENT_ID` | El Client ID de tu app en [console.truelayer.com](https://console.truelayer.com) |
    | `TRUELAYER_CLIENT_SECRET` | El Client Secret de esa misma app |
    | `TRUELAYER_REDIRECT_URI` | La URL de callback del frontend, ej. `https://co-flow-eight.vercel.app/pasaporte/callback` — debe coincidir EXACTAMENTE con la configurada en la consola de TrueLayer |
@@ -142,15 +146,31 @@ Una vez tengas la URL final de Vercel:
 2. **`/docs`**: abre `https://<tu-backend>.onrender.com/docs` → debe cargar la UI de Swagger (no requiere autenticación, y no expone datos, solo el esquema de la API).
 3. **Login real desde Vercel**: abre tu URL de Vercel, crea una cuenta o inicia sesión. Si falla con un error de red/CORS en la consola del navegador, revisa que `FRONTEND_URL` en Render coincida EXACTAMENTE (protocolo + dominio, sin barra final) con la URL de Vercel, y que `NEXT_PUBLIC_API_URL` en Vercel apunte a la URL correcta de Render.
 
-## 7. Advertencia — imágenes de propiedades no son persistentes en este despliegue
+## 7. Imágenes persistentes (obligatorio)
 
-`ALLOW_LOCAL_MEDIA_IN_PRODUCTION=true` permite subir fotos de pisos usando el disco local del contenedor de Render (`backend/media/`). Esto es **solo para pruebas**:
+En producción CoFlow usa Cloudflare R2 para avatares, fotos de perfil,
+portadas de comunidad e imágenes de viviendas. Las cinco variables `R2_*`
+de la tabla anterior deben existir antes de arrancar el backend.
 
-- Render usa disco efímero: **cada redeploy, reinicio o escalado del servicio borra todo lo que haya en `backend/media/`**.
-- Si Render llega a ejecutar más de una instancia, cada una tiene su propio disco — una imagen subida a una instancia no se verá desde otra.
-- No hay backups ni replicación de este almacenamiento.
+El disco `backend/media/` queda reservado al desarrollo local. El backend
+rechaza arrancar en producción si falta la configuración de R2, evitando
+que una foto parezca guardada y desaparezca después de un reinicio.
 
-Antes de un despliegue real, sustituir `LocalDiskStorage` (`backend/app/services/storage/local.py`) por una implementación real de `StorageBackend` (S3, Cloudinary, Supabase Storage...) y poner `ALLOW_LOCAL_MEDIA_IN_PRODUCTION=false` (o quitar la variable).
+Las imágenes que ya se hubieran perdido del antiguo disco temporal no se
+pueden reconstruir desde la base de datos: sus propietarios tendrán que
+subirlas una vez más después de activar R2.
+
+Si todavía conservas el directorio `backend/media/`, configura primero las
+variables `R2_*` en `backend/.env` y recupera las imágenes con:
+
+```bash
+cd backend
+python scripts/migrate_local_media_to_r2.py
+python scripts/migrate_local_media_to_r2.py --apply
+```
+
+La primera orden solo muestra el diagnóstico. La segunda conserva las claves
+actuales y copia los archivos a R2; no modifica la base de datos.
 
 ## 8. Rollback básico
 

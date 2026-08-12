@@ -123,6 +123,14 @@ def test_generate_public_url_falls_back_to_backend_public_url(monkeypatch):
     assert "127.0.0.1" in url or "localhost" in url or url.startswith("http")
 
 
+def test_production_requires_persistent_storage(monkeypatch):
+    monkeypatch.setattr(storage_service, "ENVIRONMENT", "production")
+    monkeypatch.setattr(storage_service, "r2_is_configured", lambda: False)
+
+    with pytest.raises(RuntimeError, match="Persistent image storage"):
+        storage_service.ensure_persistent_storage_configured()
+
+
 # --- upload_file / delete_file: backend R2 (mockeado) ---------------------
 
 

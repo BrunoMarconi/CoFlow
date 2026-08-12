@@ -1,14 +1,13 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
+
+from app.schemas.storage_media import StorageBackedImageResponse
 
 
-class PropertyImageResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class PropertyImageResponse(StorageBackedImageResponse):
     id: int
     property_id: int
-    image_url: str
     position: int
     is_cover: bool
     created_at: datetime

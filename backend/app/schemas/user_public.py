@@ -2,6 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.storage_media import StorageBackedAvatarResponse
 from app.schemas.user_photo import UserPhotoResponse
 
 
@@ -37,7 +38,7 @@ class PublicUserPreferencesResponse(BaseModel):
     lifestyle: str
 
 
-class PublicUserProfileResponse(BaseModel):
+class PublicUserProfileResponse(StorageBackedAvatarResponse):
     """
     Perfil público de una persona. Solo incluye datos que
     cualquier persona autenticada puede ver: nunca email,
@@ -48,8 +49,6 @@ class PublicUserProfileResponse(BaseModel):
     el perfil (igual que is_member/current_user_role en
     CommunityResponse).
     """
-
-    model_config = ConfigDict(from_attributes=True)
 
     id: UUID
     first_name: str
@@ -62,7 +61,6 @@ class PublicUserProfileResponse(BaseModel):
     connection_id: int | None = None
     is_owner: bool = False
     is_looking_for_roommates: bool = True
-    avatar_url: str | None = None
     photos: list[UserPhotoResponse] = Field(default_factory=list)
     age: int | None = None
     occupation: str | None = None

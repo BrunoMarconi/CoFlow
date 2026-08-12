@@ -9,11 +9,8 @@ arrancar, para que los tests puedan simular ambos casos):
   R2_* están configuradas — persistente, el único válido en
   producción.
 - Disco local (app/services/storage/local.py) si no lo están — SOLO
-  para desarrollo. En producción sin R2 configurado, la subida se
-  bloquea con un 503 explícito en vez de guardar en el disco efímero
-  de Render, donde los archivos desaparecen en el siguiente
-  redeploy/reinicio (ese fue exactamente el incidente que motivó esta
-  migración).
+  para desarrollo. En producción sin R2 configurado la aplicación no
+  arranca, para que nunca confirme una subida destinada a desaparecer.
 
 Todas las imágenes se normalizan a WebP al subirlas (ver
 validate_image): esto además de reducir peso, obliga a que el
@@ -29,7 +26,7 @@ from uuid import uuid4
 from fastapi import HTTPException
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-from app.core.config import ALLOW_LOCAL_MEDIA_IN_PRODUCTION, BACKEND_PUBLIC_URL, ENVIRONMENT
+from app.core.config import BACKEND_PUBLIC_URL, ENVIRONMENT
 from app.services.storage.local import LocalDiskStorage
 from app.services.storage.r2 import R2Storage
 from app.services.storage.r2 import is_configured as r2_is_configured
@@ -110,15 +107,23 @@ def validate_image(content: bytes, max_size_bytes: int) -> ValidatedImage:
     )
 
 
+def ensure_persistent_storage_configured() -> None:
+    """Impide arrancar producción con un disco efímero para imágenes."""
+    if ENVIRONMENT == "production" and not r2_is_configured():
+        raise RuntimeError(
+            "Persistent image storage is not configured. Set all R2_* "
+            "environment variables before starting production."
+        )
+
+
 def _block_local_storage_in_production() -> None:
-    if ENVIRONMENT == "production" and not ALLOW_LOCAL_MEDIA_IN_PRODUCTION:
+    if ENVIRONMENT == "production":
         raise HTTPException(
             status_code=503,
             detail=(
                 "Image storage is not configured for production. Set the "
                 "R2_* environment variables (Cloudflare R2) so uploads "
-                "persist across deploys, instead of writing to Render's "
-                "ephemeral local disk."
+                "persist across deploys and server restarts."
             ),
         )
 

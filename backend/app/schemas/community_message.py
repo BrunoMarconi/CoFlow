@@ -3,14 +3,13 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.schemas.storage_media import StorageBackedAvatarResponse
 
-class CommunityMessageSenderResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
 
+class CommunityMessageSenderResponse(StorageBackedAvatarResponse):
     id: UUID
     first_name: str
     last_name: str
-    avatar_url: str | None = None
 
 
 class CommunityMessageCreate(BaseModel):

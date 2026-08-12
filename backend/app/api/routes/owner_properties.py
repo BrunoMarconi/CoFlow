@@ -16,6 +16,7 @@ from app.schemas.property_image import (
     PropertyImageOrderUpdate,
     PropertyImageResponse,
 )
+from app.services import storage_service
 from app.services.property_image_service import PropertyImageService
 from app.services.property_service import PropertyService
 
@@ -41,7 +42,11 @@ def _to_summary(property_obj: Property) -> PropertySummaryResponse:
         total_monthly_rent=property_obj.total_monthly_rent,
         bedrooms=property_obj.bedrooms,
         max_tenants=property_obj.max_tenants,
-        cover_image_url=cover.image_url if cover else None,
+        cover_image_url=(
+            storage_service.generate_public_url(cover.storage_key)
+            if cover
+            else None
+        ),
         updated_at=property_obj.updated_at,
     )
 

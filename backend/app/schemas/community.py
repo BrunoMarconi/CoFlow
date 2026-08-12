@@ -9,6 +9,10 @@ from app.database.models.community import (
     CommunityUrgency,
 )
 from app.database.models.community_member import CommunityMemberRole
+from app.schemas.storage_media import (
+    StorageBackedAvatarResponse,
+    StorageBackedCommunityCoverResponse,
+)
 
 # Paleta cerrada y elegante para la portada automática (fondo de color
 # + avatares de los miembros encima, ver frontend CommunityCover.tsx).
@@ -91,13 +95,10 @@ class CommunityPreferencesResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-class CommunityMemberUserResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class CommunityMemberUserResponse(StorageBackedAvatarResponse):
     id: UUID
     first_name: str
     last_name: str
-    avatar_url: str | None = None
     age: int | None = None
     is_email_verified: bool = False
 
@@ -223,9 +224,7 @@ class CommunityUpdate(BaseModel):
     cover_color: CommunityCoverColor | None = None
 
 
-class CommunityResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class CommunityResponse(StorageBackedCommunityCoverResponse):
     id: int
     name: str
     description: str
@@ -247,8 +246,6 @@ class CommunityResponse(BaseModel):
     room_description: str | None = None
 
     cover_color: str
-    cover_image_url: str | None = None
-
     owner_id: UUID
     is_active: bool
     created_at: datetime

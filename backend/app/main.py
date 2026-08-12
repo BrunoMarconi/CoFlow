@@ -21,7 +21,10 @@ from app.api.routes import (
     users,
 )
 from app.core.config import CORS_ALLOWED_ORIGINS, FRONTEND_URL
+from app.services import storage_service
 from fastapi.middleware.cors import CORSMiddleware
+
+storage_service.ensure_persistent_storage_configured()
 
 app = FastAPI(
     title="CoFlow API",
@@ -125,9 +128,8 @@ app.include_router(
     tags=["Solvency Passports (Public)"],
 )
 
-# Almacenamiento de imágenes SOLO para desarrollo local (ver
-# app/services/storage/local.py). En producción esto debe sustituirse
-# por un proveedor real (S3/Cloudinary/Supabase Storage).
+# Almacenamiento de imágenes SOLO para desarrollo local. En producción,
+# ensure_persistent_storage_configured() exige R2 antes de llegar aquí.
 MEDIA_ROOT = Path(__file__).resolve().parent.parent / "media"
 MEDIA_ROOT.mkdir(exist_ok=True)
 app.mount("/media", StaticFiles(directory=str(MEDIA_ROOT)), name="media")
