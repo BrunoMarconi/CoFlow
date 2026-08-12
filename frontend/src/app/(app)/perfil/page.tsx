@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import Avatar from "@/components/ui/Avatar";
+import AvatarUploader from "@/components/perfil/AvatarUploader";
 import TrustSection from "@/components/perfil/TrustProfileCard";
 import YourProfileSection from "@/components/perfil/YourProfileSection";
 import RoommateSearchCard from "@/components/perfil/RoommateSearchCard";
@@ -110,11 +111,17 @@ export default function PerfilPage() {
       <section className="overflow-hidden rounded-24 border border-border bg-surface shadow-[0_10px_30px_rgba(26,55,43,0.07)]">
         <div className="p-5 sm:p-7">
           <div className="flex items-center gap-4 sm:gap-6">
-            <div className="shrink-0 rounded-full border-4 border-white shadow-soft">
+            <div className="relative shrink-0 rounded-full border-4 border-white shadow-soft">
               <Avatar
                 name={`${user.first_name} ${user.last_name}`}
                 imageUrl={user.avatar_url}
                 size={104}
+              />
+              <AvatarUploader
+                hasAvatar={Boolean(user.avatar_url)}
+                onUpdated={async () => {
+                  await refresh();
+                }}
               />
             </div>
 
