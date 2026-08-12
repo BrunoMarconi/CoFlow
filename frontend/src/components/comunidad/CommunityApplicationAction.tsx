@@ -16,8 +16,10 @@ const MAX_MESSAGE_LENGTH = 2000;
 
 export default function CommunityApplicationAction({
   community,
+  actionLabel = "Enviar solicitud",
 }: {
   community: Community;
+  actionLabel?: string;
 }) {
   const { user } = useAuth();
 
@@ -252,7 +254,7 @@ export default function CommunityApplicationAction({
         className="flex h-14 w-full items-center justify-center gap-2 rounded-18 bg-primary px-5 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-primary-hover"
       >
         <SendIcon />
-        Enviar solicitud
+        {actionLabel}
       </button>
     </div>
   );

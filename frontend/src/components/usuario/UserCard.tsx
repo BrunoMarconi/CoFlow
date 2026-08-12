@@ -76,7 +76,7 @@ export default function UserCard({
       }}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.985 }}
-      className="h-full cursor-pointer outline-none"
+      className="cursor-pointer outline-none"
     >
       <div className="sm:hidden">
         {mobileVariant === "featured" ? (
@@ -196,7 +196,7 @@ export default function UserCard({
         )}
       </div>
 
-      <div className="hidden h-full flex-col overflow-hidden rounded-18 border border-border bg-surface shadow-soft transition-shadow duration-200 sm:flex sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]">
+      <div className="hidden flex-col overflow-hidden rounded-18 border border-border bg-surface shadow-soft transition-shadow duration-200 sm:flex sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]">
         {profilePhoto && (
           <div className="relative h-44 bg-surface-muted">
             <Image
@@ -220,7 +220,7 @@ export default function UserCard({
           </div>
         )}
 
-        <div className="flex flex-1 flex-col p-4">
+        <div className="flex flex-col p-4">
           <div className="flex items-start gap-3">
             {!profilePhoto && (
               <UserAvatar
@@ -263,7 +263,7 @@ export default function UserCard({
             </div>
           )}
 
-          <p className="mt-auto pt-4 text-xs text-secondary">
+          <p className="pt-4 text-xs text-secondary">
             Presupuesto <span className="font-extrabold text-brand-dark">{budgetLabel}</span>
           </p>
 

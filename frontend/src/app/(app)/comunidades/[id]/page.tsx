@@ -121,14 +121,21 @@ export default function ComunidadDetallePage() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="mx-auto w-full max-w-5xl">
-      <Link
-        href="/comunidades"
-        className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-muted transition hover:text-brand-dark"
-      >
-        <ArrowLeftIcon />
-        Volver a comunidades
-      </Link>
+    <div className="mx-auto w-full max-w-7xl">
+      <header className="relative mb-5 flex h-11 items-center justify-between">
+        <Link
+          href="/comunidades"
+          aria-label="Volver a comunidades"
+          className="inline-flex h-10 items-center gap-2 text-sm font-bold text-muted transition hover:text-brand-dark"
+        >
+          <ArrowLeftIcon />
+          <span className="hidden sm:inline">Volver a comunidades</span>
+        </Link>
+        <h1 className="absolute left-1/2 -translate-x-1/2 text-lg font-extrabold text-brand-dark">
+          Vista pública
+        </h1>
+        <span className="w-10" aria-hidden="true" />
+      </header>
 
       <CommunityHeader
         community={community}

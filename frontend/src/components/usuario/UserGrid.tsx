@@ -39,7 +39,7 @@ export default function UserGrid({
       variants={{ hidden: {}, show: { transition: { staggerChildren: 0.04 } } }}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3"
+      className="grid auto-rows-max grid-cols-2 items-start gap-3 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3"
     >
       <AnimatePresence initial={false}>
         {users.map((user, index) => (
@@ -53,7 +53,7 @@ export default function UserGrid({
               opacity: { duration: MOTION_DURATION.slow, ease: MOTION_EASE.out },
               y: { duration: MOTION_DURATION.slow, ease: MOTION_EASE.out },
             }}
-            className={`${index < 2 ? "col-span-1" : "col-span-2"} sm:col-span-1`}
+            className={`${index < 2 ? "col-span-1" : "col-span-2"} self-start sm:col-span-1`}
           >
             {showRecommendedHeading && index === 2 && (
               <div className="mb-3 flex items-center justify-between sm:hidden">

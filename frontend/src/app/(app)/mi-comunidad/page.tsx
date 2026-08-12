@@ -136,7 +136,7 @@ function CommunityDashboard({
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl pb-4">
+    <div className="mx-auto w-full max-w-7xl pb-4">
       <header className="relative flex h-11 items-center justify-between">
         <Link
           href="/comunidades"
@@ -160,18 +160,18 @@ function CommunityDashboard({
         </Link>
       </header>
 
-      <section className="mt-4 grid gap-4 sm:grid-cols-[190px_1fr] sm:items-center">
+      <section className="mt-5 grid gap-5 sm:grid-cols-[220px_1fr] sm:items-center lg:grid-cols-[280px_1fr]">
         <CommunityCover
           name={community.name}
           coverColor={community.cover_color}
           coverImageUrl={community.cover_image_url}
           members={coverMembers}
           memberCount={community.member_count}
-          className="h-44 w-full rounded-24 border border-border shadow-soft sm:h-48"
+          className="h-48 w-full rounded-24 border border-border shadow-soft sm:h-56 lg:h-64"
         />
 
         <div className="min-w-0">
-          <h2 className="truncate font-rounded text-3xl font-semibold tracking-[-0.03em] text-brand-dark">
+          <h2 className="truncate font-rounded text-3xl font-semibold tracking-[-0.03em] text-brand-dark lg:text-4xl">
             {community.name}
           </h2>
 
@@ -218,7 +218,7 @@ function CommunityDashboard({
       <section className="mt-7">
         <h2 className="mb-3 text-lg font-extrabold text-foreground">Vuestra comunidad</h2>
 
-        <div className="grid gap-3 md:grid-cols-[1.2fr_0.8fr]">
+        <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
           <div className="divide-y divide-border overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
             {owner && (
               <Link
@@ -287,7 +287,7 @@ function CommunityDashboard({
         </section>
       )}
 
-      <div className="mt-7 grid gap-5 md:grid-cols-2">
+      <div className="mt-8 grid gap-5 md:grid-cols-2">
         <section>
           <h2 className="mb-3 text-lg font-extrabold text-foreground">Cómo queréis vivir</h2>
           <div className="overflow-hidden rounded-18 border border-border bg-surface shadow-soft">

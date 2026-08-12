@@ -100,7 +100,7 @@ export default function PerfilPage() {
       initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 5 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-      className="mx-auto w-full max-w-3xl space-y-5 pb-4 sm:space-y-7"
+      className="mx-auto w-full max-w-7xl space-y-5 pb-4 sm:space-y-7"
     >
       <header className="flex items-center justify-between">
         <h1 className="font-rounded text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl">
@@ -110,7 +110,7 @@ export default function PerfilPage() {
 
       <section className="overflow-hidden rounded-24 border border-border bg-surface shadow-[0_10px_30px_rgba(26,55,43,0.07)]">
         <div className="p-5 sm:p-7">
-          <div className="flex items-center gap-4 sm:gap-6">
+          <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
             <div className="relative shrink-0 rounded-full border-4 border-white shadow-soft">
               <Avatar
                 name={`${user.first_name} ${user.last_name}`}
@@ -125,7 +125,7 @@ export default function PerfilPage() {
               />
             </div>
 
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 lg:max-w-2xl">
               <div className="flex items-center gap-2">
                 <h2 className="truncate text-2xl font-bold text-brand-dark sm:text-3xl">
                   {user.first_name}
@@ -177,7 +177,7 @@ export default function PerfilPage() {
         </Link>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 sm:gap-4">
+      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
         <IllustratedCard
           href={communityHref}
           image="/images/profile-community-3d.webp"

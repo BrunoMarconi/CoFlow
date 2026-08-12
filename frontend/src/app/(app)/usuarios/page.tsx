@@ -96,7 +96,7 @@ export default function UsuariosPage() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="mx-auto w-full max-w-5xl">
+      <div className="mx-auto w-full max-w-7xl">
         <header>
           <h1 className="font-rounded text-3xl font-semibold tracking-[-0.03em] text-brand-dark sm:text-4xl">
             Personas
@@ -196,7 +196,7 @@ export default function UsuariosPage() {
           )}
 
           {loading ? (
-            <div className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3">
+            <div className="grid auto-rows-max grid-cols-2 items-start gap-3 sm:gap-5 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, index) => (
                 <SkeletonCard key={index} />
               ))}
