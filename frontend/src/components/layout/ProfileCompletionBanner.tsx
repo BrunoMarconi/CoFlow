@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 
-const EXCLUDED_PATHS = ["/perfil", "/perfil/editar"];
+const EXCLUDED_PATHS = ["/perfil", "/perfil/editar", "/usuarios"];
 
 export default function ProfileCompletionBanner() {
   const { user } = useAuth();

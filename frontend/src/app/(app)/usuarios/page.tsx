@@ -1,54 +1,33 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
 import { useUsers } from "@/hooks/useUsers";
 import UserGrid from "@/components/usuario/UserGrid";
 import PersonPreviewPanel from "@/components/usuario/PersonPreviewPanel";
 import UserFilters, {
-  COMMUNITY_STATUS_OPTIONS,
   defaultUserFilters,
   isUserFiltersActive,
   type UserFilterState,
 } from "@/components/usuario/UserFilters";
-import ExplorerSearchBar from "@/components/explorer/ExplorerSearchBar";
-import ExplorerFilterToggle from "@/components/explorer/ExplorerFilterToggle";
-import HomeFab from "@/components/explorer/HomeFab";
-import ActiveFilterChips, {
-  type ActiveChip,
-} from "@/components/explorer/ActiveFilterChips";
-import SectionHeader from "@/components/ui/SectionHeader";
+import SearchInput from "@/components/ui/SearchInput";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import EmptyState from "@/components/ui/EmptyState";
-import {
-  MOTION_DURATION,
-  MOTION_EASE,
-  MOTION_STAGGER_TIGHT,
-} from "@/lib/motionTokens";
+import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 
-const SEARCH_BAR_LAYOUT_ID = "people-search-bar";
-const SEARCH_ICON_LAYOUT_ID = "people-search-icon";
-
-// Título "Personas": desaparece por completo al entrar en Search
-// Mode (no se queda como fondo, a diferencia de las cards — ver
-// UserGrid/recede) para que no distraiga del header de búsqueda.
-const titleVariants = {
-  hidden: { opacity: 0, y: -12, scale: 0.98 },
-  visible: { opacity: 1, y: 0, scale: 1 },
-};
+const CITY_OPTIONS = ["Málaga", "Madrid", "Valencia"];
 
 export default function UsuariosPage() {
+  const { user: currentUser } = useAuth();
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState<UserFilterState>(
-    defaultUserFilters
-  );
+  const [filters, setFilters] = useState<UserFilterState>(defaultUserFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const [openUserId, setOpenUserId] = useState<string | null>(null);
 
   const maxBudget = filters.maxBudget ? Number(filters.maxBudget) : undefined;
-
   const { users, loading, hasMore, loadingMore, loadMore } = useUsers({
     max_budget: maxBudget,
   });
@@ -59,15 +38,24 @@ export default function UsuariosPage() {
 
     return users.filter((user) => {
       if (normalizedSearch) {
-        const fullName =
-          `${user.first_name} ${user.last_name}`.toLowerCase();
+        const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
+        const searchableTraits = [
+          user.occupation,
+          user.bio,
+          user.preferences?.lifestyle,
+          user.preferences?.cleanliness,
+          user.community?.city,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
 
-        const matchesName = fullName.includes(normalizedSearch);
-        const matchesCity = user.community?.city
-          .toLowerCase()
-          .includes(normalizedSearch);
-
-        if (!matchesName && !matchesCity) return false;
+        if (
+          !fullName.includes(normalizedSearch) &&
+          !searchableTraits.includes(normalizedSearch)
+        ) {
+          return false;
+        }
       }
 
       if (
@@ -77,10 +65,7 @@ export default function UsuariosPage() {
         return false;
       }
 
-      if (
-        filters.communityStatus === "HAS_COMMUNITY" &&
-        !user.community
-      ) {
+      if (filters.communityStatus === "HAS_COMMUNITY" && !user.community) {
         return false;
       }
 
@@ -93,170 +78,125 @@ export default function UsuariosPage() {
   }, [users, search, filters]);
 
   const hasQuery = search.trim().length > 0;
-  const showFiltersPanel = !hasQuery || filtersOpen;
+  const hasActiveFilters = isUserFiltersActive(filters);
   const resultCount = visibleUsers.length;
-
-  const activeChips = useMemo<ActiveChip[]>(() => {
-    const chips: ActiveChip[] = [];
-
-    if (filters.city) {
-      chips.push({
-        key: "city",
-        label: filters.city,
-        onRemove: () => setFilters((current) => ({ ...current, city: "" })),
-      });
-    }
-
-    if (filters.maxBudget) {
-      chips.push({
-        key: "maxBudget",
-        label: `Hasta ${filters.maxBudget} €`,
-        onRemove: () =>
-          setFilters((current) => ({ ...current, maxBudget: "" })),
-      });
-    }
-
-    if (filters.communityStatus !== "ALL") {
-      const option = COMMUNITY_STATUS_OPTIONS.find(
-        (item) => item.value === filters.communityStatus
-      );
-
-      if (option) {
-        chips.push({
-          key: "communityStatus",
-          label: option.label,
-          onRemove: () =>
-            setFilters((current) => ({ ...current, communityStatus: "ALL" })),
-        });
-      }
-    }
-
-    return chips;
-  }, [filters]);
-
-  function closeSearch() {
-    setSearchOpen(false);
-  }
-
-  useEffect(() => {
-    if (!searchOpen) return;
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key !== "Escape") return;
-
-      if (filtersOpen) {
-        setFiltersOpen(false);
-        return;
-      }
-
-      closeSearch();
-    }
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [searchOpen, filtersOpen]);
-
-  const sectionTitle = searchOpen ? "Resultados" : "Personas recomendadas";
-
-  const resultsCounter = !loading && (
-    <span className="inline-flex">
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.span
-          key={resultCount}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: MOTION_DURATION.fast }}
-        >
-          {resultCount} {resultCount === 1 ? "persona compatible" : "personas compatibles"}
-        </motion.span>
-      </AnimatePresence>
-    </span>
+  const profileIncomplete = Boolean(
+    currentUser &&
+      (!currentUser.avatar_url ||
+        !currentUser.phone ||
+        currentUser.rental_budget === null)
   );
+
+  function selectCity(city: string) {
+    setFilters((current) => ({
+      ...current,
+      city: current.city === city ? "" : city,
+    }));
+  }
 
   return (
     <MotionConfig reducedMotion="user">
-    <div>
-      <div className="sticky top-[calc(var(--safe-top)+4.5rem)] z-(--z-sticky-header) -mx-5 -mt-4 bg-background/85 px-5 pb-3 pt-2 backdrop-blur-xl sm:-mx-6 sm:-mt-6 sm:px-6 lg:-mx-8 lg:px-8">
-        <ExplorerSearchBar
-          layoutIdBar={SEARCH_BAR_LAYOUT_ID}
-          layoutIdIcon={SEARCH_ICON_LAYOUT_ID}
-          searchOpen={searchOpen}
-          onOpen={() => setSearchOpen(true)}
-          onBack={closeSearch}
-          value={search}
-          onChange={setSearch}
-          onClear={() => setSearch("")}
-          collapsedPlaceholder="Buscar por nombre o ciudad..."
-          placeholder="Buscar por nombre o ciudad..."
-          rightSlot={
-            hasQuery && (
-              <ExplorerFilterToggle
-                animateEntrance
-                active={filtersOpen || isUserFiltersActive(filters)}
-                onClick={() => setFiltersOpen((current) => !current)}
-              />
-            )
-          }
-        />
+      <div className="mx-auto w-full max-w-5xl">
+        <header>
+          <h1 className="font-rounded text-3xl font-semibold tracking-[-0.03em] text-brand-dark sm:text-4xl">
+            Personas
+          </h1>
+          <p className="mt-1 text-sm text-secondary sm:text-base">
+            Encuentra personas con las que compartir piso
+          </p>
+        </header>
 
-        {searchOpen && hasQuery && !filtersOpen && (
-          <ActiveFilterChips chips={activeChips} />
-        )}
-      </div>
-
-      <AnimatePresence initial={false}>
-        {!searchOpen && (
-          <motion.header
-            key="title"
-            variants={titleVariants}
-            initial="visible"
-            animate="visible"
-            exit="hidden"
-            transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-            className="mt-6"
-          >
-            <h1 className="font-rounded text-lg font-semibold text-brand-dark">
-              Personas
-            </h1>
-          </motion.header>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence initial={false}>
-        {searchOpen && showFiltersPanel && (
-          <motion.div
-            key="filters-panel"
-            initial={{ opacity: 0, y: -6, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{
-              opacity: 0,
-              y: -6,
-              scale: 0.98,
-              transition: { duration: MOTION_DURATION.fast, ease: MOTION_EASE.out },
-            }}
-            transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
-            className="mt-4"
-          >
-            <UserFilters
-              filters={filters}
-              onChange={setFilters}
-              onClear={() => setFilters(defaultUserFilters)}
-              resultCount={resultCount}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <section className="mt-8">
-          <SectionHeader
-            title={sectionTitle}
-            subtitle={resultsCounter}
-            className="mb-5"
+        <div className="mt-5 flex h-13 items-center rounded-14 border border-border bg-surface px-4 shadow-soft transition-all duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 sm:h-14">
+          <SearchInput
+            bare
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            onClear={() => setSearch("")}
+            placeholder="Buscar por nombre, ciudad o intereses..."
           />
+        </div>
+
+        <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {CITY_OPTIONS.map((city) => {
+            const active = filters.city === city;
+
+            return (
+              <button
+                key={city}
+                type="button"
+                onClick={() => selectCity(city)}
+                aria-pressed={active}
+                className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full border bg-surface px-4 text-sm font-bold shadow-soft transition-colors duration-200 ${
+                  active
+                    ? "border-primary text-primary-dark"
+                    : "border-border text-foreground hover:border-primary/40"
+                }`}
+              >
+                {active && <LocationIcon />}
+                {city}
+              </button>
+            );
+          })}
+
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((current) => !current)}
+            aria-expanded={filtersOpen}
+            className={`flex h-10 shrink-0 items-center gap-2 rounded-full border bg-surface px-4 text-sm font-bold shadow-soft transition-colors duration-200 ${
+              filtersOpen || filters.maxBudget || filters.communityStatus !== "ALL"
+                ? "border-primary text-primary-dark"
+                : "border-border text-foreground hover:border-primary/40"
+            }`}
+          >
+            <FilterIcon />
+            Más filtros
+          </button>
+        </div>
+
+        <AnimatePresence initial={false}>
+          {filtersOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -6, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.99 }}
+              transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+              className="mt-4"
+            >
+              <UserFilters
+                filters={filters}
+                onChange={setFilters}
+                onClear={() => setFilters(defaultUserFilters)}
+                resultCount={resultCount}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <section className="mt-5">
+          {(hasQuery || hasActiveFilters) && (
+            <div className="mb-4 flex items-end justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-extrabold text-foreground">Resultados</h2>
+                <p className="text-xs text-secondary">
+                  {resultCount} {resultCount === 1 ? "persona compatible" : "personas compatibles"}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setFilters(defaultUserFilters);
+                }}
+                className="text-xs font-bold text-primary-dark"
+              >
+                Restablecer
+              </button>
+            </div>
+          )}
 
           {loading ? (
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, index) => (
                 <SkeletonCard key={index} />
               ))}
@@ -266,16 +206,14 @@ export default function UsuariosPage() {
               title="No encontramos personas con esos filtros"
               description="Prueba a cambiar la ciudad, el presupuesto o la situación de convivencia."
               action={
-                (hasQuery || isUserFiltersActive(filters)) && (
-                  <SecondaryButton
-                    onClick={() => {
-                      setSearch("");
-                      setFilters(defaultUserFilters);
-                    }}
-                  >
-                    Restablecer filtros
-                  </SecondaryButton>
-                )
+                <SecondaryButton
+                  onClick={() => {
+                    setSearch("");
+                    setFilters(defaultUserFilters);
+                  }}
+                >
+                  Restablecer filtros
+                </SecondaryButton>
               }
             />
           ) : (
@@ -283,9 +221,7 @@ export default function UsuariosPage() {
               <UserGrid
                 users={visibleUsers}
                 onOpen={setOpenUserId}
-                staggerChildren={searchOpen ? MOTION_STAGGER_TIGHT : 0.04}
-                recede={searchOpen && showFiltersPanel}
-                highlightFirst={hasQuery}
+                showRecommendedHeading={!hasQuery && !hasActiveFilters}
               />
 
               {hasMore && (
@@ -299,18 +235,65 @@ export default function UsuariosPage() {
           )}
         </section>
 
-      <AnimatePresence>
-        {openUserId && (
-          <PersonPreviewPanel
-            key={openUserId}
-            userId={openUserId}
-            onClose={() => setOpenUserId(null)}
-          />
+        {profileIncomplete && (
+          <Link
+            href="/perfil/editar"
+            className="mt-6 flex items-center gap-3 rounded-18 border border-border bg-surface p-4 shadow-soft transition-transform duration-200 active:scale-[0.99]"
+          >
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center text-primary">
+              <ProfileIcon />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-extrabold text-foreground">
+                Completa tu perfil
+              </span>
+              <span className="mt-0.5 block text-xs leading-5 text-secondary">
+                Añade más información sobre ti y encuentra personas más compatibles.
+              </span>
+            </span>
+            <span className="shrink-0 rounded-14 bg-primary px-3 py-2 text-xs font-bold text-white shadow-button">
+              Completar
+            </span>
+          </Link>
         )}
-      </AnimatePresence>
 
-      <HomeFab />
-    </div>
+        <AnimatePresence>
+          {openUserId && (
+            <PersonPreviewPanel
+              key={openUserId}
+              userId={openUserId}
+              onClose={() => setOpenUserId(null)}
+            />
+          )}
+        </AnimatePresence>
+      </div>
     </MotionConfig>
+  );
+}
+
+function LocationIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4" aria-hidden="true">
+      <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </svg>
+  );
+}
+
+function FilterIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-4 w-4" aria-hidden="true">
+      <path d="M4 6h16M7 12h10M10 18h4" />
+    </svg>
+  );
+}
+
+function ProfileIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7" aria-hidden="true">
+      <rect x="4" y="3" width="16" height="18" rx="2" />
+      <circle cx="12" cy="9" r="2.5" />
+      <path d="M8.5 16a3.5 3.5 0 0 1 7 0M8 5h8" />
+    </svg>
   );
 }

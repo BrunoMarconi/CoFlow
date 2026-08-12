@@ -144,7 +144,7 @@ export default function UserFilters({
               transition={{ duration: 0.15, ease: "easeOut" }}
               className={`min-h-11 rounded-14 border px-4 text-sm font-bold transition-colors duration-200 ${
                 filters.communityStatus === option.value
-                  ? "border-primary/30 bg-mint-100 text-primary-dark"
+                  ? "border-primary bg-surface text-primary-dark shadow-soft"
                   : "border-border bg-surface text-muted hover:border-primary/30"
               }`}
             >
@@ -165,7 +165,7 @@ export default function UserFilters({
           Limpiar filtros
         </motion.button>
 
-        <p className="flex h-12 flex-1 items-center justify-center rounded-14 bg-surface-soft text-sm font-bold text-brand-dark sm:justify-start sm:px-4">
+        <p className="flex h-12 flex-1 items-center justify-center rounded-14 border border-border bg-surface text-sm font-bold text-brand-dark shadow-soft sm:justify-start sm:px-4">
           {resultCount}{" "}
           {resultCount === 1 ? "persona encontrada" : "personas encontradas"}
         </p>
