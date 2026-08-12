@@ -642,21 +642,20 @@ function InboxSearchAndTabs({
         />
       </div>
 
-      <div className="mt-3 grid grid-cols-4 gap-2">
+      <div className="mt-3 grid min-w-0 grid-cols-[0.85fr_1.45fr_1fr_1fr] gap-1.5">
         {TAB_OPTIONS.map((option) => (
           <button
             key={option.key}
             type="button"
             onClick={() => onTabChange(option.key)}
             aria-pressed={tab === option.key}
-            className={`relative flex h-11 items-center justify-center rounded-14 border px-1 text-[10px] font-bold transition-colors duration-200 min-[380px]:text-[11px] sm:h-8 sm:text-[10px] ${
+            className={`relative flex h-11 min-w-0 items-center justify-center overflow-hidden rounded-14 border px-1 text-[10px] font-bold transition-colors duration-200 min-[360px]:text-[11px] sm:h-8 sm:text-[10px] ${
               tab === option.key
                 ? "border-primary bg-primary text-white shadow-button"
                 : "border-border bg-surface text-foreground shadow-soft hover:border-primary/40 hover:text-primary-dark"
             }`}
           >
-            <span className="relative flex items-center justify-center gap-1.5">
-              <InboxTabIcon tab={option.key} />
+            <span className="relative block min-w-0 whitespace-nowrap">
               {option.label}
             </span>
           </button>
@@ -809,43 +808,6 @@ function ConversationPreview({
         </span>
       </div>
     </div>
-  );
-}
-
-function InboxTabIcon({ tab }: { tab: InboxTab }) {
-  if (tab === "unread") {
-    return <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />;
-  }
-
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4 shrink-0"
-      aria-hidden="true"
-    >
-      {tab === "all" ? (
-        <>
-          <path d="M21 11.5a8.4 8.4 0 0 1-9 8.3 9.6 9.6 0 0 1-3.8-.8L3 21l1.7-4.5A8.4 8.4 0 1 1 21 11.5Z" />
-          <path d="M8.5 12h.01M12 12h.01M15.5 12h.01" />
-        </>
-      ) : tab === "groups" ? (
-        <>
-          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-        </>
-      ) : (
-        <>
-          <circle cx="12" cy="8" r="4" />
-          <path d="M5 21a7 7 0 0 1 14 0" />
-        </>
-      )}
-    </svg>
   );
 }
 
