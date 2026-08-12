@@ -1,48 +1,46 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import Spinner from "@/components/ui/Spinner";
-import { cn } from "@/lib/utils";
+import CommunityCover from "@/components/ui/CommunityCover";
+import UserAvatar from "@/components/ui/UserAvatar";
 import CommunityChat from "@/components/comunidad/CommunityChat";
 import CommunityMembersList from "@/components/comunidad/CommunityMembersList";
-import LeaveCommunityButton from "@/components/comunidad/LeaveCommunityButton";
-import OpenSpotsManager from "@/components/comunidad/OpenSpotsManager";
+import CommunityInvitationsManager from "@/components/comunidad/CommunityInvitationsManager";
+import CommunityApplicationsManager from "@/components/comunidad/CommunityApplicationsManager";
 import CommunityOwnerActions from "@/components/comunidad/CommunityOwnerActions";
 import CommunityRentSplit from "@/components/comunidad/CommunityRentSplit";
 import CommunityRentSplitManager from "@/components/comunidad/CommunityRentSplitManager";
-import CommunityInvitationsManager from "@/components/comunidad/CommunityInvitationsManager";
-import CommunityApplicationsManager from "@/components/comunidad/CommunityApplicationsManager";
+import OpenSpotsManager from "@/components/comunidad/OpenSpotsManager";
+import LeaveCommunityButton from "@/components/comunidad/LeaveCommunityButton";
 import { SettingsRow, SettingsSection } from "@/components/comunidad/SettingsRow";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
-import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import type { Community } from "@/types/community";
 
-type Tab = "resumen" | "chat" | "miembros" | "solicitudes" | "gestion";
+type Panel = "dashboard" | "chat" | "members" | "applications";
+type ExpandedSection = "invitations" | "spots" | "preferences" | "rent" | "danger" | null;
 
-const VALID_TABS: Tab[] = ["resumen", "chat", "miembros", "solicitudes", "gestion"];
-
-function isValidTab(value: string | null): value is Tab {
-  return value !== null && (VALID_TABS as string[]).includes(value);
+function initialPanel(value: string | null): Panel {
+  if (value === "chat") return "chat";
+  if (value === "miembros") return "members";
+  if (value === "solicitudes") return "applications";
+  return "dashboard";
 }
 
 export default function MiComunidadPage() {
   const { user, community, communityLoading } = useAuth();
   const { setChatActive } = useMobileChrome();
   const searchParams = useSearchParams();
+  const [panel, setPanel] = useState<Panel>(() => initialPanel(searchParams.get("tab")));
 
-  const [tab, setTab] = useState<Tab>(
-    isValidTab(searchParams.get("tab")) ? (searchParams.get("tab") as Tab) : "resumen"
-  );
-
-  // Con el chat de la comunidad activo en móvil, se libera el espacio de
-  // BottomNavigation igual que en el chat 1:1 dedicado.
   useEffect(() => {
-    setChatActive(tab === "chat");
+    setChatActive(panel === "chat");
     return () => setChatActive(false);
-  }, [tab, setChatActive]);
+  }, [panel, setChatActive]);
 
   if (communityLoading) {
     return (
@@ -53,573 +51,486 @@ export default function MiComunidadPage() {
   }
 
   if (!community || !user) {
-    return (
-      <div className="mx-auto flex min-h-[60dvh] max-w-xl flex-col items-center justify-center px-6 text-center">
-        <p className="text-sm font-bold uppercase tracking-[0.2em] text-brand-dark">
-          Sin comunidad activa
-        </p>
-
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground">
-          Todavía no formas parte de ninguna comunidad
-        </h1>
-
-        <p className="mt-4 max-w-md text-base leading-7 text-muted">
-          Explora las comunidades disponibles o crea la tuya propia para
-          tener aquí tu espacio privado.
-        </p>
-
-        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-          <Link
-            href="/comunidades"
-            className="inline-flex h-12 items-center justify-center rounded-18 bg-brand px-6 text-sm font-bold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-brand-dark"
-          >
-            Explorar comunidades
-          </Link>
-
-          <Link
-            href="/crear/comunidad"
-            className="inline-flex h-12 items-center justify-center rounded-18 border border-line bg-surface px-6 text-sm font-bold text-foreground transition hover:border-brand/40"
-          >
-            Crear una comunidad
-          </Link>
-        </div>
-      </div>
-    );
+    return <NoCommunity />;
   }
 
   const isOwner = community.current_user_role === "OWNER";
 
-  const location = [
-    community.neighborhood,
-    community.city,
-    community.province,
-  ]
-    .filter(Boolean)
-    .join(", ");
-
-  const statusLabel = community.is_full
-    ? "Capacidad máxima alcanzada"
-    : community.open_spots > 0
-      ? "Buscando nuevos miembros"
-      : "No buscan nuevos miembros ahora";
-
-  const statusClass = community.is_full
-    ? "bg-surface-soft text-secondary"
-    : community.open_spots > 0
-      ? "bg-surface-soft text-brand-dark"
-      : "bg-amber-50 text-amber-700";
-
-  const tabs: { key: Tab; label: string }[] = [
-    { key: "resumen", label: "Resumen" },
-    { key: "chat", label: "Chat" },
-    { key: "miembros", label: "Miembros" },
-    ...(isOwner
-      ? [
-          { key: "solicitudes" as Tab, label: "Solicitudes" },
-          { key: "gestion" as Tab, label: "Gestión" },
-        ]
-      : []),
-  ];
+  if (panel !== "dashboard") {
+    return (
+      <PrivatePanel
+        panel={panel}
+        community={community}
+        currentUserId={user.id}
+        isOwner={isOwner}
+        onBack={() => setPanel("dashboard")}
+      />
+    );
+  }
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
-      <header className="rounded-18 border border-line bg-surface p-3.5 sm:p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="truncate text-lg font-bold text-foreground sm:text-2xl">
-              {community.name}
-            </h1>
-
-            {location && (
-              <p className="mt-0.5 truncate text-xs font-medium text-muted sm:text-sm">
-                {location}
-              </p>
-            )}
-          </div>
-
-          <span
-            className={cn(
-              "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold sm:px-3 sm:py-1.5 sm:text-xs",
-              isOwner
-                ? "bg-brand/10 text-brand-dark"
-                : "bg-surface-soft text-secondary"
-            )}
-          >
-            {isOwner ? "Administrador" : "Miembro"}
-          </span>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs sm:text-sm">
-          <span className="font-bold text-foreground">
-            {community.member_count} de {community.max_members} miembros
-          </span>
-
-          <span className="text-muted">·</span>
-
-          <span className="font-semibold text-muted">
-            {community.open_spots}{" "}
-            {community.open_spots === 1
-              ? "plaza abierta"
-              : "plazas abiertas"}
-          </span>
-
-          <span
-            className={cn(
-              "ml-auto rounded-full px-2.5 py-1 text-[11px] font-bold",
-              statusClass
-            )}
-          >
-            {statusLabel}
-          </span>
-        </div>
-      </header>
-
-      {!isOwner && (
-        <div className="mt-3">
-          <LeaveCommunityButton communityId={community.id} />
-        </div>
-      )}
-
-      <CommunityTabs tab={tab} tabs={tabs} onChange={setTab} />
-
-      <div
-        role="tabpanel"
-        id={`panel-${tab}`}
-        aria-labelledby={`tab-${tab}`}
-        className="mt-4"
-      >
-        {tab === "resumen" && (
-          <ResumenTab community={community} isOwner={isOwner} />
-        )}
-
-        {tab === "chat" && (
-          <CommunityChat
-            communityId={community.id}
-            currentUserId={user.id}
-          />
-        )}
-
-        {tab === "miembros" && (
-          <CommunityMembersList members={community.members} />
-        )}
-
-        {tab === "solicitudes" && isOwner && (
-          <CommunityApplicationsManager communityId={community.id} />
-        )}
-
-        {tab === "gestion" && isOwner && (
-          <GestionTab
-            community={community}
-            onOpenSolicitudes={() => setTab("solicitudes")}
-          />
-        )}
-      </div>
-    </div>
+    <CommunityDashboard
+      community={community}
+      currentUserId={user.id}
+      isOwner={isOwner}
+      onOpenPanel={setPanel}
+    />
   );
 }
 
-function CommunityTabs({
-  tab,
-  tabs,
-  onChange,
-}: {
-  tab: Tab;
-  tabs: { key: Tab; label: string }[];
-  onChange: (tab: Tab) => void;
-}) {
-  const buttonRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>(
-    {}
-  );
-
-  useEffect(() => {
-    buttonRefs.current[tab]?.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "nearest",
-    });
-  }, [tab]);
-
-  return (
-    <div
-      role="tablist"
-      aria-label="Secciones de tu comunidad"
-      className="mt-4 flex gap-1 overflow-x-auto snap-x snap-proximity scroll-fade-x border-b border-line [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-    >
-      {tabs.map((item) => {
-        const active = tab === item.key;
-
-        return (
-          <button
-            key={item.key}
-            ref={(element) => {
-              buttonRefs.current[item.key] = element;
-            }}
-            type="button"
-            role="tab"
-            id={`tab-${item.key}`}
-            aria-selected={active}
-            aria-controls={`panel-${item.key}`}
-            onClick={() => onChange(item.key)}
-            className={cn(
-              "min-h-11 shrink-0 snap-start scroll-mx-4 whitespace-nowrap border-b-2 px-3.5 text-sm font-bold transition active:scale-95",
-              active
-                ? "border-brand text-brand-dark"
-                : "border-transparent text-muted hover:text-foreground"
-            )}
-          >
-            {item.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function ResumenTab({
+function CommunityDashboard({
   community,
+  currentUserId,
   isOwner,
+  onOpenPanel,
 }: {
   community: Community;
+  currentUserId: string;
   isOwner: boolean;
+  onOpenPanel: (panel: Panel) => void;
 }) {
+  const [expanded, setExpanded] = useState<ExpandedSection>(null);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const [shareLabel, setShareLabel] = useState("Compartir comunidad");
+
+  const owner = useMemo(
+    () => community.members.find((member) => member.role === "OWNER"),
+    [community.members]
+  );
+
+  const coverMembers = community.members.map((member) => ({
+    id: member.user.id,
+    firstName: member.user.first_name,
+    lastName: member.user.last_name,
+    imageUrl: member.user.avatar_url,
+  }));
+
+  const availablePlaces = Math.max(community.max_members - community.member_count, 0);
+  const visibleDescription = descriptionExpanded
+    ? community.description
+    : truncateText(community.description, 210);
+
+  function toggle(section: Exclude<ExpandedSection, null>) {
+    setExpanded((current) => (current === section ? null : section));
+  }
+
+  async function handleShare() {
+    const url = `${window.location.origin}/comunidades/${community.id}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: community.name,
+          text: `Conoce nuestra comunidad en CoFlow: ${community.name}`,
+          url,
+        });
+        return;
+      }
+
+      await navigator.clipboard.writeText(url);
+      setShareLabel("Enlace copiado");
+      window.setTimeout(() => setShareLabel("Compartir comunidad"), 1800);
+    } catch {
+      // Cancelar el menú nativo de compartir no debe mostrar un error.
+    }
+  }
+
   return (
-    <div className="space-y-4">
-      <section className="rounded-18 border border-line bg-surface p-4 sm:p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-dark">
-          Sobre la comunidad
-        </p>
+    <div className="mx-auto w-full max-w-5xl pb-4">
+      <header className="relative flex h-11 items-center justify-between">
+        <Link
+          href="/comunidades"
+          aria-label="Volver a comunidades"
+          className="flex h-10 w-10 items-center justify-start text-brand-dark"
+        >
+          <ArrowLeftIcon />
+        </Link>
 
-        <p className="mt-2 whitespace-pre-line text-sm leading-6 text-muted">
-          {community.description}
-        </p>
+        <h1 className="absolute inset-x-12 text-center text-lg font-extrabold text-foreground">
+          Mi comunidad
+        </h1>
+
+        <Link
+          href={`/comunidades/${community.id}`}
+          aria-label="Ver perfil público"
+          title="Ver perfil público"
+          className="flex h-10 w-10 items-center justify-end text-brand-dark"
+        >
+          <MoreIcon />
+        </Link>
+      </header>
+
+      <section className="mt-4 grid gap-4 sm:grid-cols-[190px_1fr] sm:items-center">
+        <CommunityCover
+          name={community.name}
+          coverColor={community.cover_color}
+          coverImageUrl={community.cover_image_url}
+          members={coverMembers}
+          memberCount={community.member_count}
+          className="h-44 w-full rounded-24 border border-border shadow-soft sm:h-48"
+        />
+
+        <div className="min-w-0">
+          <h2 className="truncate font-rounded text-3xl font-semibold tracking-[-0.03em] text-brand-dark">
+            {community.name}
+          </h2>
+
+          <p className="mt-1.5 flex items-center gap-1.5 text-sm text-secondary">
+            <LocationIcon />
+            {community.city}
+          </p>
+
+          <span className="mt-2 inline-flex rounded-full border border-primary/30 bg-surface px-3 py-1 text-xs font-bold text-primary-dark shadow-soft">
+            {isOwner ? "Anfitrión" : "Miembro"}
+          </span>
+
+          <p className="mt-2 text-sm font-semibold text-secondary">
+            {community.member_count} de {community.max_members} miembros
+          </p>
+
+          <div className="mt-3 flex items-center -space-x-2">
+            {community.members.slice(0, 5).map((member) => (
+              <UserAvatar
+                key={member.id}
+                firstName={member.user.first_name}
+                lastName={member.user.last_name}
+                userId={member.user.id}
+                imageUrl={member.user.avatar_url}
+                size="md"
+                className="border-2 border-white"
+              />
+            ))}
+
+            {availablePlaces > 0 && isOwner && (
+              <button
+                type="button"
+                onClick={() => toggle("invitations")}
+                aria-label="Invitar personas"
+                className="ml-2 flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-secondary bg-surface text-xl text-primary shadow-soft"
+              >
+                +
+              </button>
+            )}
+          </div>
+        </div>
       </section>
 
-      <section className="rounded-18 border border-line bg-surface p-4 sm:p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-dark">
-          Quiénes forman la comunidad
-        </p>
+      <section className="mt-7">
+        <h2 className="mb-3 text-lg font-extrabold text-foreground">Vuestra comunidad</h2>
 
-        <p className="mt-2 text-sm font-bold text-foreground">
-          {getProfileTypeLabel(community.profile_type)}
-        </p>
+        <div className="grid gap-3 md:grid-cols-[1.2fr_0.8fr]">
+          <div className="divide-y divide-border overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
+            {owner && (
+              <Link
+                href={`/personas/${owner.user_id}`}
+                className="flex min-h-16 items-center gap-3 px-4 py-3 transition hover:bg-surface-soft"
+              >
+                <UserAvatar
+                  firstName={owner.user.first_name}
+                  lastName={owner.user.last_name}
+                  userId={owner.user.id}
+                  imageUrl={owner.user.avatar_url}
+                  size="md"
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-bold text-foreground">
+                    {`${owner.user.first_name} ${owner.user.last_name}`.trim()}
+                    {owner.user_id === currentUserId ? " (tú)" : ""}
+                  </span>
+                  <span className="mt-0.5 block text-xs font-bold text-primary-dark">Anfitrión</span>
+                </span>
+                <ChevronIcon />
+              </Link>
+            )}
 
-        {community.profile_description && (
-          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-muted">
-            {community.profile_description}
-          </p>
-        )}
+            <button
+              type="button"
+              onClick={() => (isOwner ? toggle("invitations") : onOpenPanel("members"))}
+              className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-surface-soft"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-xl text-primary shadow-soft">+</span>
+              <span className="flex-1 text-sm font-bold text-foreground">
+                {isOwner ? "Invitar personas" : "Ver miembros"}
+              </span>
+              <ChevronIcon />
+            </button>
+          </div>
+
+          <Link
+            href="/usuarios"
+            className="flex items-center gap-3 rounded-18 border border-primary/30 bg-surface p-4 shadow-soft transition hover:border-primary"
+          >
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center text-primary">
+              <PeopleIcon />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-base font-extrabold text-foreground">
+                {availablePlaces} {availablePlaces === 1 ? "plaza disponible" : "plazas disponibles"}
+              </span>
+              <span className="mt-1 block text-xs leading-5 text-secondary">
+                Encuentra personas que encajen con vuestro estilo de convivencia.
+              </span>
+              <span className="mt-2 flex items-center gap-2 text-sm font-bold text-primary-dark">
+                Buscar personas <ArrowRightIcon />
+              </span>
+            </span>
+          </Link>
+        </div>
       </section>
 
-      {community.preferences && (
-        <section className="rounded-18 border border-line bg-surface p-4 sm:p-5">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-dark">
-            Información de convivencia
-          </p>
-
-          <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
-            <PreferenceRow
-              label="Limpieza"
-              value={community.preferences.cleanliness}
-            />
-            <PreferenceRow
-              label="Ambiente"
-              value={community.preferences.atmosphere}
-            />
-            <PreferenceRow
-              label="Visitas"
-              value={community.preferences.visits}
-            />
-            <PreferenceRow
-              label="Invitados a dormir"
-              value={community.preferences.sleepovers}
-            />
-            <PreferenceRow
-              label="Tabaco"
-              value={community.preferences.smoking}
-            />
-            <PreferenceRow
-              label="Mascotas"
-              value={community.preferences.pets}
-            />
-            <PreferenceRow
-              label="Reglas"
-              value={community.preferences.rules}
-            />
-            <PreferenceRow
-              label="Tipo de convivencia"
-              value={community.preferences.lifestyle}
-            />
+      {isOwner && expanded === "invitations" && (
+        <section className="mt-5">
+          <SectionTitle title="Invitaciones" onClose={() => setExpanded(null)} />
+          <div className="overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
+            <CommunityInvitationsManager communityId={community.id} />
           </div>
         </section>
       )}
 
-      <section className="rounded-18 border border-line bg-surface p-4 sm:p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-dark">
-          Condiciones de la plaza
-        </p>
+      <div className="mt-7 grid gap-5 md:grid-cols-2">
+        <section>
+          <h2 className="mb-3 text-lg font-extrabold text-foreground">Cómo queréis vivir</h2>
+          <div className="overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
+            <div className="grid grid-cols-2 gap-px bg-border">
+              <Fact icon={<MoneyIcon />} label={community.monthly_rent !== null ? `${community.monthly_rent.toLocaleString("es-ES")} €/persona` : "Presupuesto por acordar"} />
+              <Fact icon={<PeopleIcon />} label={`${community.max_members} personas`} />
+              <Fact icon={<CalendarIcon />} label={formatMoveInDate(community.move_in_date)} />
+              <Fact icon={<LeafIcon />} label={community.preferences?.atmosphere || getProfileTypeLabel(community.profile_type)} />
+            </div>
 
-        <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-          <PreferenceRow
-            label="Aportación mensual esperada"
-            value={
-              community.monthly_rent !== null
-                ? `${community.monthly_rent.toLocaleString("es-ES")} €/mes`
-                : "Por consultar"
-            }
-          />
+            <button
+              type="button"
+              onClick={() => toggle("preferences")}
+              className="flex h-13 w-full items-center justify-between border-t border-border px-4 text-sm font-bold text-primary-dark"
+            >
+              Ver preferencias
+              <ArrowRightIcon />
+            </button>
+          </div>
+        </section>
 
-          <PreferenceRow
-            label="Fianza"
-            value={
-              community.deposit !== null
-                ? `${community.deposit.toLocaleString("es-ES")} €`
-                : "Por consultar"
-            }
-          />
+        <section>
+          <h2 className="mb-3 text-lg font-extrabold text-foreground">Sobre {community.name}</h2>
+          <div className="flex min-h-[196px] flex-col rounded-18 border border-border bg-surface p-4 shadow-soft">
+            <p className="whitespace-pre-line text-sm leading-6 text-secondary">
+              {visibleDescription}
+            </p>
+            {community.profile_description && (
+              <p className="mt-3 whitespace-pre-line text-sm leading-6 text-secondary">
+                {descriptionExpanded
+                  ? community.profile_description
+                  : truncateText(community.profile_description, 120)}
+              </p>
+            )}
+            {(community.description.length > 210 || (community.profile_description?.length ?? 0) > 120) && (
+              <button
+                type="button"
+                onClick={() => setDescriptionExpanded((current) => !current)}
+                className="mt-auto pt-3 text-left text-sm font-bold text-primary-dark"
+              >
+                {descriptionExpanded ? "Ver menos" : "Ver más"}
+              </button>
+            )}
+          </div>
+        </section>
+      </div>
 
-          <PreferenceRow
-            label="Fecha de entrada"
-            value={formatMoveInDate(community.move_in_date)}
-          />
+      {expanded === "preferences" && community.preferences && (
+        <section className="mt-5 rounded-18 border border-border bg-surface p-4 shadow-soft">
+          <SectionTitle title="Preferencias de convivencia" onClose={() => setExpanded(null)} />
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <Preference label="Limpieza" value={community.preferences.cleanliness} />
+            <Preference label="Ambiente" value={community.preferences.atmosphere} />
+            <Preference label="Visitas" value={community.preferences.visits} />
+            <Preference label="Invitados" value={community.preferences.sleepovers} />
+            <Preference label="Tabaco" value={community.preferences.smoking} />
+            <Preference label="Mascotas" value={community.preferences.pets} />
+            <Preference label="Reglas" value={community.preferences.rules} />
+            <Preference label="Estilo" value={community.preferences.lifestyle} />
+          </div>
+        </section>
+      )}
 
-          <PreferenceRow
-            label="Plazas abiertas"
-            value={String(community.open_spots)}
-          />
-        </div>
+      <section className="mt-7">
+        <h2 className="mb-3 text-lg font-extrabold text-foreground">Gestionar comunidad</h2>
 
-        <p className="mt-3 text-sm text-muted">
-          Forma de acceso:{" "}
-          <span className="font-bold text-foreground">
-            {community.join_type === "OPEN"
-              ? "Entrada directa"
-              : "Acceso mediante solicitud"}
-          </span>
-        </p>
-      </section>
+        <SettingsSection label="">
+          <SettingsRow icon={MessageIcon} title="Mensajes de la comunidad" onClick={() => onOpenPanel("chat")} />
+          <SettingsRow icon={MembersIcon} title="Gestionar miembros" onClick={() => onOpenPanel("members")} />
 
-      {!isOwner && <CommunityRentSplit communityId={community.id} />}
+          {isOwner && (
+            <>
+              <SettingsRow icon={EditIcon} title="Editar información" href={`/comunidades/${community.id}/editar`} />
+              <SettingsRow icon={ApplicationsIcon} title="Solicitudes para entrar" onClick={() => onOpenPanel("applications")} />
+              <SettingsRow icon={InviteIcon} title="Invitaciones" onClick={() => toggle("invitations")} expanded={expanded === "invitations"} />
+              <SettingsRow icon={SpotsIcon} title="Gestionar plazas" onClick={() => toggle("spots")} expanded={expanded === "spots"} />
+              <SettingsRow icon={WalletIcon} title="Reparto del alquiler" onClick={() => toggle("rent")} expanded={expanded === "rent"} />
+              <SettingsRow icon={ShareIcon} title={shareLabel} onClick={handleShare} />
+            </>
+          )}
 
-      <Link
-        href={`/comunidades/${community.id}`}
-        className="flex min-h-11 items-center gap-2 text-sm font-bold text-brand-dark active:scale-[0.98] sm:inline-flex"
-      >
-        Ver perfil público de la comunidad
-        <ArrowRightIcon />
-      </Link>
-    </div>
-  );
-}
+          <SettingsRow icon={PublicIcon} title="Ver perfil público" href={`/comunidades/${community.id}`} />
+        </SettingsSection>
 
-function GestionTab({
-  community,
-  onOpenSolicitudes,
-}: {
-  community: Community;
-  onOpenSolicitudes: () => void;
-}) {
-  const [expanded, setExpanded] = useState<
-    "plazas" | "invitaciones" | "reparto" | null
-  >(null);
-
-  function toggle(key: "plazas" | "invitaciones" | "reparto") {
-    setExpanded((current) => (current === key ? null : key));
-  }
-
-  return (
-    <div className="space-y-5">
-      <SettingsSection label="Comunidad">
-        <SettingsRow
-          icon={EditIcon}
-          title="Editar información"
-          subtitle="Cambia nombre, descripción y preferencias"
-          href={`/comunidades/${community.id}/editar`}
-        />
-
-        <SettingsRow
-          icon={SpotsIcon}
-          title="Gestionar plazas"
-          subtitle="Abre o cierra plazas para nuevos miembros"
-          onClick={() => toggle("plazas")}
-          expanded={expanded === "plazas"}
-        />
-
-        {expanded === "plazas" && (
-          <div className="border-t border-line bg-surface-soft/40">
+        {expanded === "spots" && (
+          <div className="mt-3 rounded-18 border border-border bg-surface shadow-soft">
             <OpenSpotsManager community={community} onUpdated={() => {}} />
           </div>
         )}
 
-        <SettingsRow
-          icon={MailIcon}
-          title="Invitaciones para compañeros actuales"
-          subtitle="Para personas que ya viven contigo"
-          iconClassName="bg-amber-100 text-amber-700"
-          onClick={() => toggle("invitaciones")}
-          expanded={expanded === "invitaciones"}
-        />
-
-        {expanded === "invitaciones" && (
-          <div className="border-t border-line bg-surface-soft/40">
-            <CommunityInvitationsManager communityId={community.id} />
-          </div>
-        )}
-
-        <SettingsRow
-          icon={InboxIcon}
-          title="Solicitudes para ocupar plazas"
-          subtitle="Para personas nuevas interesadas en entrar"
-          iconClassName="bg-brand/10 text-brand-dark"
-          onClick={onOpenSolicitudes}
-        />
-      </SettingsSection>
-
-      <div className="flex items-start gap-3 rounded-18 border border-amber-100 bg-amber-50/70 p-3.5">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-amber-100 text-amber-700">
-          <InfoIcon />
-        </span>
-
-        <div className="min-w-0">
-          <p className="text-sm font-bold text-amber-900">
-            Eres el administrador
-          </p>
-
-          <p className="mt-0.5 text-xs leading-5 text-amber-800/90">
-            Para salir, primero tendrás que transferir la administración
-            o cerrar la comunidad.
-          </p>
-        </div>
-      </div>
-
-      <SettingsSection label="Economía">
-        <SettingsRow
-          icon={WalletIcon}
-          title="Reparto del alquiler"
-          subtitle="Alquiler total y aportación de cada miembro"
-          onClick={() => toggle("reparto")}
-          expanded={expanded === "reparto"}
-        />
-
-        {expanded === "reparto" && (
-          <div className="border-t border-line bg-surface-soft/40">
+        {expanded === "rent" && isOwner && (
+          <div className="mt-3 rounded-18 border border-border bg-surface shadow-soft">
             <CommunityRentSplitManager communityId={community.id} />
           </div>
         )}
-      </SettingsSection>
 
-      <section>
-        <p className="px-1 text-xs font-bold uppercase tracking-[0.12em] text-red-500">
-          Zona peligrosa
-        </p>
-
-        <div className="mt-2">
-          <CommunityOwnerActions community={community} />
-        </div>
+        {!isOwner && (
+          <div className="mt-3 space-y-3">
+            <CommunityRentSplit communityId={community.id} />
+            <LeaveCommunityButton communityId={community.id} />
+          </div>
+        )}
       </section>
+
+      {isOwner && (
+        <section className="mt-5">
+          <button
+            type="button"
+            onClick={() => toggle("danger")}
+            className="flex h-13 w-full items-center justify-between rounded-18 border border-red-200 bg-surface px-4 text-sm font-bold text-red-600 shadow-soft"
+          >
+            Cerrar comunidad
+            <ChevronIcon />
+          </button>
+
+          {expanded === "danger" && (
+            <div className="mt-3">
+              <CommunityOwnerActions community={community} />
+            </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }
 
-function PreferenceRow({
-  label,
-  value,
+function PrivatePanel({
+  panel,
+  community,
+  currentUserId,
+  isOwner,
+  onBack,
 }: {
-  label: string;
-  value: string;
+  panel: Exclude<Panel, "dashboard">;
+  community: Community;
+  currentUserId: string;
+  isOwner: boolean;
+  onBack: () => void;
 }) {
+  const titles: Record<Exclude<Panel, "dashboard">, string> = {
+    chat: "Mensajes",
+    members: "Miembros",
+    applications: "Solicitudes",
+  };
+
   return (
-    <div className="rounded-14 bg-surface-soft px-3.5 py-2.5">
-      <p className="text-xs font-semibold text-muted">{label}</p>
+    <div className={`mx-auto w-full ${panel === "chat" ? "max-w-4xl" : "max-w-3xl"}`}>
+      <header className="mb-5 flex h-11 items-center gap-3">
+        <button type="button" onClick={onBack} aria-label="Volver al resumen" className="flex h-10 w-10 items-center justify-start text-brand-dark">
+          <ArrowLeftIcon />
+        </button>
+        <div className="min-w-0">
+          <h1 className="truncate text-xl font-extrabold text-foreground">{titles[panel]}</h1>
+          <p className="truncate text-xs text-secondary">{community.name}</p>
+        </div>
+      </header>
+
+      {panel === "chat" && <CommunityChat communityId={community.id} currentUserId={currentUserId} />}
+      {panel === "members" && <CommunityMembersList members={community.members} />}
+      {panel === "applications" && isOwner && <CommunityApplicationsManager communityId={community.id} />}
+      {panel === "applications" && !isOwner && (
+        <p className="rounded-18 border border-border bg-surface p-5 text-sm text-secondary shadow-soft">
+          Solo el anfitrión puede gestionar las solicitudes.
+        </p>
+      )}
+    </div>
+  );
+}
+
+function NoCommunity() {
+  return (
+    <div className="mx-auto flex min-h-[60dvh] max-w-xl flex-col items-center justify-center px-6 text-center">
+      <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Todavía no tienes comunidad</h1>
+      <p className="mt-3 max-w-md text-sm leading-6 text-secondary">
+        Explora las comunidades disponibles o crea la tuya para tener aquí vuestro espacio privado.
+      </p>
+      <div className="mt-6 flex gap-3">
+        <Link href="/comunidades" className="flex h-11 items-center rounded-14 border border-border bg-surface px-5 text-sm font-bold text-foreground shadow-soft">Explorar</Link>
+        <Link href="/crear/comunidad" className="flex h-11 items-center rounded-14 bg-primary px-5 text-sm font-bold text-white shadow-button">Crear comunidad</Link>
+      </div>
+    </div>
+  );
+}
+
+function Fact({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <div className="flex min-h-17 items-center gap-2 bg-surface p-3">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center text-primary">{icon}</span>
+      <span className="text-xs font-bold leading-5 text-foreground">{label}</span>
+    </div>
+  );
+}
+
+function Preference({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-14 border border-border bg-surface px-3 py-2.5 shadow-soft">
+      <p className="text-[11px] font-semibold text-secondary">{label}</p>
       <p className="mt-0.5 text-sm font-bold text-foreground">{value}</p>
     </div>
   );
 }
 
+function SectionTitle({ title, onClose }: { title: string; onClose: () => void }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <h2 className="text-lg font-extrabold text-foreground">{title}</h2>
+      <button type="button" onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-surface text-secondary shadow-soft" aria-label="Cerrar">×</button>
+    </div>
+  );
+}
+
+function truncateText(value: string, maxLength: number) {
+  return value.length <= maxLength ? value : `${value.slice(0, maxLength).trim()}…`;
+}
+
 function formatMoveInDate(value: string | null) {
-  if (!value) return "Fecha flexible";
-
+  if (!value) return "Entrada flexible";
   const date = new Date(`${value}T00:00:00`);
-
-  if (Number.isNaN(date.getTime())) return "Por consultar";
-
-  return new Intl.DateTimeFormat("es-ES", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
+  if (Number.isNaN(date.getTime())) return "Entrada por acordar";
+  return `Entrada en ${new Intl.DateTimeFormat("es-ES", { month: "long" }).format(date)}`;
 }
 
-function ArrowRightIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4"
-      aria-hidden="true"
-    >
-      <path d="M5 12h14" />
-      <path d="m13 6 6 6-6 6" />
-    </svg>
-  );
+type IconProps = { className?: string };
+
+function BaseIcon({ children, className = "h-5 w-5" }: { children: React.ReactNode; className?: string }) {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">{children}</svg>;
 }
 
-function EditIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 20h9" />
-      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
-    </svg>
-  );
-}
-
-function SpotsIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="9" cy="7" r="4" />
-      <path d="M2 21a7 7 0 0 1 14 0" />
-      <path d="M19 8v6" />
-      <path d="M16 11h6" />
-    </svg>
-  );
-}
-
-function MailIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M3 6h18v12H3z" />
-      <path d="m3 7 9 6 9-6" />
-    </svg>
-  );
-}
-
-function InboxIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 12h4l2 3h4l2-3h4" />
-      <path d="M5.5 5h13l2 7v6a1 1 0 0 1-1 1H4.5a1 1 0 0 1-1-1v-6Z" />
-    </svg>
-  );
-}
-
-function WalletIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v2" />
-      <path d="M3 7v11a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1h-4a2 2 0 1 1 0-4h4a1 1 0 0 0 1-1" />
-    </svg>
-  );
-}
-
-function InfoIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className ?? "h-4.5 w-4.5"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 8h.01" />
-      <path d="M11 12h1v4h1" />
-    </svg>
-  );
-}
+function ArrowLeftIcon() { return <BaseIcon className="h-6 w-6"><path d="M19 12H5M11 18l-6-6 6-6" /></BaseIcon>; }
+function ArrowRightIcon() { return <BaseIcon className="h-4 w-4"><path d="M5 12h14M13 6l6 6-6 6" /></BaseIcon>; }
+function ChevronIcon() { return <BaseIcon className="h-4 w-4 text-muted"><path d="m9 6 6 6-6 6" /></BaseIcon>; }
+function MoreIcon() { return <BaseIcon className="h-6 w-6"><circle cx="5" cy="12" r="1" fill="currentColor" /><circle cx="12" cy="12" r="1" fill="currentColor" /><circle cx="19" cy="12" r="1" fill="currentColor" /></BaseIcon>; }
+function LocationIcon() { return <BaseIcon className="h-4 w-4"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></BaseIcon>; }
+function PeopleIcon({ className }: IconProps) { return <BaseIcon className={className ?? "h-6 w-6"}><circle cx="9" cy="7" r="4" /><path d="M2 21a7 7 0 0 1 14 0M17 7a3 3 0 0 1 0 6M22 21a5 5 0 0 0-5-5" /></BaseIcon>; }
+function MoneyIcon() { return <BaseIcon><circle cx="12" cy="12" r="9" /><path d="M15 8.5a4 4 0 1 0 0 7M7 11h7M7 14h7" /></BaseIcon>; }
+function CalendarIcon() { return <BaseIcon><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 10h18" /></BaseIcon>; }
+function LeafIcon() { return <BaseIcon><path d="M20 4S8 3 5 12c-2 6 4 8 7 5 4-4 4-8 8-13Z" /><path d="M4 20c4-6 8-8 13-11" /></BaseIcon>; }
+function MessageIcon({ className }: IconProps) { return <BaseIcon className={className}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" /></BaseIcon>; }
+function MembersIcon({ className }: IconProps) { return <PeopleIcon className={className} />; }
+function EditIcon({ className }: IconProps) { return <BaseIcon className={className}><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" /></BaseIcon>; }
+function ApplicationsIcon({ className }: IconProps) { return <BaseIcon className={className}><path d="M3 6h18v12H3zM3 7l9 6 9-6" /></BaseIcon>; }
+function InviteIcon({ className }: IconProps) { return <BaseIcon className={className}><circle cx="9" cy="7" r="4" /><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" /></BaseIcon>; }
+function SpotsIcon({ className }: IconProps) { return <PeopleIcon className={className} />; }
+function WalletIcon({ className }: IconProps) { return <BaseIcon className={className}><rect x="3" y="5" width="18" height="15" rx="2" /><path d="M16 10h5v5h-5a2.5 2.5 0 0 1 0-5Z" /></BaseIcon>; }
+function ShareIcon({ className }: IconProps) { return <BaseIcon className={className}><path d="M12 16V3M7 8l5-5 5 5M5 12v8h14v-8" /></BaseIcon>; }
+function PublicIcon({ className }: IconProps) { return <BaseIcon className={className}><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="2.5" /></BaseIcon>; }
