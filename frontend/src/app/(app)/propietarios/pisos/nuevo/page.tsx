@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
-import PropertyForm from "@/components/propietario/PropertyForm";
+import PropertyPublishFlow from "@/components/propietario/PropertyPublishFlow";
 
 export default function NuevoPisoPage() {
   const { ownerProfile, ownerProfileLoading } = useAuth();
@@ -37,5 +37,5 @@ export default function NuevoPisoPage() {
     );
   }
 
-  return <PropertyForm />;
+  return <PropertyPublishFlow />;
 }

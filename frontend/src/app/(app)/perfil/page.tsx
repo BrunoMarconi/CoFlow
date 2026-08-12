@@ -91,7 +91,11 @@ export default function PerfilPage() {
     .filter(Boolean)
     .join(" · ");
   const communityHref = community ? "/mi-comunidad" : "/comunidades";
-  const ownerHref = ownerProfile ? "/propietarios" : "/propietarios/perfil";
+  // El acceso de propietario abre el recorrido de publicación antes que el
+  // panel técnico: así la acción principal siempre es añadir una vivienda.
+  const ownerHref = ownerProfile
+    ? "/propietarios/pisos/nuevo"
+    : "/propietarios/perfil";
 
   return (
     <motion.div

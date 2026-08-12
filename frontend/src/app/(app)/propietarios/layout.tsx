@@ -19,6 +19,10 @@ export default function PropietariosLayout({
 }) {
   const pathname = usePathname();
 
+  if (pathname === "/propietarios/pisos/nuevo") {
+    return <>{children}</>;
+  }
+
   return (
     <div className="mx-auto w-full max-w-6xl">
       <div className="flex items-center justify-between gap-3">

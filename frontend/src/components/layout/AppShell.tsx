@@ -58,6 +58,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const isDesktop = useMediaQuery("(min-width: 640px)");
   const pathname = usePathname();
   const router = useRouter();
+  // El asistente de publicación es una experiencia guiada a pantalla completa:
+  // no debe competir visualmente con la navegación general de CoFlow.
+  const isImmersiveOwnerFlow = pathname === "/propietarios/pisos/nuevo";
 
   // Personas <-> Comunidades y Personas/Comunidades <-> Tu Comunidad:
   // la prioridad es velocidad, no la animación. La navegación nunca
@@ -208,17 +211,18 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-background">
-      <Navbar />
+      {!isImmersiveOwnerFlow && <Navbar />}
 
       <div className="flex w-full">
-        <Sidebar />
+        {!isImmersiveOwnerFlow && <Sidebar />}
 
         <main
           className={cn(
             // overflow-x-hidden aquí rompería position: sticky en todo
             // lo que cuelgue de esta rama (buscadores, tabs...) — el
             // guard de scroll horizontal ya vive en html (globals.css).
-            "min-w-0 flex-1 md:ml-66 md:pb-8",
+            "min-w-0 flex-1",
+            isImmersiveOwnerFlow ? "pb-0" : "md:ml-66 md:pb-8",
             // Con un chat a pantalla completa activo en móvil, BottomNavigation
             // se oculta: reservarle espacio dejaría un hueco vacío debajo.
             isChatActive
@@ -228,11 +232,15 @@ export default function AppShell({ children }: { children: ReactNode }) {
         >
           <div
             className={cn(
-              "mx-auto w-full max-w-7xl sm:px-8 sm:py-6 lg:px-10",
-              isChatActive ? "px-0 py-0" : "px-6 py-4 sm:px-8 sm:py-6"
+              isImmersiveOwnerFlow
+                ? "w-full"
+                : "mx-auto w-full max-w-7xl sm:px-8 sm:py-6 lg:px-10",
+              isImmersiveOwnerFlow || isChatActive
+                ? "px-0 py-0"
+                : "px-6 py-4 sm:px-8 sm:py-6"
             )}
           >
-            {!isChatActive && (
+            {!isChatActive && !isImmersiveOwnerFlow && (
               <>
                 <EmailVerificationBanner />
                 <ProfileCompletionBanner />
@@ -244,14 +252,14 @@ export default function AppShell({ children }: { children: ReactNode }) {
               style={{ transformPerspective: 1000 }}
             >
               <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
-                <SwipeNavigation>{children}</SwipeNavigation>
+                {isImmersiveOwnerFlow ? children : <SwipeNavigation>{children}</SwipeNavigation>}
               </ViewTransition>
             </motion.div>
           </div>
         </main>
       </div>
 
-      <BottomNavigation />
+      {!isImmersiveOwnerFlow && <BottomNavigation />}
       <Toaster />
       {transitionTarget && (
         <OwnerModeTransition
