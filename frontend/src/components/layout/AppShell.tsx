@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode, ViewTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  type ReactNode,
+  ViewTransition,
+} from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, useAnimationControls, useReducedMotion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
@@ -190,7 +196,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  function handleModeTransitionComplete() {
+  const handleModeTransitionComplete = useCallback(() => {
     const nextMode = completeModeSwitch();
 
     if (nextMode === "owner") {
@@ -198,7 +204,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     } else if (nextMode === "member") {
       router.push("/perfil");
     }
-  }
+  }, [completeModeSwitch, router]);
 
   return (
     <div className="min-h-dvh bg-background">

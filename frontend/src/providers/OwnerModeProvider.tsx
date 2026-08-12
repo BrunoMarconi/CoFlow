@@ -3,13 +3,11 @@
 import {
   createContext,
   useCallback,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { getMyProperties } from "@/services/properties";
 
@@ -24,20 +22,13 @@ type OwnerModeContextValue = {
   completeModeSwitch: () => CoFlowMode | null;
 };
 
-const OWNER_MODE_STORAGE_PREFIX = "coflow:mode";
-
 export const OwnerModeContext = createContext<OwnerModeContextValue | undefined>(
   undefined
 );
 
-function getStorageKey(userId: number) {
-  return `${OWNER_MODE_STORAGE_PREFIX}:${userId}`;
-}
-
 export default function OwnerModeProvider({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
   const { user, ownerProfile, ownerProfileLoading } = useAuth();
-  const [mode, setMode] = useState<CoFlowMode>("member");
+  const [ownerModeUserId, setOwnerModeUserId] = useState<string | null>(null);
   const [transitionTarget, setTransitionTarget] = useState<CoFlowMode | null>(
     null
   );
@@ -55,76 +46,50 @@ export default function OwnerModeProvider({ children }: { children: ReactNode })
     (property) => property.status === "PUBLISHED"
   );
 
-  const persistMode = useCallback(
-    (nextMode: CoFlowMode) => {
-      if (!user || typeof window === "undefined") return;
-
-      window.localStorage.setItem(getStorageKey(user.id), nextMode);
-    },
-    [user]
-  );
-
-  // El modo es personal a cada cuenta y se recupera solo cuando ya sabemos
-  // si esa cuenta conserva algún piso publicado. Así no se filtra el modo de
-  // propietario a otra sesión que use el mismo navegador.
-  useEffect(() => {
-    if (propertiesLoading) return;
-
-    if (!user || !hasPublishedProperties) {
-      setMode("member");
-      setTransitionTarget(null);
-      return;
-    }
-
-    const storedMode = window.localStorage.getItem(getStorageKey(user.id));
-    setMode(storedMode === "owner" ? "owner" : "member");
-  }, [hasPublishedProperties, propertiesLoading, user]);
-
-  // Si el usuario entra directamente en una ruta de propietario, la
-  // navegación se adapta de inmediato sin obligarle a volver antes al Perfil.
-  useEffect(() => {
-    if (
-      propertiesLoading ||
-      !hasPublishedProperties ||
-      !pathname.startsWith("/propietarios")
-    ) {
-      return;
-    }
-
-    setMode("owner");
-    persistMode("owner");
-  }, [hasPublishedProperties, pathname, persistMode, propertiesLoading]);
+  // El cambio vive durante la sesión actual y queda ligado a la cuenta que lo
+  // activó. Al cerrar sesión, ninguna cuenta posterior hereda este modo.
+  const isOwnerMode =
+    hasPublishedProperties && ownerModeUserId === (user?.id ?? null);
 
   const requestModeSwitch = useCallback(
     (target: CoFlowMode) => {
-      if (target === mode || (target === "owner" && !hasPublishedProperties)) {
+      if (
+        target === (isOwnerMode ? "owner" : "member") ||
+        (target === "owner" && !hasPublishedProperties)
+      ) {
         return;
       }
 
       setTransitionTarget(target);
     },
-    [hasPublishedProperties, mode]
+    [hasPublishedProperties, isOwnerMode]
   );
 
   const completeModeSwitch = useCallback(() => {
     if (!transitionTarget) return null;
 
-    setMode(transitionTarget);
-    persistMode(transitionTarget);
+    setOwnerModeUserId(transitionTarget === "owner" ? user?.id ?? null : null);
     setTransitionTarget(null);
     return transitionTarget;
-  }, [persistMode, transitionTarget]);
+  }, [transitionTarget, user?.id]);
 
   const value = useMemo(
     () => ({
-      isOwnerMode: mode === "owner",
+      isOwnerMode,
       hasPublishedProperties,
       propertiesLoading,
       transitionTarget,
       requestModeSwitch,
       completeModeSwitch,
     }),
-    [completeModeSwitch, hasPublishedProperties, mode, propertiesLoading, requestModeSwitch, transitionTarget]
+    [
+      completeModeSwitch,
+      hasPublishedProperties,
+      isOwnerMode,
+      propertiesLoading,
+      requestModeSwitch,
+      transitionTarget,
+    ]
   );
 
   return (

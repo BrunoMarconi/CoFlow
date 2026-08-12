@@ -38,10 +38,7 @@ export default function PerfilPage() {
       .then((profile) => {
         if (!active) return;
 
-        const { id, user_id, created_at, updated_at, ...onboardingAnswers } =
-          profile;
-
-        setAnswers(onboardingAnswers);
+        setAnswers(profile);
       })
       .catch(() => {
         if (active) setAnswers({});
