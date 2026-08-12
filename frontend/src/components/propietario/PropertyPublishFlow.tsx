@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
@@ -42,8 +49,8 @@ const HOME_CHOICES: {
   { id: "APARTMENT", label: "Piso", propertyType: "APARTMENT", icon: "building" },
   { id: "HOUSE", label: "Casa", propertyType: "HOUSE", icon: "house" },
   { id: "STUDIO", label: "Estudio", propertyType: "STUDIO", icon: "studio" },
-  { id: "PENTHOUSE", label: "Ático", propertyType: "APARTMENT", icon: "penthouse" },
-  { id: "DUPLEX", label: "Dúplex", propertyType: "HOUSE", icon: "duplex" },
+  { id: "PENTHOUSE", label: "ÃƒÂtico", propertyType: "APARTMENT", icon: "penthouse" },
+  { id: "DUPLEX", label: "DÃƒÂºplex", propertyType: "HOUSE", icon: "duplex" },
   { id: "CHALET", label: "Chalet", propertyType: "HOUSE", icon: "chalet" },
 ];
 
@@ -61,14 +68,14 @@ const SPACE_CHOICES: {
   },
   {
     id: "private-room",
-    title: "Habitación privada",
-    description: "La opción más común para compartir piso.",
+    title: "HabitaciÃƒÂ³n privada",
+    description: "La opciÃƒÂ³n mÃƒÂ¡s comÃƒÂºn para compartir piso.",
     icon: "bed",
   },
   {
     id: "shared-room",
-    title: "Habitación compartida",
-    description: "Para habitaciones con más de una persona.",
+    title: "HabitaciÃƒÂ³n compartida",
+    description: "Para habitaciones con mÃƒÂ¡s de una persona.",
     icon: "bunk",
   },
 ];
@@ -76,7 +83,7 @@ const SPACE_CHOICES: {
 const VIBE_TAGS = [
   "Tranquilo",
   "Luminoso",
-  "Céntrico",
+  "CÃƒÂ©ntrico",
   "Estudiantes",
   "Con terraza",
   "Ordenado",
@@ -88,6 +95,8 @@ export default function PropertyPublishFlow() {
   const [started, setStarted] = useState(false);
   const [step, setStep] = useState<WizardStep>(1);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [addressSheetOpen, setAddressSheetOpen] = useState(false);
+  const addressInputRef = useRef<HTMLInputElement>(null);
   const [amenities, setAmenities] = useState<Amenity[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<number[]>([]);
   const [selectedVibes, setSelectedVibes] = useState<string[]>([]);
@@ -132,7 +141,7 @@ export default function PropertyPublishFlow() {
         if (active) setAmenities(items);
       })
       .catch(() => {
-        // Las comodidades siguen siendo opcionales si el catálogo no carga.
+        // Las comodidades siguen siendo opcionales si el catÃƒÂ¡logo no carga.
       });
 
     return () => {
@@ -149,6 +158,13 @@ export default function PropertyPublishFlow() {
       pendingPhotosRef.current.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
     };
   }, []);
+
+  useEffect(() => {
+    if (!addressSheetOpen) return;
+
+    const focusTimer = window.setTimeout(() => addressInputRef.current?.focus(), 220);
+    return () => window.clearTimeout(focusTimer);
+  }, [addressSheetOpen]);
 
   const selectedHome = useMemo(
     () => HOME_CHOICES.find((choice) => choice.id === homeChoice) ?? HOME_CHOICES[0],
@@ -175,7 +191,7 @@ export default function PropertyPublishFlow() {
   }
 
   function previousStep() {
-    if (step === 1) {
+    if (step === 1 || step === 2) {
       setStarted(false);
       return;
     }
@@ -185,9 +201,9 @@ export default function PropertyPublishFlow() {
 
   function validateCurrentStep(): string | null {
     if (step === 2) {
-      if (!addressLine.trim()) return "Busca o escribe la dirección de la vivienda.";
+      if (!addressLine.trim()) return "Busca o escribe la direcciÃƒÂ³n de la vivienda.";
       if (!city.trim() || !province.trim() || !postalCode.trim()) {
-        return "Completa ciudad, provincia y código postal para continuar.";
+        return "Completa ciudad, provincia y cÃƒÂ³digo postal para continuar.";
       }
     }
 
@@ -197,22 +213,22 @@ export default function PropertyPublishFlow() {
 
     if (step === 6) {
       if (bedrooms < 0 || bathrooms < 1 || maxTenants < 1) {
-        return "Revisa habitaciones, baños y plazas totales.";
+        return "Revisa habitaciones, baÃƒÂ±os y plazas totales.";
       }
       if (availableRooms < 0 || availableRooms > Math.max(bedrooms, 1)) {
         return "Las habitaciones disponibles no pueden superar las habitaciones totales.";
       }
-      if (!availableFrom) return "Indica cuándo estará disponible la vivienda.";
+      if (!availableFrom) return "Indica cuÃƒÂ¡ndo estarÃƒÂ¡ disponible la vivienda.";
     }
 
     if (step === 8 && pendingPhotos.length < MIN_PHOTOS_TO_PUBLISH) {
-      return `Añade al menos ${MIN_PHOTOS_TO_PUBLISH} fotos para publicar.`;
+      return `AÃƒÂ±ade al menos ${MIN_PHOTOS_TO_PUBLISH} fotos para publicar.`;
     }
 
     if (step === 9) {
-      if (title.trim().length < 5) return "El título debe tener al menos 5 caracteres.";
+      if (title.trim().length < 5) return "El tÃƒÂ­tulo debe tener al menos 5 caracteres.";
       if (description.trim().length < 30) {
-        return "Cuéntanos un poco más: la descripción necesita al menos 30 caracteres.";
+        return "CuÃƒÂ©ntanos un poco mÃƒÂ¡s: la descripciÃƒÂ³n necesita al menos 30 caracteres.";
       }
     }
 
@@ -223,7 +239,7 @@ export default function PropertyPublishFlow() {
       if (!deposit || Number(deposit) < 0) return "Indica la fianza.";
       if (!availableFrom) return "Indica la fecha de entrada disponible.";
       if (!minimumStayMonths || Number(minimumStayMonths) < 1) {
-        return "Indica una estancia mínima de al menos un mes.";
+        return "Indica una estancia mÃƒÂ­nima de al menos un mes.";
       }
     }
 
@@ -263,7 +279,7 @@ export default function PropertyPublishFlow() {
     const invalidFile = fileList.find((file) => !ACCEPTED_IMAGE_TYPES.includes(file.type));
 
     if (invalidFile) {
-      setPhotoError("Puedes subir fotografías JPEG, PNG o WebP.");
+      setPhotoError("Puedes subir fotografÃƒÂ­as JPEG, PNG o WebP.");
       return;
     }
 
@@ -364,45 +380,49 @@ export default function PropertyPublishFlow() {
     return (
       <PublishIntroduction
         onClose={() => router.push("/propietarios")}
-        onStart={() => setStarted(true)}
+        onStart={() => {
+          setStep(2);
+          setStarted(true);
+        }}
       />
     );
   }
 
   const titleByStep: Record<WizardStep, string> = {
     1: "Publica tu vivienda en CoFlow",
-    2: "¿Dónde está tu vivienda?",
-    3: "Confirma la ubicación",
-    4: "¿Qué tipo de vivienda es?",
-    5: "¿Qué vas a publicar?",
-    6: "Añade la información básica",
-    7: "¿Qué ofrece tu vivienda?",
-    8: "Añade fotos de tu vivienda",
-    9: "Ponle un título y cuéntalo",
+    2: "Ã‚Â¿DÃƒÂ³nde estÃƒÂ¡ tu vivienda?",
+    3: "Confirma la ubicaciÃƒÂ³n",
+    4: "Ã‚Â¿QuÃƒÂ© tipo de vivienda es?",
+    5: "Ã‚Â¿QuÃƒÂ© vas a publicar?",
+    6: "AÃƒÂ±ade la informaciÃƒÂ³n bÃƒÂ¡sica",
+    7: "Ã‚Â¿QuÃƒÂ© ofrece tu vivienda?",
+    8: "AÃƒÂ±ade fotos de tu vivienda",
+    9: "Ponle un tÃƒÂ­tulo y cuÃƒÂ©ntalo",
     10: "Precio y condiciones",
   };
 
   const subtitleByStep: Record<WizardStep, string> = {
     1: "Te guiaremos paso a paso para crear un anuncio que conecte con las personas adecuadas.",
-    2: "La ubicación nos ayuda a mostrar tu vivienda a las personas adecuadas en tu zona.",
-    3: "La dirección exacta nunca se mostrará públicamente. Solo usamos esta información para posicionar tu anuncio.",
-    4: "Selecciona la opción que mejor describa tu vivienda para mostrarla a las personas adecuadas.",
+    2: "La ubicaciÃƒÂ³n nos ayuda a mostrar tu vivienda a las personas adecuadas en tu zona.",
+    3: "La direcciÃƒÂ³n exacta nunca se mostrarÃƒÂ¡ pÃƒÂºblicamente. Solo usamos esta informaciÃƒÂ³n para posicionar tu anuncio.",
+    4: "Selecciona la opciÃƒÂ³n que mejor describa tu vivienda para mostrarla a las personas adecuadas.",
     5: "Selecciona el tipo de espacio que quieres publicar para encontrar la convivencia que buscas.",
-    6: "Cuéntanos los datos clave de tu vivienda para que sea más fácil encontrar a las personas adecuadas.",
+    6: "CuÃƒÂ©ntanos los datos clave de tu vivienda para que sea mÃƒÂ¡s fÃƒÂ¡cil encontrar a las personas adecuadas.",
     7: "Selecciona los servicios y comodidades disponibles para destacar lo mejor de tu espacio.",
-    8: "Las primeras fotos deberían mostrar la habitación y las zonas comunes.",
-    9: "Un buen título y una descripción clara atraen a las personas adecuadas para tu piso.",
-    10: "Revisa los detalles económicos y las condiciones de tu anuncio antes de publicarlo.",
+    8: "Las primeras fotos deberÃƒÂ­an mostrar la habitaciÃƒÂ³n y las zonas comunes.",
+    9: "Un buen tÃƒÂ­tulo y una descripciÃƒÂ³n clara atraen a las personas adecuadas para tu piso.",
+    10: "Revisa los detalles econÃƒÂ³micos y las condiciones de tu anuncio antes de publicarlo.",
   };
 
   return (
-    <div className="min-h-dvh bg-[#fdfcfb] text-brand-dark">
+    <div className="relative min-h-dvh bg-[#fdfcfb] text-brand-dark">
       <div className="mx-auto w-full max-w-5xl px-5 pb-38 pt-6 sm:px-8 sm:pb-32 sm:pt-8 lg:max-w-6xl lg:px-12">
         <FlowTopBar
           onBack={previousStep}
           onClose={() => router.push("/propietarios")}
           onHelp={() => setHelpOpen(true)}
           isFirstStep={step === 1}
+          hideHelp={step === 2}
         />
 
         <AnimatePresence>
@@ -415,33 +435,28 @@ export default function PropertyPublishFlow() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: prefersReducedMotion ? 0 : -8 }}
           transition={{ duration: prefersReducedMotion ? 0.08 : 0.28, ease: [0.22, 1, 0.36, 1] }}
-          className="mx-auto mt-11 w-full max-w-3xl lg:mt-14"
+          className={`mx-auto w-full max-w-3xl ${step === 2 ? "mt-20 lg:mt-28" : "mt-11 lg:mt-14"}`}
         >
-          <span className="inline-flex rounded-full border border-primary/10 bg-surface px-3 py-1.5 text-sm font-bold text-primary-dark shadow-soft">
-            Paso {step}
-          </span>
-          <h1 className="mt-5 max-w-3xl font-rounded text-[2.5rem] font-bold leading-[0.98] tracking-[-0.055em] text-brand-dark sm:text-6xl lg:text-7xl">
-            {titleByStep[step]}
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-secondary sm:text-xl sm:leading-9">
-            {subtitleByStep[step]}
-          </p>
+          {step !== 2 && (
+            <>
+              <span className="inline-flex rounded-full border border-primary/10 bg-surface px-3 py-1.5 text-sm font-bold text-primary-dark shadow-soft">
+                Paso {step}
+              </span>
+              <h1 className="mt-5 max-w-3xl font-rounded text-[2.5rem] font-bold leading-[0.98] tracking-[-0.055em] text-brand-dark sm:text-6xl lg:text-7xl">
+                {titleByStep[step]}
+              </h1>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-secondary sm:text-xl sm:leading-9">
+                {subtitleByStep[step]}
+              </p>
+            </>
+          )}
 
-          <div className="mt-9 sm:mt-12">
-            {step === 1 && <StepWelcome />}
+          <div className={step === 2 ? "" : "mt-9 sm:mt-12"}>
             {step === 2 && (
               <StepAddress
                 addressLine={addressLine}
-                city={city}
-                province={province}
-                postalCode={postalCode}
-                neighborhood={neighborhood}
                 onAddressChange={setAddressLine}
-                onResolved={resolveAddress}
-                onCityChange={setCity}
-                onProvinceChange={setProvince}
-                onPostalCodeChange={setPostalCode}
-                onNeighborhoodChange={setNeighborhood}
+                onOpen={() => setAddressSheetOpen(true)}
               />
             )}
             {step === 3 && (
@@ -550,13 +565,31 @@ export default function PropertyPublishFlow() {
         </div>
       )}
 
-      <FlowActions
-        step={step}
-        publishing={publishing}
-        onBack={previousStep}
-        onNext={handleNext}
-        onPublish={handlePublish}
-      />
+      {step !== 2 && (
+        <FlowActions
+          step={step}
+          publishing={publishing}
+          onBack={previousStep}
+          onNext={handleNext}
+          onPublish={handlePublish}
+        />
+      )}
+
+      <AnimatePresence>
+        {addressSheetOpen && (
+          <AddressBottomSheet
+            value={addressLine}
+            inputRef={addressInputRef}
+            onChange={setAddressLine}
+            onResolved={(resolved) => {
+              resolveAddress(resolved);
+              setAddressSheetOpen(false);
+              moveTo(3);
+            }}
+            onClose={() => setAddressSheetOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -593,48 +626,36 @@ function PublishIntroduction({
           initial={{ opacity: 0, scale: 0.96, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="relative mx-auto mt-8 aspect-[1.22] max-w-2xl overflow-hidden rounded-[2rem] bg-surface"
+          className="relative mx-auto mt-12 aspect-[1.34] max-w-2xl"
         >
           <Image
-            src="/images/owner-publish-home.png"
+            src="/images/owner-publish-home-realistic.png"
             alt="Vivienda compartida ilustrada"
             fill
             priority
             sizes="(max-width: 768px) 100vw, 720px"
-            className="object-cover"
+            className="object-contain"
           />
         </motion.div>
 
         <div className="mx-auto mt-9 max-w-2xl sm:mt-12">
-          <span className="inline-flex rounded-full border border-primary/10 bg-surface px-3 py-1.5 text-sm font-bold text-primary-dark shadow-soft">
-            Tu espacio de propietario
-          </span>
-          <h1 className="mt-5 font-rounded text-5xl font-bold leading-[0.98] tracking-[-0.055em] text-brand-dark sm:text-7xl">
+          <h1 className="font-rounded text-4xl font-bold leading-[1.02] tracking-[-0.05em] text-brand-dark sm:text-6xl">
             Publica tu vivienda en CoFlow
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-8 text-secondary sm:text-xl sm:leading-9">
-            Te guiaremos paso a paso para crear tu anuncio y encontrar a las personas adecuadas para compartir piso.
-          </p>
-
-          <div className="mt-9 divide-y divide-border rounded-[1.4rem] border border-border bg-surface px-5 shadow-[0_12px_34px_rgba(26,55,43,0.07)] sm:px-7">
-            <IntroLine icon="home" label="Añade tu vivienda" />
-            <IntroLine icon="camera" label="Sube fotos y detalles" />
-            <IntroLine icon="tag" label="Configura precio y condiciones" />
-          </div>
 
           <button
             type="button"
             onClick={onStart}
-            className="mt-9 flex h-16 w-full items-center justify-center rounded-full bg-brand px-6 text-lg font-bold text-white shadow-[0_14px_30px_rgba(16,72,45,0.22)] transition hover:-translate-y-0.5 hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-primary"
+            className="mt-10 flex h-15 w-full items-center justify-center rounded-full bg-brand px-6 text-lg font-bold text-white shadow-[0_14px_30px_rgba(16,72,45,0.2)] transition hover:-translate-y-0.5 hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-primary"
           >
-            Empezar
+            Seguir
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="mx-auto mt-5 block text-base font-semibold text-primary-dark underline underline-offset-4"
+            className="hidden mx-auto mt-5 block text-base font-semibold text-primary-dark underline underline-offset-4"
           >
-            Atrás
+            AtrÃƒÂ¡s
           </button>
         </div>
       </div>
@@ -647,11 +668,13 @@ function FlowTopBar({
   onClose,
   onHelp,
   isFirstStep,
+  hideHelp = false,
 }: {
   onBack: () => void;
   onClose: () => void;
   onHelp: () => void;
   isFirstStep: boolean;
+  hideHelp?: boolean;
 }) {
   return (
     <header className="flex items-center justify-between gap-4">
@@ -659,18 +682,20 @@ function FlowTopBar({
         type="button"
         onClick={isFirstStep ? onClose : onBack}
         className="flex h-11 w-11 items-center justify-center rounded-full text-primary transition hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        aria-label={isFirstStep ? "Cerrar publicación" : "Volver al paso anterior"}
+        aria-label={isFirstStep ? "Cerrar publicaciÃƒÂ³n" : "Volver al paso anterior"}
       >
         {isFirstStep ? <CloseIcon /> : <ArrowLeftIcon />}
       </button>
+      {!hideHelp && (
       <button
         type="button"
         onClick={onHelp}
         className="inline-flex h-11 items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm font-bold text-primary-dark shadow-soft transition hover:border-primary/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         <QuestionIcon />
-        <span>¿Necesitas ayuda?</span>
+        <span>Ã‚Â¿Necesitas ayuda?</span>
       </button>
+      )}
     </header>
   );
 }
@@ -683,7 +708,7 @@ function HelpButton({ onClick }: { onClick: () => void }) {
       className="inline-flex h-11 items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm font-bold text-primary-dark shadow-soft transition hover:border-primary/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
     >
       <QuestionIcon />
-      <span>¿Necesitas ayuda?</span>
+      <span>Ã‚Â¿Necesitas ayuda?</span>
     </button>
   );
 }
@@ -700,7 +725,7 @@ function HelpPanel({ onClose }: { onClose: () => void }) {
         <div>
           <p className="font-bold text-brand-dark">Estamos contigo</p>
           <p className="mt-1 text-sm leading-6 text-secondary">
-            Puedes cerrar el proceso y volver más tarde. Tus fotos no se guardan hasta publicar.
+            Puedes cerrar el proceso y volver mÃƒÂ¡s tarde. Tus fotos no se guardan hasta publicar.
           </p>
         </div>
         <button type="button" onClick={onClose} aria-label="Cerrar ayuda" className="text-muted hover:text-foreground">
@@ -711,92 +736,91 @@ function HelpPanel({ onClose }: { onClose: () => void }) {
   );
 }
 
-function StepWelcome() {
-  return (
-    <div className="overflow-hidden rounded-[1.8rem] border border-border bg-surface shadow-[0_12px_34px_rgba(26,55,43,0.07)]">
-      <div className="relative aspect-[1.65] bg-surface-soft">
-        <Image
-          src="/images/owner-publish-home.png"
-          alt="Interior acogedor de una vivienda compartida"
-          fill
-          sizes="(max-width: 768px) 100vw, 720px"
-          className="object-cover"
-        />
-      </div>
-      <div className="grid gap-3 p-5 sm:grid-cols-3 sm:p-7">
-        <IntroLine icon="home" label="Añade tu vivienda" compact />
-        <IntroLine icon="camera" label="Sube fotos y detalles" compact />
-        <IntroLine icon="tag" label="Configura precio y condiciones" compact />
-      </div>
-    </div>
-  );
-}
-
-function IntroLine({
-  icon,
-  label,
-  compact = false,
-}: {
-  icon: "home" | "camera" | "tag";
-  label: string;
-  compact?: boolean;
-}) {
-  return (
-    <div className={`flex items-center gap-3 ${compact ? "py-1" : "py-4"}`}>
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 border border-primary/15 text-primary">
-        <FlowIcon name={icon} className="h-5 w-5" />
-      </span>
-      <span className="text-base font-semibold text-primary-dark">{label}</span>
-    </div>
-  );
-}
-
 function StepAddress({
   addressLine,
-  city,
-  province,
-  postalCode,
-  neighborhood,
-  onAddressChange,
-  onResolved,
-  onCityChange,
-  onProvinceChange,
-  onPostalCodeChange,
-  onNeighborhoodChange,
+  onOpen,
 }: {
   addressLine: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  neighborhood: string;
   onAddressChange: (value: string) => void;
-  onResolved: (address: ResolvedAddress) => void;
-  onCityChange: (value: string) => void;
-  onProvinceChange: (value: string) => void;
-  onPostalCodeChange: (value: string) => void;
-  onNeighborhoodChange: (value: string) => void;
+  onOpen: () => void;
 }) {
   return (
-    <div className="space-y-5">
-      <div className="rounded-[1.6rem] border border-border bg-surface p-5 shadow-[0_12px_34px_rgba(26,55,43,0.07)] sm:p-7">
-        <AddressAutocomplete
-          value={addressLine}
-          onChange={onAddressChange}
-          onResolved={onResolved}
-        />
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <Input label="Ciudad" value={city} onChange={(event) => onCityChange(event.target.value)} required />
-          <Input label="Provincia" value={province} onChange={(event) => onProvinceChange(event.target.value)} required />
-          <Input label="Código postal" value={postalCode} onChange={(event) => onPostalCodeChange(event.target.value)} required />
-          <Input label="Barrio o zona" value={neighborhood} onChange={(event) => onNeighborhoodChange(event.target.value)} />
-        </div>
-      </div>
-      <div className="flex items-start gap-3 px-1 text-sm leading-6 text-secondary">
-        <span className="mt-0.5 text-primary"><LockIcon /></span>
-        La dirección exacta no se mostrará a otras personas. Solo verán la zona aproximada.
-      </div>
+    <div>
+      <h1 className="font-rounded text-[2.55rem] font-bold leading-[1.02] tracking-[-0.055em] text-brand-dark sm:text-6xl">
+        Ã‚Â¿DÃƒÂ³nde estÃƒÂ¡ tu vivienda?
+      </h1>
+      <button
+        type="button"
+        onClick={onOpen}
+        className="mt-8 flex h-16 w-full items-center gap-3 rounded-full border border-border bg-surface px-5 text-left shadow-[0_10px_25px_rgba(26,55,43,0.07)] transition hover:border-primary/35 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-primary sm:h-17"
+      >
+        <SearchFieldIcon />
+        <span className={`min-w-0 flex-1 truncate text-[1.05rem] font-medium sm:text-lg ${addressLine ? "text-brand-dark" : "text-secondary/70"}`}>
+          {addressLine || "Ã‚Â¿DÃƒÂ³nde estÃƒÂ¡ tu vivienda?"}
+        </span>
+      </button>
+      <p className="mt-5 text-sm leading-6 text-secondary">
+        La direcciÃƒÂ³n exacta nunca se mostrarÃƒÂ¡ pÃƒÂºblicamente.
+      </p>
     </div>
   );
+}
+
+function AddressBottomSheet({
+  value,
+  inputRef,
+  onChange,
+  onResolved,
+  onClose,
+}: {
+  value: string;
+  inputRef: RefObject<HTMLInputElement | null>;
+  onChange: (value: string) => void;
+  onResolved: (address: ResolvedAddress) => void;
+  onClose: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[70] flex items-end bg-brand-dark/20 backdrop-blur-[2px]"
+      onMouseDown={onClose}
+    >
+      <motion.section
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ type: "spring", damping: 30, stiffness: 320 }}
+        className="flex h-[85dvh] w-full flex-col rounded-t-[2rem] bg-[#fdfcfb] px-5 pb-[calc(1.5rem+var(--safe-bottom))] pt-4 shadow-[0_-18px_55px_rgba(26,55,43,0.16)] sm:mx-auto sm:max-w-3xl sm:rounded-t-[2.4rem] sm:px-8"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Indica tu direcciÃƒÂ³n"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <div className="mx-auto h-1.5 w-11 rounded-full bg-border" />
+        <div className="mt-5 flex items-center justify-between gap-4">
+          <h2 className="text-xl font-bold tracking-[-0.03em] text-brand-dark sm:text-2xl">Indica tu direcciÃƒÂ³n</h2>
+          <button type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full text-primary transition hover:bg-surface-soft" aria-label="Cerrar">
+            <CloseIcon className="h-6 w-6" />
+          </button>
+        </div>
+        <div className="mt-7 min-h-0 flex-1">
+          <AddressAutocomplete
+            value={value}
+            onChange={onChange}
+            onResolved={onResolved}
+            inputRef={inputRef}
+            variant="sheet"
+          />
+        </div>
+      </motion.section>
+    </motion.div>
+  );
+}
+
+function SearchFieldIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-6 w-6 shrink-0 text-secondary" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4 4" /></svg>;
 }
 
 function StepMap({
@@ -817,7 +841,7 @@ function StepMap({
         <div className="absolute -bottom-14 -left-10 h-70 w-70 rounded-full border border-primary/10 bg-mint-50/75" />
         <div className="absolute right-6 top-6 max-w-[calc(100%-3rem)] rounded-full border border-border bg-surface px-4 py-3 text-sm font-semibold text-primary-dark shadow-soft">
           <span className="mr-2 inline-block align-middle text-primary"><LocationIcon /></span>
-          {address || "Tu dirección"}
+          {address || "Tu direcciÃƒÂ³n"}
         </div>
         <p className="absolute left-6 top-1/2 -translate-y-1/2 text-xs font-bold uppercase tracking-[0.16em] text-primary/65">
           {location}
@@ -938,7 +962,7 @@ function StepBasics({
   return (
     <div className="space-y-4">
       <CounterCard icon="bed" label="Habitaciones" value={bedrooms} minimum={0} onChange={onBedroomsChange} />
-      <CounterCard icon="bath" label="Baños" value={bathrooms} minimum={1} onChange={onBathroomsChange} />
+      <CounterCard icon="bath" label="BaÃƒÂ±os" value={bathrooms} minimum={1} onChange={onBathroomsChange} />
       <CounterCard icon="users" label="Plazas totales" value={maxTenants} minimum={1} onChange={onMaxTenantsChange} />
       <CounterCard icon="person" label="Habitaciones disponibles" value={availableRooms} minimum={0} maximum={Math.max(bedrooms, 1)} onChange={onAvailableRoomsChange} />
       <div className="rounded-[1.45rem] border border-border bg-surface p-5 shadow-soft sm:p-6">
@@ -952,7 +976,7 @@ function StepBasics({
       </div>
       <div className="rounded-[1.45rem] border border-border bg-surface p-5 shadow-soft sm:p-6">
         <Input
-          label="Superficie (m²)"
+          label="Superficie (mÃ‚Â²)"
           helperText="Opcional"
           type="number"
           min={1}
@@ -985,7 +1009,7 @@ function CounterCard({
       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-14 border border-primary/12 text-primary"><FlowIcon name={icon} className="h-6 w-6" /></span>
       <span className="min-w-0 flex-1 text-lg font-semibold text-primary-dark">{label}</span>
       <div className="flex items-center gap-3">
-        <CounterButton label={`Reducir ${label}`} disabled={value <= minimum} onClick={() => onChange(value - 1)}>−</CounterButton>
+        <CounterButton label={`Reducir ${label}`} disabled={value <= minimum} onClick={() => onChange(value - 1)}>Ã¢Ë†â€™</CounterButton>
         <span className="w-7 text-center text-xl font-bold text-brand-dark">{value}</span>
         <CounterButton label={`Aumentar ${label}`} disabled={value >= maximum} onClick={() => onChange(value + 1)}>+</CounterButton>
       </div>
@@ -1045,7 +1069,7 @@ function StepAmenities({
       ))}
       {shownAmenities.length === 0 && (
         <p className="col-span-full rounded-18 border border-border bg-surface p-5 text-sm text-secondary shadow-soft">
-          Puedes continuar: añadiremos más comodidades en cuanto el catálogo esté disponible.
+          Puedes continuar: aÃƒÂ±adiremos mÃƒÂ¡s comodidades en cuanto el catÃƒÂ¡logo estÃƒÂ© disponible.
         </p>
       )}
     </div>
@@ -1115,7 +1139,7 @@ function StepPhotos({
       </div>
       <div className="mt-5 flex items-center gap-3 rounded-18 border border-primary/10 bg-surface px-4 py-3 text-sm text-secondary shadow-soft">
         <InfoIcon className="h-5 w-5 shrink-0 text-primary" />
-        <span>Mínimo {MIN_PHOTOS_TO_PUBLISH} fotos para publicar · {photos.length}/{MAX_PHOTOS}</span>
+        <span>MÃƒÂ­nimo {MIN_PHOTOS_TO_PUBLISH} fotos para publicar Ã‚Â· {photos.length}/{MAX_PHOTOS}</span>
       </div>
       {error && <p role="alert" className="mt-3 text-sm font-semibold text-red-600">{error}</p>}
     </div>
@@ -1140,17 +1164,17 @@ function StepStory({
   return (
     <div className="space-y-8">
       <Input
-        label="Título de tu anuncio"
+        label="TÃƒÂ­tulo de tu anuncio"
         value={title}
         onChange={(event) => onTitleChange(event.target.value)}
         helperText={`${title.length}/150 caracteres`}
-        placeholder="Ej. Habitación luminosa en piso compartido"
+        placeholder="Ej. HabitaciÃƒÂ³n luminosa en piso compartido"
         maxLength={150}
         required
         className="h-15 rounded-18 text-lg sm:text-xl"
       />
       <div>
-        <p className="text-lg font-bold text-primary-dark">¿Cómo describirías el ambiente?</p>
+        <p className="text-lg font-bold text-primary-dark">Ã‚Â¿CÃƒÂ³mo describirÃƒÂ­as el ambiente?</p>
         <div className="mt-4 flex flex-wrap gap-3">
           {VIBE_TAGS.map((tag) => {
             const selected = selectedVibes.includes(tag);
@@ -1164,11 +1188,11 @@ function StepStory({
         </div>
       </div>
       <Textarea
-        label="Cuéntales más sobre tu piso"
+        label="CuÃƒÂ©ntales mÃƒÂ¡s sobre tu piso"
         value={description}
         onChange={(event) => onDescriptionChange(event.target.value)}
-        helperText={description.trim().length >= 30 ? `${description.trim().length} caracteres` : `${description.trim().length}/30 caracteres mínimo`}
-        placeholder="Describe el espacio, la zona y el ambiente que quieres crear…"
+        helperText={description.trim().length >= 30 ? `${description.trim().length} caracteres` : `${description.trim().length}/30 caracteres mÃƒÂ­nimo`}
+        placeholder="Describe el espacio, la zona y el ambiente que quieres crearÃ¢â‚¬Â¦"
         rows={7}
         required
         className="rounded-18 text-base leading-7"
@@ -1207,8 +1231,8 @@ function StepConditions({
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <ConditionInput label="Precio al mes" icon="tag" value={rent} onChange={onRentChange} suffix="€" />
-        <ConditionInput label="Fianza" icon="shield" value={deposit} onChange={onDepositChange} suffix="€" />
+        <ConditionInput label="Precio al mes" icon="tag" value={rent} onChange={onRentChange} suffix="Ã¢â€šÂ¬" />
+        <ConditionInput label="Fianza" icon="shield" value={deposit} onChange={onDepositChange} suffix="Ã¢â€šÂ¬" />
       </div>
       <div className="flex items-center justify-between gap-4 rounded-[1.45rem] border border-border bg-surface px-5 py-5 shadow-soft sm:px-6">
         <span className="flex items-center gap-3 text-lg font-semibold text-primary-dark"><span className="flex h-12 w-12 items-center justify-center rounded-14 border border-primary/12 text-primary"><FlowIcon name="wallet" className="h-6 w-6" /></span>Gastos incluidos</span>
@@ -1220,7 +1244,7 @@ function StepConditions({
         <div className="rounded-[1.45rem] border border-border bg-surface p-5 shadow-soft sm:p-6">
           <Input label="Entrada disponible" type="date" value={availableFrom} onChange={(event) => onAvailableFromChange(event.target.value)} required />
         </div>
-        <ConditionInput label="Estancia mínima" icon="hourglass" value={minimumStayMonths} onChange={onMinimumStayChange} suffix="meses" />
+        <ConditionInput label="Estancia mÃƒÂ­nima" icon="hourglass" value={minimumStayMonths} onChange={onMinimumStayChange} suffix="meses" />
       </div>
       <div className="rounded-[1.6rem] border border-primary/15 bg-[#fbfdf9] p-5 shadow-soft sm:p-7">
         <div className="flex items-start gap-4">
@@ -1228,8 +1252,8 @@ function StepConditions({
           <div>
             <p className="text-xl font-bold text-primary-dark">Todo listo para publicar</p>
             <ul className="mt-4 space-y-2 text-base text-secondary">
-              <ReadyLine ready={locationReady} label="Dirección confirmada" />
-              <ReadyLine ready={photoCount >= MIN_PHOTOS_TO_PUBLISH} label={`${photoCount} fotos añadidas`} />
+              <ReadyLine ready={locationReady} label="DirecciÃƒÂ³n confirmada" />
+              <ReadyLine ready={photoCount >= MIN_PHOTOS_TO_PUBLISH} label={`${photoCount} fotos aÃƒÂ±adidas`} />
               <ReadyLine ready={Boolean(rent && deposit && availableFrom && minimumStayMonths)} label="Precio y condiciones completados" />
             </ul>
           </div>
@@ -1288,7 +1312,7 @@ function FlowActions({
         <ProgressSegments step={step} />
         <div className="mt-4 grid grid-cols-[minmax(0,.8fr)_minmax(0,1.25fr)] gap-3 sm:gap-5">
           <button type="button" onClick={onBack} disabled={publishing} className="h-14 rounded-full border border-primary bg-surface px-5 text-base font-bold text-primary-dark transition hover:bg-surface-soft disabled:opacity-50 sm:h-15 sm:text-lg">
-            Atrás
+            AtrÃƒÂ¡s
           </button>
           {step < STEP_COUNT ? (
             <button type="button" onClick={onNext} disabled={publishing} className="h-14 rounded-full bg-brand px-5 text-base font-bold text-white shadow-[0_12px_26px_rgba(16,72,45,0.2)] transition hover:-translate-y-0.5 hover:bg-brand-dark disabled:opacity-60 sm:h-15 sm:text-lg">
@@ -1296,7 +1320,7 @@ function FlowActions({
             </button>
           ) : (
             <button type="button" onClick={onPublish} disabled={publishing} className="h-14 rounded-full bg-brand px-5 text-base font-bold text-white shadow-[0_12px_26px_rgba(16,72,45,0.2)] transition hover:-translate-y-0.5 hover:bg-brand-dark disabled:opacity-60 sm:h-15 sm:text-lg">
-              {publishing ? "Publicando…" : "Publicar anuncio"}
+              {publishing ? "PublicandoÃ¢â‚¬Â¦" : "Publicar anuncio"}
             </button>
           )}
         </div>
@@ -1323,7 +1347,7 @@ function amenityIconFor(label: string): FlowIconName {
   if (normalized.includes("wifi") || normalized.includes("internet")) return "wifi";
   if (normalized.includes("lavadora")) return "washer";
   if (normalized.includes("aire")) return "air";
-  if (normalized.includes("terraza") || normalized.includes("balcón")) return "terrace";
+  if (normalized.includes("terraza") || normalized.includes("balcÃƒÂ³n")) return "terrace";
   if (normalized.includes("cocina")) return "kitchen";
   if (normalized.includes("armario")) return "wardrobe";
   if (normalized.includes("parking") || normalized.includes("garaje")) return "parking";
