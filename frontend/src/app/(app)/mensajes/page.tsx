@@ -42,7 +42,7 @@ import type { UserConnection } from "@/types/connection";
 import type { PrivateMessage } from "@/types/privateMessage";
 import type { CommunityMessage } from "@/types/community";
 
-type InboxTab = "all" | "unread" | "groups";
+type InboxTab = "all" | "groups" | "people" | "unread";
 
 const MotionLink = motion.create(Link);
 
@@ -93,11 +93,14 @@ function initialsOf(firstName: string, lastName: string) {
 function formatPreviewTime(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-
-  return new Intl.DateTimeFormat("es-ES", {
-    day: "numeric",
-    month: "short",
-  }).format(date);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const messageDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const difference = Math.round((today.getTime() - messageDay.getTime()) / 86_400_000);
+  if (difference === 0) return new Intl.DateTimeFormat("es-ES", { hour: "2-digit", minute: "2-digit" }).format(date);
+  if (difference === 1) return "Ayer";
+  if (difference > 1 && difference < 7) return new Intl.DateTimeFormat("es-ES", { weekday: "short" }).format(date);
+  return new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short" }).format(date);
 }
 
 export default function MensajesPage() {
@@ -220,7 +223,8 @@ export default function MensajesPage() {
     });
   }, [connections, lastMessages, tab, normalizedSearch, user]);
 
-  const showCommunityRow = tab === "unread" ? communityUnread : true;
+  const showCommunityRow =
+    tab === "people" ? false : tab === "unread" ? communityUnread : true;
 
   const showCommunitySearchMatch =
     !normalizedSearch ||
@@ -253,10 +257,10 @@ export default function MensajesPage() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="-mx-5 -my-4 flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] flex-col sm:-mx-6 sm:-my-6 sm:h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] lg:-mx-8">
+    <div className="mx-auto flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top)-1rem)] w-full max-w-7xl flex-col sm:-mx-6 sm:-my-6 sm:h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] sm:w-auto lg:-mx-8">
       {/* Móvil: solo lista, cada fila navega al hilo a pantalla completa ya existente. */}
       <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto border-t border-border sm:hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto sm:hidden">
         <InboxHeader />
         <InboxSearchAndTabs
           search={search}
@@ -275,9 +279,9 @@ export default function MensajesPage() {
             animate="show"
             whileTap={{ scale: 0.985 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="flex items-center gap-3 px-4 py-3.5 transition-colors duration-200 hover:bg-mint-50/60"
+            className="flex items-center gap-4 border-b border-border px-0 py-4 transition-colors duration-200"
           >
-            <CommunityAvatar />
+            <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
             <ConversationPreview
               name={community.name}
               lastMessage={communityLastMessage}
@@ -334,7 +338,7 @@ export default function MensajesPage() {
                   delay: Math.min(index, 8) * 0.02,
                 }}
                 whileTap={{ scale: 0.985 }}
-                className="flex items-center gap-3 px-4 py-3.5 transition-colors duration-200 hover:bg-surface-soft"
+                className="flex items-center gap-4 border-b border-border px-0 py-4 transition-colors duration-200"
               >
                 <ConversationAvatar
                   initials={initialsOf(other.first_name, other.last_name)}
@@ -354,6 +358,26 @@ export default function MensajesPage() {
             );
           })
         )}
+
+        <Link
+          href="/usuarios"
+          className="mb-4 mt-5 flex items-center gap-3 rounded-18 border border-border bg-surface p-4 shadow-soft transition-transform duration-200 active:scale-[0.99]"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center text-primary">
+            <ComposeIcon />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-extrabold text-foreground">
+              Inicia una nueva conversación
+            </span>
+            <span className="mt-1 block text-xs leading-5 text-secondary">
+              Conoce a más personas o encuentra tu comunidad ideal.
+            </span>
+          </span>
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-light text-white shadow-button">
+            +
+          </span>
+        </Link>
       </div>
       </ViewTransition>
 
@@ -385,7 +409,7 @@ export default function MensajesPage() {
                   : "border-transparent hover:bg-surface-soft"
               }`}
             >
-              <CommunityAvatar />
+              <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
               <ConversationPreview
                 name={community.name}
                 lastMessage={communityLastMessage}
@@ -475,7 +499,7 @@ export default function MensajesPage() {
           {communitySelected && community && user ? (
             <>
               <div className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4">
-                <CommunityAvatar />
+                <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
 
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -546,18 +570,25 @@ export default function MensajesPage() {
 
 function InboxHeader() {
   return (
-    <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-4 py-4">
-      <p className="text-lg font-bold text-brand-dark">Mensajes</p>
+    <div className="flex shrink-0 items-start justify-between pb-5 pt-2 sm:items-center sm:border-b sm:border-border/60 sm:px-4 sm:py-4">
+      <div>
+        <h1 className="text-3xl font-extrabold tracking-[-0.03em] text-foreground sm:text-lg sm:tracking-normal">
+          Mensajes
+        </h1>
+        <p className="mt-1 text-sm text-secondary sm:hidden">
+          Conversa con personas y comunidades
+        </p>
+      </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         <motion.div whileTap={{ scale: 0.9 }} transition={{ duration: 0.15 }}>
           <Link
             href="/conexiones"
-            aria-label="Solicitudes de conexión"
-            title="Solicitudes de conexión"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors duration-200 hover:bg-surface-soft hover:text-brand-dark"
+            aria-label="Gestionar conexiones"
+            title="Gestionar conexiones"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-transparent text-foreground transition-colors duration-200 hover:border-border hover:bg-surface"
           >
-            <ChevronRightIcon className="h-4 w-4" />
+            <FilterIcon />
           </Link>
         </motion.div>
 
@@ -566,7 +597,7 @@ function InboxHeader() {
             href="/usuarios"
             aria-label="Nueva conversación"
             title="Nueva conversación"
-            className="flex h-9 w-9 items-center justify-center text-primary-dark transition-colors duration-200 hover:text-primary"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-transparent text-foreground transition-colors duration-200 hover:border-border hover:bg-surface hover:text-primary"
           >
             <ComposeIcon />
           </Link>
@@ -578,8 +609,9 @@ function InboxHeader() {
 
 const TAB_OPTIONS: { key: InboxTab; label: string }[] = [
   { key: "all", label: "Todos" },
-  { key: "unread", label: "No leídos" },
   { key: "groups", label: "Comunidades" },
+  { key: "people", label: "Personas" },
+  { key: "unread", label: "Sin leer" },
 ];
 
 function InboxSearchAndTabs({
@@ -596,8 +628,11 @@ function InboxSearchAndTabs({
   layoutIdPrefix: string;
 }) {
   return (
-    <div className="shrink-0 border-b border-border/60 px-4 py-3">
-      <div className="flex h-10 items-center gap-2 rounded-full bg-mint-50/50 px-4 transition-colors duration-200 focus-within:bg-mint-50">
+    <div
+      className="shrink-0 pb-3 sm:border-b sm:border-border/60 sm:px-4 sm:py-3"
+      data-layout-prefix={layoutIdPrefix}
+    >
+      <div className="flex h-12 items-center gap-2 rounded-14 border border-border bg-surface px-4 shadow-soft transition-all duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 sm:h-10">
         <SearchInput
           bare
           value={search}
@@ -607,30 +642,21 @@ function InboxSearchAndTabs({
         />
       </div>
 
-      <div className="mt-3 flex gap-1 rounded-full bg-surface-muted p-1">
+      <div className="mt-3 grid grid-cols-4 gap-2">
         {TAB_OPTIONS.map((option) => (
           <button
             key={option.key}
             type="button"
             onClick={() => onTabChange(option.key)}
             aria-pressed={tab === option.key}
-            className="relative h-8 flex-1 rounded-full px-3 text-xs font-bold"
+            className={`relative flex h-11 items-center justify-center rounded-14 border px-1 text-[10px] font-bold transition-colors duration-200 min-[380px]:text-[11px] sm:h-8 sm:text-[10px] ${
+              tab === option.key
+                ? "border-primary bg-primary text-white shadow-button"
+                : "border-border bg-surface text-foreground shadow-soft hover:border-primary/40 hover:text-primary-dark"
+            }`}
           >
-            {tab === option.key && (
-              <motion.span
-                layoutId={`${layoutIdPrefix}-inbox-tab-pill`}
-                transition={{ type: "spring", stiffness: 400, damping: 32 }}
-                className="absolute inset-0 rounded-full bg-brand-dark"
-              />
-            )}
-
-            <span
-              className={`relative transition-colors duration-200 ${
-                tab === option.key
-                  ? "text-white"
-                  : "text-secondary hover:text-primary-dark"
-              }`}
-            >
+            <span className="relative flex items-center justify-center gap-1.5">
+              <InboxTabIcon tab={option.key} />
               {option.label}
             </span>
           </button>
@@ -658,21 +684,43 @@ function ConversationAvatar({
         height={44}
         unoptimized
         onError={() => setImageError(true)}
-        className="h-11 w-11 shrink-0 rounded-full object-cover"
+        className="h-14 w-14 shrink-0 rounded-full object-cover sm:h-11 sm:w-11"
       />
     );
   }
 
   return (
-    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-sm font-bold text-primary-dark shadow-soft sm:h-11 sm:w-11">
       {initials || "CF"}
     </div>
   );
 }
 
-function CommunityAvatar() {
+function CommunityAvatar({
+  imageUrl,
+  name,
+}: {
+  imageUrl?: string | null;
+  name: string;
+}) {
+  const [imageError, setImageError] = useState(false);
+
+  if (imageUrl && !imageError) {
+    return (
+      <Image
+        src={imageUrl}
+        alt={name}
+        width={56}
+        height={56}
+        unoptimized
+        onError={() => setImageError(true)}
+        className="h-14 w-14 shrink-0 rounded-full object-cover sm:h-11 sm:w-11"
+      />
+    );
+  }
+
   return (
-    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 bg-brand-dark text-white">
+    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-primary shadow-soft sm:h-11 sm:w-11">
       <HomeIcon className="h-5 w-5" />
     </div>
   );
@@ -704,9 +752,7 @@ function ConversationPreview({
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-1.5">
           <p
-            className={`truncate text-sm ${
-              unread ? "font-semibold text-foreground" : "font-medium text-secondary"
-            }`}
+            className="truncate text-base font-extrabold text-foreground sm:text-sm"
           >
             {name || "Persona de CoFlow"}
           </p>
@@ -719,15 +765,15 @@ function ConversationPreview({
         </div>
 
         {lastMessage && (
-          <span className="shrink-0 text-[11px] font-medium text-muted">
+          <span className="shrink-0 text-xs font-medium text-secondary sm:text-[11px]">
             {formatPreviewTime(lastMessage.created_at)}
           </span>
         )}
       </div>
 
-      <div className="mt-0.5 flex items-center justify-between gap-2">
+      <div className="mt-1 flex items-center justify-between gap-2">
         <p
-          className={`truncate text-xs ${unread ? "font-semibold text-foreground" : "text-muted"}`}
+          className={`truncate text-sm leading-5 sm:text-xs ${unread ? "font-semibold text-foreground" : "text-secondary"}`}
         >
           {lastMessage ? (
             <>
@@ -749,17 +795,77 @@ function ConversationPreview({
           )}
         </p>
 
-        {unread && (
-          <motion.span
-            aria-label="Sin leer"
-            initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="h-2 w-2 shrink-0 rounded-full bg-primary"
-          />
-        )}
+        <span className="flex shrink-0 items-center gap-2">
+          {unread && (
+            <motion.span
+              aria-label="Sin leer"
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="h-2 w-2 rounded-full bg-primary"
+            />
+          )}
+          <ChevronRightIcon className="h-4 w-4 text-muted sm:hidden" />
+        </span>
       </div>
     </div>
+  );
+}
+
+function InboxTabIcon({ tab }: { tab: InboxTab }) {
+  if (tab === "unread") {
+    return <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />;
+  }
+
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4 shrink-0"
+      aria-hidden="true"
+    >
+      {tab === "all" ? (
+        <>
+          <path d="M21 11.5a8.4 8.4 0 0 1-9 8.3 9.6 9.6 0 0 1-3.8-.8L3 21l1.7-4.5A8.4 8.4 0 1 1 21 11.5Z" />
+          <path d="M8.5 12h.01M12 12h.01M15.5 12h.01" />
+        </>
+      ) : tab === "groups" ? (
+        <>
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+        </>
+      ) : (
+        <>
+          <circle cx="12" cy="8" r="4" />
+          <path d="M5 21a7 7 0 0 1 14 0" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+function FilterIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5"
+      aria-hidden="true"
+    >
+      <path d="M4 6h10" />
+      <path d="M4 12h7" />
+      <path d="M4 18h4" />
+      <circle cx="17" cy="6" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
   );
 }
 
