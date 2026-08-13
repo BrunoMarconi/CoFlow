@@ -32,11 +32,19 @@ export async function getConnectionRequests() {
 }
 
 export async function getConnectionOverview() {
-  const { data } = await api.get<UserConnectionOverview>(
-    "/connections/overview"
-  );
+  // Se compone con las rutas estables para que el frontend no dependa de
+  // que el backend nuevo y el deploy web se publiquen exactamente a la vez.
+  // Ambas lecturas son independientes y salen en paralelo.
+  const [accepted, requests] = await Promise.all([
+    getConnections(),
+    getConnectionRequests(),
+  ]);
 
-  return data;
+  return {
+    accepted,
+    received: requests.received,
+    sent: requests.sent,
+  } satisfies UserConnectionOverview;
 }
 
 export async function acceptConnection(connectionId: number) {

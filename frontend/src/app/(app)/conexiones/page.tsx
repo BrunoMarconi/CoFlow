@@ -322,7 +322,7 @@ export default function ConexionesPage() {
           ) : isError ? (
             <EmptyState
               title="No hemos podido cargar tus conexiones"
-              description="Comprueba tu conexión e inténtalo de nuevo."
+              description="Ha fallado la sincronización con CoFlow. Inténtalo de nuevo."
               action={
                 <button
                   type="button"
