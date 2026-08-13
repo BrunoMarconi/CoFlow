@@ -5,6 +5,7 @@ import {
   getCommunityMessages,
   sendCommunityMessage,
 } from "@/services/communities";
+import { markConversationReadNow } from "@/lib/conversationReadState";
 
 export default function CommunityChat({
   communityId,
@@ -17,7 +18,8 @@ export default function CommunityChat({
 }) {
   return (
     <ChatThread
-      threadKey={communityId}
+      key={`community:${communityId}`}
+      threadKey={`community:${communityId}`}
       currentUserId={currentUserId}
       fetchMessages={(params) => getCommunityMessages(communityId, params)}
       sendMessage={(content) =>
@@ -26,6 +28,7 @@ export default function CommunityChat({
       showSenderName
       placeholder="Escribe un mensaje para la comunidad..."
       variant={variant}
+      onMessagesReceived={() => markConversationReadNow("community")}
     />
   );
 }

@@ -2,6 +2,8 @@
 
 import ChatThread from "@/components/chat/ChatThread";
 import { getPrivateMessages, sendPrivateMessage } from "@/services/connections";
+import { markConversationReadNow } from "@/lib/conversationReadState";
+import { markNotificationsForLinkRead } from "@/services/notifications";
 
 export default function PrivateChat({
   connectionId,
@@ -14,7 +16,8 @@ export default function PrivateChat({
 }) {
   return (
     <ChatThread
-      threadKey={connectionId}
+      key={`connection:${connectionId}`}
+      threadKey={`connection:${connectionId}`}
       currentUserId={currentUserId}
       fetchMessages={(params) => getPrivateMessages(connectionId, params)}
       sendMessage={(content) =>
@@ -23,6 +26,12 @@ export default function PrivateChat({
       showSenderName={false}
       placeholder="Escribe un mensaje..."
       variant={variant}
+      onMessagesReceived={() => {
+        markConversationReadNow(`connection:${connectionId}`);
+        void markNotificationsForLinkRead(`/mensajes/${connectionId}`).catch(
+          () => {}
+        );
+      }}
     />
   );
 }

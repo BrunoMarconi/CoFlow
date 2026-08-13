@@ -18,12 +18,6 @@ def create_notification(
     message: str,
     link: str | None = None,
 ) -> Notification:
-    """
-    Añade una notificación a la sesión sin hacer commit. El
-    llamador es responsable de confirmar la transacción junto
-    con la acción principal que la origina.
-    """
-
     notification = Notification(
         user_id=user_id,
         type=type,
@@ -31,9 +25,7 @@ def create_notification(
         message=message,
         link=link,
     )
-
     db.add(notification)
-
     return notification
 
 
@@ -73,6 +65,27 @@ class NotificationService:
             or 0
         )
 
+    def mark_link_read(
+        self,
+        db: Session,
+        current_user: User,
+        link: str,
+    ) -> int:
+        marked_count = (
+            db.query(Notification)
+            .filter(
+                Notification.user_id == current_user.id,
+                Notification.link == link,
+                Notification.is_read.is_(False),
+            )
+            .update(
+                {Notification.is_read: True},
+                synchronize_session=False,
+            )
+        )
+        db.commit()
+        return int(marked_count)
+
     def mark_read(
         self,
         db: Session,
@@ -95,10 +108,8 @@ class NotificationService:
             )
 
         notification.is_read = True
-
         db.commit()
         db.refresh(notification)
-
         return notification
 
     def mark_all_read(
@@ -112,7 +123,9 @@ class NotificationService:
                 Notification.user_id == current_user.id,
                 Notification.is_read.is_(False),
             )
-            .update({Notification.is_read: True})
+            .update(
+                {Notification.is_read: True},
+                synchronize_session=False,
+            )
         )
-
         db.commit()

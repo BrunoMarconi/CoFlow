@@ -4,7 +4,10 @@ import { createContext, useCallback, useEffect, useRef, useState, type ReactNode
 import { me as fetchMe } from "@/services/auth";
 import { getMyCommunity } from "@/services/communities";
 import { getMyOwnerProfile } from "@/services/owners";
-import { getNotifications } from "@/services/notifications";
+import {
+  getNotifications,
+  getUnreadNotificationCount,
+} from "@/services/notifications";
 import { getToken, clearToken } from "@/lib/auth";
 import type { User } from "@/types/auth";
 import type { Community } from "@/types/community";
@@ -69,9 +72,12 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const latest = await getNotifications({ limit: 100 });
+      const [latest, exactUnreadCount] = await Promise.all([
+        getNotifications({ limit: 40 }),
+        getUnreadNotificationCount(),
+      ]);
       setNotifications(latest);
-      setUnreadCount(latest.reduce((total, notification) => total + Number(!notification.is_read), 0));
+      setUnreadCount(exactUnreadCount);
       setHasUnreadMessages(
         latest.some(
           (notification) =>

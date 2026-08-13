@@ -53,12 +53,12 @@ export default function PrivateConversationPage({ connectionId, owner = false }:
 
   return (
     <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
-      <div className="mx-auto flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top)-var(--safe-bottom))] w-full max-w-3xl flex-col sm:h-auto sm:block">
-        <div className="mb-3 flex shrink-0 items-center gap-3 sm:mb-4">
+      <div className="mx-auto flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] w-full max-w-4xl flex-col sm:h-auto sm:block">
+        <div className="mb-2 flex shrink-0 items-center gap-3 border-b border-border/70 pb-2 sm:mb-4 sm:border-0 sm:pb-0">
           <Link href={listHref} aria-label="Volver a mensajes" transitionTypes={["nav-back"]} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted transition hover:bg-surface-soft hover:text-brand-dark"><ArrowLeftIcon /></Link>
-          <Link href={`/personas/${other.id}`} className="flex min-w-0 items-center gap-3">
+          <Link href={`/personas/${other.id}`} className="flex min-w-0 flex-1 items-center gap-3 rounded-14 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground">
             {other.avatar_url && !avatarError ? <Image src={other.avatar_url} alt="" width={44} height={44} unoptimized onError={() => setAvatarError(true)} className="h-11 w-11 shrink-0 rounded-14 object-cover" /> : <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-14 bg-black text-sm font-bold text-white">{initials || "CF"}</div>}
-            <div className="min-w-0"><p className="truncate text-base font-bold text-brand-dark">{fullName || "Persona de CoFlow"}</p><p className="text-xs font-semibold text-muted">{owner ? "Conversación de propietario" : "Ver perfil"}</p></div>
+            <div className="min-w-0"><p className="truncate text-base font-bold text-foreground">{fullName || "Persona de CoFlow"}</p><p className="text-xs font-medium text-muted">{owner ? "Conversación sobre tu piso" : "Toca para ver su perfil"}</p></div>
           </Link>
         </div>
         <div className="min-h-0 flex-1 sm:flex-none"><PrivateChat connectionId={connection.id} currentUserId={user.id} variant="full" /></div>

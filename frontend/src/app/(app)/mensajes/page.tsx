@@ -33,15 +33,13 @@ const CommunityChat = dynamic(
   { loading: () => chatLoadingFallback }
 );
 import { HomeIcon, ChevronRightIcon } from "@/components/layout/NavIcons";
-import {
-  getConnections,
-  getPrivateMessages,
-} from "@/services/connections";
+import { getPrivateConversationInbox } from "@/services/connections";
 import { getCommunityMessages } from "@/services/communities";
 import { markNotificationsForLinkRead } from "@/services/notifications";
 import type { UserConnection } from "@/types/connection";
 import type { PrivateMessage } from "@/types/privateMessage";
 import type { CommunityMessage } from "@/types/community";
+import { CHAT_MESSAGES_CHANGED_EVENT } from "@/lib/chatEvents";
 
 type InboxTab = "all" | "groups" | "people" | "unread";
 
@@ -57,20 +55,16 @@ const rowVariants = {
 };
 
 async function loadAcceptedConnectionsWithLastMessages() {
-  const data = await getConnections();
-  const accepted = data.filter((c) => c.status === "ACCEPTED");
-
-  const results = await Promise.all(
-    accepted.map((connection) =>
-      getPrivateMessages(connection.id, { limit: 1 })
-        .then((messages) => [connection.id, messages[0]] as const)
-        .catch(() => [connection.id, undefined] as const)
-    )
-  );
+  const summaries = await getPrivateConversationInbox();
+  const accepted = summaries
+    .map((summary) => summary.connection)
+    .filter((connection) => connection.status === "ACCEPTED");
 
   const lastMessages: Record<number, PrivateMessage> = {};
-  for (const [id, message] of results) {
-    if (message) lastMessages[id] = message;
+  for (const summary of summaries) {
+    if (summary.last_message) {
+      lastMessages[summary.connection.id] = summary.last_message;
+    }
   }
 
   return { accepted, lastMessages };
@@ -121,10 +115,22 @@ export default function MensajesPage() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<InboxTab>("all");
 
-  const { data: connectionsData, isLoading: loading } = useQuery({
+  const {
+    data: connectionsData,
+    isLoading: loading,
+    refetch: refetchInbox,
+  } = useQuery({
     queryKey: ["connections-with-last-message"],
     queryFn: loadAcceptedConnectionsWithLastMessages,
+    refetchInterval: 10_000,
+    refetchIntervalInBackground: false,
   });
+
+  useEffect(() => {
+    const refresh = () => void refetchInbox();
+    window.addEventListener(CHAT_MESSAGES_CHANGED_EVENT, refresh);
+    return () => window.removeEventListener(CHAT_MESSAGES_CHANGED_EVENT, refresh);
+  }, [refetchInbox]);
 
   const connections = useMemo(
     () => connectionsData?.accepted ?? [],
@@ -264,14 +270,16 @@ export default function MensajesPage() {
       {/* Móvil: solo lista, cada fila navega al hilo a pantalla completa ya existente. */}
       <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto sm:hidden">
-        <InboxHeader />
-        <InboxSearchAndTabs
-          search={search}
-          onSearchChange={setSearch}
-          tab={tab}
-          onTabChange={setTab}
-          layoutIdPrefix="mobile"
-        />
+        <div className="sticky top-0 z-20 bg-background/95 pb-1 backdrop-blur-xl">
+          <InboxHeader />
+          <InboxSearchAndTabs
+            search={search}
+            onSearchChange={setSearch}
+            tab={tab}
+            onTabChange={setTab}
+            layoutIdPrefix="mobile"
+          />
+        </div>
 
         {communityVisible && community && (
           <MotionLink
@@ -282,7 +290,7 @@ export default function MensajesPage() {
             animate="show"
             whileTap={{ scale: 0.985 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="flex items-center gap-4 border-b border-border px-0 py-4 transition-colors duration-200"
+            className="flex min-h-20 items-center gap-3.5 border-b border-border px-1 py-3.5 transition-colors duration-200 active:bg-surface-soft"
           >
             <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
             <ConversationPreview
@@ -342,7 +350,7 @@ export default function MensajesPage() {
                   delay: Math.min(index, 8) * 0.02,
                 }}
                 whileTap={{ scale: 0.985 }}
-                className="flex items-center gap-4 border-b border-border px-0 py-4 transition-colors duration-200"
+                className="flex min-h-20 items-center gap-3.5 border-b border-border px-1 py-3.5 transition-colors duration-200 active:bg-surface-soft"
               >
                 <ConversationAvatar
                   initials={initialsOf(other.first_name, other.last_name)}
@@ -365,7 +373,7 @@ export default function MensajesPage() {
 
         <Link
           href="/usuarios"
-          className="mb-4 mt-5 flex items-center gap-3 rounded-18 border border-border bg-surface p-4 shadow-soft transition-transform duration-200 active:scale-[0.99]"
+          className="mb-4 mt-5 flex items-center gap-3 rounded-24 border border-border bg-surface p-4 shadow-soft transition-transform duration-200 active:scale-[0.99]"
         >
           <span className="flex h-11 w-11 shrink-0 items-center justify-center text-primary">
             <ComposeIcon />
@@ -378,7 +386,7 @@ export default function MensajesPage() {
               Conoce a más personas o encuentra tu comunidad ideal.
             </span>
           </span>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-light text-white shadow-button">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-foreground text-2xl font-light text-white shadow-button">
             +
           </span>
         </Link>
@@ -409,7 +417,7 @@ export default function MensajesPage() {
               transition={{ duration: 0.2, ease: "easeOut" }}
               className={`flex items-center gap-3 border-l-[3px] px-4 py-3.5 text-left transition-colors duration-200 ${
                 communitySelected
-                  ? "border-primary bg-mint-50"
+                  ? "border-foreground bg-surface-soft"
                   : "border-transparent hover:bg-surface-soft"
               }`}
             >
@@ -476,7 +484,7 @@ export default function MensajesPage() {
                   whileTap={{ scale: 0.99 }}
                   className={`flex items-center gap-3 border-l-[3px] px-4 py-3.5 text-left transition-colors duration-200 ${
                     isSelected
-                      ? "border-primary bg-mint-50"
+                      ? "border-foreground bg-surface-soft"
                       : "border-transparent hover:bg-surface-soft"
                   }`}
                 >
@@ -647,17 +655,17 @@ function InboxSearchAndTabs({
         />
       </div>
 
-      <div className="mt-3 grid min-w-0 grid-cols-[0.85fr_1.45fr_1fr_1fr] gap-1.5">
+      <div className="mt-3 flex min-w-0 gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:overflow-visible">
         {TAB_OPTIONS.map((option) => (
           <button
             key={option.key}
             type="button"
             onClick={() => onTabChange(option.key)}
             aria-pressed={tab === option.key}
-            className={`relative flex h-11 min-w-0 items-center justify-center overflow-hidden rounded-14 border px-1 text-[10px] font-bold transition-colors duration-200 min-[360px]:text-[11px] sm:h-8 sm:text-[10px] ${
+            className={`relative flex h-11 shrink-0 items-center justify-center overflow-hidden rounded-full border px-4 text-xs font-semibold transition-colors duration-200 sm:h-9 sm:min-w-0 sm:px-2 sm:text-[11px] ${
               tab === option.key
-                ? "border-primary bg-primary text-white shadow-button"
-                : "border-border bg-surface text-foreground shadow-soft hover:border-primary/40 hover:text-primary-dark"
+                ? "border-foreground bg-foreground text-white shadow-button"
+                : "border-border bg-surface text-foreground shadow-soft hover:border-foreground/30"
             }`}
           >
             <span className="relative block min-w-0 whitespace-nowrap">

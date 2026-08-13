@@ -4,6 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.schemas.storage_media import StorageBackedAvatarResponse
+from app.schemas.user_connection import UserConnectionResponse
 
 
 class PrivateMessageSenderResponse(StorageBackedAvatarResponse):
@@ -35,3 +36,10 @@ class PrivateMessageResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     sender: PrivateMessageSenderResponse
+
+
+class PrivateConversationSummaryResponse(BaseModel):
+    """Una conversación aceptada junto a su último mensaje."""
+
+    connection: UserConnectionResponse
+    last_message: PrivateMessageResponse | None = None

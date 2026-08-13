@@ -5,6 +5,7 @@ from app.core.dependencies import get_current_user, require_verified_email
 from app.database.models.user import User
 from app.database.session import get_db
 from app.schemas.private_message import (
+    PrivateConversationSummaryResponse,
     PrivateMessageCreate,
     PrivateMessageResponse,
 )
@@ -19,6 +20,20 @@ router = APIRouter()
 
 user_connection_service = UserConnectionService()
 private_message_service = PrivateMessageService()
+
+
+@router.get(
+    "/inbox",
+    response_model=list[PrivateConversationSummaryResponse],
+)
+def list_private_conversation_summaries(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return private_message_service.get_conversation_summaries(
+        db=db,
+        current_user=current_user,
+    )
 
 
 @router.get(

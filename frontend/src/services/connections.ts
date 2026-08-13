@@ -2,12 +2,20 @@ import { api } from "./api";
 import type { UserConnection, UserConnectionRequests } from "@/types/connection";
 import type {
   GetPrivateMessagesParams,
+  PrivateConversationSummary,
   PrivateMessage,
   PrivateMessageCreate,
 } from "@/types/privateMessage";
 
 export async function getConnections() {
   const { data } = await api.get<UserConnection[]>("/connections");
+  return data;
+}
+
+export async function getPrivateConversationInbox() {
+  const { data } = await api.get<PrivateConversationSummary[]>(
+    "/connections/inbox"
+  );
   return data;
 }
 

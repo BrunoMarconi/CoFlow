@@ -18,6 +18,11 @@ export interface PrivateMessageCreate {
   content: string;
 }
 
+export interface PrivateConversationSummary {
+  connection: import("@/types/connection").UserConnection;
+  last_message: PrivateMessage | null;
+}
+
 export interface GetPrivateMessagesParams {
   skip?: number;
   limit?: number;

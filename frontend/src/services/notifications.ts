@@ -49,17 +49,9 @@ export async function markAllNotificationsRead() {
 }
 
 export async function markNotificationsForLinkRead(link: string) {
-  const notifications = await getNotifications({ limit: 100 });
-  const pending = notifications.filter(
-    (notification) => !notification.is_read && notification.link === link
-  );
-
-  if (pending.length === 0) return;
-
-  await Promise.all(
-    pending.map((notification) =>
-      api.post<AppNotification>(`/notifications/${notification.id}/read`)
-    )
+  await api.post<{ marked_count: number; unread_count: number }>(
+    "/notifications/read-by-link",
+    { link }
   );
   announceNotificationChange();
 }

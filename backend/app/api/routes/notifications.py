@@ -5,6 +5,8 @@ from app.core.dependencies import get_current_user
 from app.database.models.user import User
 from app.database.session import get_db
 from app.schemas.notification import (
+    NotificationLinkReadRequest,
+    NotificationLinkReadResponse,
     NotificationResponse,
     UnreadNotificationCountResponse,
 )
@@ -13,6 +15,30 @@ from app.services.notification_service import NotificationService
 router = APIRouter()
 
 notification_service = NotificationService()
+
+
+@router.post(
+    "/read-by-link",
+    response_model=NotificationLinkReadResponse,
+)
+def mark_notifications_for_link_read(
+    data: NotificationLinkReadRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    marked_count = notification_service.mark_link_read(
+        db=db,
+        current_user=current_user,
+        link=data.link,
+    )
+
+    return NotificationLinkReadResponse(
+        marked_count=marked_count,
+        unread_count=notification_service.get_unread_count(
+            db=db,
+            current_user=current_user,
+        ),
+    )
 
 
 @router.get(
