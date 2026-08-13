@@ -42,10 +42,10 @@ const MEMBER_LINKS: NavigationLink[] = [
         !pathname.startsWith("/personas/guardadas")),
   },
   {
-    href: "/propietarios/mensajes",
+    href: "/mensajes",
     label: "Mensajes",
     icon: MessageIcon,
-    isActive: (pathname) => pathname.startsWith("/propietarios/mensajes"),
+    isActive: (pathname) => pathname.startsWith("/mensajes"),
   },
   {
     href: "/perfil",
@@ -71,10 +71,10 @@ const OWNER_LINKS: NavigationLink[] = [
     isActive: (pathname) => pathname.startsWith("/propietarios/solicitudes"),
   },
   {
-    href: "/mensajes",
+    href: "/propietarios/mensajes",
     label: "Mensajes",
     icon: MessageIcon,
-    isActive: (pathname) => pathname.startsWith("/mensajes"),
+    isActive: (pathname) => pathname.startsWith("/propietarios/mensajes"),
   },
   {
     href: "/propietarios/perfil",
@@ -108,7 +108,7 @@ export default function BottomNavigation() {
             link={link}
             active={link.isActive(pathname)}
             transitionTypes={getTabTransitionTypes(pathname, link.href)}
-            showUnreadDot={link.href === "/mensajes" && hasUnreadMessages}
+            showUnreadDot={link.label === "Mensajes" && hasUnreadMessages}
           />
         ))}
       </div>

@@ -53,7 +53,7 @@ function isExplorerRoute(pathname: string) {
 export default function AppShell({ children }: { children: ReactNode }) {
   const { isChatActive } = useMobileChrome();
   const { user, community } = useAuth();
-  const { transitionTarget, completeModeSwitch } = useOwnerMode();
+  const { isOwnerMode, transitionTarget, completeModeSwitch } = useOwnerMode();
   const prefersReducedMotion = useReducedMotion();
   const isDesktop = useMediaQuery("(min-width: 640px)");
   const pathname = usePathname();
@@ -61,6 +61,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
   // El asistente de publicación es una experiencia guiada a pantalla completa:
   // no debe competir visualmente con la navegación general de CoFlow.
   const isImmersiveOwnerFlow = pathname === "/propietarios/pisos/nuevo";
+
+  useEffect(() => {
+    if (!isOwnerMode) return;
+    if (!pathname.startsWith("/propietarios")) {
+      router.replace("/propietarios/pisos");
+    }
+  }, [isOwnerMode, pathname, router]);
 
   // Personas <-> Comunidades y Personas/Comunidades <-> Tu Comunidad:
   // la prioridad es velocidad, no la animación. La navegación nunca

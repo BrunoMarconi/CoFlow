@@ -5,6 +5,7 @@ import {
   useCallback,
   useMemo,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { usePathname } from "next/navigation";
@@ -28,10 +29,39 @@ export const OwnerModeContext = createContext<OwnerModeContextValue | undefined>
   undefined
 );
 
+const OWNER_MODE_STORAGE_KEY = "coflow-owner-mode-user";
+const OWNER_MODE_EVENT = "coflow-owner-mode-change";
+
+function subscribeToOwnerMode(onStoreChange: () => void) {
+  window.addEventListener(OWNER_MODE_EVENT, onStoreChange);
+  window.addEventListener("storage", onStoreChange);
+  return () => {
+    window.removeEventListener(OWNER_MODE_EVENT, onStoreChange);
+    window.removeEventListener("storage", onStoreChange);
+  };
+}
+
+function readOwnerModeUserId() {
+  return window.sessionStorage.getItem(OWNER_MODE_STORAGE_KEY);
+}
+
+function writeOwnerModeUserId(userId: string | null) {
+  if (userId) {
+    window.sessionStorage.setItem(OWNER_MODE_STORAGE_KEY, userId);
+  } else {
+    window.sessionStorage.removeItem(OWNER_MODE_STORAGE_KEY);
+  }
+  window.dispatchEvent(new Event(OWNER_MODE_EVENT));
+}
+
 export default function OwnerModeProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, ownerProfile, ownerProfileLoading } = useAuth();
-  const [ownerModeUserId, setOwnerModeUserId] = useState<string | null>(null);
+  const ownerModeUserId = useSyncExternalStore(
+    subscribeToOwnerMode,
+    readOwnerModeUserId,
+    () => null
+  );
   const [transitionTarget, setTransitionTarget] = useState<CoFlowMode | null>(
     null
   );
@@ -70,13 +100,14 @@ export default function OwnerModeProvider({ children }: { children: ReactNode })
 
   const activateOwnerMode = useCallback(() => {
     if (!user) return;
-    setOwnerModeUserId(user.id);
+    writeOwnerModeUserId(user.id);
   }, [user]);
 
   const completeModeSwitch = useCallback(() => {
     if (!transitionTarget) return null;
 
-    setOwnerModeUserId(transitionTarget === "owner" ? user?.id ?? null : null);
+    const nextUserId = transitionTarget === "owner" ? user?.id ?? null : null;
+    writeOwnerModeUserId(nextUserId);
     setTransitionTarget(null);
     return transitionTarget;
   }, [transitionTarget, user?.id]);

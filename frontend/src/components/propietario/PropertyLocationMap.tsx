@@ -151,11 +151,11 @@ export default function PropertyLocationMap({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-[1.75rem] border border-border bg-[#eef1ec] shadow-[0_18px_50px_rgba(24,54,40,0.1)]">
+    <div className="relative h-full min-h-0 overflow-hidden rounded-[1.5rem] border border-[#dddddd] bg-[#ece9e5] shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
       <div
         role="application"
         aria-label="Mapa para confirmar la ubicación de la vivienda"
-        className={`relative h-[52vh] min-h-100 max-h-145 w-full touch-none overflow-hidden select-none sm:h-135 ${
+        className={`relative h-full min-h-48 w-full touch-none overflow-hidden select-none sm:min-h-70 ${
           dragging ? "cursor-grabbing" : "cursor-grab"
         }`}
         onPointerDown={handlePointerDown}
@@ -169,32 +169,32 @@ export default function PropertyLocationMap({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               key={tile.key}
-              src={`https://tile.openstreetmap.org/${zoom}/${tile.x}/${tile.y}.png`}
+              src={`/api/geocoding/tiles/${zoom}/${tile.x}/${tile.y}`}
               alt=""
               draggable={false}
-              className="pointer-events-none absolute h-64 w-64 max-w-none saturate-[0.58] contrast-[0.94]"
+              className="pointer-events-none absolute h-64 w-64 max-w-none saturate-[0.7] contrast-[0.98]"
               style={{ left: tile.left, top: tile.top }}
             />
           ))}
         </div>
 
-        <div className="pointer-events-none absolute inset-0 bg-white/8" />
+        <div className="pointer-events-none absolute inset-0 bg-white/3" />
 
         <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full">
-          <div className={`relative flex h-14 w-14 items-center justify-center rounded-full bg-brand-dark text-white shadow-[0_12px_28px_rgba(14,56,35,0.28)] transition ${dragging ? "-translate-y-2 scale-105" : ""}`}>
+          <div className={`relative flex h-14 w-14 items-center justify-center rounded-full bg-black text-white shadow-[0_12px_28px_rgba(0,0,0,0.25)] transition ${dragging ? "-translate-y-2 scale-105" : ""}`}>
             <Home className="h-6 w-6" strokeWidth={2} />
-            <span className="absolute -bottom-1 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 rounded-br-sm bg-brand-dark" />
+            <span className="absolute -bottom-1 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 rounded-br-sm bg-black" />
           </div>
         </div>
 
         <div className="pointer-events-none absolute inset-x-4 top-4 flex justify-center sm:top-5">
-          <div className="flex max-w-[92%] items-center gap-3 rounded-full border border-white/80 bg-white/95 px-4 py-3 text-sm font-semibold text-brand-dark shadow-[0_10px_28px_rgba(26,55,43,0.12)] backdrop-blur sm:px-5 sm:text-base">
+          <div className="flex max-w-[92%] items-center gap-3 rounded-full border border-white/80 bg-white/95 px-4 py-3 text-sm font-semibold text-[#191919] shadow-[0_10px_28px_rgba(0,0,0,0.12)] backdrop-blur sm:px-5 sm:text-base">
             <span className="truncate">{address}</span>
             {resolving ? <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" /> : null}
           </div>
         </div>
 
-        <div className="absolute bottom-12 right-4 grid overflow-hidden rounded-14 border border-border bg-white shadow-soft">
+        <div className="absolute bottom-12 right-4 grid overflow-hidden rounded-xl border border-[#dddddd] bg-white shadow">
           <button
             type="button"
             aria-label="Acercar mapa"
@@ -203,7 +203,7 @@ export default function PropertyLocationMap({
               changeZoom(zoom + 1);
             }}
             onPointerDown={(event) => event.stopPropagation()}
-            className="flex h-11 w-11 items-center justify-center border-b border-border text-brand-dark transition hover:bg-surface-soft"
+            className="flex h-11 w-11 items-center justify-center border-b border-[#dddddd] text-[#191919] transition hover:bg-[#f5f5f5]"
           >
             <Plus className="h-5 w-5" />
           </button>
@@ -215,13 +215,13 @@ export default function PropertyLocationMap({
               changeZoom(zoom - 1);
             }}
             onPointerDown={(event) => event.stopPropagation()}
-            className="flex h-11 w-11 items-center justify-center text-brand-dark transition hover:bg-surface-soft"
+            className="flex h-11 w-11 items-center justify-center text-[#191919] transition hover:bg-[#f5f5f5]"
           >
             <Minus className="h-5 w-5" />
           </button>
         </div>
 
-        <p className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand-dark/92 px-4 py-2 text-xs font-semibold text-white shadow-soft sm:text-sm">
+        <p className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/90 px-4 py-2 text-xs font-semibold text-white shadow sm:text-sm">
           Arrastra el mapa para ajustar el marcador
         </p>
 
@@ -230,7 +230,7 @@ export default function PropertyLocationMap({
           target="_blank"
           rel="noreferrer"
           onPointerDown={(event) => event.stopPropagation()}
-          className="absolute bottom-1 left-2 text-[9px] font-semibold text-brand-dark/70"
+          className="absolute bottom-1 left-2 text-[9px] font-semibold text-black/65"
         >
           © OpenStreetMap
         </a>

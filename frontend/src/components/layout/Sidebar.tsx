@@ -45,7 +45,7 @@ export default function Sidebar() {
       icon: CompassIcon,
     },
     { href: "/usuarios", label: "Personas", icon: UsersIcon },
-    { href: "/propietarios/mensajes", label: "Mensajes", icon: MessageIcon },
+    { href: "/mensajes", label: "Mensajes", icon: MessageIcon },
     {
       href: "/personas/guardadas",
       label: "Guardados",
@@ -65,7 +65,7 @@ export default function Sidebar() {
   const ownerLinks: NavLink[] = [
     { href: "/propietarios/pisos", label: "Mis pisos", icon: KeyIcon },
     { href: "/propietarios/solicitudes", label: "Solicitudes", icon: UsersIcon },
-    { href: "/mensajes", label: "Mensajes", icon: MessageIcon },
+    { href: "/propietarios/mensajes", label: "Mensajes", icon: MessageIcon },
     { href: "/propietarios/perfil", label: "Perfil", icon: ProfileIcon },
   ];
 
@@ -76,11 +76,15 @@ export default function Sidebar() {
       ? []
       : [
           { href: "/perfil", label: "Mi perfil", icon: ProfileIcon },
-          {
-            href: ownerProfile ? "/propietarios" : "/propietarios/perfil",
-            label: "Publicar un piso",
-            icon: KeyIcon,
-          },
+          ...(!ownerProfile
+            ? [
+                {
+                  href: "/propietarios/perfil",
+                  label: "Publicar un piso",
+                  icon: KeyIcon,
+                },
+              ]
+            : []),
         ]),
     { href: "/ajustes", label: "Ajustes", icon: SettingsIcon },
   ];
@@ -158,7 +162,7 @@ export default function Sidebar() {
 
       {user && (
         <div className="mt-4 flex items-center gap-2.5 rounded-14 bg-mint-50 p-2.5">
-          <Link href="/perfil" className="flex min-w-0 flex-1 items-center gap-2.5">
+          <Link href={isOwnerMode ? "/propietarios/perfil" : "/perfil"} className="flex min-w-0 flex-1 items-center gap-2.5">
             <Avatar
               name={`${user.first_name} ${user.last_name}`}
               imageUrl={user.avatar_url}

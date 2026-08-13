@@ -1,42 +1,24 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Building2 } from "lucide-react";
 import { useOwnerMode } from "@/hooks/useOwnerMode";
-import { HomeIcon, KeyIcon } from "@/components/layout/NavIcons";
 
 export default function OwnerModeToggle() {
-  const {
-    isOwnerMode,
-    hasPublishedProperties,
-    propertiesLoading,
-    requestModeSwitch,
-  } = useOwnerMode();
-
+  const { hasPublishedProperties, propertiesLoading, requestModeSwitch } = useOwnerMode();
   if (propertiesLoading || !hasPublishedProperties) return null;
-
-  const target = isOwnerMode ? "member" : "owner";
-  const Icon = isOwnerMode ? HomeIcon : KeyIcon;
 
   return (
     <motion.button
       type="button"
-      onClick={() => requestModeSwitch(target)}
+      onClick={() => requestModeSwitch("owner")}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.97 }}
-      className="fixed bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+1rem)] right-5 z-30 flex items-center gap-3 rounded-full border border-primary/25 bg-surface py-2.5 pl-3 pr-4 text-left shadow-[0_14px_32px_rgba(26,55,43,0.14)] transition focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-primary sm:bottom-8 sm:right-8 md:right-10"
-      aria-label={isOwnerMode ? "Cambiar a modo persona" : "Cambiar a propietario"}
+      className="fixed bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+0.75rem)] left-5 right-5 z-30 mx-auto flex h-14 max-w-lg items-center justify-center gap-2 rounded-full bg-black px-6 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(0,0,0,0.24)] transition hover:bg-[#282828] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-black sm:bottom-7 sm:left-auto sm:right-8 md:right-10"
+      aria-label="Gestionar mis pisos"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/20 text-primary">
-        <Icon className="h-5 w-5" />
-      </span>
-      <span className="min-w-0">
-        <span className="block text-sm font-bold text-brand-dark">
-          {isOwnerMode ? "Cambiar a modo persona" : "Cambiar a propietario"}
-        </span>
-        <span className="mt-0.5 block text-xs text-muted">
-          {isOwnerMode ? "Descubrir CoFlow" : "Gestionar mis pisos"}
-        </span>
-      </span>
+      <Building2 className="h-5 w-5" />
+      Gestionar mis pisos
     </motion.button>
   );
 }

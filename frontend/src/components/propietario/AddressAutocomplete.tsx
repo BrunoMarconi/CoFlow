@@ -171,7 +171,7 @@ export default function AddressAutocomplete({
       <label className="sr-only" htmlFor="property-address-search">
         ¿Dónde está tu vivienda?
       </label>
-      <div className="flex h-16 items-center gap-3 rounded-full border border-border bg-surface px-5 shadow-[0_10px_28px_rgba(26,55,43,0.07)] transition focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/8 sm:h-17">
+      <div className="flex h-16 items-center gap-3 rounded-full border border-[#c9c9c9] bg-white px-5 shadow-[0_8px_24px_rgba(0,0,0,0.07)] transition focus-within:border-black focus-within:ring-1 focus-within:ring-black sm:h-17">
         <SearchIcon />
         <input
           id="property-address-search"
@@ -190,7 +190,7 @@ export default function AddressAutocomplete({
           }}
           placeholder="¿Dónde está tu vivienda?"
           autoComplete="street-address"
-          className="min-w-0 flex-1 bg-transparent text-[1.05rem] font-medium text-brand-dark outline-none placeholder:text-secondary/70 sm:text-lg"
+          className="min-w-0 flex-1 bg-transparent text-[1.05rem] font-medium text-[#191919] outline-none placeholder:text-[#717171] sm:text-lg"
         />
         {loading ? <SpinnerIcon /> : null}
       </div>
@@ -212,13 +212,13 @@ export default function AddressAutocomplete({
                 <button
                   type="button"
                   onClick={() => handleSelect(result)}
-                  className="flex w-full items-center gap-4 border-b border-border px-2 py-4 text-left transition last:border-b-0 hover:bg-surface-soft sm:px-3"
+                  className="flex w-full items-center gap-4 border-b border-[#e7e7e7] px-2 py-4 text-left transition last:border-b-0 hover:bg-[#f7f7f7] sm:px-3"
                 >
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-primary/10 text-primary">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f5f5f5] text-[#222]">
                     <PinIcon />
                   </span>
                   <span className="min-w-0">
-                    <span className="block truncate text-base font-semibold text-brand-dark">
+                    <span className="block truncate text-base font-semibold text-[#191919]">
                       {label.primary}
                     </span>
                     <span className="mt-0.5 block truncate text-sm text-secondary">
@@ -284,7 +284,7 @@ function SpinnerIcon() {
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      className="h-5 w-5 shrink-0 animate-spin text-primary"
+      className="h-5 w-5 shrink-0 animate-spin text-black"
       aria-label="Buscando"
     >
       <path d="M20 12a8 8 0 1 1-2.3-5.7" />
