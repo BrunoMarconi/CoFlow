@@ -7,8 +7,10 @@ import { useParams, useRouter } from "next/navigation";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { useUserConnection } from "@/hooks/useUserConnection";
 import Spinner from "@/components/ui/Spinner";
+import PhotoDetailShell from "@/components/ui/PhotoDetailShell";
 import UserAvatar from "@/components/ui/UserAvatar";
 import UserSafetyActions from "@/components/usuario/UserSafetyActions";
+import { detailTransitionName } from "@/lib/detailTransitions";
 import type { PublicUserPreferences, UserPublicProfile } from "@/types/userPublic";
 
 const HIGHLIGHTED_PREFERENCES: Array<{
@@ -75,23 +77,19 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
 
   return (
     <div className="mx-auto w-full max-w-4xl pb-5">
-      <header className="relative flex h-11 items-center justify-between">
+      <header className="relative hidden h-11 items-center justify-between sm:flex">
         <Link href="/usuarios" aria-label="Volver a personas" className="flex h-10 w-10 items-center justify-start text-brand-dark"><ArrowLeftIcon /></Link>
         <h1 className="absolute inset-x-12 text-center text-lg font-extrabold text-foreground">Perfil público</h1>
         <button type="button" onClick={() => setSafetyOpen(true)} aria-label="Más opciones" className="flex h-10 w-10 items-center justify-end text-brand-dark"><MoreIcon /></button>
       </header>
 
-      <section className="mt-3 overflow-hidden rounded-24 border border-border bg-surface shadow-soft">
-        <div className="relative h-36 bg-surface sm:h-52">
-          {coverPhoto ? (
-            <Image src={coverPhoto} alt="" fill unoptimized priority sizes="(max-width: 768px) 100vw, 896px" className="object-cover" />
-          ) : (
-            <div className="h-full border-b border-border bg-surface" />
-          )}
-        </div>
-
-        <div className="relative px-5 pb-5 pt-14 sm:px-7 sm:pb-7 sm:pt-16">
-          <div className="absolute -top-16 left-5 rounded-full border-4 border-white bg-surface shadow-soft sm:-top-20 sm:left-7">
+      <PhotoDetailShell
+        transitionName={detailTransitionName("person", profile.id)}
+        media={coverPhoto ? <Image src={coverPhoto} alt={fullName} fill unoptimized priority sizes="(max-width: 768px) 100vw, 896px" className="object-cover" /> : <div className="h-full bg-[#f2f2f2]" />}
+        actions={<><Link href="/usuarios" transitionTypes={["nav-back"]} aria-label="Volver a personas" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur"><ArrowLeftIcon /></Link><button type="button" onClick={() => setSafetyOpen(true)} aria-label="Más opciones" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur"><MoreIcon /></button></>}
+      >
+        <div className="relative">
+          <div className="relative -mt-20 mb-4 w-fit rounded-full border-4 border-white bg-surface shadow-soft sm:-mt-24">
             <UserAvatar
               firstName={profile.first_name}
               lastName={profile.last_name}
@@ -103,7 +101,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
             {profile.is_online && <span className="absolute bottom-2 right-2 h-4 w-4 rounded-full border-2 border-white bg-emerald-500" aria-label="En línea" />}
           </div>
 
-          <div className="sm:ml-40">
+          <div>
             <div className="flex items-center gap-2">
               <h2 className="truncate font-rounded text-3xl font-semibold text-brand-dark">{fullName || "Persona de CoFlow"}</h2>
               {profile.is_verified && <VerifiedIcon />}
@@ -116,7 +114,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
             </p>
           </div>
         </div>
-      </section>
+      </PhotoDetailShell>
 
       {profile.bio && (
         <section className="mt-4 rounded-18 border border-border bg-surface p-4 shadow-soft">

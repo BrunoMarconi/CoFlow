@@ -157,6 +157,34 @@ summary::-webkit-details-marker {
   display: none;
 }
 
+/* Una tarjeta y su detalle son el mismo objeto visual. La transición
+   compartida conserva esa continuidad al abrir pisos, comunidades y perfiles. */
+::view-transition-group(.coflow-detail-morph) {
+  animation-duration: 440ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 35;
+}
+
+::view-transition-image-pair(.coflow-detail-morph) {
+  isolation: auto;
+}
+
+::view-transition-old(.coflow-detail-morph),
+::view-transition-new(.coflow-detail-morph) {
+  animation-duration: 440ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
 @keyframes wave {
   0%,
   60%,

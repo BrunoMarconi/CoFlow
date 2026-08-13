@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, ViewTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
@@ -22,6 +22,7 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import EmptyState from "@/components/ui/EmptyState";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import UserAvatar from "@/components/ui/UserAvatar";
+import { detailTransitionName } from "@/lib/detailTransitions";
 import {
   acceptConnection,
   cancelConnection,
@@ -496,8 +497,11 @@ function ConnectionCard({
     >
       <Link
         href={`/personas/${person.id}`}
+        transitionTypes={["nav-forward"]}
         className="flex min-h-14 items-center gap-3 rounded-14 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
       >
+        <ViewTransition name={detailTransitionName("person", person.id)} share="coflow-detail-morph">
+        <div className="flex w-full min-w-0 items-center gap-3">
         <div className="relative shrink-0">
           <UserAvatar
             firstName={person.first_name}
@@ -521,6 +525,8 @@ function ConnectionCard({
         <span className="shrink-0 rounded-full border border-border bg-white px-2.5 py-1 text-[10px] font-bold text-secondary">
           {badge}
         </span>
+        </div>
+        </ViewTransition>
       </Link>
 
       <div className="mt-auto flex items-center gap-2 border-t border-border/70 pt-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ViewTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -15,6 +15,7 @@ import SkeletonCard from "@/components/ui/SkeletonCard";
 import EmptyState from "@/components/ui/EmptyState";
 import Spinner from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
+import { detailTransitionName } from "@/lib/detailTransitions";
 import {
   MOTION_DURATION,
   MOTION_EASE,
@@ -363,8 +364,10 @@ function PersonPhotoCard({ person }: { person: UserPublicProfile }) {
   return (
     <Link
       href={`/personas/${person.id}`}
+      transitionTypes={["nav-forward"]}
       className="block w-56 shrink-0 rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
+      <ViewTransition name={detailTransitionName("person", person.id)} share="coflow-detail-morph">
       <motion.div
         whileTap={{ scale: 0.97 }}
         transition={{ duration: MOTION_DURATION.fast }}
@@ -400,6 +403,7 @@ function PersonPhotoCard({ person }: { person: UserPublicProfile }) {
           )}
         </div>
       </motion.div>
+      </ViewTransition>
     </Link>
   );
 }
@@ -413,8 +417,10 @@ function PersonNoPhotoCard({ person }: { person: UserPublicProfile }) {
   return (
     <Link
       href={`/personas/${person.id}`}
+      transitionTypes={["nav-forward"]}
       className="block w-52 shrink-0 rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
+      <ViewTransition name={detailTransitionName("person", person.id)} share="coflow-detail-morph">
       <motion.div
         whileTap={{ scale: 0.97 }}
         transition={{ duration: MOTION_DURATION.fast }}
@@ -442,6 +448,7 @@ function PersonNoPhotoCard({ person }: { person: UserPublicProfile }) {
           )}
         </div>
       </motion.div>
+      </ViewTransition>
     </Link>
   );
 }
@@ -461,8 +468,10 @@ function ExploreCommunityCard({
   return (
     <Link
       href={`/comunidades/${item.id}`}
+      transitionTypes={["nav-forward"]}
       className="block w-68 shrink-0 rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
+      <ViewTransition name={detailTransitionName("community", item.id)} share="coflow-detail-morph">
       <motion.div
         whileTap={{ scale: 0.97 }}
         transition={{ duration: MOTION_DURATION.fast }}
@@ -528,6 +537,7 @@ function ExploreCommunityCard({
           </p>
         </div>
       </motion.div>
+      </ViewTransition>
     </Link>
   );
 }

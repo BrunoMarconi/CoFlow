@@ -1,56 +1,162 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { Building2, UserRound } from "lucide-react";
-import Input from "@/components/ui/Input";
+import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Building2, ChevronLeft, ChevronRight, UserRound } from "lucide-react";
 import type { OwnerProfile, OwnerProfileCreate, OwnerType } from "@/types/owner";
 
-const OWNER_TYPES: Array<{ value: OwnerType; label: string; icon: React.ReactNode }> = [
-  { value: "INDIVIDUAL", label: "Particular", icon: <UserRound /> },
-  { value: "COMPANY", label: "Empresa", icon: <Building2 /> },
-  { value: "AGENCY", label: "Agencia", icon: <Building2 /> },
+const OWNER_TYPES: Array<{ value: OwnerType; label: string; description: string; icon: React.ReactNode }> = [
+  { value: "INDIVIDUAL", label: "Particular", description: "Gestionas tus propias viviendas.", icon: <UserRound /> },
+  { value: "COMPANY", label: "Empresa", description: "Publicas en nombre de una empresa.", icon: <Building2 /> },
+  { value: "AGENCY", label: "Agencia", description: "Gestionas viviendas de terceros.", icon: <Building2 /> },
 ];
+
+type OwnerStep = "owner_type" | "display_name" | "phone" | "contact_email" | "company_name" | "tax_id";
+const ALL_STEPS: OwnerStep[] = ["owner_type", "display_name", "phone", "contact_email", "company_name", "tax_id"];
 
 export type OwnerProfileFormValues = OwnerProfileCreate;
 
-export default function OwnerProfileForm({ mode = "create", initialValues, submitting = false, serverError = "", onSubmit, onCancel }: { mode?: "create" | "edit"; initialValues?: OwnerProfile | null; submitting?: boolean; serverError?: string; onSubmit: (values: OwnerProfileFormValues) => Promise<void>; onCancel?: () => void }) {
-  const [ownerType, setOwnerType] = useState<OwnerType>(initialValues?.owner_type ?? "INDIVIDUAL");
-  const [displayName, setDisplayName] = useState(initialValues?.display_name ?? "");
-  const [phone, setPhone] = useState(initialValues?.phone ?? "");
-  const [contactEmail, setContactEmail] = useState(initialValues?.contact_email ?? "");
-  const [companyName, setCompanyName] = useState(initialValues?.company_name ?? "");
-  const [taxId, setTaxId] = useState(initialValues?.tax_id ?? "");
+export default function OwnerProfileForm({ mode = "create", initialValues, submitting = false, serverError = "", onSubmit, onCancel }: {
+  mode?: "create" | "edit";
+  initialValues?: OwnerProfile | null;
+  submitting?: boolean;
+  serverError?: string;
+  onSubmit: (values: OwnerProfileFormValues) => Promise<void>;
+  onCancel?: () => void;
+}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const base = "/propietarios/perfil";
+  const requested = searchParams.get("step") as OwnerStep | null;
+  const requestedStep = requested && ALL_STEPS.includes(requested) ? requested : null;
+  const [createIndex, setCreateIndex] = useState(0);
+  const [values, setValues] = useState<OwnerProfileFormValues>({
+    owner_type: initialValues?.owner_type ?? "INDIVIDUAL",
+    display_name: initialValues?.display_name ?? "",
+    phone: initialValues?.phone ?? "",
+    contact_email: initialValues?.contact_email ?? "",
+    company_name: initialValues?.company_name ?? null,
+    tax_id: initialValues?.tax_id ?? null,
+  });
   const [validationError, setValidationError] = useState("");
+  const createSteps = useMemo(() => values.owner_type === "INDIVIDUAL" ? ALL_STEPS.filter((item) => item !== "company_name") : ALL_STEPS, [values.owner_type]);
+  const step = mode === "create" ? createSteps[createIndex] : requestedStep;
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (submitting) return;
-    if (displayName.trim().length < 2) return setValidationError("Indica un nombre visible válido.");
-    if (phone.trim().length < 6) return setValidationError("Indica un teléfono de contacto válido.");
-    if (!contactEmail.trim().includes("@")) return setValidationError("Indica un email de contacto válido.");
+  async function saveStep(value: string) {
+    if (!step) return;
+    const error = validate(step, value);
+    if (error) return setValidationError(error);
     setValidationError("");
-    await onSubmit({ owner_type: ownerType, display_name: displayName.trim(), phone: phone.trim(), contact_email: contactEmail.trim(), company_name: companyName.trim() || null, tax_id: taxId.trim() || null });
+    const next = { ...values, [step]: step === "owner_type" ? value as OwnerType : value.trim() || null } as OwnerProfileFormValues;
+    if (step === "display_name" || step === "phone" || step === "contact_email") next[step] = value.trim();
+    setValues(next);
+
+    if (mode === "edit") {
+      await onSubmit(next);
+      router.replace(base, { scroll: false });
+      return;
+    }
+
+    if (createIndex < createSteps.length - 1) {
+      setCreateIndex((index) => index + 1);
+      return;
+    }
+    await onSubmit(next);
   }
 
-  const visibleError = validationError || serverError;
+  if (step) {
+    return (
+      <OwnerStepScreen
+        key={step}
+        step={step}
+        value={String(values[step] ?? "")}
+        submitting={submitting}
+        error={validationError || serverError}
+        progress={mode === "create" ? `${createIndex + 1} de ${createSteps.length}` : undefined}
+        onBack={() => {
+          setValidationError("");
+          if (mode === "create" && createIndex > 0) setCreateIndex((index) => index - 1);
+          else if (mode === "edit") router.replace(base, { scroll: false });
+          else onCancel?.();
+        }}
+        onSave={saveStep}
+      />
+    );
+  }
 
   return (
-    <div className="mx-auto w-full max-w-3xl pb-8">
-      <header><p className="text-sm font-bold text-primary">Espacio propietario</p><h1 className="mt-1 font-rounded text-4xl font-bold tracking-[-0.04em] text-brand-dark sm:text-5xl">{mode === "create" ? "Tu perfil de propietario" : "Editar perfil"}</h1><p className="mt-3 max-w-xl text-sm leading-6 text-secondary">Los datos que usaremos para gestionar tus viviendas y contactar contigo.</p></header>
-
-      <form onSubmit={handleSubmit} className="mt-8 rounded-24 border border-border bg-surface p-5 shadow-soft sm:p-8">
-        <fieldset><legend className="text-sm font-bold text-brand-dark">¿Qué tipo de propietario eres?</legend><div className="mt-3 grid grid-cols-3 gap-3">{OWNER_TYPES.map((option) => <button key={option.value} type="button" onClick={() => setOwnerType(option.value)} className={`flex min-h-24 flex-col items-center justify-center gap-2 rounded-18 border text-sm font-bold transition ${ownerType === option.value ? "border-primary text-brand-dark ring-1 ring-primary" : "border-border text-secondary"}`}><span className="text-primary [&>svg]:h-6 [&>svg]:w-6">{option.icon}</span>{option.label}</button>)}</div></fieldset>
-
-        <div className="mt-7 space-y-5">
-          <Input label="Nombre visible" value={displayName} onChange={(event) => setDisplayName(event.target.value)} placeholder="Ej. María García" maxLength={120} required />
-          <div className="grid gap-5 sm:grid-cols-2"><Input label="Teléfono" type="tel" inputMode="tel" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="600 123 456" required /><Input label="Email de contacto" type="email" value={contactEmail} onChange={(event) => setContactEmail(event.target.value)} placeholder="maria@email.com" required /></div>
-          {ownerType !== "INDIVIDUAL" ? <Input label="Nombre de la empresa" value={companyName} onChange={(event) => setCompanyName(event.target.value)} placeholder="Inmobiliaria Sol S.L." /> : null}
-          <Input label="Identificación fiscal" helperText="Opcional" value={taxId} onChange={(event) => setTaxId(event.target.value)} placeholder="B12345678" />
+    <div className="mx-auto w-full max-w-2xl pb-8">
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-[#717171]">Espacio propietario</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-[-0.035em] text-[#191919]">Editar perfil</h1>
         </div>
+        {onCancel ? <button type="button" onClick={onCancel} className="text-sm font-semibold underline underline-offset-4">Listo</button> : null}
+      </header>
 
-        {visibleError ? <p role="alert" className="mt-5 rounded-18 border border-red-100 bg-red-50 p-4 text-sm font-semibold text-red-700">{visibleError}</p> : null}
-        <div className="mt-7 flex flex-col gap-3 sm:flex-row"><button type="submit" disabled={submitting} className="h-13 flex-1 rounded-full bg-brand px-6 font-bold text-white shadow-button disabled:opacity-50">{submitting ? "Guardando…" : "Guardar cambios"}</button>{mode === "edit" && onCancel ? <button type="button" onClick={onCancel} disabled={submitting} className="h-13 rounded-full border border-border bg-surface px-6 font-bold text-brand-dark">Cancelar</button> : null}</div>
-      </form>
+      <div className="mt-8 overflow-hidden rounded-2xl border border-[#dddddd] bg-white">
+        <OwnerRow href={`${base}?step=owner_type`} title="Tipo de propietario" value={OWNER_TYPES.find((item) => item.value === values.owner_type)?.label ?? "Particular"} />
+        <OwnerRow href={`${base}?step=display_name`} title="Nombre visible" value={values.display_name} />
+        <OwnerRow href={`${base}?step=phone`} title="Teléfono" value={values.phone} />
+        <OwnerRow href={`${base}?step=contact_email`} title="Email de contacto" value={values.contact_email} />
+        {values.owner_type !== "INDIVIDUAL" ? <OwnerRow href={`${base}?step=company_name`} title="Empresa" value={values.company_name || "Sin indicar"} /> : null}
+        <OwnerRow href={`${base}?step=tax_id`} title="Identificación fiscal" value={values.tax_id || "Sin indicar"} />
+      </div>
     </div>
   );
+}
+
+function OwnerStepScreen({ step, value: initialValue, submitting, error, progress, onBack, onSave }: {
+  step: OwnerStep;
+  value: string;
+  submitting: boolean;
+  error: string;
+  progress?: string;
+  onBack: () => void;
+  onSave: (value: string) => Promise<void>;
+}) {
+  const [value, setValue] = useState(initialValue);
+  const meta = STEP_META[step];
+  return (
+    <div className="fixed inset-0 z-60 overflow-y-auto bg-white">
+      <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-10">
+        <header className="flex items-center justify-between gap-4"><button type="button" onClick={onBack} className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd]" aria-label="Volver"><ChevronLeft className="h-6 w-6" /></button>{progress ? <span className="text-sm font-semibold text-[#717171]">{progress}</span> : <span />}</header>
+        <main className="flex flex-1 flex-col justify-center py-10">
+          <h1 className="text-3xl font-semibold tracking-[-0.035em] text-[#191919] sm:text-4xl">{meta.title}</h1>
+          <p className="mt-3 text-base leading-7 text-[#717171]">{meta.description}</p>
+          {step === "owner_type" ? (
+            <div className="mt-8 grid gap-3">
+              {OWNER_TYPES.map((option) => <button key={option.value} type="button" onClick={() => setValue(option.value)} className={`flex min-h-24 items-center gap-4 rounded-2xl border p-5 text-left ${value === option.value ? "border-black bg-[#f7f7f7] ring-1 ring-black" : "border-[#dddddd]"}`}><span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f7f7f7] [&>svg]:h-6 [&>svg]:w-6">{option.icon}</span><span className="flex-1"><span className="block font-semibold text-[#191919]">{option.label}</span><span className="mt-1 block text-sm text-[#717171]">{option.description}</span></span></button>)}
+            </div>
+          ) : (
+            <input autoFocus type={step === "contact_email" ? "email" : step === "phone" ? "tel" : "text"} value={value} onChange={(event) => setValue(event.target.value)} className="mt-8 h-16 w-full rounded-full border border-[#b0b0b0] px-6 text-lg font-medium outline-none transition focus:border-black focus:ring-2 focus:ring-black/10" />
+          )}
+          {error ? <p className="mt-4 text-sm font-semibold text-red-600">{error}</p> : null}
+        </main>
+        <footer className="sticky bottom-0 border-t border-[#ebebeb] bg-white py-4"><button type="button" onClick={() => onSave(value)} disabled={submitting} className="h-14 w-full rounded-xl bg-black text-base font-semibold text-white disabled:opacity-50">{submitting ? "Guardando…" : progress ? "Continuar" : "Guardar"}</button></footer>
+      </div>
+    </div>
+  );
+}
+
+const STEP_META: Record<OwnerStep, { title: string; description: string }> = {
+  owner_type: { title: "¿Qué tipo de propietario eres?", description: "Esto nos ayuda a adaptar tu espacio de gestión." },
+  display_name: { title: "¿Cómo quieres aparecer?", description: "Este es el nombre que verán las comunidades interesadas." },
+  phone: { title: "¿Cuál es tu teléfono?", description: "Lo usaremos únicamente para gestionar tus viviendas." },
+  contact_email: { title: "¿Qué email usas para tus pisos?", description: "Aquí recibirás la información importante." },
+  company_name: { title: "¿Cómo se llama tu empresa?", description: "Indica el nombre comercial o legal." },
+  tax_id: { title: "Identificación fiscal", description: "Es opcional y podrás completarla más adelante." },
+};
+
+function validate(step: OwnerStep, value: string) {
+  if (step === "display_name" && value.trim().length < 2) return "Indica un nombre visible válido.";
+  if (step === "phone" && value.trim().length < 6) return "Indica un teléfono válido.";
+  if (step === "contact_email" && !value.trim().includes("@")) return "Indica un email válido.";
+  if (step === "company_name" && value.trim().length < 2) return "Indica el nombre de la empresa.";
+  return "";
+}
+
+function OwnerRow({ href, title, value }: { href: string; title: string; value: string }) {
+  const router = useRouter();
+  return <button type="button" onClick={() => router.push(href, { scroll: false })} className="flex min-h-20 w-full items-center gap-4 border-b border-[#ebebeb] px-5 py-4 text-left last:border-b-0 hover:bg-[#f7f7f7]"><span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-[#191919]">{title}</span><span className="mt-1 block truncate text-sm text-[#717171]">{value}</span></span><ChevronRight className="h-5 w-5 text-[#717171]" /></button>;
 }

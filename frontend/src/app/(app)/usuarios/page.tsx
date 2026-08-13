@@ -2,11 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useUsers } from "@/hooks/useUsers";
 import UserGrid from "@/components/usuario/UserGrid";
-import PersonPreviewPanel from "@/components/usuario/PersonPreviewPanel";
 import UserFilters, {
   defaultUserFilters,
   isUserFiltersActive,
@@ -21,11 +21,11 @@ import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 const CITY_OPTIONS = ["Málaga", "Madrid", "Valencia"];
 
 export default function UsuariosPage() {
+  const router = useRouter();
   const { user: currentUser } = useAuth();
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<UserFilterState>(defaultUserFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [openUserId, setOpenUserId] = useState<string | null>(null);
 
   const maxBudget = filters.maxBudget ? Number(filters.maxBudget) : undefined;
   const { users, loading, hasMore, loadingMore, loadMore } = useUsers({
@@ -221,7 +221,7 @@ export default function UsuariosPage() {
             <>
               <UserGrid
                 users={visibleUsers}
-                onOpen={setOpenUserId}
+                onOpen={(userId) => router.push(`/personas/${userId}`, { transitionTypes: ["nav-forward"] })}
                 showRecommendedHeading={!hasQuery && !hasActiveFilters}
               />
 
@@ -258,15 +258,6 @@ export default function UsuariosPage() {
           </Link>
         )}
 
-        <AnimatePresence>
-          {openUserId && (
-            <PersonPreviewPanel
-              key={openUserId}
-              userId={openUserId}
-              onClose={() => setOpenUserId(null)}
-            />
-          )}
-        </AnimatePresence>
       </div>
     </MotionConfig>
   );

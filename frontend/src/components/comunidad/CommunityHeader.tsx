@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import CommunityApplicationAction from "./CommunityApplicationAction";
 import CommunityCover from "@/components/ui/CommunityCover";
+import PhotoDetailShell from "@/components/ui/PhotoDetailShell";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
-import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
+import { detailTransitionName } from "@/lib/detailTransitions";
 import { cn } from "@/lib/utils";
 import type { Community } from "@/types/community";
 
@@ -38,18 +38,13 @@ export default function CommunityHeader({
 
   return (
     <div className="space-y-5 sm:space-y-7">
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.12fr)_minmax(360px,0.88fr)] xl:items-start">
-        <motion.section
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
-          className="overflow-hidden rounded-24 border border-border bg-surface shadow-soft"
-        >
+      <PhotoDetailShell
+        transitionName={detailTransitionName("community", community.id)}
+        media={
           <CommunityCover
             name={community.name}
             coverColor={community.cover_color}
             coverImageUrl={community.cover_image_url}
-            layoutId={`community-cover-${community.id}`}
             members={community.members.slice(0, 4).map((member) => ({
               id: member.user_id,
               firstName: member.user.first_name,
@@ -58,50 +53,28 @@ export default function CommunityHeader({
             }))}
             memberCount={community.member_count}
             isOwn={isOwner}
-            className="h-56 sm:h-72 xl:h-[25rem]"
+            className="h-full"
           />
-
-          <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-3 sm:px-5">
-            <span className="inline-flex items-center gap-2 text-sm font-bold text-primary-dark">
-              <span
-                className={cn(
-                  "h-2 w-2 rounded-full",
-                  community.is_active ? "bg-primary" : "bg-muted"
-                )}
-              />
-              {community.is_active ? "Comunidad activa" : "Comunidad inactiva"}
-            </span>
-            {isOwner && (
-              <Link
-                href={`/comunidades/${community.id}/editar`}
-                className="rounded-10 border border-primary/30 px-3 py-1.5 text-xs font-bold text-primary-dark transition hover:border-primary hover:bg-surface-soft"
-              >
-                Editar
-              </Link>
-            )}
+        }
+        actions={
+          <>
+            <Link href="/comunidades" transitionTypes={["nav-back"]} aria-label="Volver a comunidades" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur"><BackIcon /></Link>
+            {isOwner ? <Link href={`/comunidades/${community.id}/editar`} transitionTypes={["nav-forward"]} className="rounded-full bg-black px-5 py-3 text-sm font-semibold text-white shadow-[0_3px_14px_rgba(0,0,0,0.18)]">Editar</Link> : <span />}
+          </>
+        }
+      >
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-2 text-sm font-bold text-primary-dark"><span className={cn("h-2 w-2 rounded-full", community.is_active ? "bg-primary" : "bg-muted")} />{community.is_active ? "Comunidad activa" : "Comunidad inactiva"}</span>
           </div>
-        </motion.section>
-
-        <motion.section
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: MOTION_DURATION.normal, delay: 0.04, ease: MOTION_EASE.out }}
-          className="rounded-24 border border-border bg-surface p-5 shadow-soft sm:p-7"
-        >
           <h1 className="font-rounded text-3xl font-semibold tracking-[-0.035em] text-brand-dark sm:text-4xl">
             {community.name}
           </h1>
-
-          <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-primary-dark">
-            <span className="h-2 w-2 rounded-full bg-primary" />
-            {community.is_active ? "Comunidad activa" : "Comunidad inactiva"}
-          </p>
 
           <p className="mt-4 whitespace-pre-line text-sm leading-6 text-secondary sm:text-base sm:leading-7">
             {community.description}
           </p>
 
-          <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-2">
+          <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
             <Fact icon={<PeopleIcon />} value={`${community.member_count}/${community.max_members}`} label="Miembros" />
             <Fact
               icon={<BudgetIcon />}
@@ -115,8 +88,7 @@ export default function CommunityHeader({
             <Fact icon={<LocationIcon />} value={community.city} label="Ubicación" />
             <Fact icon={<HomeIcon />} value={getProfileTypeLabel(community.profile_type)} label="Tipo" />
           </div>
-        </motion.section>
-      </div>
+      </PhotoDetailShell>
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.12fr)_minmax(360px,0.88fr)] xl:items-start">
         <div className="space-y-5">
@@ -343,3 +315,4 @@ function HomeIcon() { return <BaseIcon><path d="m3 11 9-8 9 8" /><path d="M5 10v
 function JoinIcon() { return <BaseIcon className="h-7 w-7"><circle cx="9" cy="7" r="4" /><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" /></BaseIcon>; }
 function MessageIcon() { return <BaseIcon><path d="M21 15a2 2 0 0 1-2 2H8l-5 3V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z" /></BaseIcon>; }
 function EditIcon() { return <BaseIcon><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" /></BaseIcon>; }
+function BackIcon() { return <BaseIcon className="h-6 w-6"><path d="M19 12H5M11 18l-6-6 6-6" /></BaseIcon>; }

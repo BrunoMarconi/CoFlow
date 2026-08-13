@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
 import { motion } from "framer-motion";
 import CommunityCover from "@/components/ui/CommunityCover";
 import AvatarGroup from "@/components/ui/AvatarGroup";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
+import { detailTransitionName } from "@/lib/detailTransitions";
 import type { Community } from "@/types/community";
 
 export default function CommunityCard({
@@ -32,6 +34,7 @@ export default function CommunityCard({
       transitionTypes={["nav-forward"]}
       className="group block h-full"
     >
+      <ViewTransition name={detailTransitionName("community", community.id)} share="coflow-detail-morph">
       <motion.article
         whileHover={{ y: -2 }}
         whileTap={{ scale: 0.985 }}
@@ -46,7 +49,6 @@ export default function CommunityCard({
             name={community.name}
             coverColor={community.cover_color}
             coverImageUrl={community.cover_image_url}
-            layoutId={`community-cover-${community.id}`}
             members={visibleMembers.map((member) => ({
               id: member.id.toString(),
               firstName: member.user.first_name,
@@ -135,6 +137,7 @@ export default function CommunityCard({
           </div>
         </div>
       </motion.article>
+      </ViewTransition>
     </Link>
   );
 }

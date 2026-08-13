@@ -18,7 +18,6 @@ export default function EditarPerfilPage() {
   async function handleSubmit(data: UpdateProfileRequest) {
     await updateProfile(data);
     await refresh();
-    router.push("/perfil");
   }
 
   const completion = computeProfileCompletion(user);

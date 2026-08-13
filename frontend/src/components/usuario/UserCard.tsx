@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ViewTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { useUserConnection } from "@/hooks/useUserConnection";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
+import { detailTransitionName } from "@/lib/detailTransitions";
 import type { UserPublicProfile } from "@/types/userPublic";
 
 const CONNECTION_LABELS: Record<string, string> = {
@@ -95,6 +96,14 @@ export default function UserCard({
       whileTap={{ scale: 0.985 }}
       className="cursor-pointer outline-none"
     >
+      <ViewTransition name={detailTransitionName("person", user.id)} share="coflow-detail-morph">
+        <div className="h-full">{renderCardContent()}</div>
+      </ViewTransition>
+    </motion.article>
+  );
+
+  function renderCardContent() {
+    return <>
       <div className="sm:hidden">
         {mobileVariant === "featured" ? (
           <div className="h-full overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
@@ -311,8 +320,8 @@ export default function UserCard({
           </div>
         </div>
       </div>
-    </motion.article>
-  );
+    </>;
+  }
 }
 
 function LocationIcon() {

@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 
 import { useAuth } from "@/hooks/useAuth";
 
-import CommunityForm from "@/components/comunidad/CommunityForm";
+import CommunityEditPanel from "@/components/comunidad/CommunityEditPanel";
 import CommunityCoverImageUploader from "@/components/comunidad/CommunityCoverImageUploader";
 import Spinner from "@/components/ui/Spinner";
 
@@ -17,7 +17,7 @@ import {
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 
 import type { Community } from "@/types/community";
-import type { CommunityFormValues } from "@/components/comunidad/CommunityForm";
+import type { CommunityCreate } from "@/types/community";
 
 export default function EditarComunidadPage() {
   const params = useParams<{ id: string }>();
@@ -71,7 +71,7 @@ export default function EditarComunidadPage() {
   }, [params.id, user, authLoading]);
 
   async function handleUpdate(
-    values: CommunityFormValues
+    values: CommunityCreate
   ) {
     if (!community || submitting) return;
 
@@ -79,15 +79,8 @@ export default function EditarComunidadPage() {
     setError("");
 
     try {
-      const updatedCommunity =
-        await updateCommunity(
-          community.id,
-          values
-        );
-
-      router.push(
-        `/comunidades/${updatedCommunity.id}`
-      );
+      const updatedCommunity = await updateCommunity(community.id, values);
+      setCommunity(updatedCommunity);
     } catch (updateError) {
       setError(
         getCommunityErrorMessage(
@@ -96,6 +89,7 @@ export default function EditarComunidadPage() {
         )
       );
 
+    } finally {
       setSubmitting(false);
     }
   }
@@ -168,7 +162,7 @@ export default function EditarComunidadPage() {
     );
   }
 
-  const initialValues: CommunityFormValues = {
+  const initialValues: CommunityCreate = {
     name: community.name,
     description: community.description,
     city: community.city,
@@ -208,17 +202,12 @@ export default function EditarComunidadPage() {
         onUpdated={setCommunity}
       />
 
-      <CommunityForm
-        mode="edit"
-        initialValues={initialValues}
+      <CommunityEditPanel
+        community={community}
+        values={initialValues}
         submitting={submitting}
         serverError={error}
         onSubmit={handleUpdate}
-        onCancel={() =>
-          router.push(
-            `/comunidades/${community.id}`
-          )
-        }
       />
     </div>
   );

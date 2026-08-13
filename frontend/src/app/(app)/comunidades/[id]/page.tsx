@@ -122,9 +122,10 @@ export default function ComunidadDetallePage() {
   return (
     <MotionConfig reducedMotion="user">
     <div className="mx-auto w-full max-w-7xl">
-      <header className="relative mb-5 flex h-11 items-center justify-between">
+      <header className="hidden">
         <Link
           href="/comunidades"
+          transitionTypes={["nav-back"]}
           aria-label="Volver a comunidades"
           className="inline-flex h-10 items-center gap-2 text-sm font-bold text-muted transition hover:text-brand-dark"
         >

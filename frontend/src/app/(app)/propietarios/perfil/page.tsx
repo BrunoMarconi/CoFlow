@@ -63,7 +63,6 @@ export default function OwnerProfilePage() {
     try {
       await updateOwnerProfile(values);
       await refreshOwnerProfile();
-      setView("summary");
     } catch (error) {
       setServerError(
         getCommunityErrorMessage(

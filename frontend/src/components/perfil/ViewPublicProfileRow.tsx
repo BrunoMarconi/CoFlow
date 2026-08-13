@@ -8,6 +8,7 @@ export default function ViewPublicProfileRow({ userId }: { userId: string }) {
   return (
     <Link
       href={`/personas/${userId}`}
+      transitionTypes={["nav-forward"]}
       className="block rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
       <motion.div
