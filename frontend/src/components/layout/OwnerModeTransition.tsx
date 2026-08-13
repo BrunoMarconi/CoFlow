@@ -1,35 +1,120 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Building2, Search, Sparkles } from "lucide-react";
 import type { CoFlowMode } from "@/providers/OwnerModeProvider";
 
-const DURATION = 1180;
+const VIDEO_DURATION_MS = 2000;
+const REDUCED_DURATION_MS = 220;
 
-export default function OwnerModeTransition({ target, onComplete }: { target: CoFlowMode; onComplete: () => void }) {
+const COPY = {
+  owner: {
+    eyebrow: "Perspectiva de propietario",
+    title: "Tus pisos, en primer plano",
+    detail: "Preparando tu espacio de gestión",
+  },
+  member: {
+    eyebrow: "Perspectiva personal",
+    title: "Volvemos a buscar hogar",
+    detail: "Recuperando personas y comunidades",
+  },
+} satisfies Record<CoFlowMode, { eyebrow: string; title: string; detail: string }>;
+
+export default function OwnerModeTransition({
+  target,
+  onComplete,
+}: {
+  target: CoFlowMode;
+  onComplete: () => void;
+}) {
   const reduced = useReducedMotion();
-  const owner = target === "owner";
+  const completedRef = useRef(false);
+  const copy = COPY[target];
 
   useEffect(() => {
-    const id = window.setTimeout(onComplete, reduced ? 160 : DURATION);
+    completedRef.current = false;
+    const id = window.setTimeout(
+      () => {
+        if (completedRef.current) return;
+        completedRef.current = true;
+        onComplete();
+      },
+      reduced ? REDUCED_DURATION_MS : VIDEO_DURATION_MS
+    );
     return () => window.clearTimeout(id);
-  }, [onComplete, reduced]);
+  }, [onComplete, reduced, target]);
+
+  function completeFromVideo() {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    onComplete();
+  }
 
   return (
-    <motion.div aria-live="polite" className="fixed inset-0 z-100 overflow-hidden bg-black text-white" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0.08 : 0.2 }}>
-      <motion.div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_50%_44%,rgba(255,255,255,0.16),transparent_36%)]" initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1.2, opacity: 1 }} transition={{ duration: reduced ? 0.1 : 1.05, ease: [0.22, 1, 0.36, 1] }} />
-      <div className="relative flex min-h-dvh flex-col items-center justify-center px-6 text-center">
-        <div className="relative flex h-28 w-28 items-center justify-center">
-          <motion.span className="absolute inset-0 rounded-full border border-white/20" initial={{ scale: 0.55, opacity: 0 }} animate={{ scale: [0.55, 1, 1.45], opacity: [0, 0.9, 0] }} transition={{ duration: reduced ? 0.1 : 0.95, ease: "easeOut" }} />
-          <motion.div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-white text-black shadow-[0_22px_60px_rgba(0,0,0,0.38)]" initial={{ scale: 0.6, rotate: owner ? -18 : 18 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", damping: 16, stiffness: 190 }}>
-            {owner ? <Building2 className="h-9 w-9" strokeWidth={1.7} /> : <Search className="h-9 w-9" strokeWidth={1.7} />}
-          </motion.div>
+    <motion.div
+      role="status"
+      aria-live="polite"
+      aria-label={`${copy.title}. ${copy.detail}`}
+      className="fixed inset-0 z-100 overflow-hidden bg-[#f7f7f5] text-[#191919]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: reduced ? 0.08 : 0.16 }}
+    >
+      {reduced ? (
+        <div className="absolute inset-0 bg-[#f7f7f5]" />
+      ) : (
+        <video
+          key={target}
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          poster="/images/owner-space-modular-2026.png"
+          onEnded={completeFromVideo}
+          className="absolute inset-0 h-full w-full object-cover"
+          aria-hidden="true"
+        >
+          <source src={`/videos/mode-${target}.webm`} type="video/webm" />
+          <source src={`/videos/mode-${target}.mp4`} type="video/mp4" />
+        </video>
+      )}
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[43%] bg-gradient-to-t from-[#f7f7f5] via-[#f7f7f5]/90 to-transparent" />
+
+      <div className="absolute inset-x-0 bottom-[max(3rem,env(safe-area-inset-bottom))] px-6 text-center sm:bottom-12">
+        <motion.p
+          className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#717171]"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: reduced ? 0 : 0.2, duration: 0.35 }}
+        >
+          {copy.eyebrow}
+        </motion.p>
+        <motion.h2
+          className="mx-auto mt-3 max-w-2xl text-[clamp(2.15rem,8vw,4.5rem)] font-semibold leading-[0.98] tracking-[-0.055em]"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: reduced ? 0 : 0.28, duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {copy.title}
+        </motion.h2>
+        <motion.p
+          className="mt-4 text-sm font-medium text-[#717171] sm:text-base"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: reduced ? 0 : 0.48, duration: 0.35 }}
+        >
+          {copy.detail}
+        </motion.p>
+        <div className="mx-auto mt-7 h-px w-40 overflow-hidden bg-black/12">
+          <motion.span
+            className="block h-full origin-left bg-black"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: reduced ? 0.15 : 1.65, delay: reduced ? 0 : 0.18, ease: "easeInOut" }}
+          />
         </div>
-        <motion.p className="mt-8 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/62" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduced ? 0 : 0.22 }}><Sparkles className="h-4 w-4" />Cambiando de perspectiva</motion.p>
-        <motion.h2 className="mt-3 max-w-lg text-4xl font-semibold leading-tight tracking-[-0.055em] sm:text-6xl" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduced ? 0 : 0.3, duration: 0.46, ease: [0.22, 1, 0.36, 1] }}>{owner ? "Tus pisos, en primer plano" : "Vuelves a buscar hogar"}</motion.h2>
-        <motion.p className="mt-4 max-w-sm text-sm leading-6 text-white/65 sm:text-base" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: reduced ? 0 : 0.46 }}>{owner ? "Abriendo tu espacio de propietario" : "Recuperando personas, comunidades y tus favoritos"}</motion.p>
-        <motion.span className="mt-9 h-0.5 w-36 origin-left rounded-full bg-white" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: reduced ? 0.1 : 0.72, delay: reduced ? 0 : 0.3, ease: "easeInOut" }} />
       </div>
     </motion.div>
   );
