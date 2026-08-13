@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Building2, ChevronLeft, ChevronRight, UserRound } from "lucide-react";
 import type { OwnerProfile, OwnerProfileCreate, OwnerType } from "@/types/owner";
 
@@ -24,12 +23,8 @@ export default function OwnerProfileForm({ mode = "create", initialValues, submi
   onSubmit: (values: OwnerProfileFormValues) => Promise<void>;
   onCancel?: () => void;
 }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const base = "/propietarios/perfil";
-  const requested = searchParams.get("step") as OwnerStep | null;
-  const requestedStep = requested && ALL_STEPS.includes(requested) ? requested : null;
   const [createIndex, setCreateIndex] = useState(0);
+  const [editStep, setEditStep] = useState<OwnerStep | null>(null);
   const [values, setValues] = useState<OwnerProfileFormValues>({
     owner_type: initialValues?.owner_type ?? "INDIVIDUAL",
     display_name: initialValues?.display_name ?? "",
@@ -40,7 +35,7 @@ export default function OwnerProfileForm({ mode = "create", initialValues, submi
   });
   const [validationError, setValidationError] = useState("");
   const createSteps = useMemo(() => values.owner_type === "INDIVIDUAL" ? ALL_STEPS.filter((item) => item !== "company_name") : ALL_STEPS, [values.owner_type]);
-  const step = mode === "create" ? createSteps[createIndex] : requestedStep;
+  const step = mode === "create" ? createSteps[createIndex] : editStep;
 
   async function saveStep(value: string) {
     if (!step) return;
@@ -53,7 +48,7 @@ export default function OwnerProfileForm({ mode = "create", initialValues, submi
 
     if (mode === "edit") {
       await onSubmit(next);
-      router.replace(base, { scroll: false });
+      setEditStep(null);
       return;
     }
 
@@ -76,7 +71,7 @@ export default function OwnerProfileForm({ mode = "create", initialValues, submi
         onBack={() => {
           setValidationError("");
           if (mode === "create" && createIndex > 0) setCreateIndex((index) => index - 1);
-          else if (mode === "edit") router.replace(base, { scroll: false });
+          else if (mode === "edit") setEditStep(null);
           else onCancel?.();
         }}
         onSave={saveStep}
@@ -95,12 +90,12 @@ export default function OwnerProfileForm({ mode = "create", initialValues, submi
       </header>
 
       <div className="mt-8 overflow-hidden rounded-2xl border border-[#dddddd] bg-white">
-        <OwnerRow href={`${base}?step=owner_type`} title="Tipo de propietario" value={OWNER_TYPES.find((item) => item.value === values.owner_type)?.label ?? "Particular"} />
-        <OwnerRow href={`${base}?step=display_name`} title="Nombre visible" value={values.display_name} />
-        <OwnerRow href={`${base}?step=phone`} title="Teléfono" value={values.phone} />
-        <OwnerRow href={`${base}?step=contact_email`} title="Email de contacto" value={values.contact_email} />
-        {values.owner_type !== "INDIVIDUAL" ? <OwnerRow href={`${base}?step=company_name`} title="Empresa" value={values.company_name || "Sin indicar"} /> : null}
-        <OwnerRow href={`${base}?step=tax_id`} title="Identificación fiscal" value={values.tax_id || "Sin indicar"} />
+        <OwnerRow onClick={() => setEditStep("owner_type")} title="Tipo de propietario" value={OWNER_TYPES.find((item) => item.value === values.owner_type)?.label ?? "Particular"} />
+        <OwnerRow onClick={() => setEditStep("display_name")} title="Nombre visible" value={values.display_name} />
+        <OwnerRow onClick={() => setEditStep("phone")} title="Teléfono" value={values.phone} />
+        <OwnerRow onClick={() => setEditStep("contact_email")} title="Email de contacto" value={values.contact_email} />
+        {values.owner_type !== "INDIVIDUAL" ? <OwnerRow onClick={() => setEditStep("company_name")} title="Empresa" value={values.company_name || "Sin indicar"} /> : null}
+        <OwnerRow onClick={() => setEditStep("tax_id")} title="Identificación fiscal" value={values.tax_id || "Sin indicar"} />
       </div>
     </div>
   );
@@ -156,7 +151,6 @@ function validate(step: OwnerStep, value: string) {
   return "";
 }
 
-function OwnerRow({ href, title, value }: { href: string; title: string; value: string }) {
-  const router = useRouter();
-  return <button type="button" onClick={() => router.push(href, { scroll: false })} className="flex min-h-20 w-full items-center gap-4 border-b border-[#ebebeb] px-5 py-4 text-left last:border-b-0 hover:bg-[#f7f7f7]"><span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-[#191919]">{title}</span><span className="mt-1 block truncate text-sm text-[#717171]">{value}</span></span><ChevronRight className="h-5 w-5 text-[#717171]" /></button>;
+function OwnerRow({ onClick, title, value }: { onClick: () => void; title: string; value: string }) {
+  return <button type="button" onClick={onClick} className="flex min-h-20 w-full items-center gap-4 border-b border-[#ebebeb] px-5 py-4 text-left last:border-b-0 hover:bg-[#f7f7f7]"><span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-[#191919]">{title}</span><span className="mt-1 block truncate text-sm text-[#717171]">{value}</span></span><ChevronRight className="h-5 w-5 text-[#717171]" /></button>;
 }

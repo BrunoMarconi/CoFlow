@@ -27,21 +27,25 @@ export default function HousingPreferencesPage() {
   const router = useRouter();
   const { user, loading, refresh } = useAuth();
   const [answers, setAnswers] = useState<OnboardingAnswers | null>(null);
-  const [budget, setBudget] = useState("");
+  const [budgetOverride, setBudgetOverride] = useState<string | null>(null);
   const [loadingPreferences, setLoadingPreferences] = useState(true);
   const [saving, setSaving] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
-    if (user?.rental_budget !== null && user?.rental_budget !== undefined) setBudget(String(user.rental_budget));
     getMyOnboarding()
       .then((profile) => {
-        const { id: _id, user_id: _userId, created_at: _createdAt, updated_at: _updatedAt, ...storedAnswers } = profile;
+        const metadataKeys = new Set(["id", "user_id", "created_at", "updated_at"]);
+        const storedAnswers = Object.fromEntries(
+          Object.entries(profile).filter(([key]) => !metadataKeys.has(key))
+        ) as unknown as OnboardingAnswers;
         setAnswers(storedAnswers);
       })
       .catch(() => setLoadFailed(true))
       .finally(() => setLoadingPreferences(false));
-  }, [user]);
+  }, [user?.id]);
+
+  const budget = budgetOverride ?? (user?.rental_budget === null || user?.rental_budget === undefined ? "" : String(user.rental_budget));
 
   if (loading || loadingPreferences || !user) return <div className="flex min-h-[60vh] items-center justify-center"><Spinner /></div>;
 
@@ -86,11 +90,11 @@ export default function HousingPreferencesPage() {
         <div className="mt-7 space-y-4">
           <PreferenceCard title="Presupuesto mensual" description="Tu parte máxima aproximada del alquiler al mes.">
             <div className="grid grid-cols-4 gap-2">
-              {[400, 600, 800, 1000].map((amount) => <button key={amount} type="button" onClick={() => setBudget(String(amount))} className={cn("h-11 rounded-14 border text-sm font-bold", budget === String(amount) ? "border-primary bg-mint-50 text-primary-dark" : "border-border text-secondary")}>{amount} €</button>)}
+              {[400, 600, 800, 1000].map((amount) => <button key={amount} type="button" onClick={() => setBudgetOverride(String(amount))} className={cn("h-11 rounded-14 border text-sm font-bold", budget === String(amount) ? "border-primary bg-mint-50 text-primary-dark" : "border-border text-secondary")}>{amount} €</button>)}
             </div>
             <div className="mt-3 flex h-12 items-center rounded-14 border border-border bg-surface px-4 shadow-soft focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10">
               <span className="text-sm font-bold text-primary">€</span>
-              <input type="number" inputMode="numeric" min={0} max={20000} value={budget} onChange={(event) => setBudget(event.target.value)} placeholder="Otra cantidad" className="h-full flex-1 bg-transparent px-3 text-sm outline-none" />
+              <input type="number" inputMode="numeric" min={0} max={20000} value={budget} onChange={(event) => setBudgetOverride(event.target.value)} placeholder="Otra cantidad" className="h-full flex-1 bg-transparent px-3 text-sm outline-none" />
               <span className="text-xs text-muted">/ mes</span>
             </div>
           </PreferenceCard>

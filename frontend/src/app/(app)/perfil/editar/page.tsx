@@ -82,7 +82,7 @@ function computeProfileCompletion(user: NonNullable<ReturnType<typeof useAuth>["
   const checks = [
     Boolean(user.avatar_url), Boolean(user.bio), Boolean(user.phone),
     user.age !== null, Boolean(user.occupation), user.rental_budget !== null,
-    user.is_email_verified, user.onboarding_completed, user.photos.length > 0,
+    user.interests.length > 0, user.is_email_verified, user.onboarding_completed, user.photos.length > 0,
   ];
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);
 }

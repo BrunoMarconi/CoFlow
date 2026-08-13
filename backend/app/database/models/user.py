@@ -1,11 +1,17 @@
+import enum
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, Enum, Integer, String, Text
+from sqlalchemy import JSON, Boolean, DateTime, Enum, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
+
+
+class ProfileVisibility(str, enum.Enum):
+    PUBLIC = "PUBLIC"
+    CONNECTIONS = "CONNECTIONS"
 
 
 class User(Base):
@@ -86,6 +92,17 @@ class User(Base):
         String(160),
         nullable=True,
     )
+    interests: Mapped[list[str]] = mapped_column(
+        JSON,
+        nullable=False,
+        default=list,
+    )
+    profile_visibility: Mapped[ProfileVisibility] = mapped_column(
+        Enum(ProfileVisibility, name="profile_visibility"),
+        nullable=False,
+        default=ProfileVisibility.PUBLIC,
+        index=True,
+    )
     # Se actualiza (con throttling) en get_current_user en cada
     # petición autenticada — ver app/core/dependencies.py. A partir de
     # aquí se calcula is_online en el perfil público (sin guardar un
@@ -142,4 +159,3 @@ class User(Base):
         "CommunityMessage",
         back_populates="sender",
     )
-

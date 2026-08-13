@@ -3,13 +3,14 @@
 import { motion } from "framer-motion";
 import { Building2 } from "lucide-react";
 import { useOwnerMode } from "@/hooks/useOwnerMode";
+import ViewportPortal from "@/components/ui/ViewportPortal";
 
 export default function OwnerModeToggle() {
   const { hasPublishedProperties, propertiesLoading, requestModeSwitch } = useOwnerMode();
   if (propertiesLoading || !hasPublishedProperties) return null;
 
   return (
-    <motion.button
+    <ViewportPortal><motion.button
       type="button"
       onClick={() => requestModeSwitch("owner")}
       whileHover={{ y: -2 }}
@@ -19,6 +20,6 @@ export default function OwnerModeToggle() {
     >
       <Building2 className="h-5 w-5" />
       Gestionar mis pisos
-    </motion.button>
+    </motion.button></ViewportPortal>
   );
 }

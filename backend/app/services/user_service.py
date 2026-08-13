@@ -9,7 +9,7 @@ from app.database.models.community import Community
 from app.database.models.community_member import CommunityMember
 from app.database.models.compatibility_profile import CompatibilityProfile
 from app.database.models.saved_user_profile import SavedUserProfile
-from app.database.models.user import User
+from app.database.models.user import ProfileVisibility, User
 from app.database.models.user_connection import (
     UserConnection,
     UserConnectionStatus,
@@ -30,6 +30,24 @@ ONLINE_THRESHOLD = timedelta(minutes=5)
 
 
 class UserService:
+
+    def can_view_profile(self, db: Session, user: User, viewer: User) -> bool:
+        if user.id == viewer.id or user.profile_visibility == ProfileVisibility.PUBLIC:
+            return True
+        return (
+            db.query(UserConnection.id)
+            .filter(
+                or_(
+                    (UserConnection.requester_id == viewer.id)
+                    & (UserConnection.recipient_id == user.id),
+                    (UserConnection.requester_id == user.id)
+                    & (UserConnection.recipient_id == viewer.id),
+                ),
+                UserConnection.status == UserConnectionStatus.ACCEPTED,
+            )
+            .first()
+            is not None
+        )
 
     def build_public_profile(
         self,
@@ -140,6 +158,7 @@ class UserService:
             age=user.age,
             occupation=user.occupation,
             bio=user.bio,
+            interests=user.interests or [],
             is_verified=user.is_email_verified,
             is_online=is_online,
             preferences=(
@@ -178,6 +197,9 @@ class UserService:
                 detail="User not found",
             )
 
+        if viewer is not None and not self.can_view_profile(db, user, viewer):
+            raise HTTPException(status_code=404, detail="User not found")
+
         return self.build_public_profile(db, user, viewer)
 
     def list_public_profiles(
@@ -204,6 +226,27 @@ class UserService:
                     UserBlock.blocked_user_id == viewer.id
                 )
             ),
+        )
+
+        connected_ids = (
+            db.query(UserConnection.recipient_id.label("user_id"))
+            .filter(
+                UserConnection.requester_id == viewer.id,
+                UserConnection.status == UserConnectionStatus.ACCEPTED,
+            )
+            .union(
+                db.query(UserConnection.requester_id.label("user_id")).filter(
+                    UserConnection.recipient_id == viewer.id,
+                    UserConnection.status == UserConnectionStatus.ACCEPTED,
+                )
+            )
+            .subquery()
+        )
+        query = query.filter(
+            or_(
+                User.profile_visibility == ProfileVisibility.PUBLIC,
+                User.id.in_(db.query(connected_ids.c.user_id)),
+            )
         )
 
         if max_budget is not None:

@@ -36,6 +36,8 @@ export interface User {
   age: number | null;
   occupation: string | null;
   bio: string | null;
+  interests: string[];
+  profile_visibility: "PUBLIC" | "CONNECTIONS";
 }
 
 export interface RegisterResponse {

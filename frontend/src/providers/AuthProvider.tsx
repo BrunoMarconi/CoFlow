@@ -19,6 +19,10 @@ import type { AppNotification } from "@/types/notification";
 
 const UNREAD_POLL_INTERVAL_MS = 5000;
 
+function notificationPath(link: string | null) {
+  return link?.split("?", 1)[0].replace(/\/$/, "") || "";
+}
+
 function devLog(...args: unknown[]) {
   if (process.env.NODE_ENV === "development") {
     console.log("[auth]", ...args);
@@ -108,7 +112,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           typeof window !== "undefined" ? window.location.pathname : "";
         const alreadyVisible = snapshot.items.filter(
           (notification) =>
-            !notification.is_read && notification.link === currentPathname
+            !notification.is_read && notificationPath(notification.link) === notificationPath(currentPathname)
         );
         const alreadyVisibleMessageCount = alreadyVisible.filter(
           (notification) => notification.type === "PRIVATE_MESSAGE_RECEIVED"
@@ -117,7 +121,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           alreadyVisible.length === 0
             ? snapshot.items
             : snapshot.items.map((notification) =>
-                notification.link === currentPathname
+                notificationPath(notification.link) === notificationPath(currentPathname)
                   ? { ...notification, is_read: true }
                   : notification
               );
@@ -247,7 +251,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       notificationRequestIdRef.current += 1;
       notificationRefreshPromiseRef.current = null;
       const changedCount = optimisticallyMarkNotificationsRead(
-        (notification) => notification.link === link
+        (notification) => notificationPath(notification.link) === notificationPath(link)
       );
       try {
         const result = await markNotificationsForLinkReadRequest(link);

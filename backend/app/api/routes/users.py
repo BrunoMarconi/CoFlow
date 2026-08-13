@@ -8,6 +8,7 @@ from app.database.models.user import User
 from app.database.session import get_db
 from app.schemas.saved_profile import SavedProfileActionResponse
 from app.schemas.user_connection import UserConnectionResponse
+from app.schemas.user import ProfilePrivacyResponse, ProfilePrivacyUpdateRequest
 from app.schemas.user_public import PublicUserProfileResponse
 from app.schemas.user_safety import (
     BlockedUserResponse,
@@ -26,6 +27,23 @@ user_service = UserService()
 saved_profile_service = SavedProfileService()
 user_connection_service = UserConnectionService()
 user_safety_service = UserSafetyService()
+
+
+@router.get("/me/privacy", response_model=ProfilePrivacyResponse)
+def get_profile_privacy(current_user: User = Depends(get_current_user)):
+    return ProfilePrivacyResponse(profile_visibility=current_user.profile_visibility)
+
+
+@router.put("/me/privacy", response_model=ProfilePrivacyResponse)
+def update_profile_privacy(
+    data: ProfilePrivacyUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    current_user.profile_visibility = data.profile_visibility
+    db.commit()
+    db.refresh(current_user)
+    return ProfilePrivacyResponse(profile_visibility=current_user.profile_visibility)
 
 
 @router.get(

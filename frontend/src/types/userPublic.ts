@@ -51,6 +51,7 @@ export interface UserPublicProfile {
   age: number | null;
   occupation: string | null;
   bio: string | null;
+  interests: string[];
   is_verified: boolean;
   is_online: boolean;
 }

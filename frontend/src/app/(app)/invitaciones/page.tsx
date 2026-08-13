@@ -87,18 +87,20 @@ export default function InvitationsPage() {
 }
 
 function ReceivedInvitations() {
+  const { markNotificationsForLinkAsRead } = useAuth();
   const [items, setItems] = useState<CommunityInvitationInboxItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let active = true;
+    void markNotificationsForLinkAsRead("/invitaciones").catch(() => {});
     getReceivedInvitations()
       .then((data) => { if (active) setItems(data); })
       .catch(() => { if (active) setError("No hemos podido cargar tus invitaciones."); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, []);
+  }, [markNotificationsForLinkAsRead]);
 
   if (loading) return <div className="mt-4 grid gap-3 sm:grid-cols-2"><SkeletonCard /><SkeletonCard /></div>;
   if (error) return <p role="alert" className="mt-4 rounded-2xl border border-red-200 bg-white p-5 text-sm font-medium text-red-600">{error}</p>;

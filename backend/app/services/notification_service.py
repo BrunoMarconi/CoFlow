@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from app.database.models.notification import Notification, NotificationType
@@ -87,11 +87,17 @@ class NotificationService:
         current_user: User,
         link: str,
     ) -> int:
+        normalized_link = "/" + link.strip().lstrip("/")
+        path = normalized_link.split("?", 1)[0].rstrip("/") or "/"
         marked_count = (
             db.query(Notification)
             .filter(
                 Notification.user_id == current_user.id,
-                Notification.link == link,
+                or_(
+                    Notification.link == normalized_link,
+                    Notification.link == path,
+                    Notification.link.like(f"{path}?%"),
+                ),
                 Notification.is_read.is_(False),
             )
             .update(

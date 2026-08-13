@@ -136,6 +136,9 @@ class SavedProfileService:
             if target_user is None:
                 continue
 
+            if not user_service.can_view_profile(db, target_user, current_user):
+                continue
+
             try:
                 profiles.append(
                     user_service.build_public_profile(

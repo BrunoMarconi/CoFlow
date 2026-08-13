@@ -1,5 +1,5 @@
 import { api } from "./api";
-import type { UpdateProfileRequest } from "@/types/user";
+import type { ProfileVisibility, UpdateProfileRequest } from "@/types/user";
 import type { User } from "@/types/auth";
 import type {
   GetPublicUsersParams,
@@ -13,6 +13,18 @@ import type {
 
 export async function updateProfile(payload: UpdateProfileRequest) {
   const { data } = await api.put<{ message: string }>("/auth/me", payload);
+  return data;
+}
+
+export async function getProfilePrivacy() {
+  const { data } = await api.get<{ profile_visibility: ProfileVisibility }>("/users/me/privacy");
+  return data;
+}
+
+export async function updateProfilePrivacy(profileVisibility: ProfileVisibility) {
+  const { data } = await api.put<{ profile_visibility: ProfileVisibility }>("/users/me/privacy", {
+    profile_visibility: profileVisibility,
+  });
   return data;
 }
 

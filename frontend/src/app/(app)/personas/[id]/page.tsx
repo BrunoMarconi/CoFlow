@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { useUserConnection } from "@/hooks/useUserConnection";
 import Spinner from "@/components/ui/Spinner";
 import PhotoDetailShell from "@/components/ui/PhotoDetailShell";
+import PhotoGallery from "@/components/ui/PhotoGallery";
 import UserAvatar from "@/components/ui/UserAvatar";
 import UserSafetyActions from "@/components/usuario/UserSafetyActions";
 import { detailTransitionName } from "@/lib/detailTransitions";
@@ -85,7 +85,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
 
       <PhotoDetailShell
         transitionName={detailTransitionName("person", profile.id)}
-        media={coverPhoto ? <Image src={coverPhoto} alt={fullName} fill unoptimized priority sizes="(max-width: 768px) 100vw, 896px" className="object-cover" /> : <div className="h-full bg-[#f2f2f2]" />}
+        media={<PhotoGallery images={(gallery.length > 0 ? gallery.map((photo, index) => ({ id: photo.id, src: photo.image_url, alt: `${fullName}, foto ${index + 1}` })) : coverPhoto ? [{ id: "avatar", src: coverPhoto, alt: fullName }] : [])} priority empty={<div className="h-full bg-[#f2f2f2]" />} />}
         actions={<><Link href="/usuarios" transitionTypes={["nav-back"]} aria-label="Volver a personas" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur"><ArrowLeftIcon /></Link><button type="button" onClick={() => setSafetyOpen(true)} aria-label="Más opciones" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur"><MoreIcon /></button></>}
       >
         <div className="relative">
@@ -119,6 +119,15 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
       {profile.bio && (
         <section className="mt-4 rounded-18 border border-border bg-surface p-4 shadow-soft">
           <p className="text-sm leading-6 text-secondary">“{profile.bio}”</p>
+        </section>
+      )}
+
+      {profile.interests.length > 0 && (
+        <section className="mt-4 rounded-18 border border-border bg-surface p-4 shadow-soft">
+          <h2 className="text-base font-extrabold text-foreground">Gustos e intereses</h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {profile.interests.map((interest) => <span key={interest} className="rounded-full border border-border bg-white px-3 py-1.5 text-xs font-bold text-[#191919]">{interest}</span>)}
+          </div>
         </section>
       )}
 
@@ -161,14 +170,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
           {gallery.length > 0 && (
             <section className="rounded-18 border border-border bg-surface p-4 shadow-soft">
               <h2 className="text-base font-extrabold text-foreground">Fotos</h2>
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                {gallery.slice(0, 6).map((photo, index) => (
-                  <div key={photo.id} className={`relative overflow-hidden rounded-14 ${index === 0 ? "col-span-2 row-span-2 aspect-square" : "aspect-square"}`}>
-                    <Image src={photo.image_url} alt="" fill unoptimized sizes="(max-width: 1024px) 33vw, 240px" className="object-cover" />
-                    {index === 5 && gallery.length > 6 && <span className="absolute inset-0 flex items-center justify-center bg-black/45 text-xl font-extrabold text-white">+{gallery.length - 5}</span>}
-                  </div>
-                ))}
-              </div>
+              <PhotoGallery className="mt-3" layout="grid" images={gallery.map((photo, index) => ({ id: photo.id, src: photo.image_url, alt: `${fullName}, foto ${index + 1}` }))} />
             </section>
           )}
 

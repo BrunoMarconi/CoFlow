@@ -20,7 +20,7 @@ const STATUS_MESSAGES: Record<string, string> = {
 export default function InvitationPage() {
   const params = useParams<{ token: string }>();
   const router = useRouter();
-  const { refreshCommunity } = useAuth();
+  const { refreshCommunity, refreshUnreadCount, markNotificationsForLinkAsRead } = useAuth();
   const [invitation, setInvitation] = useState<CommunityInvitationDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -37,12 +37,17 @@ export default function InvitationPage() {
     return () => { active = false; };
   }, [params.token]);
 
+  useEffect(() => {
+    void markNotificationsForLinkAsRead(`/invitaciones/${params.token}`).catch(() => {});
+  }, [markNotificationsForLinkAsRead, params.token]);
+
   async function handleAccept() {
     if (submitting) return;
     setSubmitting(true);
     setActionError("");
     try {
       await acceptInvitation(params.token);
+      await refreshUnreadCount();
       await refreshCommunity();
       router.replace("/mi-comunidad");
     } catch (error) {
@@ -57,6 +62,7 @@ export default function InvitationPage() {
     setActionError("");
     try {
       await declineInvitation(params.token);
+      await refreshUnreadCount();
       setDeclined(true);
     } catch (error) {
       setActionError(getCommunityErrorMessage(error, "No hemos podido rechazar la invitación. Inténtalo de nuevo."));

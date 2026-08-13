@@ -11,4 +11,7 @@ export interface UpdateProfileRequest {
   age?: number | null;
   occupation?: string | null;
   bio?: string | null;
+  interests?: string[];
 }
+
+export type ProfileVisibility = "PUBLIC" | "CONNECTIONS";

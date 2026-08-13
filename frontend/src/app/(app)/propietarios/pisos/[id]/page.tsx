@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bath, BedDouble, ChevronLeft, Images, MapPin, Pencil, Share2, Users, WalletCards } from "lucide-react";
+import { Bath, BedDouble, ChevronLeft, MapPin, Pencil, Share2, Users, WalletCards } from "lucide-react";
 import Spinner from "@/components/ui/Spinner";
 import PhotoDetailShell from "@/components/ui/PhotoDetailShell";
+import PhotoGallery from "@/components/ui/PhotoGallery";
 import PropertyStatusBadge from "@/components/propietario/PropertyStatusBadge";
 import { getMyProperty, markPropertyRented, pauseProperty, resumeProperty } from "@/services/properties";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
@@ -43,13 +43,16 @@ export default function PropertyDetailPage() {
   if (isLoading) return <div className="flex min-h-[45vh] items-center justify-center"><Spinner /></div>;
   if (isError || !property) return <section className="mx-auto max-w-2xl rounded-[1.5rem] border border-[#dddddd] bg-white p-10 text-center"><h1 className="text-2xl font-semibold">No hemos encontrado este piso</h1><Link href="/propietarios/pisos" className="mt-6 inline-flex h-12 items-center rounded-full bg-black px-6 font-semibold text-white">Volver a mis pisos</Link></section>;
 
-  const cover = property.images.find((image) => image.is_cover) ?? property.images[0];
+  const orderedImages = [...property.images].sort((first, second) => {
+    if (first.is_cover === second.is_cover) return first.position - second.position;
+    return first.is_cover ? -1 : 1;
+  });
 
   return (
     <div className="mx-auto w-full max-w-5xl pb-8">
       <PhotoDetailShell
         transitionName={detailTransitionName("property", property.id)}
-        media={cover ? <><Image src={cover.image_url} alt={property.title} fill unoptimized priority sizes="(max-width: 768px) 100vw, 1024px" className="object-cover" />{property.images.length > 1 ? <span className="absolute bottom-6 right-5 inline-flex h-9 items-center gap-2 rounded-full bg-black/75 px-3 text-xs font-semibold text-white backdrop-blur"><Images className="h-4 w-4" />1 / {property.images.length}</span> : null}</> : <div className="flex h-full items-center justify-center px-6 text-center text-sm font-medium text-[#717171]">Añade una foto de portada</div>}
+        media={<PhotoGallery images={orderedImages.map((image, index) => ({ id: image.id, src: image.image_url, alt: `${property.title}, foto ${index + 1}` }))} priority empty={<div className="flex h-full items-center justify-center px-6 text-center text-sm font-medium text-[#717171]">Añade una foto de portada</div>} />}
         actions={<><Link href="/propietarios/pisos" transitionTypes={["nav-back"]} aria-label="Volver" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur"><ChevronLeft className="h-6 w-6" /></Link><div className="flex gap-2"><button type="button" onClick={() => navigator.share?.({ title: property.title, url: window.location.href })} className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur" aria-label="Compartir"><Share2 className="h-5 w-5" /></button><Link href={`/propietarios/pisos/${property.id}/editar`} transitionTypes={["nav-forward"]} className="inline-flex h-11 items-center gap-2 rounded-full bg-black px-5 text-sm font-semibold text-white shadow-[0_3px_14px_rgba(0,0,0,0.18)]"><Pencil className="h-4 w-4" />Editar</Link></div></>}
       >
         <div className="flex flex-wrap items-center gap-2"><PropertyStatusBadge status={property.status} /><span className="text-xs font-medium text-[#717171]">{TYPE_LABELS[property.property_type]}</span></div>

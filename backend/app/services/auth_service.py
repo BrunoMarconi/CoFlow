@@ -134,6 +134,8 @@ class AuthService:
             data.occupation.strip() if data.occupation else None
         )
         current_user.bio = data.bio.strip() if data.bio else None
+        if data.interests is not None:
+            current_user.interests = data.interests
 
         db.commit()
         db.refresh(current_user)

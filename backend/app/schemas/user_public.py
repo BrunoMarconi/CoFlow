@@ -65,6 +65,7 @@ class PublicUserProfileResponse(StorageBackedAvatarResponse):
     age: int | None = None
     occupation: str | None = None
     bio: str | None = None
+    interests: list[str] = Field(default_factory=list)
     # Calculados en UserService.build_public_profile: is_verified a
     # partir de is_email_verified, is_online a partir de
     # last_active_at. No son columnas del modelo.

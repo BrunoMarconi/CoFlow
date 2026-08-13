@@ -65,3 +65,22 @@ def test_mark_link_read_only_updates_the_current_users_matching_notifications(
     assert notification_service.mark_link_read(db_session, recipient, link) == 1
     assert notification_service.get_unread_count(db_session, recipient) == 0
     assert notification_service.get_unread_count(db_session, other) == 1
+
+
+def test_mark_link_read_matches_the_same_path_with_query_parameters(
+    db_session,
+    make_user,
+):
+    recipient = make_user("notification_query_recipient")
+    create_notification(
+        db_session,
+        recipient.id,
+        NotificationType.CONNECTION_REQUEST_RECEIVED,
+        "Solicitud nueva",
+        "Alguien quiere conectar contigo.",
+        "/conexiones?tab=recibidas",
+    )
+    db_session.commit()
+
+    assert notification_service.mark_link_read(db_session, recipient, "/conexiones") == 1
+    assert notification_service.get_unread_count(db_session, recipient) == 0
