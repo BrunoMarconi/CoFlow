@@ -94,7 +94,7 @@ export default function OwnerProfilePage() {
       // Si falla, el usuario puede ajustarlo después desde Mi perfil.
     } finally {
       setSubmitting(false);
-      router.push("/propietarios");
+      router.push("/propietarios/pisos");
     }
   }
 

@@ -13,9 +13,7 @@ import {
   UsersIcon,
   MessageIcon,
   ProfileIcon,
-  HomeIcon,
   KeyIcon,
-  PlusIcon,
   type IconProps,
 } from "@/components/layout/NavIcons";
 
@@ -44,10 +42,10 @@ const MEMBER_LINKS: NavigationLink[] = [
         !pathname.startsWith("/personas/guardadas")),
   },
   {
-    href: "/mensajes",
+    href: "/propietarios/mensajes",
     label: "Mensajes",
     icon: MessageIcon,
-    isActive: (pathname) => pathname.startsWith("/mensajes"),
+    isActive: (pathname) => pathname.startsWith("/propietarios/mensajes"),
   },
   {
     href: "/perfil",
@@ -60,24 +58,17 @@ const MEMBER_LINKS: NavigationLink[] = [
 
 const OWNER_LINKS: NavigationLink[] = [
   {
-    href: "/propietarios",
-    label: "Resumen",
-    icon: HomeIcon,
-    isActive: (pathname) => pathname === "/propietarios",
-  },
-  {
     href: "/propietarios/pisos",
     label: "Mis pisos",
     icon: KeyIcon,
     isActive: (pathname) =>
-      pathname.startsWith("/propietarios/pisos") &&
-      !pathname.startsWith("/propietarios/pisos/nuevo"),
+      pathname.startsWith("/propietarios/pisos"),
   },
   {
-    href: "/propietarios/pisos/nuevo",
-    label: "Añadir",
-    icon: PlusIcon,
-    isActive: (pathname) => pathname.startsWith("/propietarios/pisos/nuevo"),
+    href: "/propietarios/solicitudes",
+    label: "Solicitudes",
+    icon: UsersIcon,
+    isActive: (pathname) => pathname.startsWith("/propietarios/solicitudes"),
   },
   {
     href: "/mensajes",
@@ -86,10 +77,10 @@ const OWNER_LINKS: NavigationLink[] = [
     isActive: (pathname) => pathname.startsWith("/mensajes"),
   },
   {
-    href: "/perfil",
+    href: "/propietarios/perfil",
     label: "Perfil",
     icon: ProfileIcon,
-    isActive: (pathname) => pathname.startsWith("/perfil"),
+    isActive: (pathname) => pathname.startsWith("/propietarios/perfil"),
   },
 ];
 

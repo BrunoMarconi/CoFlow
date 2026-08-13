@@ -1,7 +1,8 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Building2, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
 import SkeletonCard from "@/components/ui/SkeletonCard";
@@ -15,110 +16,41 @@ import {
   resumeProperty,
 } from "@/services/properties";
 
-const MY_PROPERTIES_QUERY_KEY = ["my-properties"];
+const QUERY_KEY = ["my-properties"];
 
 export default function MisPisosPage() {
   const { ownerProfile, ownerProfileLoading } = useAuth();
   const queryClient = useQueryClient();
-
-  const {
-    data: properties = [],
-    isLoading: loading,
-    isError,
-  } = useQuery({
-    queryKey: MY_PROPERTIES_QUERY_KEY,
+  const { data: properties = [], isLoading, isError } = useQuery({
+    queryKey: QUERY_KEY,
     queryFn: () => getMyProperties(),
     enabled: Boolean(ownerProfile),
   });
 
-  const error = isError ? "No pudimos cargar tus pisos. Inténtalo de nuevo." : "";
-
-  async function withRefresh(action: () => Promise<unknown>) {
+  async function refresh(action: () => Promise<unknown>) {
     await action();
-    await queryClient.invalidateQueries({ queryKey: MY_PROPERTIES_QUERY_KEY });
+    await queryClient.invalidateQueries({ queryKey: QUERY_KEY });
   }
 
-  if (ownerProfileLoading) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <Spinner />
-      </div>
-    );
-  }
+  if (ownerProfileLoading) return <div className="flex min-h-[45vh] items-center justify-center"><Spinner /></div>;
+  if (!ownerProfile) return <EmptyOwner />;
 
-  if (!ownerProfile) {
-    return (
-      <div className="rounded-3xl border border-dashed border-line bg-surface p-10 text-center">
-        <h1 className="text-2xl font-bold text-foreground">
-          Necesitas un perfil de propietario
-        </h1>
-
-        <Link
-          href="/propietarios/perfil"
-          className="mt-6 inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-6 text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark"
-        >
-          Crear perfil de propietario
-        </Link>
-      </div>
-    );
-  }
+  const activeCount = properties.filter((item) => ["READY", "PUBLISHED"].includes(item.status)).length;
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
-          Mis pisos
-        </h1>
+    <div className="mx-auto w-full max-w-6xl pb-6">
+      <header className="flex items-start justify-between gap-4">
+        <div><p className="text-sm font-bold text-primary">Espacio propietario</p><h1 className="mt-1 font-rounded text-4xl font-bold tracking-[-0.04em] text-brand-dark sm:text-5xl">Mis pisos</h1><p className="mt-2 text-sm text-secondary">{activeCount} activos · {properties.length} en total</p></div>
+        <Link href="/propietarios/pisos/nuevo" className="inline-flex h-12 items-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-white shadow-button transition hover:-translate-y-0.5"><Plus className="h-5 w-5" />Añadir piso</Link>
+      </header>
 
-        <Link
-          href="/propietarios/pisos/nuevo"
-          className="inline-flex h-11 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark"
-        >
-          Añadir piso
-        </Link>
-      </div>
-
-      <div className="mt-6">
-        {loading ? (
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <SkeletonCard key={index} withCover coverClassName="h-40" />
-            ))}
-          </div>
-        ) : error ? (
-          <p className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center text-sm font-semibold text-red-700">
-            {error}
-          </p>
-        ) : properties.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-line bg-surface p-10 text-center">
-            <p className="text-base font-semibold text-foreground">
-              Todavía no has registrado ningún piso.
-            </p>
-            <Link
-              href="/propietarios/pisos/nuevo"
-              className="mt-5 inline-flex h-11 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-bold text-white"
-            >
-              Registrar mi primer piso
-            </Link>
-          </div>
-        ) : (
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {properties.map((property) => (
-              <PropertyCard
-                key={property.id}
-                property={property}
-                onMarkReady={(id) => withRefresh(() => markPropertyReady(id))}
-                onPause={(id) => withRefresh(() => pauseProperty(id))}
-                onResume={(id) => withRefresh(() => resumeProperty(id))}
-                onMarkRented={(id) =>
-                  withRefresh(() => markPropertyRented(id))
-                }
-                onArchive={(id) => withRefresh(() => archiveProperty(id))}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      <section className="mt-8">
+        {isLoading ? <div className="grid gap-5 sm:grid-cols-2"><SkeletonCard withCover /><SkeletonCard withCover /></div> : isError ? <ErrorState /> : properties.length === 0 ? <EmptyProperties /> : <div className="grid gap-5 sm:grid-cols-2">{properties.map((property) => <PropertyCard key={property.id} property={property} onMarkReady={(id) => refresh(() => markPropertyReady(id))} onPause={(id) => refresh(() => pauseProperty(id))} onResume={(id) => refresh(() => resumeProperty(id))} onMarkRented={(id) => refresh(() => markPropertyRented(id))} onArchive={(id) => refresh(() => archiveProperty(id))} />)}</div>}
+      </section>
     </div>
   );
 }
+
+function EmptyOwner() { return <div className="mx-auto max-w-xl rounded-24 border border-border bg-surface p-8 text-center shadow-soft"><Building2 className="mx-auto h-10 w-10 text-primary" /><h1 className="mt-4 text-2xl font-bold text-brand-dark">Crea tu perfil de propietario</h1><Link href="/propietarios/perfil" className="mt-6 inline-flex h-12 items-center rounded-full bg-brand px-6 font-bold text-white">Empezar</Link></div>; }
+function EmptyProperties() { return <div className="rounded-24 border border-border bg-surface px-6 py-14 text-center shadow-soft"><Building2 className="mx-auto h-12 w-12 text-primary" /><h2 className="mt-5 text-2xl font-bold text-brand-dark">Tu primer piso empieza aquí</h2><p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-secondary">Publica tu vivienda y gestiona todo desde un único lugar.</p><Link href="/propietarios/pisos/nuevo" className="mt-6 inline-flex h-12 items-center gap-2 rounded-full bg-brand px-6 font-bold text-white"><Plus className="h-5 w-5" />Añadir piso</Link></div>; }
+function ErrorState() { return <div className="rounded-24 border border-red-200 bg-surface p-8 text-center text-sm font-semibold text-red-600">No hemos podido cargar tus pisos.</div>; }

@@ -39,7 +39,7 @@ export default function Navbar() {
             <NotificationBell />
 
             <Link
-              href="/perfil"
+              href={isOwnerMode ? "/propietarios/perfil" : "/perfil"}
               aria-label="Abrir perfil"
               className="flex h-11 w-11 items-center justify-center rounded-full bg-surface/90 shadow-soft backdrop-blur-xl"
             >

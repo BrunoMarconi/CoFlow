@@ -45,7 +45,7 @@ export default function Sidebar() {
       icon: CompassIcon,
     },
     { href: "/usuarios", label: "Personas", icon: UsersIcon },
-    { href: "/mensajes", label: "Mensajes", icon: MessageIcon },
+    { href: "/propietarios/mensajes", label: "Mensajes", icon: MessageIcon },
     {
       href: "/personas/guardadas",
       label: "Guardados",
@@ -63,19 +63,19 @@ export default function Sidebar() {
   ];
 
   const ownerLinks: NavLink[] = [
-    { href: "/propietarios", label: "Resumen", icon: HomeIcon },
     { href: "/propietarios/pisos", label: "Mis pisos", icon: KeyIcon },
-    { href: "/propietarios/pisos/nuevo", label: "AÃ±adir piso", icon: PlusIcon },
+    { href: "/propietarios/solicitudes", label: "Solicitudes", icon: UsersIcon },
     { href: "/mensajes", label: "Mensajes", icon: MessageIcon },
+    { href: "/propietarios/perfil", label: "Perfil", icon: ProfileIcon },
   ];
 
   const principalLinks = isOwnerMode ? ownerLinks : memberLinks;
 
   const accountLinks: NavLink[] = [
-    { href: "/perfil", label: "Mi perfil", icon: ProfileIcon },
     ...(isOwnerMode
-      ? [{ href: "/propietarios/perfil", label: "Perfil de propietario", icon: KeyIcon }]
+      ? []
       : [
+          { href: "/perfil", label: "Mi perfil", icon: ProfileIcon },
           {
             href: ownerProfile ? "/propietarios" : "/propietarios/perfil",
             label: "Publicar un piso",
@@ -139,7 +139,7 @@ export default function Sidebar() {
               link={link}
               active={isActive(link.href)}
               transitionTypes={getTabTransitionTypes(pathname, link.href)}
-              isHomeLink={link.href === "/mi-comunidad" || link.href === "/propietarios"}
+              isHomeLink={link.href === "/mi-comunidad" || link.href === "/propietarios/pisos"}
             />
           ))}
         </NavGroup>

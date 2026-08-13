@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { getMyProperties } from "@/services/properties";
@@ -19,6 +20,7 @@ type OwnerModeContextValue = {
   propertiesLoading: boolean;
   transitionTarget: CoFlowMode | null;
   requestModeSwitch: (target: CoFlowMode) => void;
+  activateOwnerMode: () => void;
   completeModeSwitch: () => CoFlowMode | null;
 };
 
@@ -27,6 +29,7 @@ export const OwnerModeContext = createContext<OwnerModeContextValue | undefined>
 );
 
 export default function OwnerModeProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const { user, ownerProfile, ownerProfileLoading } = useAuth();
   const [ownerModeUserId, setOwnerModeUserId] = useState<string | null>(null);
   const [transitionTarget, setTransitionTarget] = useState<CoFlowMode | null>(
@@ -42,14 +45,14 @@ export default function OwnerModeProvider({ children }: { children: ReactNode })
 
   const propertiesLoading =
     ownerProfileLoading || (Boolean(ownerProfile) && propertiesQueryLoading);
-  const hasPublishedProperties = properties.some(
-    (property) => property.status === "PUBLISHED"
+  const hasPublishedProperties = properties.some((property) =>
+    ["READY", "PUBLISHED", "PAUSED", "RENTED"].includes(property.status)
   );
 
-  // El cambio vive durante la sesión actual y queda ligado a la cuenta que lo
-  // activó. Al cerrar sesión, ninguna cuenta posterior hereda este modo.
+  const isOwnerRoute = pathname.startsWith("/propietarios");
   const isOwnerMode =
-    hasPublishedProperties && ownerModeUserId === (user?.id ?? null);
+    hasPublishedProperties &&
+    (ownerModeUserId === (user?.id ?? null) || isOwnerRoute);
 
   const requestModeSwitch = useCallback(
     (target: CoFlowMode) => {
@@ -64,6 +67,11 @@ export default function OwnerModeProvider({ children }: { children: ReactNode })
     },
     [hasPublishedProperties, isOwnerMode]
   );
+
+  const activateOwnerMode = useCallback(() => {
+    if (!user) return;
+    setOwnerModeUserId(user.id);
+  }, [user]);
 
   const completeModeSwitch = useCallback(() => {
     if (!transitionTarget) return null;
@@ -80,6 +88,7 @@ export default function OwnerModeProvider({ children }: { children: ReactNode })
       propertiesLoading,
       transitionTarget,
       requestModeSwitch,
+      activateOwnerMode,
       completeModeSwitch,
     }),
     [
@@ -88,6 +97,7 @@ export default function OwnerModeProvider({ children }: { children: ReactNode })
       isOwnerMode,
       propertiesLoading,
       requestModeSwitch,
+      activateOwnerMode,
       transitionTarget,
     ]
   );
