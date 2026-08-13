@@ -5,17 +5,19 @@ import { me as fetchMe } from "@/services/auth";
 import { getMyCommunity } from "@/services/communities";
 import { getMyOwnerProfile } from "@/services/owners";
 import {
-  getNotifications,
-  getUnreadNotificationCount,
+  getNotificationSnapshot,
+  markAllNotificationsRead as markAllNotificationsReadRequest,
+  markNotificationRead as markNotificationReadRequest,
+  markNotificationsForLinkRead as markNotificationsForLinkReadRequest,
 } from "@/services/notifications";
+import { toast } from "@/components/ui/Toast";
 import { getToken, clearToken } from "@/lib/auth";
 import type { User } from "@/types/auth";
 import type { Community } from "@/types/community";
 import type { OwnerProfile } from "@/types/owner";
 import type { AppNotification } from "@/types/notification";
 
-const UNREAD_POLL_INTERVAL_MS = 8000;
-const NOTIFICATIONS_CHANGED_EVENT = "coflow:notifications-changed";
+const UNREAD_POLL_INTERVAL_MS = 5000;
 
 function devLog(...args: unknown[]) {
   if (process.env.NODE_ENV === "development") {
@@ -33,10 +35,14 @@ interface AuthContextValue {
   unreadCount: number;
   hasUnreadMessages: boolean;
   notifications: AppNotification[];
+  notificationsLoading: boolean;
   refresh: () => Promise<User | null>;
   refreshCommunity: () => Promise<Community | null>;
   refreshOwnerProfile: () => Promise<OwnerProfile | null>;
-  refreshUnreadCount: () => Promise<void>;
+  refreshUnreadCount: () => Promise<boolean>;
+  markNotificationAsRead: (notificationId: number) => Promise<void>;
+  markAllNotificationsAsRead: () => Promise<void>;
+  markNotificationsForLinkAsRead: (link: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -52,7 +58,13 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
-  const userRef = useRef<User | null>(null);
+  const [notificationsLoading, setNotificationsLoading] = useState(true);
+  const notificationsRef = useRef<AppNotification[]>([]);
+  const unreadMessageCountRef = useRef(0);
+  const notificationsInitializedRef = useRef(false);
+  const notificationRequestIdRef = useRef(0);
+  const notificationRefreshPromiseRef = useRef<Promise<boolean> | null>(null);
+  const notificationMutationCountRef = useRef(0);
 
   // AuthProvider vive una sola vez para toda la sesión de navegación (no
   // se remonta al navegar de /login a /comunidades). Eso significa que
@@ -65,30 +77,191 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   // el resultado de la llamada más reciente.
   const refreshRequestIdRef = useRef(0);
 
-  const refreshUnreadCount = useCallback(async () => {
-    if (!userRef.current) {
+  const refreshUnreadCount = useCallback((): Promise<boolean> => {
+    if (!getToken()) {
+      notificationsRef.current = [];
+      unreadMessageCountRef.current = 0;
+      notificationsInitializedRef.current = false;
+      setNotifications([]);
       setUnreadCount(0);
-      return;
+      setHasUnreadMessages(false);
+      setNotificationsLoading(false);
+      return Promise.resolve(true);
     }
 
-    try {
-      const [latest, exactUnreadCount] = await Promise.all([
-        getNotifications({ limit: 40 }),
-        getUnreadNotificationCount(),
-      ]);
-      setNotifications(latest);
-      setUnreadCount(exactUnreadCount);
-      setHasUnreadMessages(
-        latest.some(
-          (notification) =>
-            notification.type === "PRIVATE_MESSAGE_RECEIVED" &&
-            !notification.is_read
-        )
-      );
-    } catch {
-      // Silencioso: el contador se reintentará en el siguiente polling.
+    if (notificationRefreshPromiseRef.current) {
+      return notificationRefreshPromiseRef.current;
     }
+
+    const requestId = ++notificationRequestIdRef.current;
+    const mutationCount = notificationMutationCountRef.current;
+    const request = getNotificationSnapshot(40)
+      .then((snapshot) => {
+        if (
+          requestId !== notificationRequestIdRef.current ||
+          mutationCount !== notificationMutationCountRef.current
+        ) {
+          return false;
+        }
+
+        const currentPathname =
+          typeof window !== "undefined" ? window.location.pathname : "";
+        const alreadyVisible = snapshot.items.filter(
+          (notification) =>
+            !notification.is_read && notification.link === currentPathname
+        );
+        const alreadyVisibleMessageCount = alreadyVisible.filter(
+          (notification) => notification.type === "PRIVATE_MESSAGE_RECEIVED"
+        ).length;
+        const nextItems =
+          alreadyVisible.length === 0
+            ? snapshot.items
+            : snapshot.items.map((notification) =>
+                notification.link === currentPathname
+                  ? { ...notification, is_read: true }
+                  : notification
+              );
+
+        if (alreadyVisible.length > 0) {
+          void markNotificationsForLinkReadRequest(currentPathname).catch(() => {});
+        }
+
+        if (notificationsInitializedRef.current) {
+          const knownIds = new Set(
+            notificationsRef.current.map((notification) => notification.id)
+          );
+          const incoming = nextItems.filter(
+            (notification) =>
+              !notification.is_read && !knownIds.has(notification.id)
+          );
+
+          if (
+            incoming.length > 0 &&
+            typeof document !== "undefined" &&
+            document.visibilityState === "visible" &&
+            !currentPathname.startsWith("/propietarios") &&
+            currentPathname !== "/notificaciones"
+          ) {
+            toast.show(
+              incoming.length === 1
+                ? incoming[0].title
+                : `Tienes ${incoming.length} novedades`
+            );
+          }
+        }
+
+        notificationsInitializedRef.current = true;
+        notificationsRef.current = nextItems;
+        unreadMessageCountRef.current = Math.max(
+          0,
+          snapshot.unread_message_count - alreadyVisibleMessageCount
+        );
+        setNotifications(nextItems);
+        setUnreadCount(
+          Math.max(0, snapshot.unread_count - alreadyVisible.length)
+        );
+        setHasUnreadMessages(unreadMessageCountRef.current > 0);
+        setNotificationsLoading(false);
+        return true;
+      })
+      .catch(() => {
+        if (requestId === notificationRequestIdRef.current) {
+          setNotificationsLoading(false);
+        }
+        return false;
+      })
+      .finally(() => {
+        if (notificationRefreshPromiseRef.current === request) {
+          notificationRefreshPromiseRef.current = null;
+        }
+      });
+
+    notificationRefreshPromiseRef.current = request;
+    return request;
   }, []);
+
+  const optimisticallyMarkNotificationsRead = useCallback(
+    (matches: (notification: AppNotification) => boolean) => {
+      let changedCount = 0;
+      let changedMessageCount = 0;
+      const next = notificationsRef.current.map((notification) => {
+        if (notification.is_read || !matches(notification)) return notification;
+        changedCount += 1;
+        if (notification.type === "PRIVATE_MESSAGE_RECEIVED") {
+          changedMessageCount += 1;
+        }
+        return { ...notification, is_read: true };
+      });
+
+      if (changedCount === 0) return 0;
+
+      notificationsRef.current = next;
+      unreadMessageCountRef.current = Math.max(
+        0,
+        unreadMessageCountRef.current - changedMessageCount
+      );
+      setNotifications(next);
+      setUnreadCount((current) => Math.max(0, current - changedCount));
+      setHasUnreadMessages(unreadMessageCountRef.current > 0);
+      return changedCount;
+    },
+    []
+  );
+
+  const markNotificationAsRead = useCallback(
+    async (notificationId: number) => {
+      notificationMutationCountRef.current += 1;
+      notificationRequestIdRef.current += 1;
+      notificationRefreshPromiseRef.current = null;
+      const changedCount = optimisticallyMarkNotificationsRead(
+        (notification) => notification.id === notificationId
+      );
+      try {
+        await markNotificationReadRequest(notificationId);
+        if (changedCount === 0) await refreshUnreadCount();
+      } catch (error) {
+        await refreshUnreadCount();
+        throw error;
+      }
+    },
+    [optimisticallyMarkNotificationsRead, refreshUnreadCount]
+  );
+
+  const markAllNotificationsAsRead = useCallback(async () => {
+    notificationMutationCountRef.current += 1;
+    notificationRequestIdRef.current += 1;
+    notificationRefreshPromiseRef.current = null;
+    const changedCount = optimisticallyMarkNotificationsRead(() => true);
+    try {
+      await markAllNotificationsReadRequest();
+      if (changedCount === 0) await refreshUnreadCount();
+    } catch (error) {
+      await refreshUnreadCount();
+      throw error;
+    }
+  }, [optimisticallyMarkNotificationsRead, refreshUnreadCount]);
+
+  const markNotificationsForLinkAsRead = useCallback(
+    async (link: string) => {
+      notificationMutationCountRef.current += 1;
+      notificationRequestIdRef.current += 1;
+      notificationRefreshPromiseRef.current = null;
+      const changedCount = optimisticallyMarkNotificationsRead(
+        (notification) => notification.link === link
+      );
+      try {
+        const result = await markNotificationsForLinkReadRequest(link);
+        setUnreadCount(result.unread_count);
+        unreadMessageCountRef.current = result.unread_message_count;
+        setHasUnreadMessages(result.unread_message_count > 0);
+        if (changedCount === 0) await refreshUnreadCount();
+      } catch (error) {
+        await refreshUnreadCount();
+        throw error;
+      }
+    },
+    [optimisticallyMarkNotificationsRead, refreshUnreadCount]
+  );
 
   const refreshCommunity = useCallback(async () => {
     const token = getToken();
@@ -160,6 +333,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
       if (isCurrent()) {
         setUser(currentUser);
+        void refreshUnreadCount();
         devLog("refresh(): user actualizado en el contexto");
       }
       return currentUser;
@@ -181,11 +355,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         devLog("refresh(): loading actualizado a false");
       }
     }
-  }, []);
-
-  useEffect(() => {
-    userRef.current = user;
-  }, [user]);
+  }, [refreshUnreadCount]);
 
   useEffect(() => {
     let active = true;
@@ -198,7 +368,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       if (currentUser) {
         refreshCommunity();
         refreshOwnerProfile();
-        refreshUnreadCount();
       } else {
         setCommunityLoading(false);
         setOwnerProfileLoading(false);
@@ -251,7 +420,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("focus", handleForegroundRefresh);
     window.addEventListener("online", handleForegroundRefresh);
-    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, handleForegroundRefresh);
 
     return () => {
       stopPolling();
@@ -261,7 +429,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       );
       window.removeEventListener("focus", handleForegroundRefresh);
       window.removeEventListener("online", handleForegroundRefresh);
-      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, handleForegroundRefresh);
     };
   }, [user, refreshUnreadCount]);
 
@@ -273,6 +440,13 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     setUnreadCount(0);
     setHasUnreadMessages(false);
     setNotifications([]);
+    setNotificationsLoading(false);
+    notificationsRef.current = [];
+    unreadMessageCountRef.current = 0;
+    notificationsInitializedRef.current = false;
+    notificationRequestIdRef.current += 1;
+    notificationRefreshPromiseRef.current = null;
+    notificationMutationCountRef.current = 0;
   }
 
   return (
@@ -287,10 +461,14 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         unreadCount,
         hasUnreadMessages,
         notifications,
+        notificationsLoading,
         refresh,
         refreshCommunity,
         refreshOwnerProfile,
         refreshUnreadCount,
+        markNotificationAsRead,
+        markAllNotificationsAsRead,
+        markNotificationsForLinkAsRead,
         logout,
       }}
     >

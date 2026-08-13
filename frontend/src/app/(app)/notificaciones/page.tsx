@@ -1,18 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  markAllNotificationsRead,
-  markNotificationRead,
-} from "@/services/notifications";
 import SkeletonCard from "@/components/ui/SkeletonCard";
-import { cn } from "@/lib/utils";
-import type { AppNotification, NotificationType } from "@/types/notification";
 import EmptyContentState from "@/components/ui/EmptyState";
 import ErrorState from "@/components/ui/ErrorState";
+import { cn } from "@/lib/utils";
+import type { AppNotification, NotificationType } from "@/types/notification";
 
 type Category = "ALL" | "INVITATIONS" | "MESSAGES" | "ACTIVITY" | "INFO";
 
@@ -26,141 +23,247 @@ const categories: Array<{ value: Category; label: string; icon: ReactNode }> = [
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const { notifications, refreshUnreadCount } = useAuth();
+  const {
+    notifications,
+    notificationsLoading,
+    refreshUnreadCount,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+  } = useAuth();
   const [category, setCategory] = useState<Category>("ALL");
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  async function loadNotifications(showLoading = false) {
-    if (showLoading) setLoading(true);
-    setError("");
-    try {
-      await refreshUnreadCount();
-    } catch {
-      setError("No pudimos cargar tus notificaciones.");
-    } finally {
-      if (showLoading) setLoading(false);
-    }
-  }
+  const markedOnEntryRef = useRef(false);
 
   useEffect(() => {
-    void refreshUnreadCount().finally(() => setLoading(false));
+    let active = true;
+
+    void refreshUnreadCount().then((success) => {
+      if (!active) return;
+      if (!success) {
+        setError("No pudimos cargar tus notificaciones.");
+      }
+    });
+
+    return () => {
+      active = false;
+    };
   }, [refreshUnreadCount]);
 
+  useEffect(() => {
+    if (notificationsLoading || markedOnEntryRef.current) return;
+    markedOnEntryRef.current = true;
+    if (notifications.some((notification) => !notification.is_read)) {
+      void markAllNotificationsAsRead().catch(() => {
+        setError("No pudimos actualizar el estado de lectura.");
+      });
+    }
+  }, [markAllNotificationsAsRead, notifications, notificationsLoading]);
+
   const filtered = useMemo(
-    () => notifications.filter((item) => category === "ALL" || getCategory(item.type) === category),
+    () =>
+      notifications.filter(
+        (item) => category === "ALL" || getCategory(item.type) === category
+      ),
     [notifications, category]
   );
-  const unread = filtered.filter((item) => !item.is_read);
-  const previous = filtered.filter((item) => item.is_read);
-  const totalUnread = notifications.filter((item) => !item.is_read).length;
 
-  async function openNotification(notification: AppNotification) {
+  async function reload() {
+    setError("");
+    const success = await refreshUnreadCount();
+    if (!success) setError("No pudimos cargar tus notificaciones.");
+  }
+
+  function openNotification(notification: AppNotification) {
     if (!notification.is_read) {
-      try {
-        await markNotificationRead(notification.id);
-        await refreshUnreadCount();
-      } catch {
-        // La navegación sigue disponible aunque falle el marcado.
-      }
+      void markNotificationAsRead(notification.id).catch(() => {});
     }
     if (notification.link) router.push(notification.link);
   }
 
-  async function markAllRead() {
-    try {
-      await markAllNotificationsRead();
-      await refreshUnreadCount();
-    } catch {
-      setError("No pudimos marcar las notificaciones como leídas.");
-    }
-  }
-
   return (
-    <div className="mx-auto w-full max-w-4xl pb-4">
+    <div className="mx-auto w-full max-w-5xl pb-6">
       <header className="flex items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-10 w-10 items-center justify-start text-brand-dark md:hidden"><ArrowLeftIcon /></button>
-            <h1 className="text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl">Notificaciones</h1>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              aria-label="Volver"
+              className="flex h-11 w-11 shrink-0 items-center justify-start text-[#222222] md:hidden"
+            >
+              <ArrowLeftIcon />
+            </button>
+            <h1 className="text-3xl font-semibold tracking-[-0.04em] text-[#222222] sm:text-4xl">
+              Notificaciones
+            </h1>
           </div>
-          <p className="mt-2 text-sm text-muted">Aquí tienes todo lo importante de tu actividad.</p>
+          <p className="mt-2 text-sm leading-6 text-[#717171]">
+            Lo importante, ordenado y sin ruido.
+          </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          {totalUnread > 0 && (
-            <button type="button" onClick={markAllRead} className="hidden text-sm font-bold text-primary hover:text-primary-hover sm:block">Marcar todas como leídas</button>
-          )}
-          <Link href="/ajustes" aria-label="Ajustes de notificaciones" className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-secondary hover:bg-surface-soft"><SettingsIcon /></Link>
-        </div>
+        <Link
+          href="/ajustes"
+          aria-label="Ajustes de notificaciones"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#dddddd] bg-white text-[#222222] transition hover:border-[#b0b0b0] hover:bg-[#f7f7f7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+        >
+          <SettingsIcon />
+        </Link>
       </header>
 
-      <nav aria-label="Categorías de notificación" className="mt-6 flex overflow-x-auto border-b border-border">
+      <nav
+        aria-label="Categorías de notificación"
+        className="mt-7 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         {categories.map((item) => {
-          const count = notifications.filter((notification) => !notification.is_read && (item.value === "ALL" || getCategory(notification.type) === item.value)).length;
+          const active = category === item.value;
           return (
-            <button key={item.value} type="button" onClick={() => setCategory(item.value)} className={cn("relative flex min-w-16 shrink-0 flex-1 items-center justify-center gap-2 px-3 pb-3 pt-2 text-xs font-bold text-muted transition", category === item.value && "text-primary-dark")}>
-              {item.icon}<span className="hidden sm:inline">{item.label}</span>
-              {count > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] text-white">{count > 9 ? "9+" : count}</span>}
-              {category === item.value && <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-primary" />}
+            <button
+              key={item.value}
+              type="button"
+              onClick={() => setCategory(item.value)}
+              aria-pressed={active}
+              className={cn(
+                "flex h-11 shrink-0 items-center justify-center gap-2 rounded-full border px-4 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black",
+                active
+                  ? "border-black bg-black text-white"
+                  : "border-[#dddddd] bg-white text-[#222222] hover:border-[#b0b0b0]"
+              )}
+            >
+              {item.icon}
+              {item.label}
             </button>
           );
         })}
       </nav>
 
-      {totalUnread > 0 && <button type="button" onClick={markAllRead} className="mt-4 text-sm font-bold text-primary sm:hidden">Marcar todas como leídas</button>}
-
-      {loading ? (
-        <div className="mt-6 grid gap-3 md:grid-cols-2"><SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
-      ) : error ? (
-        <ErrorState className="mt-8" title="No se pudieron cargar" description={error} onRetry={() => void loadNotifications(true)} />
-      ) : filtered.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <div className="mt-6 space-y-8">
-          {unread.length > 0 && <NotificationGroup title="Nuevas" notifications={unread} onOpen={openNotification} prominent />}
-          {previous.length > 0 && <NotificationGroup title="Anteriores" notifications={previous} onOpen={openNotification} />}
+      {notificationsLoading ? (
+        <div className="mt-7 grid gap-3 md:grid-cols-2">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
         </div>
+      ) : error ? (
+        <ErrorState
+          className="mt-8"
+          title="No se pudieron cargar"
+          description={error}
+          onRetry={() => void reload()}
+        />
+      ) : filtered.length === 0 ? (
+        <EmptyContentState
+          className="mt-10"
+          variant="notifications"
+          title="Todo al día"
+          description="No tienes notificaciones en esta categoría."
+        />
+      ) : (
+        <motion.ul
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.035 } },
+          }}
+          className="mt-7 grid gap-3 md:grid-cols-2"
+        >
+          {filtered.map((notification) => (
+            <motion.li
+              key={notification.id}
+              variants={{
+                hidden: { opacity: 0, y: 6 },
+                show: { opacity: 1, y: 0 },
+              }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+            >
+              <NotificationCard
+                notification={notification}
+                onOpen={openNotification}
+              />
+            </motion.li>
+          ))}
+        </motion.ul>
       )}
 
-      <Link href="/ajustes" className="mt-8 flex items-center gap-4 rounded-18 bg-mint-50 p-4 text-primary-dark hover:bg-mint-100">
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface"><BellIcon /></span>
-        <div className="flex-1"><p className="text-sm font-bold">¿No quieres perderte nada?</p><p className="mt-0.5 text-xs text-secondary">Gestiona tus preferencias de notificación.</p></div>
+      <Link
+        href="/ajustes"
+        className="mt-8 flex min-h-18 items-center gap-4 rounded-2xl border border-[#dddddd] bg-white p-4 transition hover:border-[#b0b0b0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+      >
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f7f7f7] text-[#222222]">
+          <BellIcon />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-[#222222]">
+            Decide qué quieres recibir
+          </p>
+          <p className="mt-0.5 text-xs leading-5 text-[#717171]">
+            Gestiona tus preferencias de notificación.
+          </p>
+        </div>
         <ChevronIcon />
       </Link>
     </div>
   );
 }
 
-function NotificationGroup({ title, notifications, onOpen, prominent = false }: { title: string; notifications: AppNotification[]; onOpen: (notification: AppNotification) => void; prominent?: boolean }) {
+function NotificationCard({
+  notification,
+  onOpen,
+}: {
+  notification: AppNotification;
+  onOpen: (notification: AppNotification) => void;
+}) {
   return (
-    <section>
-      <h2 className="flex items-center gap-2 text-base font-bold text-foreground">{prominent && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}{title}</h2>
-      <div className={cn("mt-3 overflow-hidden rounded-18 border border-border bg-surface", prominent ? "grid gap-3 border-0 bg-transparent md:grid-cols-2" : "divide-y divide-border")}>
-        {notifications.map((notification) => (
-          <button key={notification.id} type="button" onClick={() => onOpen(notification)} className={cn("flex w-full items-start gap-3 p-4 text-left transition hover:bg-surface-soft", prominent && "rounded-18 border border-border bg-surface shadow-soft")}>
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center text-primary">{getTypeIcon(notification.type)}</span>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-3"><p className="text-sm font-bold leading-5 text-brand-dark">{notification.title}</p><time className="shrink-0 text-[10px] text-muted">{formatNotificationDate(notification.created_at)}</time></div>
-              <p className="mt-1 text-xs leading-5 text-secondary">{notification.message}</p>
-              {notification.link && <span className="mt-3 inline-flex rounded-10 border border-primary/40 px-3 py-1.5 text-xs font-bold text-primary-dark">Ver detalle</span>}
-            </div>
-            {!notification.is_read && <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />}
-          </button>
-        ))}
-      </div>
-    </section>
+    <button
+      type="button"
+      onClick={() => onOpen(notification)}
+      className="group flex h-full min-h-32 w-full items-start gap-4 rounded-2xl border border-[#dddddd] bg-white p-4 text-left transition hover:border-[#b0b0b0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+    >
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f7f7f7] text-[#222222]">
+        {getTypeIcon(notification.type)}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-start justify-between gap-3">
+          <span className="text-sm font-semibold leading-5 text-[#222222]">
+            {notification.title}
+          </span>
+          <time className="shrink-0 text-[11px] font-medium text-[#717171]">
+            {formatNotificationDate(notification.created_at)}
+          </time>
+        </span>
+        <span className="mt-1 block text-xs leading-5 text-[#717171]">
+          {notification.message}
+        </span>
+        {notification.link && (
+          <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[#222222] underline decoration-[#b0b0b0] underline-offset-4 group-hover:decoration-black">
+            Ver detalle <ChevronIcon />
+          </span>
+        )}
+      </span>
+    </button>
   );
-}
-
-function EmptyState() {
-  return <EmptyContentState className="mt-10" variant="notifications" title="Todo al día" description="No tienes notificaciones pendientes en esta categoría." />;
 }
 
 function getCategory(type: NotificationType): Exclude<Category, "ALL"> {
   if (type === "PRIVATE_MESSAGE_RECEIVED") return "MESSAGES";
-  if (type.startsWith("COMMUNITY_APPLICATION") || type === "COMMUNITY_INVITATION_RECEIVED") return "INVITATIONS";
-  if (type === "CONNECTION_REQUEST_RECEIVED" || type === "CONNECTION_REQUEST_ACCEPTED" || type === "COMMUNITY_MEMBER_JOINED" || type === "COMMUNITY_MEMBER_LEFT" || type === "COMMUNITY_MEMBER_REMOVED" || type === "COMMUNITY_OWNERSHIP_TRANSFERRED" || type === "COMMUNITY_INVITATION_ACCEPTED") return "ACTIVITY";
+  if (
+    type.startsWith("COMMUNITY_APPLICATION") ||
+    type === "COMMUNITY_INVITATION_RECEIVED"
+  ) {
+    return "INVITATIONS";
+  }
+  if (
+    type === "CONNECTION_REQUEST_RECEIVED" ||
+    type === "CONNECTION_REQUEST_ACCEPTED" ||
+    type === "COMMUNITY_MEMBER_JOINED" ||
+    type === "COMMUNITY_MEMBER_LEFT" ||
+    type === "COMMUNITY_MEMBER_REMOVED" ||
+    type === "COMMUNITY_OWNERSHIP_TRANSFERRED" ||
+    type === "COMMUNITY_INVITATION_ACCEPTED"
+  ) {
+    return "ACTIVITY";
+  }
   return "INFO";
 }
 
@@ -179,10 +282,28 @@ function formatNotificationDate(value: string) {
   if (diffMinutes < 1) return "Ahora";
   if (diffMinutes < 60) return `Hace ${diffMinutes} min`;
   if (diffMinutes < 1440) return `Hace ${Math.floor(diffMinutes / 60)} h`;
-  return new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short" }).format(date);
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "numeric",
+    month: "short",
+  }).format(date);
 }
 
-function SvgIcon({ children }: { children: ReactNode }) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">{children}</svg>; }
+function SvgIcon({ children }: { children: ReactNode }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5"
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  );
+}
 function BellIcon() { return <SvgIcon><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10 21h4" /></SvgIcon>; }
 function MailIcon() { return <SvgIcon><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></SvgIcon>; }
 function MessageIcon() { return <SvgIcon><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /><path d="M8 10h8M8 14h5" /></SvgIcon>; }
@@ -190,4 +311,4 @@ function PeopleIcon() { return <SvgIcon><circle cx="9" cy="8" r="3" /><path d="M
 function InfoIcon() { return <SvgIcon><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></SvgIcon>; }
 function SettingsIcon() { return <SvgIcon><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z" /></SvgIcon>; }
 function ArrowLeftIcon() { return <SvgIcon><path d="M19 12H5M11 18l-6-6 6-6" /></SvgIcon>; }
-function ChevronIcon() { return <SvgIcon><path d="m9 6 6 6-6 6" /></SvgIcon>; }
+function ChevronIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>; }

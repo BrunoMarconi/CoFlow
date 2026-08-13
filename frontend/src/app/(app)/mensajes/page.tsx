@@ -36,7 +36,6 @@ const CommunityChat = dynamic(
 import { HomeIcon, ChevronRightIcon } from "@/components/layout/NavIcons";
 import { getPrivateConversationInbox } from "@/services/connections";
 import { getCommunityMessages } from "@/services/communities";
-import { markNotificationsForLinkRead } from "@/services/notifications";
 import type { UserConnection } from "@/types/connection";
 import type { PrivateMessage } from "@/types/privateMessage";
 import type { CommunityMessage } from "@/types/community";
@@ -139,7 +138,7 @@ function formatPreviewTime(value: string) {
 }
 
 export default function MensajesPage() {
-  const { user, community } = useAuth();
+  const { user, community, markNotificationsForLinkAsRead } = useAuth();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const requestedId = Number(searchParams.get("c"));
@@ -246,12 +245,12 @@ export default function MensajesPage() {
   useEffect(() => {
     if (communitySelected && community) {
       markConversationReadNow("community");
-      void markNotificationsForLinkRead("/mensajes/comunidad").catch(() => {});
+      void markNotificationsForLinkAsRead("/mensajes/comunidad").catch(() => {});
     } else if (effectiveSelectedId !== null) {
       markConversationReadNow(`connection:${effectiveSelectedId}`);
-      void markNotificationsForLinkRead(`/mensajes/${effectiveSelectedId}`).catch(() => {});
+      void markNotificationsForLinkAsRead(`/mensajes/${effectiveSelectedId}`).catch(() => {});
     }
-  }, [communitySelected, community, effectiveSelectedId]);
+  }, [communitySelected, community, effectiveSelectedId, markNotificationsForLinkAsRead]);
 
   function selectConnection(id: number) {
     setCommunitySelected(false);

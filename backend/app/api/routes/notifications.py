@@ -8,6 +8,7 @@ from app.schemas.notification import (
     NotificationLinkReadRequest,
     NotificationLinkReadResponse,
     NotificationResponse,
+    NotificationSnapshotResponse,
     UnreadNotificationCountResponse,
 )
 from app.services.notification_service import NotificationService
@@ -15,6 +16,33 @@ from app.services.notification_service import NotificationService
 router = APIRouter()
 
 notification_service = NotificationService()
+
+
+@router.get(
+    "/snapshot",
+    response_model=NotificationSnapshotResponse,
+)
+def get_notification_snapshot(
+    limit: int = Query(default=40, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Devuelve listado y contadores en una sola respuesta coherente."""
+    return NotificationSnapshotResponse(
+        items=notification_service.list_notifications(
+            db=db,
+            current_user=current_user,
+            limit=limit,
+        ),
+        unread_count=notification_service.get_unread_count(
+            db=db,
+            current_user=current_user,
+        ),
+        unread_message_count=notification_service.get_unread_message_count(
+            db=db,
+            current_user=current_user,
+        ),
+    )
 
 
 @router.post(
@@ -35,6 +63,10 @@ def mark_notifications_for_link_read(
     return NotificationLinkReadResponse(
         marked_count=marked_count,
         unread_count=notification_service.get_unread_count(
+            db=db,
+            current_user=current_user,
+        ),
+        unread_message_count=notification_service.get_unread_message_count(
             db=db,
             current_user=current_user,
         ),

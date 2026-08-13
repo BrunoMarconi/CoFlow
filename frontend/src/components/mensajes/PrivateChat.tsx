@@ -1,9 +1,9 @@
 "use client";
 
 import ChatThread from "@/components/chat/ChatThread";
+import { useAuth } from "@/hooks/useAuth";
 import { getPrivateMessages, sendPrivateMessage } from "@/services/connections";
 import { markConversationReadNow } from "@/lib/conversationReadState";
-import { markNotificationsForLinkRead } from "@/services/notifications";
 
 export default function PrivateChat({
   connectionId,
@@ -14,6 +14,8 @@ export default function PrivateChat({
   currentUserId: string;
   variant?: "card" | "full";
 }) {
+  const { markNotificationsForLinkAsRead } = useAuth();
+
   return (
     <ChatThread
       key={`connection:${connectionId}`}
@@ -28,7 +30,7 @@ export default function PrivateChat({
       variant={variant}
       onMessagesReceived={() => {
         markConversationReadNow(`connection:${connectionId}`);
-        void markNotificationsForLinkRead(`/mensajes/${connectionId}`).catch(
+        void markNotificationsForLinkAsRead(`/mensajes/${connectionId}`).catch(
           () => {}
         );
       }}

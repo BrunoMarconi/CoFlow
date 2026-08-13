@@ -21,6 +21,12 @@ class UnreadNotificationCountResponse(BaseModel):
     unread_count: int
 
 
+class NotificationSnapshotResponse(BaseModel):
+    items: list[NotificationResponse]
+    unread_count: int
+    unread_message_count: int
+
+
 class NotificationLinkReadRequest(BaseModel):
     link: str = Field(min_length=1, max_length=255)
 
@@ -28,3 +34,4 @@ class NotificationLinkReadRequest(BaseModel):
 class NotificationLinkReadResponse(BaseModel):
     marked_count: int
     unread_count: int
+    unread_message_count: int

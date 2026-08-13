@@ -10,8 +10,8 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import { useOwnerMode } from "@/hooks/useOwnerMode";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { markAllNotificationsRead, markNotificationRead } from "@/services/notifications";
 import type { AppNotification } from "@/types/notification";
 import {
   MOTION_DURATION,
@@ -44,12 +44,18 @@ const listItem = {
 
 export default function NotificationBell() {
   const router = useRouter();
-  const { unreadCount, notifications, refreshUnreadCount } = useAuth();
+  const {
+    unreadCount,
+    notifications,
+    notificationsLoading,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+  } = useAuth();
+  const { isOwnerMode } = useOwnerMode();
   const prefersReducedMotion = useReducedMotion();
   const isDesktop = useMediaQuery("(min-width: 640px)");
 
   const [open, setOpen] = useState(false);
-  const loading = false;
   const [error, setError] = useState("");
   // document solo existe en cliente — el portal se crea una vez
   // montado para no reventar el render en servidor.
@@ -58,7 +64,7 @@ export default function NotificationBell() {
   const containerRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const bellControls = useAnimationControls();
-  const previousUnreadRef = useRef(unreadCount);
+  const previousUnreadRef = useRef(isOwnerMode ? 0 : unreadCount);
 
   useEffect(() => {
     // Patrón estándar de "solo en cliente" para poder llamar a
@@ -96,26 +102,35 @@ export default function NotificationBell() {
     };
   }, [open]);
 
-  useEffect(() => {
-    if (open) void refreshUnreadCount();
-  }, [open, refreshUnreadCount]);
-
   // Nueva notificación en tiempo real (refreshUnreadCount ya hace
   // polling en AuthProvider): si el contador sube, la campana hace un
   // pequeño gesto — nunca abre el panel solo, eso lo decide el usuario.
   useEffect(() => {
-    if (unreadCount > previousUnreadRef.current && !prefersReducedMotion) {
+    const visibleUnreadCount = isOwnerMode ? 0 : unreadCount;
+    if (
+      visibleUnreadCount > previousUnreadRef.current &&
+      !prefersReducedMotion
+    ) {
       bellControls.start(BELL_SHAKE, {
         duration: MOTION_DURATION.slow,
         ease: MOTION_EASE.out,
       });
     }
 
-    previousUnreadRef.current = unreadCount;
-  }, [unreadCount, prefersReducedMotion, bellControls]);
+    previousUnreadRef.current = visibleUnreadCount;
+  }, [unreadCount, isOwnerMode, prefersReducedMotion, bellControls]);
 
   function handleTap() {
-    setOpen((current) => !current);
+    const willOpen = !open;
+    setOpen(willOpen);
+
+    if (willOpen && !isOwnerMode) {
+      setError("");
+      void markAllNotificationsAsRead()
+        .catch(() => {
+          setError("No pudimos actualizar tus notificaciones.");
+        });
+    }
 
     if (!prefersReducedMotion) {
       bellControls.start(BELL_SHAKE, {
@@ -129,12 +144,7 @@ export default function NotificationBell() {
     setOpen(false);
 
     if (!notification.is_read) {
-      try {
-        await markNotificationRead(notification.id);
-        await refreshUnreadCount();
-      } catch {
-        // Si falla el marcado, seguimos navegando de todas formas.
-      }
+      void markNotificationAsRead(notification.id).catch(() => {});
     }
 
     if (notification.link) {
@@ -144,14 +154,15 @@ export default function NotificationBell() {
 
   async function handleMarkAllRead() {
     try {
-      await markAllNotificationsRead();
-      await refreshUnreadCount();
+      await markAllNotificationsAsRead();
     } catch {
       setError("No pudimos marcar las notificaciones como leídas.");
     }
   }
 
-  const hasUnread = notifications.some((item) => !item.is_read);
+  const visibleNotifications = isOwnerMode ? [] : notifications;
+  const visibleUnreadCount = isOwnerMode ? 0 : unreadCount;
+  const hasUnread = visibleNotifications.some((item) => !item.is_read);
 
   const panelTransition = prefersReducedMotion
     ? { duration: 0.01 }
@@ -191,24 +202,26 @@ export default function NotificationBell() {
     }
   }
 
-  const listContent = loading ? (
+  const listContent = notificationsLoading ? (
     <p className="p-6 text-center text-sm text-muted">Cargando...</p>
   ) : error ? (
     <p className="p-6 text-center text-sm font-semibold text-red-600">
       {error}
     </p>
-  ) : notifications.length === 0 ? (
+  ) : visibleNotifications.length === 0 ? (
     <motion.p
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: MOTION_DURATION.normal }}
       className="p-6 text-center text-sm text-muted"
     >
-      Todavía no tienes notificaciones.
+      {isOwnerMode
+        ? "No tienes avisos nuevos sobre tus pisos."
+        : "Todavía no tienes notificaciones."}
     </motion.p>
   ) : (
     <motion.ul variants={listContainer} initial="hidden" animate="show">
-      {notifications.map((notification) => (
+      {visibleNotifications.map((notification) => (
         <motion.li key={notification.id} variants={listItem}>
           <motion.button
             type="button"
@@ -216,7 +229,7 @@ export default function NotificationBell() {
             whileTap={{ scale: 0.985 }}
             transition={{ duration: MOTION_DURATION.fast }}
             className={`flex w-full flex-col items-start gap-1 border-b border-border px-4 py-3 text-left transition-colors duration-300 hover:bg-surface-soft ${
-              notification.is_read ? "bg-transparent" : "bg-mint-50"
+              notification.is_read ? "bg-transparent" : "bg-[#f7f7f7]"
             }`}
           >
             <div className="flex w-full items-start justify-between gap-2">
@@ -235,7 +248,7 @@ export default function NotificationBell() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.5 }}
                     transition={{ duration: MOTION_DURATION.fast }}
-                    className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary"
+                    className="mt-1 h-2 w-2 shrink-0 rounded-full bg-black"
                   />
                 )}
               </AnimatePresence>
@@ -305,10 +318,10 @@ export default function NotificationBell() {
               layoutId={open ? "notification-bell-icon" : undefined}
               transition={{ layout: MOTION_SPRING.gentle }}
             >
-              <CoFlowBellIcon className="h-5 w-5 text-primary-dark" />
+              <CoFlowBellIcon className="h-5 w-5 text-[#222222]" />
             </motion.div>
 
-            <p className="text-sm font-bold text-brand-dark">
+            <p className="text-sm font-bold text-[#222222]">
               Notificaciones
             </p>
           </div>
@@ -319,7 +332,7 @@ export default function NotificationBell() {
               onClick={handleMarkAllRead}
               whileTap={{ scale: 0.96 }}
               transition={{ duration: MOTION_DURATION.fast }}
-              className="text-xs font-bold text-primary-dark hover:text-brand-dark"
+              className="min-h-11 rounded-full px-3 text-xs font-bold text-[#222222] hover:bg-[#f7f7f7]"
             >
               Marcar todas como leídas
             </motion.button>
@@ -350,27 +363,27 @@ export default function NotificationBell() {
           animate={bellControls}
           transition={{ layout: MOTION_SPRING.gentle }}
         >
-          <CoFlowBellIcon className="h-6 w-6 text-brand-dark" />
+          <CoFlowBellIcon className="h-6 w-6 text-[#222222]" />
         </motion.div>
 
         <AnimatePresence>
-          {unreadCount > 0 && (
+          {visibleUnreadCount > 0 && (
             <motion.span
               initial={{ opacity: 0, scale: 0.7 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.7 }}
               transition={MOTION_SPRING.snappy}
-              className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
+              className="absolute right-1 top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-white ring-2 ring-white"
             >
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.span
-                  key={unreadCount}
+                  key={visibleUnreadCount}
                   initial={{ opacity: 0, scale: 0.7 }}
                   animate={{ opacity: 1, scale: [1.2, 1] }}
                   exit={{ opacity: 0, scale: 0.7 }}
                   transition={{ duration: MOTION_DURATION.fast }}
                 >
-                  {unreadCount > 9 ? "9+" : unreadCount}
+                  {visibleUnreadCount > 9 ? "9+" : visibleUnreadCount}
                 </motion.span>
               </AnimatePresence>
             </motion.span>

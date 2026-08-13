@@ -1,13 +1,5 @@
 import { api } from "./api";
-import type { AppNotification } from "@/types/notification";
-
-export const NOTIFICATIONS_CHANGED_EVENT = "coflow:notifications-changed";
-
-function announceNotificationChange() {
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new Event(NOTIFICATIONS_CHANGED_EVENT));
-  }
-}
+import type { AppNotification, NotificationSnapshot } from "@/types/notification";
 
 export interface GetNotificationsParams {
   skip?: number;
@@ -30,12 +22,20 @@ export async function getUnreadNotificationCount() {
   return data.unread_count;
 }
 
+export async function getNotificationSnapshot(limit = 40) {
+  const { data } = await api.get<NotificationSnapshot>(
+    "/notifications/snapshot",
+    { params: { limit } }
+  );
+
+  return data;
+}
+
 export async function markNotificationRead(notificationId: number) {
   const { data } = await api.post<AppNotification>(
     `/notifications/${notificationId}/read`
   );
 
-  announceNotificationChange();
   return data;
 }
 
@@ -44,14 +44,17 @@ export async function markAllNotificationsRead() {
     "/notifications/read-all"
   );
 
-  announceNotificationChange();
   return data;
 }
 
 export async function markNotificationsForLinkRead(link: string) {
-  await api.post<{ marked_count: number; unread_count: number }>(
+  const { data } = await api.post<{
+    marked_count: number;
+    unread_count: number;
+    unread_message_count: number;
+  }>(
     "/notifications/read-by-link",
     { link }
   );
-  announceNotificationChange();
+  return data;
 }

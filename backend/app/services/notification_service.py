@@ -65,6 +65,22 @@ class NotificationService:
             or 0
         )
 
+    def get_unread_message_count(
+        self,
+        db: Session,
+        current_user: User,
+    ) -> int:
+        return (
+            db.query(func.count(Notification.id))
+            .filter(
+                Notification.user_id == current_user.id,
+                Notification.type == NotificationType.PRIVATE_MESSAGE_RECEIVED,
+                Notification.is_read.is_(False),
+            )
+            .scalar()
+            or 0
+        )
+
     def mark_link_read(
         self,
         db: Session,

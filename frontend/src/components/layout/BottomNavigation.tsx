@@ -108,7 +108,9 @@ export default function BottomNavigation() {
             link={link}
             active={link.isActive(pathname)}
             transitionTypes={getTabTransitionTypes(pathname, link.href)}
-            showUnreadDot={link.label === "Mensajes" && hasUnreadMessages}
+            showUnreadDot={
+              link.label === "Mensajes" && !isOwnerMode && hasUnreadMessages
+            }
           />
         ))}
       </div>

@@ -11,13 +11,12 @@ import UserSafetyActions from "@/components/usuario/UserSafetyActions";
 import { getConnections } from "@/services/connections";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { markConversationReadNow } from "@/lib/conversationReadState";
-import { markNotificationsForLinkRead } from "@/services/notifications";
 import { NAV_TRANSITION } from "@/lib/navTransition";
 import type { UserConnection } from "@/types/connection";
 
 export default function PrivateConversationPage({ connectionId, owner = false }: { connectionId: number; owner?: boolean }) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, markNotificationsForLinkAsRead } = useAuth();
   const { setChatActive } = useMobileChrome();
   const [connection, setConnection] = useState<UserConnection | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,9 +33,9 @@ export default function PrivateConversationPage({ connectionId, owner = false }:
   useEffect(() => {
     if (Number.isFinite(connectionId)) {
       markConversationReadNow(`connection:${connectionId}`);
-      void markNotificationsForLinkRead(`/mensajes/${connectionId}`).catch(() => {});
+      void markNotificationsForLinkAsRead(`/mensajes/${connectionId}`).catch(() => {});
     }
-  }, [connectionId]);
+  }, [connectionId, markNotificationsForLinkAsRead]);
 
   useEffect(() => {
     let active = true;

@@ -21,3 +21,9 @@ export interface AppNotification {
   is_read: boolean;
   created_at: string;
 }
+
+export interface NotificationSnapshot {
+  items: AppNotification[];
+  unread_count: number;
+  unread_message_count: number;
+}
