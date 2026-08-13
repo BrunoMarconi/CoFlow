@@ -27,3 +27,7 @@ class UserConnectionResponse(BaseModel):
 class UserConnectionRequestsResponse(BaseModel):
     received: list[UserConnectionResponse] = Field(default_factory=list)
     sent: list[UserConnectionResponse] = Field(default_factory=list)
+
+
+class UserConnectionOverviewResponse(UserConnectionRequestsResponse):
+    accepted: list[UserConnectionResponse] = Field(default_factory=list)

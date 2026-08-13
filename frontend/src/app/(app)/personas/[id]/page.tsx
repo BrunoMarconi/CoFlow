@@ -219,7 +219,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
 function PrimaryConnectionAction({ profile, status, connectionId, connecting, onConnect }: { profile: UserPublicProfile; status: UserPublicProfile["connection_status"]; connectionId: number | null; connecting: boolean; onConnect: () => void }) {
   const base = "flex h-12 items-center justify-center gap-2 rounded-14 bg-primary px-3 text-sm font-bold text-white shadow-button";
   if (status === "ACCEPTED" && connectionId !== null) return <Link href={`/mensajes/${connectionId}`} className={base}><MessageIcon />Enviar mensaje</Link>;
-  if (status === "PENDING_RECEIVED") return <Link href="/conexiones" className={base}>Responder solicitud</Link>;
+  if (status === "PENDING_RECEIVED") return <Link href="/conexiones?tab=recibidas" className={base}>Responder solicitud</Link>;
   if (status === "PENDING_SENT") return <span className="flex h-12 items-center justify-center rounded-14 border border-border bg-surface text-sm font-bold text-secondary shadow-soft">Solicitud enviada</span>;
   return <button type="button" onClick={onConnect} disabled={connecting || !profile.is_looking_for_roommates} className={`${base} disabled:opacity-45`}><ConnectIcon />{connecting ? "Enviando..." : "Conectar"}</button>;
 }

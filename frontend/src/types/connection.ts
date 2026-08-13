@@ -24,3 +24,7 @@ export interface UserConnectionRequests {
   received: UserConnection[];
   sent: UserConnection[];
 }
+
+export interface UserConnectionOverview extends UserConnectionRequests {
+  accepted: UserConnection[];
+}

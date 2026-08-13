@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { useUserConnection } from "@/hooks/useUserConnection";
@@ -23,11 +24,13 @@ export default function UserCard({
   onOpen: (userId: string) => void;
   mobileVariant?: "featured" | "compact";
 }) {
+  const router = useRouter();
   const {
     saved,
     savingToggle,
     toggleSave,
     connectionStatus,
+    connectionId,
     connecting,
     connect,
   } = useUserConnection(user);
@@ -64,9 +67,20 @@ export default function UserCard({
     event.stopPropagation();
     if (connectionStatus === "NONE") {
       await connect();
-    } else {
-      handleOpen();
+      return;
     }
+
+    if (connectionStatus === "ACCEPTED" && connectionId) {
+      router.push(`/mensajes/${connectionId}`);
+      return;
+    }
+
+    if (connectionStatus === "PENDING_RECEIVED") {
+      router.push("/conexiones?tab=recibidas");
+      return;
+    }
+
+    handleOpen();
   }
 
   return (

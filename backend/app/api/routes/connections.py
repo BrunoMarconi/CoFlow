@@ -10,6 +10,7 @@ from app.schemas.private_message import (
     PrivateMessageResponse,
 )
 from app.schemas.user_connection import (
+    UserConnectionOverviewResponse,
     UserConnectionRequestsResponse,
     UserConnectionResponse,
 )
@@ -45,6 +46,20 @@ def list_connections(
     db: Session = Depends(get_db),
 ):
     return user_connection_service.list_connections(
+        db=db,
+        current_user=current_user,
+    )
+
+
+@router.get(
+    "/overview",
+    response_model=UserConnectionOverviewResponse,
+)
+def get_connection_overview(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return user_connection_service.get_overview(
         db=db,
         current_user=current_user,
     )

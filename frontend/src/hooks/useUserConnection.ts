@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import {
   createConnectionRequest,
@@ -8,6 +9,10 @@ import {
   unsaveUserProfile,
 } from "@/services/users";
 import { deleteConnection } from "@/services/connections";
+import {
+  refreshConnectionQueries,
+  setCachedProfileConnection,
+} from "@/lib/connectionQueryState";
 import type {
   UserConnectionStatusLabel,
   UserPublicProfile,
@@ -17,6 +22,7 @@ import type {
  * lógica que antes vivía solo en personas/[id]/page.tsx, ahora
  * compartida con la tarjeta de la lista y el panel de vista rápida. */
 export function useUserConnection(profile: UserPublicProfile | null) {
+  const queryClient = useQueryClient();
   // Semilla el estado local desde el perfil recién cargado, pero
   // permite que las acciones del usuario (guardar/conectar) lo
   // sobrescriban después. Se ajusta durante el render (no en un
@@ -24,6 +30,8 @@ export function useUserConnection(profile: UserPublicProfile | null) {
   // para "derived state que luego se puede sobrescribir", sin el
   // renderizado en cascada de sincronizarlo vía useEffect.
   const [syncedProfileId, setSyncedProfileId] = useState<string | null>(null);
+  const [syncedConnectionFingerprint, setSyncedConnectionFingerprint] =
+    useState("");
   const [saved, setSaved] = useState(false);
   const [savingToggle, setSavingToggle] = useState(false);
 
@@ -36,6 +44,14 @@ export function useUserConnection(profile: UserPublicProfile | null) {
   if (profile && profile.id !== syncedProfileId) {
     setSyncedProfileId(profile.id);
     setSaved(profile.is_saved);
+  }
+
+  const connectionFingerprint = profile
+    ? `${profile.id}:${profile.connection_status}:${profile.connection_id ?? "none"}`
+    : "";
+
+  if (profile && connectionFingerprint !== syncedConnectionFingerprint) {
+    setSyncedConnectionFingerprint(connectionFingerprint);
     setConnectionStatus(profile.connection_status);
     setConnectionId(profile.connection_id);
   }
@@ -70,6 +86,13 @@ export function useUserConnection(profile: UserPublicProfile | null) {
       const connection = await createConnectionRequest(profile.id);
       setConnectionStatus("PENDING_SENT");
       setConnectionId(connection.id);
+      setCachedProfileConnection(
+        queryClient,
+        profile.id,
+        "PENDING_SENT",
+        connection.id
+      );
+      refreshConnectionQueries(queryClient);
     } catch (error) {
       setConnectionError(
         getCommunityErrorMessage(
@@ -92,6 +115,10 @@ export function useUserConnection(profile: UserPublicProfile | null) {
       await deleteConnection(connectionId);
       setConnectionStatus("NONE");
       setConnectionId(null);
+      if (profile) {
+        setCachedProfileConnection(queryClient, profile.id, "NONE", null);
+      }
+      refreshConnectionQueries(queryClient);
     } catch (error) {
       setConnectionError(
         getCommunityErrorMessage(error, "No pudimos eliminar la conexión.")

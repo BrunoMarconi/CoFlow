@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import Avatar from "@/components/ui/Avatar";
 import AvatarUploader from "@/components/perfil/AvatarUploader";
@@ -15,7 +16,8 @@ import OwnerModeToggle from "@/components/propietario/OwnerModeToggle";
 import Spinner from "@/components/ui/Spinner";
 import { getMyOnboarding } from "@/services/onboarding";
 import { getSavedProfiles } from "@/services/users";
-import { getConnectionRequests, getConnections } from "@/services/connections";
+import { getConnectionOverview } from "@/services/connections";
+import { CONNECTION_OVERVIEW_QUERY_KEY } from "@/lib/connectionQueryState";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import type { OnboardingAnswers } from "@/types/onboarding";
 import type { User } from "@/types/auth";
@@ -28,8 +30,11 @@ export default function PerfilPage() {
   const [loadingAnswers, setLoadingAnswers] = useState(true);
 
   const [savedCount, setSavedCount] = useState(0);
-  const [connectionsCount, setConnectionsCount] = useState(0);
-  const [pendingReceivedCount, setPendingReceivedCount] = useState(0);
+  const { data: connectionOverview } = useQuery({
+    queryKey: CONNECTION_OVERVIEW_QUERY_KEY,
+    queryFn: getConnectionOverview,
+    staleTime: 30_000,
+  });
 
   useEffect(() => {
     let active = true;
@@ -61,18 +66,6 @@ export default function PerfilPage() {
       })
       .catch(() => {});
 
-    getConnections()
-      .then((connections) => {
-        if (active) setConnectionsCount(connections.length);
-      })
-      .catch(() => {});
-
-    getConnectionRequests()
-      .then((requests) => {
-        if (active) setPendingReceivedCount(requests.received.length);
-      })
-      .catch(() => {});
-
     return () => {
       active = false;
     };
@@ -87,6 +80,8 @@ export default function PerfilPage() {
   }
 
   const completion = computeProfileCompletion(user);
+  const connectionsCount = connectionOverview?.accepted.length ?? 0;
+  const pendingReceivedCount = connectionOverview?.received.length ?? 0;
   const locationLine = [community?.city, user.age ? `${user.age} años` : null]
     .filter(Boolean)
     .join(" · ");

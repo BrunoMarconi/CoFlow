@@ -64,8 +64,23 @@ class UserConnectionService:
                 detail="You cannot connect with yourself",
             )
 
-        recipient = (
-            db.query(User).filter(User.id == recipient_id).first()
+        # Bloqueamos siempre las dos filas en el mismo orden. Así dos
+        # peticiones simultáneas y cruzadas (A→B y B→A) no pueden crear dos
+        # conexiones activas antes de que ninguna vea a la otra.
+        participant_ids = sorted(
+            (current_user.id, recipient_id),
+            key=str,
+        )
+        participants = (
+            db.query(User)
+            .filter(User.id.in_(participant_ids))
+            .order_by(User.id)
+            .with_for_update()
+            .all()
+        )
+        recipient = next(
+            (user for user in participants if user.id == recipient_id),
+            None,
         )
 
         if recipient is None:
@@ -121,7 +136,7 @@ class UserConnectionService:
                     f"{current_user.first_name} {current_user.last_name} "
                     "quiere conectar contigo."
                 ),
-                link="/conexiones",
+                link="/conexiones?tab=recibidas",
             )
 
             db.commit()
@@ -195,6 +210,23 @@ class UserConnectionService:
             .order_by(UserConnection.created_at.desc())
             .all()
         )
+
+    def get_overview(
+        self,
+        db: Session,
+        current_user: User,
+    ) -> dict[str, list[UserConnection]]:
+        """Devuelve el estado completo de Conexiones en una sola lectura.
+
+        El frontend no tiene que coordinar tres peticiones que podrían llegar
+        en momentos distintos después de aceptar o cancelar una solicitud.
+        """
+
+        return {
+            "accepted": self.list_connections(db, current_user),
+            "received": self.list_received_requests(db, current_user),
+            "sent": self.list_sent_requests(db, current_user),
+        }
 
     def _get_connection(
         self,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,6 +23,8 @@ const PREVIEW_PREFERENCES: Array<{
   { key: "pets", label: "Mascotas" },
 ];
 
+const subscribeToClient = () => () => {};
+
 export default function PersonPreviewPanel({
   userId,
   onClose,
@@ -30,14 +32,14 @@ export default function PersonPreviewPanel({
   userId: string;
   onClose: () => void;
 }) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    subscribeToClient,
+    () => true,
+    () => false
+  );
   const { profile, loading, notFound } = usePublicProfile(userId);
 
-  useEffect(() => setMounted(true), []);
-
   useEffect(() => {
-    if (!mounted) return;
-
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
     }
@@ -65,7 +67,7 @@ export default function PersonPreviewPanel({
       body.style.width = previous.width;
       window.scrollTo(0, scrollY);
     };
-  }, [mounted, onClose]);
+  }, [onClose]);
 
   if (!mounted) return null;
 
@@ -251,7 +253,7 @@ function PreviewContent({ profile, onClose }: { profile: UserPublicProfile; onCl
 function PreviewConnectionAction({ profile, status, connectionId, connecting, onConnect }: { profile: UserPublicProfile; status: UserPublicProfile["connection_status"]; connectionId: number | null; connecting: boolean; onConnect: () => void }) {
   const activeClass = "flex h-12 items-center justify-center rounded-14 bg-primary px-3 text-sm font-bold text-white shadow-button";
   if (status === "ACCEPTED" && connectionId !== null) return <Link href={`/mensajes/${connectionId}`} className={activeClass}>Enviar mensaje</Link>;
-  if (status === "PENDING_RECEIVED") return <Link href="/conexiones" className={activeClass}>Responder</Link>;
+  if (status === "PENDING_RECEIVED") return <Link href="/conexiones?tab=recibidas" className={activeClass}>Responder</Link>;
   if (status === "PENDING_SENT") return <span className="flex h-12 items-center justify-center rounded-14 border border-border bg-surface text-xs font-bold text-secondary shadow-soft">Solicitud enviada</span>;
   return <button type="button" onClick={onConnect} disabled={connecting || !profile.is_looking_for_roommates} className={`${activeClass} disabled:opacity-45`}>{connecting ? "Enviando..." : "Conectar"}</button>;
 }

@@ -1,5 +1,9 @@
 import { api } from "./api";
-import type { UserConnection, UserConnectionRequests } from "@/types/connection";
+import type {
+  UserConnection,
+  UserConnectionOverview,
+  UserConnectionRequests,
+} from "@/types/connection";
 import type {
   GetPrivateMessagesParams,
   PrivateConversationSummary,
@@ -22,6 +26,14 @@ export async function getPrivateConversationInbox() {
 export async function getConnectionRequests() {
   const { data } = await api.get<UserConnectionRequests>(
     "/connections/requests"
+  );
+
+  return data;
+}
+
+export async function getConnectionOverview() {
+  const { data } = await api.get<UserConnectionOverview>(
+    "/connections/overview"
   );
 
   return data;
