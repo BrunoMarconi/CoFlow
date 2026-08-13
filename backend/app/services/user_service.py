@@ -14,6 +14,7 @@ from app.database.models.user_connection import (
     UserConnection,
     UserConnectionStatus,
 )
+from app.database.models.user_block import UserBlock
 from app.schemas.user_photo import UserPhotoResponse
 from app.schemas.user_public import (
     PublicUserCommunityResponse,
@@ -71,6 +72,21 @@ class UserService:
         connection_id = None
 
         if viewer is not None and viewer.id != user.id:
+            blocked_between = (
+                db.query(UserBlock)
+                .filter(
+                    or_(
+                        (UserBlock.blocker_id == viewer.id)
+                        & (UserBlock.blocked_user_id == user.id),
+                        (UserBlock.blocker_id == user.id)
+                        & (UserBlock.blocked_user_id == viewer.id),
+                    )
+                )
+                .first()
+            )
+            if blocked_between is not None:
+                raise HTTPException(status_code=404, detail="User not found")
+
             is_saved = (
                 db.query(SavedUserProfile)
                 .filter(
@@ -178,6 +194,16 @@ class UserService:
         query = db.query(User).filter(
             User.id != viewer.id,
             User.is_looking_for_roommates.is_(True),
+            ~User.id.in_(
+                db.query(UserBlock.blocked_user_id).filter(
+                    UserBlock.blocker_id == viewer.id
+                )
+            ),
+            ~User.id.in_(
+                db.query(UserBlock.blocker_id).filter(
+                    UserBlock.blocked_user_id == viewer.id
+                )
+            ),
         )
 
         if max_budget is not None:

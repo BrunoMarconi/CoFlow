@@ -14,6 +14,8 @@ from app.database.models.community_invitation import CommunityInvitation
 from app.database.models.community_application import CommunityApplication
 from app.database.models.saved_user_profile import SavedUserProfile
 from app.database.models.user_connection import UserConnection
+from app.database.models.user_block import UserBlock
+from app.database.models.user_report import UserReport
 from app.database.models.private_message import PrivateMessage
 from app.database.models.notification import Notification
 from app.database.models.bank_auth_state import BankAuthState

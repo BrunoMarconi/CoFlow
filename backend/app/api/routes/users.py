@@ -9,15 +9,37 @@ from app.database.session import get_db
 from app.schemas.saved_profile import SavedProfileActionResponse
 from app.schemas.user_connection import UserConnectionResponse
 from app.schemas.user_public import PublicUserProfileResponse
+from app.schemas.user_safety import (
+    BlockedUserResponse,
+    UserBlockResponse,
+    UserReportCreate,
+    UserReportResponse,
+)
 from app.services.saved_profile_service import SavedProfileService
 from app.services.user_connection_service import UserConnectionService
 from app.services.user_service import UserService
+from app.services.user_safety_service import UserSafetyService
 
 router = APIRouter()
 
 user_service = UserService()
 saved_profile_service = SavedProfileService()
 user_connection_service = UserConnectionService()
+user_safety_service = UserSafetyService()
+
+
+@router.get(
+    "/blocked",
+    response_model=list[BlockedUserResponse],
+)
+def list_blocked_users(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return user_safety_service.list_blocked_users(
+        db=db,
+        current_user=current_user,
+    )
 
 
 @router.get(
@@ -103,6 +125,64 @@ def create_connection_request(
         db=db,
         current_user=current_user,
         recipient_id=user_id,
+    )
+
+
+@router.post(
+    "/{user_id}/block",
+    response_model=UserBlockResponse,
+)
+def block_user(
+    user_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return UserBlockResponse(
+        blocked=user_safety_service.block_user(
+            db=db,
+            current_user=current_user,
+            blocked_user_id=user_id,
+        )
+    )
+
+
+@router.delete(
+    "/{user_id}/block",
+    response_model=UserBlockResponse,
+)
+def unblock_user(
+    user_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return UserBlockResponse(
+        blocked=user_safety_service.unblock_user(
+            db=db,
+            current_user=current_user,
+            blocked_user_id=user_id,
+        )
+    )
+
+
+@router.post(
+    "/{user_id}/report",
+    response_model=UserReportResponse,
+)
+def report_user(
+    user_id: UUID,
+    data: UserReportCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    report = user_safety_service.report_user(
+        db=db,
+        current_user=current_user,
+        reported_user_id=user_id,
+        data=data,
+    )
+    return UserReportResponse(
+        id=report.id,
+        created_at=report.created_at,
     )
 
 

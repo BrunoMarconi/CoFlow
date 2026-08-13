@@ -143,7 +143,7 @@ export default function PrivacyPage() {
         </SettingsSection>
 
         <SettingsSection icon={<MoreIcon />} title="Otras opciones">
-          <ActionRow title="Bloqueados" description="Gestiona los usuarios que has bloqueado." />
+          <ActionRow href="/ajustes/privacidad/bloqueados" title="Bloqueados" description="Gestiona los usuarios que has bloqueado." />
           <ActionRow title="Cuentas silenciadas" description="Gestiona las cuentas que has silenciado." />
         </SettingsSection>
 
@@ -198,20 +198,19 @@ function SettingRow({ icon, title, description, control }: { icon?: ReactNode; t
   );
 }
 
-function ActionRow({ title, description }: { title: string; description: string }) {
-  return (
-    <button
-      type="button"
-      onClick={() => toast.show(`${title} estará disponible próximamente`)}
-      className="flex min-h-18 w-full items-center gap-3 px-4 py-3.5 text-left transition hover:bg-surface-soft sm:px-5"
-    >
+function ActionRow({ title, description, href }: { title: string; description: string; href?: string }) {
+  const content = (
+    <>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-bold text-foreground">{title}</p>
         <p className="mt-0.5 text-xs leading-5 text-secondary sm:text-sm">{description}</p>
       </div>
       <span className="shrink-0 text-muted"><ChevronIcon /></span>
-    </button>
+    </>
   );
+  const className = "flex min-h-18 w-full items-center gap-3 px-4 py-3.5 text-left transition hover:bg-surface-soft sm:px-5";
+  if (href) return <Link href={href} className={className}>{content}</Link>;
+  return <button type="button" onClick={() => toast.show(`${title} estará disponible próximamente`)} className={className}>{content}</button>;
 }
 
 function VisibilitySelect({ value, onChange, label }: { value: Visibility; onChange: (value: Visibility) => void; label: string }) {

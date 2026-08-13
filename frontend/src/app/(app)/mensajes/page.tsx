@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, ViewTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { motion, MotionConfig } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,6 +12,7 @@ import { usePublicProfile } from "@/hooks/usePublicProfile";
 import EmptyState from "@/components/ui/EmptyState";
 import SearchInput from "@/components/ui/SearchInput";
 import Spinner from "@/components/ui/Spinner";
+import UserSafetyActions from "@/components/usuario/UserSafetyActions";
 import {
   isConversationUnread,
   markConversationReadNow,
@@ -39,7 +40,10 @@ import { markNotificationsForLinkRead } from "@/services/notifications";
 import type { UserConnection } from "@/types/connection";
 import type { PrivateMessage } from "@/types/privateMessage";
 import type { CommunityMessage } from "@/types/community";
-import { CHAT_MESSAGES_CHANGED_EVENT } from "@/lib/chatEvents";
+import {
+  CHAT_MESSAGES_CHANGED_EVENT,
+  type ChatMessageChangedDetail,
+} from "@/lib/chatEvents";
 
 type InboxTab = "all" | "groups" | "people" | "unread";
 
@@ -68,6 +72,42 @@ async function loadAcceptedConnectionsWithLastMessages() {
   }
 
   return { accepted, lastMessages };
+}
+
+type InboxData = Awaited<
+  ReturnType<typeof loadAcceptedConnectionsWithLastMessages>
+>;
+
+function inboxDataIsEquivalent(previous: InboxData, next: InboxData) {
+  if (previous.accepted.length !== next.accepted.length) return false;
+
+  const sameConnections = previous.accepted.every((connection, index) => {
+    const nextConnection = next.accepted[index];
+    if (!nextConnection) return false;
+    return (
+      connection.id === nextConnection.id &&
+      connection.status === nextConnection.status &&
+      connection.requester.id === nextConnection.requester.id &&
+      connection.recipient.id === nextConnection.recipient.id &&
+      connection.requester.first_name === nextConnection.requester.first_name &&
+      connection.requester.last_name === nextConnection.requester.last_name &&
+      connection.recipient.first_name === nextConnection.recipient.first_name &&
+      connection.recipient.last_name === nextConnection.recipient.last_name
+    );
+  });
+  if (!sameConnections) return false;
+
+  return next.accepted.every((connection) => {
+    const previousMessage = previous.lastMessages[connection.id];
+    const nextMessage = next.lastMessages[connection.id];
+    if (!previousMessage || !nextMessage) return previousMessage === nextMessage;
+    return (
+      previousMessage.id === nextMessage.id &&
+      previousMessage.content === nextMessage.content &&
+      previousMessage.created_at === nextMessage.created_at &&
+      previousMessage.sender.id === nextMessage.sender.id
+    );
+  });
 }
 
 function otherParticipant(connection: UserConnection, currentUserId: string) {
@@ -100,6 +140,7 @@ function formatPreviewTime(value: string) {
 
 export default function MensajesPage() {
   const { user, community } = useAuth();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const requestedId = Number(searchParams.get("c"));
   const requestedCommunity = searchParams.get("c") === "community";
@@ -114,6 +155,7 @@ export default function MensajesPage() {
   );
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<InboxTab>("all");
+  const [safetyOpen, setSafetyOpen] = useState(false);
 
   const {
     data: connectionsData,
@@ -124,13 +166,51 @@ export default function MensajesPage() {
     queryFn: loadAcceptedConnectionsWithLastMessages,
     refetchInterval: 10_000,
     refetchIntervalInBackground: false,
+    structuralSharing: (previous, next) => {
+      const previousInbox = previous as InboxData | undefined;
+      const nextInbox = next as InboxData;
+      return previousInbox && inboxDataIsEquivalent(previousInbox, nextInbox)
+        ? previousInbox
+        : nextInbox;
+    },
   });
 
   useEffect(() => {
-    const refresh = () => void refetchInbox();
-    window.addEventListener(CHAT_MESSAGES_CHANGED_EVENT, refresh);
-    return () => window.removeEventListener(CHAT_MESSAGES_CHANGED_EVENT, refresh);
-  }, [refetchInbox]);
+    const refreshPreview = (event: Event) => {
+      const detail = (event as CustomEvent<ChatMessageChangedDetail>).detail;
+      if (!detail) {
+        void refetchInbox();
+        return;
+      }
+
+      if (detail.threadKey === "community") {
+        queryClient.setQueryData(
+          ["community-last-message", community?.id],
+          detail.message as CommunityMessage
+        );
+        return;
+      }
+
+      const match = /^connection:(\d+)$/.exec(detail.threadKey);
+      if (!match) return;
+      const connectionId = Number(match[1]);
+
+      queryClient.setQueryData<InboxData>(["connections-with-last-message"], (current) => {
+        if (!current) return current;
+        return {
+          ...current,
+          lastMessages: {
+            ...current.lastMessages,
+            [connectionId]: detail.message as PrivateMessage,
+          },
+        };
+      });
+    };
+
+    window.addEventListener(CHAT_MESSAGES_CHANGED_EVENT, refreshPreview);
+    return () =>
+      window.removeEventListener(CHAT_MESSAGES_CHANGED_EVENT, refreshPreview);
+  }, [community?.id, queryClient, refetchInbox]);
 
   const connections = useMemo(
     () => connectionsData?.accepted ?? [],
@@ -514,7 +594,7 @@ export default function MensajesPage() {
               <div className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4">
                 <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
 
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="truncate text-base font-bold text-brand-dark">
                       {community.name}
@@ -563,6 +643,14 @@ export default function MensajesPage() {
                     </p>
                   )}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setSafetyOpen(true)}
+                  aria-label="Opciones de seguridad"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-soft hover:text-foreground"
+                >
+                  <MoreIcon />
+                </button>
               </div>
 
               <div className="min-h-0 flex-1 p-4">
@@ -576,6 +664,32 @@ export default function MensajesPage() {
           )}
         </div>
       </div>
+      {selectedOther && selectedConnection && (
+        <UserSafetyActions
+          open={safetyOpen}
+          userId={selectedOther.id}
+          firstName={selectedOther.first_name || "esta persona"}
+          onClose={() => setSafetyOpen(false)}
+          onBlocked={() => {
+            queryClient.setQueryData<InboxData>(
+              ["connections-with-last-message"],
+              (current) =>
+                current && {
+                  accepted: current.accepted.filter(
+                    (connection) => connection.id !== selectedConnection.id
+                  ),
+                  lastMessages: Object.fromEntries(
+                    Object.entries(current.lastMessages).filter(
+                      ([connectionId]) =>
+                        Number(connectionId) !== selectedConnection.id
+                    )
+                  ),
+                }
+            );
+            setSelectedId(null);
+          }}
+        />
+      )}
     </div>
     </MotionConfig>
   );
@@ -857,6 +971,16 @@ function ComposeIcon() {
       aria-hidden="true"
     >
       <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+    </svg>
+  );
+}
+
+function MoreIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
+      <circle cx="5" cy="12" r="1.5" />
+      <circle cx="12" cy="12" r="1.5" />
+      <circle cx="19" cy="12" r="1.5" />
     </svg>
   );
 }

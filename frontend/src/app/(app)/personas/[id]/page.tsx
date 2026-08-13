@@ -1,12 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { useUserConnection } from "@/hooks/useUserConnection";
 import Spinner from "@/components/ui/Spinner";
 import UserAvatar from "@/components/ui/UserAvatar";
+import UserSafetyActions from "@/components/usuario/UserSafetyActions";
 import type { PublicUserPreferences, UserPublicProfile } from "@/types/userPublic";
 
 const HIGHLIGHTED_PREFERENCES: Array<{
@@ -44,6 +46,8 @@ export default function PersonaPublicaPage() {
 }
 
 function PublicProfile({ profile }: { profile: UserPublicProfile }) {
+  const router = useRouter();
+  const [safetyOpen, setSafetyOpen] = useState(false);
   const {
     saved,
     savingToggle,
@@ -74,7 +78,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
       <header className="relative flex h-11 items-center justify-between">
         <Link href="/usuarios" aria-label="Volver a personas" className="flex h-10 w-10 items-center justify-start text-brand-dark"><ArrowLeftIcon /></Link>
         <h1 className="absolute inset-x-12 text-center text-lg font-extrabold text-foreground">Perfil público</h1>
-        <button type="button" aria-label="Más opciones" className="flex h-10 w-10 items-center justify-end text-brand-dark"><MoreIcon /></button>
+        <button type="button" onClick={() => setSafetyOpen(true)} aria-label="Más opciones" className="flex h-10 w-10 items-center justify-end text-brand-dark"><MoreIcon /></button>
       </header>
 
       <section className="mt-3 overflow-hidden rounded-24 border border-border bg-surface shadow-soft">
@@ -200,6 +204,14 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
       {connectionStatus === "ACCEPTED" && (
         <button type="button" onClick={removeConnection} disabled={connecting} className="mx-auto mt-4 block text-xs font-semibold text-red-600 disabled:opacity-60">Eliminar conexión</button>
       )}
+
+      <UserSafetyActions
+        open={safetyOpen}
+        userId={profile.id}
+        firstName={profile.first_name || "esta persona"}
+        onClose={() => setSafetyOpen(false)}
+        onBlocked={() => router.replace("/usuarios")}
+      />
     </div>
   );
 }
@@ -218,7 +230,6 @@ function QuickFact({ icon, label, value, reverse = false }: { icon: React.ReactN
 
 function InfoRow({ label, value }: { label: string; value: string }) { return <div className="grid grid-cols-[110px_1fr] gap-3 text-xs"><dt className="text-secondary">{label}</dt><dd className="font-semibold text-foreground">{value}</dd></div>; }
 
-type IconProps = { className?: string };
 function BaseIcon({ children, className = "h-4 w-4" }: { children: React.ReactNode; className?: string }) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">{children}</svg>; }
 function ArrowLeftIcon() { return <BaseIcon className="h-6 w-6"><path d="M19 12H5M11 18l-6-6 6-6" /></BaseIcon>; }
 function MoreIcon() { return <BaseIcon className="h-6 w-6"><circle cx="5" cy="12" r="1" fill="currentColor" /><circle cx="12" cy="12" r="1" fill="currentColor" /><circle cx="19" cy="12" r="1" fill="currentColor" /></BaseIcon>; }

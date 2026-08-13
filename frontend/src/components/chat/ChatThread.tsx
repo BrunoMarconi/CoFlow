@@ -11,7 +11,10 @@ import {
 } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { CHAT_MESSAGES_CHANGED_EVENT } from "@/lib/chatEvents";
+import {
+  CHAT_MESSAGES_CHANGED_EVENT,
+  type ChatMessageChangedDetail,
+} from "@/lib/chatEvents";
 
 const POLL_INTERVAL_MS = 3500;
 const PAGE_SIZE = 100;
@@ -81,6 +84,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   const seenMessageIdsRef = useRef(new Set<number | string>());
   const isNearBottomRef = useRef(true);
   const requestInFlightRef = useRef(false);
+  const hasLoadedRef = useRef(false);
 
   const draftKey = `${DRAFT_PREFIX}${threadKey}`;
   const outboxKey = `${OUTBOX_PREFIX}${threadKey}`;
@@ -182,12 +186,13 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
         const data = await fetchMessagesRef.current({ limit: PAGE_SIZE });
         if (!active) return;
 
-        const isInitialLoad = showSpinner || messagesRef.current.length === 0;
+        const isInitialLoad = !hasLoadedRef.current;
         const newMessages = isInitialLoad
           ? []
           : data.filter((message) => !seenMessageIdsRef.current.has(message.id));
 
         data.forEach((message) => seenMessageIdsRef.current.add(message.id));
+        hasLoadedRef.current = true;
         setMessages((current) => mergeMessages(current, data));
         setHasOlder(data.length === PAGE_SIZE);
         setLoadError("");
@@ -197,8 +202,10 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
         }
 
         requestAnimationFrame(() => {
-          if (isInitialLoad || isNearBottomRef.current) {
+          if (isInitialLoad) {
             scrollToBottom("auto");
+          } else if (newMessages.length > 0 && isNearBottomRef.current) {
+            scrollToBottom("smooth");
           } else if (newMessages.length > 0) {
             setNewArrivals((current) => current + newMessages.length);
           }
@@ -320,8 +327,20 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
       setPendingMessages((current) =>
         current.filter((message) => message.id !== pending.id)
       );
-      window.dispatchEvent(new Event(CHAT_MESSAGES_CHANGED_EVENT));
-      requestAnimationFrame(() => scrollToBottom("smooth"));
+      window.dispatchEvent(
+        new CustomEvent<ChatMessageChangedDetail>(
+          CHAT_MESSAGES_CHANGED_EVENT,
+          {
+            detail: {
+              threadKey: String(threadKey),
+              message: delivered,
+            },
+          }
+        )
+      );
+      if (isNearBottomRef.current) {
+        requestAnimationFrame(() => scrollToBottom("auto"));
+      }
     } catch {
       setPendingMessages((current) =>
         current.map((message) =>
@@ -661,9 +680,37 @@ function mergeMessages<TMessage extends ChatThreadMessage>(
 ) {
   const byId = new Map<number | string, TMessage>();
   current.forEach((message) => byId.set(message.id, message));
-  incoming.forEach((message) => byId.set(message.id, message));
-  return Array.from(byId.values()).sort(
+  incoming.forEach((message) => {
+    const existing = byId.get(message.id);
+    byId.set(
+      message.id,
+      existing && messagesAreEquivalent(existing, message)
+        ? existing
+        : message
+    );
+  });
+  const merged = Array.from(byId.values()).sort(
     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
+
+  const unchanged =
+    merged.length === current.length &&
+    merged.every((message, index) => message === current[index]);
+
+  return unchanged ? current : merged;
+}
+
+function messagesAreEquivalent(
+  current: ChatThreadMessage,
+  incoming: ChatThreadMessage
+) {
+  return (
+    current.id === incoming.id &&
+    current.content === incoming.content &&
+    current.created_at === incoming.created_at &&
+    current.sender.id === incoming.sender.id &&
+    current.sender.first_name === incoming.sender.first_name &&
+    current.sender.last_name === incoming.sender.last_name
   );
 }
 

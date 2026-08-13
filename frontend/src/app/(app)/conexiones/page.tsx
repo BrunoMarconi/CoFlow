@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import EmptyState from "@/components/ui/EmptyState";
@@ -18,6 +18,7 @@ import {
   rejectConnection,
 } from "@/services/connections";
 import type { UserConnectionRequests } from "@/types/connection";
+import { getCommunityErrorMessage } from "@/lib/communityErrors";
 
 const CONNECTION_REQUESTS_QUERY_KEY = ["connection-requests"];
 
@@ -30,6 +31,7 @@ function isValidTab(value: string | null): value is Tab {
 }
 
 export default function ConexionesPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const initialTab = searchParams.get("tab");
@@ -40,6 +42,7 @@ export default function ConexionesPage() {
 
   const queryClient = useQueryClient();
   const [actioningId, setActioningId] = useState<number | null>(null);
+  const [actionError, setActionError] = useState("");
 
   const {
     data: requests,
@@ -68,12 +71,22 @@ export default function ConexionesPage() {
   async function handleAccept(connectionId: number) {
     if (actioningId) return;
     setActioningId(connectionId);
+    setActionError("");
 
     try {
       await acceptConnection(connectionId);
       removeFromCache("received", connectionId);
-    } catch {
-      // El usuario puede reintentar desde la lista.
+      await queryClient.invalidateQueries({
+        queryKey: ["connections-with-last-message"],
+      });
+      router.push(`/mensajes/${connectionId}`);
+    } catch (requestError) {
+      setActionError(
+        getCommunityErrorMessage(
+          requestError,
+          "No hemos podido aceptar la solicitud. Inténtalo de nuevo."
+        )
+      );
     } finally {
       setActioningId(null);
     }
@@ -82,12 +95,18 @@ export default function ConexionesPage() {
   async function handleReject(connectionId: number) {
     if (actioningId) return;
     setActioningId(connectionId);
+    setActionError("");
 
     try {
       await rejectConnection(connectionId);
       removeFromCache("received", connectionId);
-    } catch {
-      // El usuario puede reintentar desde la lista.
+    } catch (requestError) {
+      setActionError(
+        getCommunityErrorMessage(
+          requestError,
+          "No hemos podido rechazar la solicitud."
+        )
+      );
     } finally {
       setActioningId(null);
     }
@@ -96,12 +115,18 @@ export default function ConexionesPage() {
   async function handleCancel(connectionId: number) {
     if (actioningId) return;
     setActioningId(connectionId);
+    setActionError("");
 
     try {
       await cancelConnection(connectionId);
       removeFromCache("sent", connectionId);
-    } catch {
-      // El usuario puede reintentar desde la lista.
+    } catch (requestError) {
+      setActionError(
+        getCommunityErrorMessage(
+          requestError,
+          "No hemos podido cancelar la solicitud."
+        )
+      );
     } finally {
       setActioningId(null);
     }
@@ -158,6 +183,11 @@ export default function ConexionesPage() {
       </div>
 
       <div className="mt-6">
+        {actionError && (
+          <p role="alert" className="mb-4 rounded-14 border border-red-100 bg-red-50 p-3 text-center text-sm font-semibold text-red-700">
+            {actionError}
+          </p>
+        )}
         {loading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, index) => (

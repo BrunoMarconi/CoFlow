@@ -13,6 +13,10 @@ from app.database.models.user_connection import (
     UserConnectionStatus,
 )
 from app.services.notification_service import create_notification
+from app.services.user_safety_service import UserSafetyService
+
+
+user_safety_service = UserSafetyService()
 
 
 class UserConnectionService:
@@ -69,6 +73,12 @@ class UserConnectionService:
                 status_code=404,
                 detail="User not found",
             )
+
+        user_safety_service.ensure_not_blocked_between(
+            db,
+            current_user.id,
+            recipient_id,
+        )
 
         if not recipient.is_looking_for_roommates:
             raise HTTPException(
@@ -238,7 +248,7 @@ class UserConnectionService:
                 f"{current_user.first_name} {current_user.last_name} "
                 "ha aceptado tu solicitud de conexión."
             ),
-            link="/conexiones",
+            link=f"/mensajes/{connection.id}",
         )
 
         db.commit()
@@ -352,6 +362,17 @@ class UserConnectionService:
                 status_code=403,
                 detail="You are not part of this connection",
             )
+
+        other_user_id = (
+            connection.recipient_id
+            if connection.requester_id == current_user.id
+            else connection.requester_id
+        )
+        user_safety_service.ensure_not_blocked_between(
+            db,
+            current_user.id,
+            other_user_id,
+        )
 
         if connection.status != UserConnectionStatus.ACCEPTED:
             raise HTTPException(

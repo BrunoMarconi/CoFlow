@@ -85,6 +85,8 @@ const KNOWN_ERRORS: Record<string, string> = {
     "Esta conexión ya no está activa.",
   "User not found":
     "No hemos encontrado a esta persona.",
+  "This interaction is not available":
+    "Esta interacción ya no está disponible.",
   "This person is not looking for roommates right now":
     "Esta persona no está buscando compañeros actualmente.",
   "Only JPEG, PNG or WebP images are allowed":

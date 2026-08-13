@@ -6,10 +6,12 @@ from sqlalchemy.orm import Session
 
 from app.database.models.saved_user_profile import SavedUserProfile
 from app.database.models.user import User
+from app.services.user_safety_service import UserSafetyService
 from app.schemas.user_public import PublicUserProfileResponse
 from app.services.user_service import UserService
 
 user_service = UserService()
+user_safety_service = UserSafetyService()
 
 
 class SavedProfileService:
@@ -35,6 +37,12 @@ class SavedProfileService:
                 status_code=404,
                 detail="User not found",
             )
+
+        user_safety_service.ensure_not_blocked_between(
+            db,
+            current_user.id,
+            saved_user_id,
+        )
 
         existing = (
             db.query(SavedUserProfile)
@@ -128,10 +136,14 @@ class SavedProfileService:
             if target_user is None:
                 continue
 
-            profiles.append(
-                user_service.build_public_profile(
-                    db, target_user, current_user
+            try:
+                profiles.append(
+                    user_service.build_public_profile(
+                        db, target_user, current_user
+                    )
                 )
-            )
+            except HTTPException as error:
+                if error.status_code != 404:
+                    raise
 
         return profiles

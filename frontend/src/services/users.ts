@@ -6,6 +6,10 @@ import type {
   UserPublicProfile,
 } from "@/types/userPublic";
 import type { UserConnection } from "@/types/connection";
+import type {
+  BlockedUser,
+  UserReportPayload,
+} from "@/types/userSafety";
 
 export async function updateProfile(payload: UpdateProfileRequest) {
   const { data } = await api.put<{ message: string }>("/auth/me", payload);
@@ -51,6 +55,34 @@ export async function createConnectionRequest(id: string) {
     `/users/${id}/connections`
   );
 
+  return data;
+}
+
+export async function getBlockedUsers() {
+  const { data } = await api.get<BlockedUser[]>("/users/blocked");
+  return data;
+}
+
+export async function blockUser(id: string) {
+  const { data } = await api.post<{ blocked: boolean }>(
+    `/users/${id}/block`
+  );
+  return data;
+}
+
+export async function unblockUser(id: string) {
+  const { data } = await api.delete<{ blocked: boolean }>(
+    `/users/${id}/block`
+  );
+  return data;
+}
+
+export async function reportUser(id: string, payload: UserReportPayload) {
+  const { data } = await api.post<{
+    id: number;
+    created_at: string;
+    submitted: boolean;
+  }>(`/users/${id}/report`, payload);
   return data;
 }
 
