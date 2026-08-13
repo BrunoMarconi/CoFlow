@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import HTTPException, UploadFile
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
@@ -261,6 +263,137 @@ class CommunityService:
 
             db.commit()
 
+        except Exception:
+            db.rollback()
+            raise
+
+        return self.get_community_by_id(
+            db=db,
+            community_id=community_id,
+            current_user=current_user,
+        )
+
+    def remove_member(
+        self,
+        db: Session,
+        current_user: User,
+        community_id: int,
+        member_user_id: UUID,
+    ):
+        community = self.get_community_by_id(
+            db=db,
+            community_id=community_id,
+            current_user=current_user,
+        )
+        if community.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="Only the owner can remove members",
+            )
+        if member_user_id == current_user.id:
+            raise HTTPException(
+                status_code=409,
+                detail="The owner cannot remove themselves",
+            )
+
+        membership = (
+            db.query(CommunityMember)
+            .filter(
+                CommunityMember.community_id == community_id,
+                CommunityMember.user_id == member_user_id,
+            )
+            .first()
+        )
+        if membership is None:
+            raise HTTPException(status_code=404, detail="Member not found")
+        if membership.role == CommunityMemberRole.OWNER:
+            raise HTTPException(
+                status_code=409,
+                detail="Ownership must be transferred before removing the owner",
+            )
+
+        try:
+            db.delete(membership)
+            create_notification(
+                db=db,
+                user_id=member_user_id,
+                type=NotificationType.COMMUNITY_MEMBER_REMOVED,
+                title="Ya no formas parte de la comunidad",
+                message=(
+                    f"La administración de {community.name} te ha retirado "
+                    "de la comunidad."
+                ),
+                link="/comunidades",
+            )
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+
+        return self.get_community_by_id(
+            db=db,
+            community_id=community_id,
+            current_user=current_user,
+        )
+
+    def transfer_ownership(
+        self,
+        db: Session,
+        current_user: User,
+        community_id: int,
+        new_owner_user_id: UUID,
+    ):
+        community = self.get_community_by_id(
+            db=db,
+            community_id=community_id,
+            current_user=current_user,
+        )
+        if community.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="Only the owner can transfer ownership",
+            )
+        if new_owner_user_id == current_user.id:
+            raise HTTPException(
+                status_code=409,
+                detail="This person is already the owner",
+            )
+
+        owner_membership = (
+            db.query(CommunityMember)
+            .filter(
+                CommunityMember.community_id == community_id,
+                CommunityMember.user_id == current_user.id,
+            )
+            .first()
+        )
+        new_owner_membership = (
+            db.query(CommunityMember)
+            .filter(
+                CommunityMember.community_id == community_id,
+                CommunityMember.user_id == new_owner_user_id,
+            )
+            .first()
+        )
+        if owner_membership is None or new_owner_membership is None:
+            raise HTTPException(
+                status_code=404,
+                detail="The new owner must be an active community member",
+            )
+
+        try:
+            owner_membership.role = CommunityMemberRole.MEMBER
+            new_owner_membership.role = CommunityMemberRole.OWNER
+            community.owner_id = new_owner_user_id
+            create_notification(
+                db=db,
+                user_id=new_owner_user_id,
+                type=NotificationType.COMMUNITY_OWNERSHIP_TRANSFERRED,
+                title="Ahora administras la comunidad",
+                message=f"Ya eres la persona administradora de {community.name}.",
+                link="/mi-comunidad",
+            )
+            db.commit()
         except Exception:
             db.rollback()
             raise
@@ -604,6 +737,7 @@ class CommunityService:
             )
 
         community.is_active = False
+        community.open_spots = 0
 
         try:
             db.commit()

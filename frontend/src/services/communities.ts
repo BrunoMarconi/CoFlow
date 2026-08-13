@@ -94,6 +94,27 @@ export async function leaveCommunity(
   return data;
 }
 
+export async function removeCommunityMember(
+  communityId: number | string,
+  userId: string
+) {
+  const { data } = await api.delete<Community>(
+    `/communities/${communityId}/members/${userId}`
+  );
+  return data;
+}
+
+export async function transferCommunityOwnership(
+  communityId: number | string,
+  newOwnerUserId: string
+) {
+  const { data } = await api.post<Community>(
+    `/communities/${communityId}/transfer-ownership`,
+    { new_owner_user_id: newOwnerUserId }
+  );
+  return data;
+}
+
 export async function getCommunityMessages(
   id: number | string,
   params?: GetCommunityMessagesParams

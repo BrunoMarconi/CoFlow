@@ -2,15 +2,25 @@ import { api } from "./api";
 import type {
   CommunityInvitation,
   CommunityInvitationDetail,
+  CommunityInvitationInboxItem,
 } from "@/types/invitation";
 
 export async function createCommunityInvitation(
-  communityId: number | string
+  communityId: number | string,
+  invitedUserId?: string
 ) {
   const { data } = await api.post<CommunityInvitation>(
-    `/communities/${communityId}/invitations`
+    `/communities/${communityId}/invitations`,
+    { invited_user_id: invitedUserId ?? null }
   );
 
+  return data;
+}
+
+export async function getReceivedInvitations() {
+  const { data } = await api.get<CommunityInvitationInboxItem[]>(
+    "/invitations"
+  );
   return data;
 }
 

@@ -12,6 +12,7 @@ class CommunityInvitationResponse(BaseModel):
     id: int
     community_id: int
     invited_by_id: UUID
+    invited_user_id: UUID | None = None
     token: str
     status: CommunityInvitationStatus
     expires_at: datetime
@@ -30,6 +31,21 @@ class CommunityInvitationCommunityResponse(BaseModel):
     member_count: int
     owner_first_name: str
     owner_last_name: str
+    max_members: int
+    open_spots: int
+
+
+class CommunityInvitationCreate(BaseModel):
+    invited_user_id: UUID | None = None
+
+
+class CommunityInvitationInboxResponse(BaseModel):
+    id: int
+    token: str
+    status: CommunityInvitationStatus
+    expires_at: datetime
+    created_at: datetime
+    community: CommunityInvitationCommunityResponse
 
 
 class CommunityInvitationDetailResponse(BaseModel):

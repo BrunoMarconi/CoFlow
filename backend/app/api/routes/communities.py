@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, File, Query, UploadFile
 from sqlalchemy.orm import Session
 
@@ -7,6 +9,7 @@ from app.database.models.user import User
 from app.database.session import get_db
 from app.schemas.community import (
     CommunityCreate,
+    CommunityOwnershipTransfer,
     CommunityResponse,
     CommunityUpdate,
 )
@@ -18,7 +21,10 @@ from app.schemas.community_rent_split import (
     CommunityRentSplitResponse,
     CommunityRentSplitUpdate,
 )
-from app.schemas.community_invitation import CommunityInvitationResponse
+from app.schemas.community_invitation import (
+    CommunityInvitationCreate,
+    CommunityInvitationResponse,
+)
 from app.schemas.community_application import (
     CommunityApplicationCreate,
     CommunityApplicationResponse,
@@ -114,6 +120,42 @@ def leave_community(
     )
 
 
+@router.delete(
+    "/{community_id}/members/{member_user_id}",
+    response_model=CommunityResponse,
+)
+def remove_community_member(
+    community_id: int,
+    member_user_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return community_service.remove_member(
+        db=db,
+        current_user=current_user,
+        community_id=community_id,
+        member_user_id=member_user_id,
+    )
+
+
+@router.post(
+    "/{community_id}/transfer-ownership",
+    response_model=CommunityResponse,
+)
+def transfer_community_ownership(
+    community_id: int,
+    data: CommunityOwnershipTransfer,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return community_service.transfer_ownership(
+        db=db,
+        current_user=current_user,
+        community_id=community_id,
+        new_owner_user_id=data.new_owner_user_id,
+    )
+
+
 @router.get(
     "/{community_id}/messages",
     response_model=list[CommunityMessageResponse],
@@ -192,6 +234,7 @@ def update_community_rent_split(
 )
 def create_community_invitation(
     community_id: int,
+    data: CommunityInvitationCreate | None = None,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -199,6 +242,7 @@ def create_community_invitation(
         db=db,
         current_user=current_user,
         community_id=community_id,
+        data=data or CommunityInvitationCreate(),
     )
 
 

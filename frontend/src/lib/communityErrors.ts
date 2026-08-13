@@ -29,6 +29,28 @@ const KNOWN_ERRORS: Record<string, string> = {
     "Esta comunidad ya ha alcanzado su capacidad máxima.",
   "Only the owner can manage invitations":
     "Solo el administrador puede gestionar las invitaciones.",
+  "You cannot invite yourself":
+    "No puedes enviarte una invitación a ti mismo.",
+  "This person already belongs to an active community":
+    "Esta persona ya pertenece a una comunidad activa.",
+  "This person already has a pending invitation to this community":
+    "Esta persona ya tiene una invitación pendiente para esta comunidad.",
+  "This invitation belongs to another person":
+    "Esta invitación está dirigida a otra persona.",
+  "This invitation is for another person":
+    "Esta invitación está dirigida a otra persona.",
+  "Only the owner can remove members":
+    "Solo la persona administradora puede quitar miembros.",
+  "The owner cannot remove themselves":
+    "No puedes quitarte a ti mismo. Transfiere la administración o cierra la comunidad.",
+  "Member not found":
+    "Esta persona ya no forma parte de la comunidad.",
+  "Only the owner can transfer ownership":
+    "Solo la persona administradora puede transferir la comunidad.",
+  "This person is already the owner":
+    "Esta persona ya administra la comunidad.",
+  "The new owner must be an active community member":
+    "Solo puedes transferir la administración a un miembro actual.",
   "Invitation not found":
     "No hemos encontrado esta invitación.",
   "Only pending invitations can be cancelled":

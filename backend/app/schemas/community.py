@@ -113,6 +113,10 @@ class CommunityMemberResponse(BaseModel):
     user: CommunityMemberUserResponse
 
 
+class CommunityOwnershipTransfer(BaseModel):
+    new_owner_user_id: UUID
+
+
 class CommunityCreate(BaseModel):
     name: str = Field(min_length=3, max_length=120)
     description: str = Field(min_length=20)

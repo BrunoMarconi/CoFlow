@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { Check, Copy, Link2, Search, Send, UserPlus, X } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import {
   cancelCommunityInvitation,
   createCommunityInvitation,
   getCommunityInvitations,
 } from "@/services/invitations";
-import { getCommunityErrorMessage } from "@/lib/communityErrors";
-import { MOTION_DURATION, MOTION_SPRING } from "@/lib/motionTokens";
+import { getPublicUsers } from "@/services/users";
 import type { CommunityInvitation } from "@/types/invitation";
+import type { UserPublicProfile } from "@/types/userPublic";
 
-const STATUS_LABELS: Record<string, string> = {
+const STATUS_LABELS: Record<CommunityInvitation["status"], string> = {
   PENDING: "Pendiente",
   ACCEPTED: "Aceptada",
   DECLINED: "Rechazada",
@@ -19,239 +21,237 @@ const STATUS_LABELS: Record<string, string> = {
   EXPIRED: "Caducada",
 };
 
-const STATUS_CLASSES: Record<string, string> = {
-  PENDING: "border border-primary/25 bg-surface text-primary-dark",
-  ACCEPTED: "border border-primary/25 bg-surface text-primary-dark",
-  DECLINED: "border border-border bg-surface text-muted",
-  CANCELLED: "border border-border bg-surface text-muted",
-  EXPIRED: "bg-amber-100 text-amber-700",
-};
-
 export default function CommunityInvitationsManager({
   communityId,
 }: {
   communityId: number;
 }) {
+  const { community, refreshCommunity } = useAuth();
   const [invitations, setInvitations] = useState<CommunityInvitation[]>([]);
+  const [people, setPeople] = useState<UserPublicProfile[]>([]);
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
-
-  const [creating, setCreating] = useState(false);
-  const [createError, setCreateError] = useState("");
-
+  const [busyKey, setBusyKey] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<number | null>(null);
-  const [cancellingId, setCancellingId] = useState<number | null>(null);
-  const [justCreated, setJustCreated] = useState(false);
+  const [error, setError] = useState("");
+
+  const atCapacity = Boolean(
+    community && community.member_count >= community.max_members
+  );
 
   useEffect(() => {
     let active = true;
-
-    getCommunityInvitations(communityId)
-      .then((data) => {
-        if (active) setInvitations(data);
+    Promise.all([
+      getCommunityInvitations(communityId),
+      getPublicUsers({ limit: 50 }),
+    ])
+      .then(([invitationData, userData]) => {
+        if (!active) return;
+        setInvitations(invitationData);
+        setPeople(
+          userData.filter((person) => person.community === null)
+        );
       })
       .catch(() => {
-        if (active) setLoadError("No pudimos cargar las invitaciones.");
+        if (active) setError("No hemos podido cargar las invitaciones.");
       })
       .finally(() => {
         if (active) setLoading(false);
       });
-
     return () => {
       active = false;
     };
   }, [communityId]);
 
-  async function handleCreate() {
-    if (creating) return;
+  const pendingByUser = useMemo(
+    () =>
+      new Set(
+        invitations
+          .filter((item) => item.status === "PENDING")
+          .map((item) => item.invited_user_id)
+          .filter((value): value is string => Boolean(value))
+      ),
+    [invitations]
+  );
 
-    setCreating(true);
-    setCreateError("");
+  const filteredPeople = useMemo(() => {
+    const normalized = query.trim().toLocaleLowerCase("es");
+    if (!normalized) return people.slice(0, 5);
+    return people
+      .filter((person) =>
+        `${person.first_name} ${person.last_name} ${person.occupation ?? ""}`
+          .toLocaleLowerCase("es")
+          .includes(normalized)
+      )
+      .slice(0, 8);
+  }, [people, query]);
 
+  async function createInvitation(invitedUserId?: string) {
+    if (busyKey || atCapacity) return;
+    setBusyKey(invitedUserId ?? "link");
+    setError("");
     try {
-      const invitation = await createCommunityInvitation(communityId);
+      const invitation = await createCommunityInvitation(
+        communityId,
+        invitedUserId
+      );
       setInvitations((current) => [invitation, ...current]);
-      setJustCreated(true);
-      window.setTimeout(() => setJustCreated(false), 2000);
-    } catch (error) {
-      setCreateError(
+      if (!invitedUserId) await copyInvitation(invitation);
+    } catch (caught) {
+      setError(
         getCommunityErrorMessage(
-          error,
-          "No pudimos generar la invitación. Inténtalo de nuevo."
+          caught,
+          "No hemos podido crear la invitación."
         )
       );
     } finally {
-      setCreating(false);
+      setBusyKey(null);
+      void refreshCommunity();
     }
   }
 
-  async function handleCopy(invitation: CommunityInvitation) {
+  async function copyInvitation(invitation: CommunityInvitation) {
     const url = `${window.location.origin}/invitaciones/${invitation.token}`;
-
     try {
       await navigator.clipboard.writeText(url);
       setCopiedId(invitation.id);
-      window.setTimeout(() => setCopiedId(null), 2000);
+      window.setTimeout(() => setCopiedId(null), 1800);
     } catch {
-      // Si el portapapeles no está disponible, no bloqueamos la UI.
+      setError("Copia el enlace desde la barra del navegador.");
     }
   }
 
-  async function handleCancel(invitation: CommunityInvitation) {
-    if (cancellingId) return;
-
-    setCancellingId(invitation.id);
-
+  async function cancelInvitation(invitation: CommunityInvitation) {
+    if (busyKey) return;
+    setBusyKey(`cancel-${invitation.id}`);
+    setError("");
     try {
       const updated = await cancelCommunityInvitation(
         communityId,
         invitation.id
       );
-
       setInvitations((current) =>
         current.map((item) => (item.id === updated.id ? updated : item))
       );
     } catch {
-      // El estado se recupera al recargar; evitamos bloquear la lista.
+      setError("No hemos podido cancelar la invitación.");
     } finally {
-      setCancellingId(null);
+      setBusyKey(null);
     }
   }
 
+  if (loading) {
+    return <p className="p-6 text-sm text-[#717171]">Cargando invitaciones…</p>;
+  }
+
   return (
-    <div className="p-3 sm:p-4">
-      <p className="text-sm leading-6 text-muted">
-        Invita aquí a las personas que ya viven contigo. Estas
-        invitaciones no ocupan plazas abiertas.
-      </p>
-
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-        <motion.button
-          type="button"
-          onClick={handleCreate}
-          disabled={creating}
-          whileTap={{ scale: 0.97 }}
-          transition={{ duration: MOTION_DURATION.fast }}
-          className="flex h-11 w-full items-center justify-center rounded-14 bg-brand px-5 text-sm font-bold text-white transition-colors duration-200 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-        >
-          {creating ? "Generando..." : "Generar nueva invitación"}
-        </motion.button>
-
-        <AnimatePresence>
-          {justCreated && (
-            <motion.span
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={MOTION_SPRING.snappy}
-              className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-surface px-3 py-1.5 text-xs font-bold text-primary-dark shadow-soft"
-            >
-              <CheckIcon />
-              Invitación generada
-            </motion.span>
-          )}
-        </AnimatePresence>
+    <div className="space-y-7 p-4 sm:p-6">
+      <div>
+        <h3 className="text-lg font-semibold text-[#191919]">Invitar personas</h3>
+        <p className="mt-1 max-w-xl text-sm leading-6 text-[#717171]">
+          Invita directamente a alguien de CoFlow o comparte un enlace privado.
+        </p>
       </div>
 
-      {createError && (
-        <p className="mt-3 text-sm font-semibold text-red-600">
-          {createError}
+      {atCapacity ? (
+        <p className="rounded-2xl border border-[#dddddd] p-4 text-sm font-medium text-[#191919]">
+          La comunidad está completa. Aumenta su capacidad antes de invitar a otra persona.
         </p>
+      ) : (
+        <>
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#717171]" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar por nombre u ocupación"
+              aria-label="Buscar una persona para invitar"
+              className="h-13 w-full rounded-full border border-[#b0b0b0] bg-white pl-12 pr-4 text-base text-[#191919] outline-none transition focus:border-black focus:ring-2 focus:ring-black/10"
+            />
+          </div>
+
+          <div className="divide-y divide-[#ebebeb] rounded-2xl border border-[#dddddd] bg-white">
+            {filteredPeople.length === 0 ? (
+              <p className="p-5 text-sm text-[#717171]">No hay personas disponibles con esa búsqueda.</p>
+            ) : (
+              filteredPeople.map((person) => {
+                const pending = pendingByUser.has(person.id);
+                const name = `${person.first_name} ${person.last_name}`.trim();
+                return (
+                  <div key={person.id} className="flex min-h-18 items-center gap-3 px-4 py-3">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f2f2f2] text-sm font-semibold text-[#191919]">
+                      {person.first_name.slice(0, 1)}{person.last_name.slice(0, 1)}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold text-[#191919]">{name}</span>
+                      <span className="mt-0.5 block truncate text-xs text-[#717171]">{person.occupation || "Busca comunidad"}</span>
+                    </span>
+                    <button
+                      type="button"
+                      disabled={pending || busyKey !== null}
+                      onClick={() => createInvitation(person.id)}
+                      className="flex min-h-11 min-w-24 items-center justify-center gap-2 rounded-full bg-black px-4 text-sm font-semibold text-white transition hover:bg-[#222222] disabled:bg-[#ebebeb] disabled:text-[#717171]"
+                    >
+                      {pending ? <><Check className="h-4 w-4" /> Enviada</> : busyKey === person.id ? "Enviando…" : <><Send className="h-4 w-4" /> Invitar</>}
+                    </button>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => createInvitation()}
+            disabled={busyKey !== null}
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-black bg-white px-5 text-sm font-semibold text-[#191919] transition hover:bg-[#f7f7f7] disabled:opacity-50"
+          >
+            <Link2 className="h-5 w-5" />
+            {busyKey === "link" ? "Creando enlace…" : "Crear y copiar enlace privado"}
+          </button>
+        </>
       )}
 
-      <div className="mt-4 space-y-2.5">
-        {loading ? (
-          <p className="text-center text-sm text-muted">Cargando...</p>
-        ) : loadError ? (
-          <p className="text-center text-sm font-semibold text-red-600">
-            {loadError}
-          </p>
-        ) : invitations.length === 0 ? (
-          <p className="rounded-18 border border-dashed border-line bg-surface-soft p-5 text-center text-sm text-muted">
-            Todavía no has generado ninguna invitación.
-          </p>
-        ) : (
-          invitations.map((invitation) => (
-            <div
-              key={invitation.id}
-              className="rounded-18 border border-border bg-surface p-4 shadow-soft"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span
-                  className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
-                    STATUS_CLASSES[invitation.status] ??
-                    "bg-surface-soft text-muted"
-                  }`}
-                >
-                  {STATUS_LABELS[invitation.status] ?? invitation.status}
-                </span>
+      {error ? <p role="alert" className="text-sm font-medium text-red-600">{error}</p> : null}
 
-                <span className="text-xs text-muted">
-                  Caduca {formatDate(invitation.expires_at)}
+      <section>
+        <h3 className="text-base font-semibold text-[#191919]">Actividad reciente</h3>
+        <div className="mt-3 divide-y divide-[#ebebeb] rounded-2xl border border-[#dddddd] bg-white">
+          {invitations.length === 0 ? (
+            <div className="flex items-center gap-3 p-5 text-sm text-[#717171]"><UserPlus className="h-5 w-5" /> Aún no has enviado invitaciones.</div>
+          ) : (
+            invitations.slice(0, 8).map((invitation) => (
+              <div key={invitation.id} className="flex min-h-16 items-center gap-3 px-4 py-3">
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-[#191919]">
+                    {invitation.invited_user_id ? "Invitación directa" : "Enlace privado"}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-[#717171]">
+                    {STATUS_LABELS[invitation.status]} · {formatDate(invitation.expires_at)}
+                  </span>
                 </span>
+                {invitation.status === "PENDING" ? (
+                  <>
+                    <button type="button" onClick={() => copyInvitation(invitation)} aria-label="Copiar enlace" className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd] hover:bg-[#f7f7f7]">
+                      {copiedId === invitation.id ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
+                    </button>
+                    <button type="button" onClick={() => cancelInvitation(invitation)} aria-label="Cancelar invitación" className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd] text-[#717171] hover:bg-[#f7f7f7]">
+                      <X className="h-5 w-5" />
+                    </button>
+                  </>
+                ) : null}
               </div>
-
-              {invitation.status === "PENDING" && (
-                <div className="mt-2.5 flex flex-col gap-2 sm:flex-row">
-                  <motion.button
-                    type="button"
-                    onClick={() => handleCopy(invitation)}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ duration: MOTION_DURATION.fast }}
-                    className="flex h-10 flex-1 items-center justify-center gap-2 rounded-14 border border-line bg-surface text-sm font-bold text-foreground transition-colors duration-200 hover:bg-surface-soft"
-                  >
-                    {copiedId === invitation.id
-                      ? "Enlace copiado"
-                      : "Copiar enlace"}
-                  </motion.button>
-
-                  <motion.button
-                    type="button"
-                    onClick={() => handleCancel(invitation)}
-                    disabled={cancellingId === invitation.id}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ duration: MOTION_DURATION.fast }}
-                    className="flex h-10 flex-1 items-center justify-center rounded-14 border border-red-200 bg-surface text-sm font-bold text-red-600 transition-colors duration-200 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {cancellingId === invitation.id
-                      ? "Cancelando..."
-                      : "Cancelar"}
-                  </motion.button>
-                </div>
-              )}
-            </div>
-          ))
-        )}
-      </div>
+            ))
+          )}
+        </div>
+      </section>
     </div>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-3.5 w-3.5"
-      aria-hidden="true"
-    >
-      <path d="m5 12 4 4L19 6" />
-    </svg>
   );
 }
 
 function formatDate(value: string) {
   const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return "";
-
-  return new Intl.DateTimeFormat("es-ES", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(date);
+  return Number.isNaN(date.getTime())
+    ? "sin fecha"
+    : new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short" }).format(date);
 }

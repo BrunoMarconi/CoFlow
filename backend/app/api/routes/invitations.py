@@ -6,6 +6,7 @@ from app.database.models.user import User
 from app.database.session import get_db
 from app.schemas.community_invitation import (
     CommunityInvitationDetailResponse,
+    CommunityInvitationInboxResponse,
     CommunityInvitationResponse,
 )
 from app.services.community_invitation_service import (
@@ -15,6 +16,20 @@ from app.services.community_invitation_service import (
 router = APIRouter()
 
 community_invitation_service = CommunityInvitationService()
+
+
+@router.get(
+    "",
+    response_model=list[CommunityInvitationInboxResponse],
+)
+def list_received_invitations(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return community_invitation_service.list_received_invitations(
+        db=db,
+        current_user=current_user,
+    )
 
 
 @router.get(
@@ -29,6 +44,7 @@ def get_invitation(
     return community_invitation_service.get_invitation_detail(
         db=db,
         token=token,
+        current_user=current_user,
     )
 
 

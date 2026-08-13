@@ -159,8 +159,8 @@ function EmptyState() {
 
 function getCategory(type: NotificationType): Exclude<Category, "ALL"> {
   if (type === "PRIVATE_MESSAGE_RECEIVED") return "MESSAGES";
-  if (type.startsWith("COMMUNITY_APPLICATION")) return "INVITATIONS";
-  if (type === "CONNECTION_REQUEST_RECEIVED" || type === "CONNECTION_REQUEST_ACCEPTED" || type === "COMMUNITY_MEMBER_JOINED" || type === "COMMUNITY_MEMBER_LEFT" || type === "COMMUNITY_INVITATION_ACCEPTED") return "ACTIVITY";
+  if (type.startsWith("COMMUNITY_APPLICATION") || type === "COMMUNITY_INVITATION_RECEIVED") return "INVITATIONS";
+  if (type === "CONNECTION_REQUEST_RECEIVED" || type === "CONNECTION_REQUEST_ACCEPTED" || type === "COMMUNITY_MEMBER_JOINED" || type === "COMMUNITY_MEMBER_LEFT" || type === "COMMUNITY_MEMBER_REMOVED" || type === "COMMUNITY_OWNERSHIP_TRANSFERRED" || type === "COMMUNITY_INVITATION_ACCEPTED") return "ACTIVITY";
   return "INFO";
 }
 

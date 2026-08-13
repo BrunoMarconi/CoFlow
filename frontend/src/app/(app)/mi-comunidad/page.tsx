@@ -32,7 +32,7 @@ function initialPanel(value: string | null): Panel {
 }
 
 export default function MiComunidadPage() {
-  const { user, community, communityLoading } = useAuth();
+  const { user, community, communityLoading, refreshCommunity } = useAuth();
   const { setChatActive } = useMobileChrome();
   const searchParams = useSearchParams();
   const [panel, setPanel] = useState<Panel>(() => initialPanel(searchParams.get("tab")));
@@ -63,6 +63,7 @@ export default function MiComunidadPage() {
         community={community}
         currentUserId={user.id}
         isOwner={isOwner}
+        onUpdated={refreshCommunity}
         onBack={() => setPanel("dashboard")}
       />
     );
@@ -73,6 +74,7 @@ export default function MiComunidadPage() {
       community={community}
       currentUserId={user.id}
       isOwner={isOwner}
+      onUpdated={refreshCommunity}
       onOpenPanel={setPanel}
     />
   );
@@ -82,11 +84,13 @@ function CommunityDashboard({
   community,
   currentUserId,
   isOwner,
+  onUpdated,
   onOpenPanel,
 }: {
   community: Community;
   currentUserId: string;
   isOwner: boolean;
+  onUpdated: () => Promise<unknown> | void;
   onOpenPanel: (panel: Panel) => void;
 }) {
   const [expanded, setExpanded] = useState<ExpandedSection>(null);
@@ -180,8 +184,8 @@ function CommunityDashboard({
             {community.city}
           </p>
 
-          <span className="mt-2 inline-flex rounded-full border border-primary/30 bg-surface px-3 py-1 text-xs font-bold text-primary-dark shadow-soft">
-            {isOwner ? "Anfitrión" : "Miembro"}
+          <span className="mt-2 inline-flex rounded-full bg-[#f7f7f7] px-3 py-1 text-xs font-semibold text-[#222222]">
+            {isOwner ? "Administrador" : "Miembro"}
           </span>
 
           <p className="mt-2 text-sm font-semibold text-secondary">
@@ -206,7 +210,7 @@ function CommunityDashboard({
                 type="button"
                 onClick={() => toggle("invitations")}
                 aria-label="Invitar personas"
-                className="ml-2 flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-secondary bg-surface text-xl text-primary shadow-soft"
+                className="ml-2 flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-[#717171] bg-white text-xl text-[#222222]"
               >
                 +
               </button>
@@ -237,7 +241,7 @@ function CommunityDashboard({
                     {`${owner.user.first_name} ${owner.user.last_name}`.trim()}
                     {owner.user_id === currentUserId ? " (tú)" : ""}
                   </span>
-                  <span className="mt-0.5 block text-xs font-bold text-primary-dark">Anfitrión</span>
+                  <span className="mt-0.5 block text-xs font-semibold text-[#717171]">Administrador</span>
                 </span>
                 <ChevronIcon />
               </Link>
@@ -248,7 +252,7 @@ function CommunityDashboard({
               onClick={() => (isOwner ? toggle("invitations") : onOpenPanel("members"))}
               className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-surface-soft"
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-xl text-primary shadow-soft">+</span>
+              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd] bg-white text-xl text-[#222222]">+</span>
               <span className="flex-1 text-sm font-bold text-foreground">
                 {isOwner ? "Invitar personas" : "Ver miembros"}
               </span>
@@ -258,9 +262,9 @@ function CommunityDashboard({
 
           <Link
             href="/usuarios"
-            className="flex items-center gap-3 rounded-18 border border-primary/30 bg-surface p-4 shadow-soft transition hover:border-primary"
+            className="flex items-center gap-3 rounded-2xl border border-[#dddddd] bg-white p-4 transition hover:border-[#b0b0b0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)]"
           >
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center text-primary">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#f7f7f7] text-[#222222]">
               <PeopleIcon />
             </span>
             <span className="min-w-0 flex-1">
@@ -270,7 +274,7 @@ function CommunityDashboard({
               <span className="mt-1 block text-xs leading-5 text-secondary">
                 Encuentra personas que encajen con vuestro estilo de convivencia.
               </span>
-              <span className="mt-2 flex items-center gap-2 text-sm font-bold text-primary-dark">
+              <span className="mt-2 flex items-center gap-2 text-sm font-semibold text-[#222222]">
                 Buscar personas <ArrowRightIcon />
               </span>
             </span>
@@ -374,7 +378,7 @@ function CommunityDashboard({
 
         {expanded === "spots" && (
           <div className="mt-3 rounded-18 border border-border bg-surface shadow-soft">
-            <OpenSpotsManager community={community} onUpdated={() => {}} />
+            <OpenSpotsManager community={community} onUpdated={onUpdated} />
           </div>
         )}
 
@@ -419,12 +423,14 @@ function PrivatePanel({
   community,
   currentUserId,
   isOwner,
+  onUpdated,
   onBack,
 }: {
   panel: Exclude<Panel, "dashboard">;
   community: Community;
   currentUserId: string;
   isOwner: boolean;
+  onUpdated: () => Promise<unknown> | void;
   onBack: () => void;
 }) {
   const titles: Record<Exclude<Panel, "dashboard">, string> = {
@@ -446,7 +452,15 @@ function PrivatePanel({
       </header>
 
       {panel === "chat" && <CommunityChat communityId={community.id} currentUserId={currentUserId} />}
-      {panel === "members" && <CommunityMembersList members={community.members} />}
+      {panel === "members" && (
+        <CommunityMembersList
+          communityId={community.id}
+          members={community.members}
+          currentUserId={currentUserId}
+          isOwner={isOwner}
+          onUpdated={onUpdated}
+        />
+      )}
       {panel === "applications" && isOwner && <CommunityApplicationsManager communityId={community.id} />}
       {panel === "applications" && !isOwner && (
         <p className="rounded-18 border border-border bg-surface p-5 text-sm text-secondary shadow-soft">
@@ -466,7 +480,7 @@ function NoCommunity() {
       </p>
       <div className="mt-6 flex gap-3">
         <Link href="/comunidades" className="flex h-11 items-center rounded-14 border border-border bg-surface px-5 text-sm font-bold text-foreground shadow-soft">Explorar</Link>
-        <Link href="/crear/comunidad" className="flex h-11 items-center rounded-14 bg-primary px-5 text-sm font-bold text-white shadow-button">Crear comunidad</Link>
+        <Link href="/crear/comunidad" className="flex h-11 items-center rounded-xl bg-black px-5 text-sm font-semibold text-white">Crear comunidad</Link>
       </div>
     </div>
   );
@@ -475,7 +489,7 @@ function NoCommunity() {
 function Fact({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <div className="flex min-h-17 items-center gap-2 bg-surface p-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center text-primary">{icon}</span>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center text-[#222222]">{icon}</span>
       <span className="text-xs font-bold leading-5 text-foreground">{label}</span>
     </div>
   );

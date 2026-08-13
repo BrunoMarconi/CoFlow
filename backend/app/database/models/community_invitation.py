@@ -38,6 +38,13 @@ class CommunityInvitation(Base):
         nullable=False,
     )
 
+    invited_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
+
     token: Mapped[str] = mapped_column(
         String(64),
         nullable=False,
