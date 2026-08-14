@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Building2, ChevronLeft, ChevronRight, UserRound } from "lucide-react";
+import ViewportPortal from "@/components/ui/ViewportPortal";
 import type { OwnerProfile, OwnerProfileCreate, OwnerType } from "@/types/owner";
 
 const OWNER_TYPES: Array<{ value: OwnerType; label: string; description: string; icon: React.ReactNode }> = [
@@ -113,24 +114,26 @@ function OwnerStepScreen({ step, value: initialValue, submitting, error, progres
   const [value, setValue] = useState(initialValue);
   const meta = STEP_META[step];
   return (
-    <div className="fixed inset-0 z-60 overflow-y-auto bg-white">
-      <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-10">
-        <header className="flex items-center justify-between gap-4"><button type="button" onClick={onBack} className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd]" aria-label="Volver"><ChevronLeft className="h-6 w-6" /></button>{progress ? <span className="text-sm font-semibold text-[#717171]">{progress}</span> : <span />}</header>
-        <main className="flex flex-1 flex-col justify-center py-10">
-          <h1 className="text-3xl font-semibold tracking-[-0.035em] text-[#191919] sm:text-4xl">{meta.title}</h1>
-          <p className="mt-3 text-base leading-7 text-[#717171]">{meta.description}</p>
-          {step === "owner_type" ? (
-            <div className="mt-8 grid gap-3">
-              {OWNER_TYPES.map((option) => <button key={option.value} type="button" onClick={() => setValue(option.value)} className={`flex min-h-24 items-center gap-4 rounded-2xl border p-5 text-left ${value === option.value ? "border-black bg-[#f7f7f7] ring-1 ring-black" : "border-[#dddddd]"}`}><span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f7f7f7] [&>svg]:h-6 [&>svg]:w-6">{option.icon}</span><span className="flex-1"><span className="block font-semibold text-[#191919]">{option.label}</span><span className="mt-1 block text-sm text-[#717171]">{option.description}</span></span></button>)}
-            </div>
-          ) : (
-            <input autoFocus type={step === "contact_email" ? "email" : step === "phone" ? "tel" : "text"} value={value} onChange={(event) => setValue(event.target.value)} className="mt-8 h-16 w-full rounded-full border border-[#b0b0b0] px-6 text-lg font-medium outline-none transition focus:border-black focus:ring-2 focus:ring-black/10" />
-          )}
-          {error ? <p className="mt-4 text-sm font-semibold text-red-600">{error}</p> : null}
-        </main>
-        <footer className="sticky bottom-0 border-t border-[#ebebeb] bg-white py-4"><button type="button" onClick={() => onSave(value)} disabled={submitting} className="h-14 w-full rounded-xl bg-black text-base font-semibold text-white disabled:opacity-50">{submitting ? "Guardando…" : progress ? "Continuar" : "Guardar"}</button></footer>
+    <ViewportPortal>
+      <div className="fixed inset-0 z-60 overflow-y-auto bg-white">
+        <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-10">
+          <header className="flex items-center justify-between gap-4"><button type="button" onClick={onBack} className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd]" aria-label="Volver"><ChevronLeft className="h-6 w-6" /></button>{progress ? <span className="text-sm font-semibold text-[#717171]">{progress}</span> : <span />}</header>
+          <main className="flex flex-1 flex-col justify-center py-10">
+            <h1 className="text-3xl font-semibold tracking-[-0.035em] text-[#191919] sm:text-4xl">{meta.title}</h1>
+            <p className="mt-3 text-base leading-7 text-[#717171]">{meta.description}</p>
+            {step === "owner_type" ? (
+              <div className="mt-8 grid gap-3">
+                {OWNER_TYPES.map((option) => <button key={option.value} type="button" onClick={() => setValue(option.value)} className={`flex min-h-24 items-center gap-4 rounded-2xl border p-5 text-left ${value === option.value ? "border-black bg-[#f7f7f7] ring-1 ring-black" : "border-[#dddddd]"}`}><span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f7f7f7] [&>svg]:h-6 [&>svg]:w-6">{option.icon}</span><span className="flex-1"><span className="block font-semibold text-[#191919]">{option.label}</span><span className="mt-1 block text-sm text-[#717171]">{option.description}</span></span></button>)}
+              </div>
+            ) : (
+              <input autoFocus type={step === "contact_email" ? "email" : step === "phone" ? "tel" : "text"} value={value} onChange={(event) => setValue(event.target.value)} className="mt-8 h-16 w-full rounded-full border border-[#b0b0b0] px-6 text-lg font-medium outline-none transition focus:border-black focus:ring-2 focus:ring-black/10" />
+            )}
+            {error ? <p className="mt-4 text-sm font-semibold text-red-600">{error}</p> : null}
+          </main>
+          <footer className="sticky bottom-0 border-t border-[#ebebeb] bg-white py-4"><button type="button" onClick={() => onSave(value)} disabled={submitting} className="h-14 w-full rounded-xl bg-black text-base font-semibold text-white disabled:opacity-50">{submitting ? "Guardando…" : progress ? "Continuar" : "Guardar"}</button></footer>
+        </div>
       </div>
-    </div>
+    </ViewportPortal>
   );
 }
 

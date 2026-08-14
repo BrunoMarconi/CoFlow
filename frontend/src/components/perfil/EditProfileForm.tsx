@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import ViewportPortal from "@/components/ui/ViewportPortal";
 import type { User } from "@/types/auth";
 import type { UpdateProfileRequest } from "@/types/user";
 
@@ -77,11 +78,11 @@ function ProfileStepScreen({ step, user, loading, onBack, onSave }: { step: Prof
     if (step === "budget") return onSave({ rental_budget: value.trim() ? Number(value) : null });
     return onSave({ is_looking_for_roommates: value === "yes" });
   }
-  return <div className="fixed inset-0 z-60 flex flex-col bg-white px-6 pb-[calc(1.25rem+var(--safe-bottom))] pt-[calc(1.25rem+var(--safe-top))] sm:absolute sm:inset-x-0 sm:top-0 sm:min-h-[42rem] sm:rounded-[2rem] sm:border sm:border-[#dddddd] sm:p-8">
+  return <ViewportPortal><div className="fixed inset-0 z-60 flex flex-col bg-white px-6 pb-[calc(1.25rem+var(--safe-bottom))] pt-[calc(1.25rem+var(--safe-top))] sm:absolute sm:inset-x-0 sm:top-0 sm:min-h-[42rem] sm:rounded-[2rem] sm:border sm:border-[#dddddd] sm:p-8">
     <header className="flex items-center gap-4"><button type="button" onClick={onBack} aria-label="Volver" className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd]"><ChevronLeft className="h-6 w-6" /></button><span className="text-sm text-[#717171]">Editar perfil</span></header>
     <main className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center py-8"><h1 className="text-4xl font-semibold tracking-[-0.05em] text-[#191919] sm:text-5xl">{meta.title}</h1><p className="mt-3 text-base leading-7 text-[#717171]">{meta.subtitle}</p><div className="mt-10">{step === "looking" ? <div className="grid gap-3">{[["yes", "Sí, estoy buscando"], ["no", "Ahora mismo no"]].map(([key, label]) => <button key={key} type="button" onClick={() => setValue(key)} className={`flex min-h-20 items-center justify-between rounded-[1.25rem] border px-5 text-left font-semibold ${value === key ? "border-black ring-1 ring-black" : "border-[#dddddd]"}`}>{label}<span className={`h-5 w-5 rounded-full border ${value === key ? "border-[6px] border-black" : "border-[#b0b0b0]"}`} /></button>)}</div> : step === "interests" ? <InterestPicker value={value} onChange={setValue} /> : step === "bio" ? <textarea autoFocus value={value} onChange={(event) => setValue(event.target.value)} rows={6} maxLength={160} placeholder={meta.placeholder} className="w-full resize-none border-0 border-b-2 border-black bg-transparent px-0 py-4 text-xl leading-8 outline-none placeholder:text-[#b0b0b0]" /> : step === "name" ? <div className="grid gap-7 sm:grid-cols-2"><AirInput label="Nombre" value={value} onChange={setValue} placeholder="Nombre" /><AirInput label="Apellidos" value={secondary} onChange={setSecondary} placeholder="Apellidos" /></div> : <AirInput value={value} onChange={setValue} placeholder={meta.placeholder} type={meta.numeric ? "number" : "text"} suffix={meta.suffix} />}</div></main>
     <div className="mx-auto w-full max-w-xl"><button type="button" onClick={submit} disabled={loading} className="h-14 w-full rounded-full bg-black text-base font-semibold text-white shadow-[0_8px_24px_rgba(0,0,0,0.18)] disabled:opacity-50">{loading ? "Guardando…" : "Guardar"}</button></div>
-  </div>;
+  </div></ViewportPortal>;
 }
 
 function AirInput({ label, value, onChange, placeholder, type = "text", suffix }: { label?: string; value: string; onChange: (value: string) => void; placeholder: string; type?: string; suffix?: string }) { return <label><span className="mb-2 block text-sm font-semibold">{label}</span><span className="flex items-baseline border-b-2 border-black py-3"><input autoFocus={!label || label === "Nombre"} type={type} inputMode={type === "number" ? "numeric" : "text"} min={type === "number" ? 0 : undefined} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-w-0 flex-1 bg-transparent text-2xl font-semibold outline-none placeholder:text-[#b0b0b0]" />{suffix ? <span className="ml-3 text-lg font-semibold text-[#717171]">{suffix}</span> : null}</span></label>; }

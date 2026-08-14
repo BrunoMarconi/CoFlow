@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import ViewportPortal from "@/components/ui/ViewportPortal";
 import { preferenceQuestions, type PreferenceKey } from "./CommunityForm";
 import { COMMUNITY_PROFILE_TYPE_OPTIONS } from "@/lib/communityProfileType";
 import type { Community, CommunityCreate, CommunityCoverColor } from "@/types/community";
@@ -143,6 +144,7 @@ function CommunityEditStep({ step, values, submitting, error, onBack, onSave }: 
   }
 
   return (
+    <ViewportPortal>
     <div className="fixed inset-0 z-60 overflow-y-auto bg-white">
       <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-10">
         <header className="flex items-center gap-4">
@@ -176,6 +178,7 @@ function CommunityEditStep({ step, values, submitting, error, onBack, onSave }: 
         </footer>
       </div>
     </div>
+    </ViewportPortal>
   );
 }
 
