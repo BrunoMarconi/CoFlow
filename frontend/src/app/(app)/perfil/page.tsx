@@ -14,8 +14,9 @@ import RoommateSearchCard from "@/components/perfil/RoommateSearchCard";
 import DangerZoneSection from "@/components/perfil/DangerZoneSection";
 import OwnerModeToggle from "@/components/propietario/OwnerModeToggle";
 import Spinner from "@/components/ui/Spinner";
+import CompatibilityRadar, { CompatibilityRadarIcon } from "@/components/convivencia/CompatibilityRadar";
 import { getMyOnboarding } from "@/services/onboarding";
-import { getSavedProfiles } from "@/services/users";
+import { getMyCompatibilityScore, getSavedProfiles } from "@/services/users";
 import { getConnectionOverview } from "@/services/connections";
 import { CONNECTION_OVERVIEW_QUERY_KEY } from "@/lib/connectionQueryState";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
@@ -34,6 +35,12 @@ export default function PerfilPage() {
     queryKey: CONNECTION_OVERVIEW_QUERY_KEY,
     queryFn: getConnectionOverview,
     staleTime: 30_000,
+  });
+  const { data: compatibilityScore } = useQuery({
+    queryKey: ["compatibility-score", "me"],
+    queryFn: getMyCompatibilityScore,
+    enabled: Boolean(user?.onboarding_completed),
+    staleTime: 60_000,
   });
 
   useEffect(() => {
@@ -173,6 +180,33 @@ export default function PerfilPage() {
           <ChevronIcon />
         </Link>
       </section>
+
+      {compatibilityScore && compatibilityScore.categories.length > 0 && (
+        <CompatibilityRadar
+          categories={compatibilityScore.categories}
+          icon={<CompatibilityRadarIcon />}
+          title="Tu perfil de convivencia"
+          subtitle="Así te ven tus futuros compañeros"
+        />
+      )}
+
+      {user.role === "OWNER" && !user.onboarding_completed && (
+        <Link
+          href="/onboarding"
+          className="flex min-h-18 items-center gap-4 rounded-24 border border-primary/30 bg-primary/5 p-4 transition hover:border-primary/50"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <CompatibilityRadarIcon />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-brand-dark">Activar perfil de convivencia</p>
+            <p className="mt-0.5 text-xs leading-5 text-secondary">
+              Haz el test y desbloquea tu perfil de convivencia, además del de propietario.
+            </p>
+          </div>
+          <ChevronIcon />
+        </Link>
+      )}
 
       <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
         <IllustratedCard

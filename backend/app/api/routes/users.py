@@ -1,11 +1,13 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user
+from app.database.models.compatibility_profile import CompatibilityProfile
 from app.database.models.user import User
 from app.database.session import get_db
+from app.schemas.compatibility_score import CompatibilityScoreResponse
 from app.schemas.saved_profile import SavedProfileActionResponse
 from app.schemas.user_connection import UserConnectionResponse
 from app.schemas.user import ProfilePrivacyResponse, ProfilePrivacyUpdateRequest
@@ -16,6 +18,7 @@ from app.schemas.user_safety import (
     UserReportCreate,
     UserReportResponse,
 )
+from app.services.compatibility_score_service import compute_category_scores
 from app.services.saved_profile_service import SavedProfileService
 from app.services.user_connection_service import UserConnectionService
 from app.services.user_service import UserService
@@ -32,6 +35,26 @@ user_safety_service = UserSafetyService()
 @router.get("/me/privacy", response_model=ProfilePrivacyResponse)
 def get_profile_privacy(current_user: User = Depends(get_current_user)):
     return ProfilePrivacyResponse(profile_visibility=current_user.profile_visibility)
+
+
+@router.get("/me/compatibility-score", response_model=CompatibilityScoreResponse)
+def get_my_compatibility_score(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    profile = (
+        db.query(CompatibilityProfile)
+        .filter(CompatibilityProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if profile is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Todavía no has completado el test de convivencia",
+        )
+
+    return CompatibilityScoreResponse(categories=compute_category_scores(profile))
 
 
 @router.put("/me/privacy", response_model=ProfilePrivacyResponse)

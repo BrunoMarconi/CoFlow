@@ -9,6 +9,7 @@ from app.database.models.community import (
     CommunityUrgency,
 )
 from app.database.models.community_member import CommunityMemberRole
+from app.schemas.compatibility_score import CompatibilityScoreResponse
 from app.schemas.storage_media import (
     StorageBackedAvatarResponse,
     StorageBackedCommunityCoverResponse,
@@ -265,3 +266,5 @@ class CommunityResponse(StorageBackedCommunityCoverResponse):
     members: list[CommunityMemberResponse] = Field(
         default_factory=list
     )
+
+    average_compatibility: CompatibilityScoreResponse | None = None

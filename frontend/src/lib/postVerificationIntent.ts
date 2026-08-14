@@ -4,6 +4,11 @@
 // la landing pública sin ninguna pista de por dónde seguir.
 export const POST_VERIFICATION_INTENT_KEY = "coflow:post-verification-intent";
 
+export function setPostVerificationOwnerIntent(): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(POST_VERIFICATION_INTENT_KEY, "owner");
+}
+
 export function consumePostVerificationOwnerIntent(): boolean {
   if (typeof window === "undefined") return false;
 

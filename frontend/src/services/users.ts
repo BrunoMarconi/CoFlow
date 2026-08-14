@@ -10,6 +10,12 @@ import type {
   BlockedUser,
   UserReportPayload,
 } from "@/types/userSafety";
+import type { CompatibilityScore } from "@/types/compatibilityScore";
+
+export async function getMyCompatibilityScore() {
+  const { data } = await api.get<CompatibilityScore>("/users/me/compatibility-score");
+  return data;
+}
 
 export async function updateProfile(payload: UpdateProfileRequest) {
   const { data } = await api.put<{ message: string }>("/auth/me", payload);

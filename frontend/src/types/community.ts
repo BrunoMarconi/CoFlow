@@ -1,3 +1,5 @@
+import type { CompatibilityScore } from "./compatibilityScore";
+
 export interface CommunityPreferences {
   id: number;
   community_id: number;
@@ -73,6 +75,7 @@ export interface Community {
   current_user_role: CommunityMemberRole | null;
   is_full: boolean;
   members: CommunityMember[];
+  average_compatibility: CompatibilityScore | null;
 }
 
 export interface CommunityCreate {

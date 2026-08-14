@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import CommunityHeader from "@/components/comunidad/CommunityHeader";
 import CommunityOwnerActions from "@/components/comunidad/CommunityOwnerActions";
 import Spinner from "@/components/ui/Spinner";
+import CompatibilityRadar, { CompatibilityRadarIcon } from "@/components/convivencia/CompatibilityRadar";
 
 import {
   getCommunity,
@@ -146,6 +147,17 @@ export default function ComunidadDetallePage() {
         joinSuccess={joinSuccess}
         onJoin={handleJoin}
       />
+
+      {community.average_compatibility && community.average_compatibility.categories.length > 0 && (
+        <div className="mt-6">
+          <CompatibilityRadar
+            categories={community.average_compatibility.categories}
+            icon={<CompatibilityRadarIcon />}
+            title="Así convive esta comunidad"
+            subtitle="Media del perfil de convivencia de sus miembros"
+          />
+        </div>
+      )}
 
       {isOwner && (
         <div className="mt-6">

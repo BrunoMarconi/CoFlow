@@ -47,6 +47,7 @@ class AuthService:
             email=normalized_email,
             password_hash=hash_password(data.password),
             is_email_verified=not EMAIL_VERIFICATION_ENABLED,
+            role=data.role,
         )
 
         db.add(user)

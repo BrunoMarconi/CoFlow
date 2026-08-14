@@ -112,7 +112,7 @@ export default function OnboardingPage() {
       if (avatarFile) await uploadAvatar(avatarFile);
       window.localStorage.removeItem(DRAFT_KEY);
       await refresh();
-      router.replace(isEditing ? "/perfil/editar" : "/comunidades");
+      router.replace(isEditing ? "/perfil/editar" : "/onboarding/resultado");
     } catch { setError("No pudimos guardar tu perfil. Inténtalo de nuevo."); setSubmitting(false); }
   }
 

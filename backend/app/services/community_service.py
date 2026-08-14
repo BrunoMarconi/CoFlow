@@ -16,10 +16,16 @@ from app.database.models.community_member import (
     CommunityMemberRole,
 )
 from app.database.models.community_preferences import CommunityPreferences
+from app.database.models.compatibility_profile import CompatibilityProfile
 from app.database.models.notification import NotificationType
 from app.database.models.user import User
 from app.schemas.community import CommunityCreate, CommunityUpdate
+from app.schemas.compatibility_score import CompatibilityScoreResponse
 from app.services import storage_service
+from app.services.compatibility_score_service import (
+    average_category_scores,
+    compute_category_scores,
+)
 from app.services.notification_service import create_notification
 
 MAX_LIMIT = 100
@@ -84,6 +90,24 @@ class CommunityService:
                 membership.role != CommunityMemberRole.OWNER,
                 membership.joined_at,
             ),
+        )
+
+        member_ids = [membership.user_id for membership in community.members]
+        member_profiles = (
+            db.query(CompatibilityProfile)
+            .filter(CompatibilityProfile.user_id.in_(member_ids))
+            .all()
+            if member_ids
+            else []
+        )
+        community.average_compatibility = (
+            CompatibilityScoreResponse(
+                categories=average_category_scores(
+                    [compute_category_scores(profile) for profile in member_profiles]
+                )
+            )
+            if member_profiles
+            else None
         )
 
         return community
