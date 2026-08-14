@@ -21,10 +21,15 @@ from app.api.routes import (
     users,
 )
 from app.core.config import CORS_ALLOWED_ORIGINS, FRONTEND_URL
-from app.services import storage_service
 from fastapi.middleware.cors import CORSMiddleware
 
-storage_service.ensure_persistent_storage_configured()
+# El arranque en producción normalmente exige las 5 variables R2_* de
+# Cloudflare (ver app.services.storage_service.ensure_persistent_storage_configured)
+# para que las imágenes no desaparezcan en cada deploy/reinicio. Desactivado
+# temporalmente porque todavía no hay cuenta de R2 creada: mientras tanto,
+# las imágenes se guardan en disco local (efímero en Render). En cuanto se
+# configuren las 5 variables R2_* en Render, volver a llamar aquí a
+# storage_service.ensure_persistent_storage_configured().
 
 app = FastAPI(
     title="CoFlow API",
