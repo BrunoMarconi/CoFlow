@@ -8,6 +8,8 @@ import CommunityPreview from "@/components/landing/CommunityPreview";
 import People from "@/components/landing/People";
 import Cities from "@/components/landing/Cities";
 import Trust from "@/components/landing/Trust";
+import Owners from "@/components/landing/Owners";
+import SolvencyPassport from "@/components/landing/SolvencyPassport";
 import Faq from "@/components/landing/Faq";
 import FinalCta from "@/components/landing/FinalCta";
 import Footer from "@/components/landing/Footer";
@@ -25,6 +27,8 @@ export default function Home() {
       <People />
       <Cities />
       <Trust />
+      <Owners />
+      <SolvencyPassport />
       <Faq />
       <FinalCta />
       <Footer />

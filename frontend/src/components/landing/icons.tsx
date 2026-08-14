@@ -72,6 +72,26 @@ export function ShieldIcon() {
   );
 }
 
+export function BuildingIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-8 w-8"
+      aria-hidden="true"
+    >
+      <path d="M4 21V6a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v15" />
+      <path d="M14 9h5a1 1 0 0 1 1 1v11" />
+      <path d="M9 21v-4h1v4M4 21h17" />
+      <path d="M8 8h0M8 11h0M8 14h0M11 8h0M11 11h0M11 14h0" />
+    </svg>
+  );
+}
+
 export function OpenDoorIcon() {
   return (
     <svg

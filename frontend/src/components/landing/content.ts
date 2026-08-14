@@ -19,24 +19,13 @@ export const howItWorksSteps = [
   },
 ] as const;
 
-export const preferenceItems = [
-  "Nivel de limpieza",
-  "Ambiente en casa",
-  "Visitas",
-  "Invitados a dormir",
-  "Tabaco",
-  "Mascotas",
-  "Reglas",
-  "Tipo de convivencia",
-] as const;
-
-export const compatibilityExamples = [
-  { label: "Limpieza", value: "Organizada" },
-  { label: "Horarios", value: "Tranquilos" },
-  { label: "Visitas", value: "Con aviso" },
-  { label: "Mascotas", value: "Aceptadas" },
-  { label: "Tabaco", value: "No en casa" },
-  { label: "Ambiente", value: "Hogareño" },
+export const compatibilityAxes = [
+  "Limpieza",
+  "Energía social",
+  "Horario",
+  "Financiero",
+  "Conflictos",
+  "Tolerancia",
 ] as const;
 
 export const peopleExamples = [

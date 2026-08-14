@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, UserRound, Users2, Building2 } from "lucide-react";
@@ -19,6 +19,12 @@ export default function RegisterPage() {
   const router = useRouter();
   const { refresh } = useAuth();
   const [role, setRole] = useState<Role>("USER");
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("role") === "owner") {
+      setRole("OWNER");
+    }
+  }, []);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
