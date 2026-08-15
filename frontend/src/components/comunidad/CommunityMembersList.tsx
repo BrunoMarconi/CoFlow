@@ -57,35 +57,35 @@ export default function CommunityMembersList({
 
   return (
     <div>
-      <div className="divide-y divide-[#ebebeb] overflow-visible rounded-2xl border border-[#dddddd] bg-white">
+      <div className="divide-y divide-border overflow-visible rounded-18 border border-border bg-surface shadow-soft">
         {members.map((member) => {
           const name = `${member.user.first_name} ${member.user.last_name}`.trim();
           const canManage = isOwner && member.user_id !== currentUserId && member.role !== "OWNER";
           return (
-            <div key={member.id} className="relative flex min-h-20 items-center gap-3 px-4 py-3">
-              <Link href={`/personas/${member.user_id}`} className="flex min-w-0 flex-1 items-center gap-3 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-black">
+            <div key={member.id} className="relative flex min-h-20 items-center gap-3 px-4 py-3 transition hover:bg-surface-soft">
+              <Link href={`/personas/${member.user_id}`} className="flex min-w-0 flex-1 items-center gap-3 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                 <UserAvatar firstName={member.user.first_name} lastName={member.user.last_name} userId={member.user.id} imageUrl={member.user.avatar_url} />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2">
-                    <span className="truncate text-sm font-semibold text-[#222222]">{name}{member.user_id === currentUserId ? " (tú)" : ""}</span>
+                    <span className="truncate text-sm font-semibold text-foreground">{name}{member.user_id === currentUserId ? " (tú)" : ""}</span>
                     {member.user.is_email_verified ? <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-700" aria-label="Perfil verificado" /> : null}
                   </span>
-                  <span className="mt-1 flex items-center gap-1.5 text-xs text-[#717171]">
-                    {member.role === "OWNER" ? <><Crown className="h-3.5 w-3.5" /> Administrador</> : `Miembro desde ${formatJoinedDate(member.joined_at)}`}
+                  <span className="mt-1 flex items-center gap-1.5 text-xs text-secondary">
+                    {member.role === "OWNER" ? <><Crown className="h-3.5 w-3.5 text-primary" /> Administrador</> : `Miembro desde ${formatJoinedDate(member.joined_at)}`}
                   </span>
                 </span>
-                {!canManage ? <ChevronRight className="h-5 w-5 shrink-0 text-[#717171]" /> : null}
+                {!canManage ? <ChevronRight className="h-5 w-5 shrink-0 text-muted" /> : null}
               </Link>
 
               {canManage ? (
-                <button type="button" onClick={() => setOpenId((value) => value === member.id ? null : member.id)} aria-label={`Gestionar a ${name}`} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#dddddd] hover:bg-[#f7f7f7]">
+                <button type="button" onClick={() => setOpenId((value) => value === member.id ? null : member.id)} aria-label={`Gestionar a ${name}`} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border text-secondary transition hover:border-primary/30 hover:bg-surface-soft hover:text-foreground">
                   <MoreHorizontal className="h-5 w-5" />
                 </button>
               ) : null}
 
               {openId === member.id ? (
-                <div className="absolute right-4 top-16 z-20 w-64 overflow-hidden rounded-2xl border border-[#dddddd] bg-white p-2 shadow-[0_12px_36px_rgba(0,0,0,0.14)]">
-                  <button type="button" onClick={() => transfer(member)} disabled={busyId !== null} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium hover:bg-[#f7f7f7] disabled:opacity-50"><Crown className="h-4 w-4" /> Transferir administración</button>
+                <div className="absolute right-4 top-16 z-20 w-64 overflow-hidden rounded-18 border border-border bg-surface p-2 shadow-[0_12px_36px_rgba(0,0,0,0.14)]">
+                  <button type="button" onClick={() => transfer(member)} disabled={busyId !== null} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium text-foreground hover:bg-surface-soft disabled:opacity-50"><Crown className="h-4 w-4 text-primary" /> Transferir administración</button>
                   <button type="button" onClick={() => remove(member)} disabled={busyId !== null} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"><UserMinus className="h-4 w-4" /> Quitar de la comunidad</button>
                 </div>
               ) : null}

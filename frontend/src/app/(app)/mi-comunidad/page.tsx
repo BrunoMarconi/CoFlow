@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import { MOTION_SPRING } from "@/lib/motionTokens";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import Spinner from "@/components/ui/Spinner";
 import CommunityCover from "@/components/ui/CommunityCover";
@@ -24,6 +26,29 @@ import type { Community } from "@/types/community";
 
 type Panel = "dashboard" | "chat" | "members" | "applications";
 type ExpandedSection = "invitations" | "spots" | "preferences" | "rent" | "danger" | null;
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" as const } },
+};
+
+function Expandable({ open, children }: { open: boolean; children: ReactNode }) {
+  return (
+    <AnimatePresence initial={false}>
+      {open && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="overflow-hidden"
+        >
+          {children}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
 
 function initialPanel(value: string | null): Panel {
   if (value === "chat") return "chat";
@@ -57,27 +82,45 @@ export default function MiComunidadPage() {
 
   const isOwner = community.current_user_role === "OWNER";
 
-  if (panel !== "dashboard") {
-    return (
-      <PrivatePanel
-        panel={panel}
-        community={community}
-        currentUserId={user.id}
-        isOwner={isOwner}
-        onUpdated={refreshCommunity}
-        onBack={() => setPanel("dashboard")}
-      />
-    );
-  }
-
   return (
-    <CommunityDashboard
-      community={community}
-      currentUserId={user.id}
-      isOwner={isOwner}
-      onUpdated={refreshCommunity}
-      onOpenPanel={setPanel}
-    />
+    <MotionConfig reducedMotion="user">
+      <AnimatePresence mode="wait" initial={false}>
+        {panel !== "dashboard" ? (
+          <motion.div
+            key={panel}
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 12 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+          >
+            <PrivatePanel
+              panel={panel}
+              community={community}
+              currentUserId={user.id}
+              isOwner={isOwner}
+              onUpdated={refreshCommunity}
+              onBack={() => setPanel("dashboard")}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="dashboard"
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -12 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+          >
+            <CommunityDashboard
+              community={community}
+              currentUserId={user.id}
+              isOwner={isOwner}
+              onUpdated={refreshCommunity}
+              onOpenPanel={setPanel}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </MotionConfig>
   );
 }
 
@@ -151,7 +194,7 @@ function CommunityDashboard({
           <ArrowLeftIcon />
         </Link>
 
-        <h1 className="absolute inset-x-12 text-center text-lg font-extrabold text-foreground">
+        <h1 className="absolute inset-x-12 text-center text-lg font-extrabold text-brand-dark">
           Mi comunidad
         </h1>
 
@@ -165,7 +208,12 @@ function CommunityDashboard({
         </Link>
       </header>
 
-      <section className="mt-5 grid gap-5 sm:grid-cols-[220px_1fr] sm:items-center lg:grid-cols-[280px_1fr]">
+      <motion.section
+        initial="hidden"
+        animate="show"
+        variants={sectionVariants}
+        className="mt-5 grid gap-5 sm:grid-cols-[220px_1fr] sm:items-center lg:grid-cols-[280px_1fr]"
+      >
         <CommunityCover
           name={community.name}
           coverColor={community.cover_color}
@@ -185,7 +233,7 @@ function CommunityDashboard({
             {community.city}
           </p>
 
-          <span className="mt-2 inline-flex rounded-full bg-[#f7f7f7] px-3 py-1 text-xs font-semibold text-[#222222]">
+          <span className="mt-2 inline-flex rounded-full bg-primary/8 px-3 py-1 text-xs font-semibold text-primary-dark">
             {isOwner ? "Administrador" : "Miembro"}
           </span>
 
@@ -207,20 +255,21 @@ function CommunityDashboard({
             ))}
 
             {availablePlaces > 0 && isOwner && (
-              <button
+              <motion.button
                 type="button"
+                whileTap={{ scale: 0.92 }}
                 onClick={() => toggle("invitations")}
                 aria-label="Invitar personas"
-                className="ml-2 flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-[#717171] bg-white text-xl text-[#222222]"
+                className="ml-2 flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-primary/40 bg-surface text-xl text-primary transition hover:border-primary hover:bg-primary/5"
               >
                 +
-              </button>
+              </motion.button>
             )}
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="mt-7">
+      <motion.section initial="hidden" animate="show" variants={sectionVariants} className="mt-7">
         <h2 className="mb-3 text-lg font-extrabold text-foreground">Vuestra comunidad</h2>
 
         <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
@@ -242,7 +291,7 @@ function CommunityDashboard({
                     {`${owner.user.first_name} ${owner.user.last_name}`.trim()}
                     {owner.user_id === currentUserId ? " (tú)" : ""}
                   </span>
-                  <span className="mt-0.5 block text-xs font-semibold text-[#717171]">Administrador</span>
+                  <span className="mt-0.5 block text-xs font-semibold text-secondary">Administrador</span>
                 </span>
                 <ChevronIcon />
               </Link>
@@ -253,7 +302,7 @@ function CommunityDashboard({
               onClick={() => (isOwner ? toggle("invitations") : onOpenPanel("members"))}
               className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-surface-soft"
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd] bg-white text-xl text-[#222222]">+</span>
+              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-xl text-primary-dark">+</span>
               <span className="flex-1 text-sm font-bold text-foreground">
                 {isOwner ? "Invitar personas" : "Ver miembros"}
               </span>
@@ -263,9 +312,9 @@ function CommunityDashboard({
 
           <Link
             href="/usuarios"
-            className="flex items-center gap-3 rounded-2xl border border-[#dddddd] bg-white p-4 transition hover:border-[#b0b0b0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)]"
+            className="flex items-center gap-3 rounded-2xl border border-primary/15 bg-linear-to-br from-primary/6 to-transparent p-4 transition hover:border-primary/30 hover:shadow-soft"
           >
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#f7f7f7] text-[#222222]">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-surface text-primary shadow-soft">
               <PeopleIcon />
             </span>
             <span className="min-w-0 flex-1">
@@ -275,35 +324,42 @@ function CommunityDashboard({
               <span className="mt-1 block text-xs leading-5 text-secondary">
                 Encuentra personas que encajen con vuestro estilo de convivencia.
               </span>
-              <span className="mt-2 flex items-center gap-2 text-sm font-semibold text-[#222222]">
+              <span className="mt-2 flex items-center gap-2 text-sm font-semibold text-primary-dark">
                 Buscar personas <ArrowRightIcon />
               </span>
             </span>
           </Link>
         </div>
-      </section>
+      </motion.section>
 
       {community.average_compatibility && community.average_compatibility.categories.length > 0 && (
-        <section className="mt-7">
+        <motion.section initial="hidden" animate="show" variants={sectionVariants} className="mt-7">
           <CompatibilityRadar
             categories={community.average_compatibility.categories}
             icon={<CompatibilityRadarIcon />}
             title="Así convive vuestra comunidad"
             subtitle="Media del perfil de convivencia de sus miembros"
           />
-        </section>
+        </motion.section>
       )}
 
-      {isOwner && expanded === "invitations" && (
-        <section className="mt-5">
-          <SectionTitle title="Invitaciones" onClose={() => setExpanded(null)} />
-          <div className="overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
-            <CommunityInvitationsManager communityId={community.id} />
-          </div>
-        </section>
+      {isOwner && (
+        <Expandable open={expanded === "invitations"}>
+          <section className="mt-5">
+            <SectionTitle title="Invitaciones" onClose={() => setExpanded(null)} />
+            <div className="overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
+              <CommunityInvitationsManager communityId={community.id} />
+            </div>
+          </section>
+        </Expandable>
       )}
 
-      <div className="mt-8 grid gap-5 md:grid-cols-2">
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={sectionVariants}
+        className="mt-8 grid gap-5 md:grid-cols-2"
+      >
         <section>
           <h2 className="mb-3 text-lg font-extrabold text-foreground">Cómo queréis vivir</h2>
           <div className="overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
@@ -317,10 +373,12 @@ function CommunityDashboard({
             <button
               type="button"
               onClick={() => toggle("preferences")}
-              className="flex h-13 w-full items-center justify-between border-t border-border px-4 text-sm font-bold text-primary-dark"
+              className="flex h-13 w-full items-center justify-between border-t border-border px-4 text-sm font-bold text-primary-dark transition hover:bg-surface-soft"
             >
               Ver preferencias
-              <ArrowRightIcon />
+              <motion.span animate={{ rotate: expanded === "preferences" ? 90 : 0 }} transition={MOTION_SPRING.snappy}>
+                <ArrowRightIcon />
+              </motion.span>
             </button>
           </div>
         </section>
@@ -349,25 +407,27 @@ function CommunityDashboard({
             )}
           </div>
         </section>
-      </div>
+      </motion.div>
 
-      {expanded === "preferences" && community.preferences && (
-        <section className="mt-5 rounded-18 border border-border bg-surface p-4 shadow-soft">
-          <SectionTitle title="Preferencias de convivencia" onClose={() => setExpanded(null)} />
-          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            <Preference label="Limpieza" value={community.preferences.cleanliness} />
-            <Preference label="Ambiente" value={community.preferences.atmosphere} />
-            <Preference label="Visitas" value={community.preferences.visits} />
-            <Preference label="Invitados" value={community.preferences.sleepovers} />
-            <Preference label="Tabaco" value={community.preferences.smoking} />
-            <Preference label="Mascotas" value={community.preferences.pets} />
-            <Preference label="Reglas" value={community.preferences.rules} />
-            <Preference label="Estilo" value={community.preferences.lifestyle} />
-          </div>
-        </section>
-      )}
+      <Expandable open={expanded === "preferences" && Boolean(community.preferences)}>
+        {community.preferences && (
+          <section className="mt-5 rounded-18 border border-border bg-surface p-4 shadow-soft">
+            <SectionTitle title="Preferencias de convivencia" onClose={() => setExpanded(null)} />
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <Preference label="Limpieza" value={community.preferences.cleanliness} />
+              <Preference label="Ambiente" value={community.preferences.atmosphere} />
+              <Preference label="Visitas" value={community.preferences.visits} />
+              <Preference label="Invitados" value={community.preferences.sleepovers} />
+              <Preference label="Tabaco" value={community.preferences.smoking} />
+              <Preference label="Mascotas" value={community.preferences.pets} />
+              <Preference label="Reglas" value={community.preferences.rules} />
+              <Preference label="Estilo" value={community.preferences.lifestyle} />
+            </div>
+          </section>
+        )}
+      </Expandable>
 
-      <section className="mt-7">
+      <motion.section initial="hidden" animate="show" variants={sectionVariants} className="mt-7">
         <h2 className="mb-3 text-lg font-extrabold text-foreground">Gestionar comunidad</h2>
 
         <SettingsSection label="">
@@ -388,17 +448,17 @@ function CommunityDashboard({
           <SettingsRow icon={PublicIcon} title="Ver perfil público" href={`/comunidades/${community.id}`} />
         </SettingsSection>
 
-        {expanded === "spots" && (
+        <Expandable open={expanded === "spots"}>
           <div className="mt-3 rounded-18 border border-border bg-surface shadow-soft">
             <OpenSpotsManager community={community} onUpdated={onUpdated} />
           </div>
-        )}
+        </Expandable>
 
-        {expanded === "rent" && isOwner && (
+        <Expandable open={expanded === "rent" && isOwner}>
           <div className="mt-3 rounded-18 border border-border bg-surface shadow-soft">
             <CommunityRentSplitManager communityId={community.id} />
           </div>
-        )}
+        </Expandable>
 
         {!isOwner && (
           <div className="mt-3 space-y-3">
@@ -406,25 +466,27 @@ function CommunityDashboard({
             <LeaveCommunityButton communityId={community.id} />
           </div>
         )}
-      </section>
+      </motion.section>
 
       {isOwner && (
-        <section className="mt-5">
+        <motion.section initial="hidden" animate="show" variants={sectionVariants} className="mt-5">
           <button
             type="button"
             onClick={() => toggle("danger")}
-            className="flex h-13 w-full items-center justify-between rounded-18 border border-red-200 bg-surface px-4 text-sm font-bold text-red-600 shadow-soft"
+            className="flex h-13 w-full items-center justify-between rounded-18 border border-red-200 bg-surface px-4 text-sm font-bold text-red-600 shadow-soft transition hover:bg-red-50/50"
           >
             Cerrar comunidad
-            <ChevronIcon />
+            <motion.span animate={{ rotate: expanded === "danger" ? 90 : 0 }} transition={MOTION_SPRING.snappy}>
+              <ChevronIcon />
+            </motion.span>
           </button>
 
-          {expanded === "danger" && (
+          <Expandable open={expanded === "danger"}>
             <div className="mt-3">
               <CommunityOwnerActions community={community} />
             </div>
-          )}
-        </section>
+          </Expandable>
+        </motion.section>
       )}
     </div>
   );
@@ -485,23 +547,33 @@ function PrivatePanel({
 
 function NoCommunity() {
   return (
-    <div className="mx-auto flex min-h-[60dvh] max-w-xl flex-col items-center justify-center px-6 text-center">
-      <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Todavía no tienes comunidad</h1>
-      <p className="mt-3 max-w-md text-sm leading-6 text-secondary">
-        Explora las comunidades disponibles o crea la tuya para tener aquí vuestro espacio privado.
-      </p>
-      <div className="mt-6 flex gap-3">
-        <Link href="/comunidades" className="flex h-11 items-center rounded-14 border border-border bg-surface px-5 text-sm font-bold text-foreground shadow-soft">Explorar</Link>
-        <Link href="/crear/comunidad" className="flex h-11 items-center rounded-xl bg-black px-5 text-sm font-semibold text-white">Crear comunidad</Link>
-      </div>
-    </div>
+    <MotionConfig reducedMotion="user">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="mx-auto flex min-h-[60dvh] max-w-xl flex-col items-center justify-center px-6 text-center"
+      >
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/8 text-primary-dark">
+          <PeopleIcon className="h-7 w-7" />
+        </div>
+        <h1 className="mt-5 text-3xl font-extrabold tracking-tight text-brand-dark">Todavía no tienes comunidad</h1>
+        <p className="mt-3 max-w-md text-sm leading-6 text-secondary">
+          Explora las comunidades disponibles o crea la tuya para tener aquí vuestro espacio privado.
+        </p>
+        <div className="mt-6 flex gap-3">
+          <Link href="/comunidades" className="flex h-11 items-center rounded-14 border border-border bg-surface px-5 text-sm font-bold text-foreground shadow-soft transition hover:border-primary/30">Explorar</Link>
+          <Link href="/crear/comunidad" className="flex h-11 items-center rounded-14 bg-primary px-5 text-sm font-bold text-white shadow-button transition hover:bg-primary-hover">Crear comunidad</Link>
+        </div>
+      </motion.div>
+    </MotionConfig>
   );
 }
 
 function Fact({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <div className="flex min-h-17 items-center gap-2 bg-surface p-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center text-[#222222]">{icon}</span>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center text-primary">{icon}</span>
       <span className="text-xs font-bold leading-5 text-foreground">{label}</span>
     </div>
   );

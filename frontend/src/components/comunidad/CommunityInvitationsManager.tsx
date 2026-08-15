@@ -141,56 +141,56 @@ export default function CommunityInvitationsManager({
   }
 
   if (loading) {
-    return <p className="p-6 text-sm text-[#717171]">Cargando invitaciones…</p>;
+    return <p className="p-6 text-sm text-secondary">Cargando invitaciones…</p>;
   }
 
   return (
     <div className="space-y-7 p-4 sm:p-6">
       <div>
-        <h3 className="text-lg font-semibold text-[#191919]">Invitar personas</h3>
-        <p className="mt-1 max-w-xl text-sm leading-6 text-[#717171]">
+        <h3 className="text-lg font-semibold text-brand-dark">Invitar personas</h3>
+        <p className="mt-1 max-w-xl text-sm leading-6 text-secondary">
           Invita directamente a alguien de CoFlow o comparte un enlace privado.
         </p>
       </div>
 
       {atCapacity ? (
-        <p className="rounded-2xl border border-[#dddddd] p-4 text-sm font-medium text-[#191919]">
+        <p className="rounded-18 border border-border p-4 text-sm font-medium text-foreground">
           La comunidad está completa. Aumenta su capacidad antes de invitar a otra persona.
         </p>
       ) : (
         <>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#717171]" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Buscar por nombre u ocupación"
               aria-label="Buscar una persona para invitar"
-              className="h-13 w-full rounded-full border border-[#b0b0b0] bg-white pl-12 pr-4 text-base text-[#191919] outline-none transition focus:border-black focus:ring-2 focus:ring-black/10"
+              className="h-13 w-full rounded-full border border-border bg-surface pl-12 pr-4 text-base text-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
             />
           </div>
 
-          <div className="divide-y divide-[#ebebeb] rounded-2xl border border-[#dddddd] bg-white">
+          <div className="divide-y divide-border rounded-18 border border-border bg-surface shadow-soft">
             {filteredPeople.length === 0 ? (
-              <p className="p-5 text-sm text-[#717171]">No hay personas disponibles con esa búsqueda.</p>
+              <p className="p-5 text-sm text-secondary">No hay personas disponibles con esa búsqueda.</p>
             ) : (
               filteredPeople.map((person) => {
                 const pending = pendingByUser.has(person.id);
                 const name = `${person.first_name} ${person.last_name}`.trim();
                 return (
                   <div key={person.id} className="flex min-h-18 items-center gap-3 px-4 py-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f2f2f2] text-sm font-semibold text-[#191919]">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/8 text-sm font-semibold text-primary-dark">
                       {person.first_name.slice(0, 1)}{person.last_name.slice(0, 1)}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold text-[#191919]">{name}</span>
-                      <span className="mt-0.5 block truncate text-xs text-[#717171]">{person.occupation || "Busca comunidad"}</span>
+                      <span className="block truncate text-sm font-semibold text-foreground">{name}</span>
+                      <span className="mt-0.5 block truncate text-xs text-secondary">{person.occupation || "Busca comunidad"}</span>
                     </span>
                     <button
                       type="button"
                       disabled={pending || busyKey !== null}
                       onClick={() => createInvitation(person.id)}
-                      className="flex min-h-11 min-w-24 items-center justify-center gap-2 rounded-full bg-black px-4 text-sm font-semibold text-white transition hover:bg-[#222222] disabled:bg-[#ebebeb] disabled:text-[#717171]"
+                      className="flex min-h-11 min-w-24 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-white shadow-button transition hover:bg-primary-hover disabled:bg-surface-soft disabled:text-secondary disabled:shadow-none"
                     >
                       {pending ? <><Check className="h-4 w-4" /> Enviada</> : busyKey === person.id ? "Enviando…" : <><Send className="h-4 w-4" /> Invitar</>}
                     </button>
@@ -204,7 +204,7 @@ export default function CommunityInvitationsManager({
             type="button"
             onClick={() => createInvitation()}
             disabled={busyKey !== null}
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-black bg-white px-5 text-sm font-semibold text-[#191919] transition hover:bg-[#f7f7f7] disabled:opacity-50"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-primary/40 bg-surface px-5 text-sm font-semibold text-primary-dark transition hover:border-primary hover:bg-primary/5 disabled:opacity-50"
           >
             <Link2 className="h-5 w-5" />
             {busyKey === "link" ? "Creando enlace…" : "Crear y copiar enlace privado"}
@@ -215,27 +215,27 @@ export default function CommunityInvitationsManager({
       {error ? <p role="alert" className="text-sm font-medium text-red-600">{error}</p> : null}
 
       <section>
-        <h3 className="text-base font-semibold text-[#191919]">Actividad reciente</h3>
-        <div className="mt-3 divide-y divide-[#ebebeb] rounded-2xl border border-[#dddddd] bg-white">
+        <h3 className="text-base font-semibold text-brand-dark">Actividad reciente</h3>
+        <div className="mt-3 divide-y divide-border rounded-18 border border-border bg-surface shadow-soft">
           {invitations.length === 0 ? (
-            <div className="flex items-center gap-3 p-5 text-sm text-[#717171]"><UserPlus className="h-5 w-5" /> Aún no has enviado invitaciones.</div>
+            <div className="flex items-center gap-3 p-5 text-sm text-secondary"><UserPlus className="h-5 w-5" /> Aún no has enviado invitaciones.</div>
           ) : (
             invitations.slice(0, 8).map((invitation) => (
               <div key={invitation.id} className="flex min-h-16 items-center gap-3 px-4 py-3">
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-[#191919]">
+                  <span className="block text-sm font-semibold text-foreground">
                     {invitation.invited_user_id ? "Invitación directa" : "Enlace privado"}
                   </span>
-                  <span className="mt-0.5 block text-xs text-[#717171]">
+                  <span className="mt-0.5 block text-xs text-secondary">
                     {STATUS_LABELS[invitation.status]} · {formatDate(invitation.expires_at)}
                   </span>
                 </span>
                 {invitation.status === "PENDING" ? (
                   <>
-                    <button type="button" onClick={() => copyInvitation(invitation)} aria-label="Copiar enlace" className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd] hover:bg-[#f7f7f7]">
-                      {copiedId === invitation.id ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
+                    <button type="button" onClick={() => copyInvitation(invitation)} aria-label="Copiar enlace" className="flex h-11 w-11 items-center justify-center rounded-full border border-border transition hover:border-primary/30 hover:bg-surface-soft">
+                      {copiedId === invitation.id ? <Check className="h-5 w-5 text-primary" /> : <Copy className="h-5 w-5" />}
                     </button>
-                    <button type="button" onClick={() => cancelInvitation(invitation)} aria-label="Cancelar invitación" className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd] text-[#717171] hover:bg-[#f7f7f7]">
+                    <button type="button" onClick={() => cancelInvitation(invitation)} aria-label="Cancelar invitación" className="flex h-11 w-11 items-center justify-center rounded-full border border-border text-secondary transition hover:bg-surface-soft">
                       <X className="h-5 w-5" />
                     </button>
                   </>

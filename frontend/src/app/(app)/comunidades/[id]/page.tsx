@@ -123,22 +123,6 @@ export default function ComunidadDetallePage() {
   return (
     <MotionConfig reducedMotion="user">
     <div className="mx-auto w-full max-w-7xl">
-      <header className="hidden">
-        <Link
-          href="/comunidades"
-          transitionTypes={["nav-back"]}
-          aria-label="Volver a comunidades"
-          className="inline-flex h-10 items-center gap-2 text-sm font-bold text-muted transition hover:text-brand-dark"
-        >
-          <ArrowLeftIcon />
-          <span className="hidden sm:inline">Volver a comunidades</span>
-        </Link>
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-lg font-extrabold text-brand-dark">
-          Vista pública
-        </h1>
-        <span className="w-10" aria-hidden="true" />
-      </header>
-
       <CommunityHeader
         community={community}
         isOwner={isOwner}
@@ -213,20 +197,3 @@ function SearchIcon() {
   );
 }
 
-function ArrowLeftIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4"
-      aria-hidden="true"
-    >
-      <path d="M19 12H5" />
-      <path d="m11 18-6-6 6-6" />
-    </svg>
-  );
-}

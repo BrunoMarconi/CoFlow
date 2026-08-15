@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
 import CommunityApplicationAction from "./CommunityApplicationAction";
 import CommunityCover from "@/components/ui/CommunityCover";
 import PhotoDetailShell from "@/components/ui/PhotoDetailShell";
@@ -59,7 +60,7 @@ export default function CommunityHeader({
         actions={
           <>
             <Link href="/comunidades" transitionTypes={["nav-back"]} aria-label="Volver a comunidades" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur"><BackIcon /></Link>
-            {isOwner ? <Link href={`/comunidades/${community.id}/editar`} transitionTypes={["nav-forward"]} className="rounded-full bg-black px-5 py-3 text-sm font-semibold text-white shadow-[0_3px_14px_rgba(0,0,0,0.18)]">Editar</Link> : <span />}
+            {isOwner ? <Link href={`/comunidades/${community.id}/editar`} transitionTypes={["nav-forward"]} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-[0_3px_14px_rgba(0,0,0,0.18)] transition hover:bg-primary-hover">Editar</Link> : <span />}
           </>
         }
       >
@@ -90,7 +91,12 @@ export default function CommunityHeader({
           </div>
       </PhotoDetailShell>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.12fr)_minmax(360px,0.88fr)] xl:items-start">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="grid gap-5 xl:grid-cols-[minmax(0,1.12fr)_minmax(360px,0.88fr)] xl:items-start"
+      >
         <div className="space-y-5">
           <section className="rounded-24 border border-border bg-surface p-5 shadow-soft sm:p-7">
             <h2 className="text-xl font-extrabold text-brand-dark">Sobre nosotros</h2>
@@ -210,7 +216,7 @@ export default function CommunityHeader({
             </p>
           )}
         </aside>
-      </div>
+      </motion.div>
     </div>
   );
 }

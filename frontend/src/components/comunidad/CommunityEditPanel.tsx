@@ -145,36 +145,36 @@ function CommunityEditStep({ step, values, submitting, error, onBack, onSave }: 
 
   return (
     <ViewportPortal>
-    <div className="fixed inset-0 z-60 overflow-y-auto bg-white">
+    <div className="fixed inset-0 z-60 overflow-y-auto bg-surface">
       <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-10">
         <header className="flex items-center gap-4">
-          <button type="button" onClick={onBack} aria-label="Volver" className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd]"><ChevronLeft className="h-6 w-6" /></button>
-          <span className="text-sm font-semibold text-[#717171]">Editar comunidad</span>
+          <button type="button" onClick={onBack} aria-label="Volver" className="flex h-11 w-11 items-center justify-center rounded-full border border-border transition hover:bg-surface-soft"><ChevronLeft className="h-6 w-6" /></button>
+          <span className="text-sm font-semibold text-secondary">Editar comunidad</span>
         </header>
 
         <main className="flex flex-1 flex-col justify-center py-10">
-          <p className="text-sm font-semibold text-[#717171]">Un dato cada vez</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-[-0.035em] text-[#191919] sm:text-4xl">{meta.title}</h1>
-          {meta.description && <p className="mt-3 text-base leading-7 text-[#717171]">{meta.description}</p>}
+          <p className="text-sm font-semibold text-primary-dark">Un dato cada vez</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-[-0.035em] text-brand-dark sm:text-4xl">{meta.title}</h1>
+          {meta.description && <p className="mt-3 text-base leading-7 text-secondary">{meta.description}</p>}
 
           {meta.options ? (
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {meta.options.map((option) => {
                 const selected = value === option.value;
-                return <button key={option.value} type="button" onClick={() => setValue(option.value)} className={`min-h-20 rounded-2xl border p-5 text-left text-base font-semibold transition ${selected ? "border-black bg-[#f7f7f7] ring-1 ring-black" : "border-[#dddddd] bg-white hover:border-black"}`}>{option.label}</button>;
+                return <button key={option.value} type="button" onClick={() => setValue(option.value)} className={`min-h-20 rounded-18 border p-5 text-left text-base font-semibold transition ${selected ? "border-primary bg-primary/6 ring-1 ring-primary text-brand-dark" : "border-border bg-surface text-foreground hover:border-primary/40"}`}>{option.label}</button>;
               })}
             </div>
           ) : meta.multiline ? (
-            <textarea autoFocus value={value} onChange={(event) => setValue(event.target.value)} rows={7} maxLength={meta.maxLength} className="mt-8 w-full resize-none rounded-2xl border border-[#b0b0b0] bg-white px-5 py-4 text-lg leading-7 outline-none transition focus:border-black focus:ring-2 focus:ring-black/10" />
+            <textarea autoFocus value={value} onChange={(event) => setValue(event.target.value)} rows={7} maxLength={meta.maxLength} className="mt-8 w-full resize-none rounded-18 border border-border bg-surface px-5 py-4 text-lg leading-7 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10" />
           ) : (
-            <input autoFocus type={meta.type ?? "text"} value={value} onChange={(event) => setValue(event.target.value)} min={meta.min} max={meta.max} className="mt-8 h-16 w-full rounded-full border border-[#b0b0b0] bg-white px-6 text-lg font-medium outline-none transition focus:border-black focus:ring-2 focus:ring-black/10" />
+            <input autoFocus type={meta.type ?? "text"} value={value} onChange={(event) => setValue(event.target.value)} min={meta.min} max={meta.max} className="mt-8 h-16 w-full rounded-full border border-border bg-surface px-6 text-lg font-medium outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10" />
           )}
 
           {(localError || error) && <p className="mt-4 text-sm font-semibold text-red-600">{localError || error}</p>}
         </main>
 
-        <footer className="sticky bottom-0 border-t border-[#ebebeb] bg-white py-4">
-          <button type="button" onClick={submit} disabled={submitting} className="h-14 w-full rounded-xl bg-black text-base font-semibold text-white transition active:scale-[0.99] disabled:opacity-50">{submitting ? "Guardando…" : "Guardar"}</button>
+        <footer className="sticky bottom-0 border-t border-border bg-surface py-4">
+          <button type="button" onClick={submit} disabled={submitting} className="h-14 w-full rounded-14 bg-primary text-base font-semibold text-white shadow-button transition hover:bg-primary-hover active:scale-[0.99] disabled:opacity-50">{submitting ? "Guardando…" : "Guardar"}</button>
         </footer>
       </div>
     </div>
@@ -216,9 +216,9 @@ function validateStep(step: EditStep, value: string) {
 }
 
 function EditGroup({ title, children }: { title: string; children: ReactNode }) {
-  return <section><h2 className="mb-3 text-lg font-semibold text-[#191919]">{title}</h2><div className="overflow-hidden rounded-2xl border border-[#dddddd] bg-white">{children}</div></section>;
+  return <section><h2 className="mb-3 text-lg font-semibold text-brand-dark">{title}</h2><div className="overflow-hidden rounded-18 border border-border bg-surface shadow-soft">{children}</div></section>;
 }
 
 function EditRow({ href, title, value }: { href: string; title: string; value: string }) {
-  return <Link href={href} scroll={false} className="flex min-h-20 items-center gap-4 border-b border-[#ebebeb] px-5 py-4 last:border-b-0 hover:bg-[#f7f7f7]"><span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-[#191919]">{title}</span><span className="mt-1 block truncate text-sm text-[#717171]">{value}</span></span><ChevronRight className="h-5 w-5 shrink-0 text-[#717171]" /></Link>;
+  return <Link href={href} scroll={false} className="flex min-h-20 items-center gap-4 border-b border-border px-5 py-4 transition last:border-b-0 hover:bg-surface-soft"><span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-foreground">{title}</span><span className="mt-1 block truncate text-sm text-secondary">{value}</span></span><ChevronRight className="h-5 w-5 shrink-0 text-muted" /></Link>;
 }
