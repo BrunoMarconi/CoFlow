@@ -10,6 +10,7 @@ import PhotoDetailShell from "@/components/ui/PhotoDetailShell";
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import UserAvatar from "@/components/ui/UserAvatar";
 import UserSafetyActions from "@/components/usuario/UserSafetyActions";
+import CompatibilityRadar, { CompatibilityRadarIcon } from "@/components/convivencia/CompatibilityRadar";
 import { detailTransitionName } from "@/lib/detailTransitions";
 import type { PublicUserPreferences, UserPublicProfile } from "@/types/userPublic";
 
@@ -190,6 +191,16 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
           </section>
         </div>
       </div>
+
+      {profile.compatibility && profile.compatibility.categories.length > 0 && (
+        <CompatibilityRadar
+          className="mt-4"
+          categories={profile.compatibility.categories}
+          icon={<CompatibilityRadarIcon />}
+          title="Perfil de convivencia"
+          subtitle={`Así convive ${profile.first_name || "esta persona"}`}
+        />
+      )}
 
       {connectionError && <p className="mt-4 text-center text-sm font-semibold text-red-600">{connectionError}</p>}
 

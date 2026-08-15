@@ -1,4 +1,5 @@
 import type { UserPhoto } from "./userPhoto";
+import type { CompatibilityScore } from "./compatibilityScore";
 
 export interface PublicUserCommunity {
   id: number;
@@ -40,6 +41,7 @@ export interface UserPublicProfile {
   last_name: string;
   rental_budget: number | null;
   preferences: PublicUserPreferences | null;
+  compatibility: CompatibilityScore | null;
   community: PublicUserCommunity | null;
   is_saved: boolean;
   connection_status: UserConnectionStatusLabel;

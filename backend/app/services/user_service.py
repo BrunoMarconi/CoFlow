@@ -15,12 +15,14 @@ from app.database.models.user_connection import (
     UserConnectionStatus,
 )
 from app.database.models.user_block import UserBlock
+from app.schemas.compatibility_score import CompatibilityScoreResponse
 from app.schemas.user_photo import UserPhotoResponse
 from app.schemas.user_public import (
     PublicUserCommunityResponse,
     PublicUserPreferencesResponse,
     PublicUserProfileResponse,
 )
+from app.services.compatibility_score_service import compute_category_scores
 
 MAX_LIMIT = 100
 
@@ -163,6 +165,13 @@ class UserService:
             is_online=is_online,
             preferences=(
                 PublicUserPreferencesResponse.model_validate(preferences)
+                if preferences is not None
+                else None
+            ),
+            compatibility=(
+                CompatibilityScoreResponse(
+                    categories=compute_category_scores(preferences)
+                )
                 if preferences is not None
                 else None
             ),

@@ -63,6 +63,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
   ),
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "CoFlow | Encuentra dónde encajar",
     description:
@@ -70,13 +73,28 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_ES",
     siteName: "CoFlow",
+    url: "/",
+    images: [{ url: "/logo-coflow.png", width: 512, height: 512, alt: "CoFlow" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "CoFlow | Encuentra dónde encajar",
     description:
       "Descubre personas y comunidades compatibles para compartir vivienda.",
+    images: ["/logo-coflow.png"],
   },
+};
+
+// Datos estructurados (schema.org) para que Google pueda asociar el
+// logo de CoFlow a los resultados de búsqueda — sin esto, un
+// favicon/OG image por sí solos no son suficiente señal para el logo
+// que Google muestra junto al nombre del sitio.
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "CoFlow",
+  url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+  logo: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/logo-coflow.png`,
 };
 
 export const viewport: Viewport = {
@@ -100,6 +118,11 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full bg-background font-sans text-brand-dark">
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <QueryProvider>
           <AuthProvider>
             <RouteProgressBar />

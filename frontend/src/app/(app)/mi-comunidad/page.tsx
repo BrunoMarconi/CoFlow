@@ -18,6 +18,7 @@ import CommunityRentSplitManager from "@/components/comunidad/CommunityRentSplit
 import OpenSpotsManager from "@/components/comunidad/OpenSpotsManager";
 import LeaveCommunityButton from "@/components/comunidad/LeaveCommunityButton";
 import { SettingsRow, SettingsSection } from "@/components/comunidad/SettingsRow";
+import CompatibilityRadar, { CompatibilityRadarIcon } from "@/components/convivencia/CompatibilityRadar";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
 import type { Community } from "@/types/community";
 
@@ -281,6 +282,17 @@ function CommunityDashboard({
           </Link>
         </div>
       </section>
+
+      {community.average_compatibility && community.average_compatibility.categories.length > 0 && (
+        <section className="mt-7">
+          <CompatibilityRadar
+            categories={community.average_compatibility.categories}
+            icon={<CompatibilityRadarIcon />}
+            title="Así convive vuestra comunidad"
+            subtitle="Media del perfil de convivencia de sus miembros"
+          />
+        </section>
+      )}
 
       {isOwner && expanded === "invitations" && (
         <section className="mt-5">

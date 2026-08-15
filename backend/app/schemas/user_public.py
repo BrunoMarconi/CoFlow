@@ -2,6 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.compatibility_score import CompatibilityScoreResponse
 from app.schemas.storage_media import StorageBackedAvatarResponse
 from app.schemas.user_photo import UserPhotoResponse
 
@@ -55,6 +56,7 @@ class PublicUserProfileResponse(StorageBackedAvatarResponse):
     last_name: str
     rental_budget: int | None = None
     preferences: PublicUserPreferencesResponse | None = None
+    compatibility: CompatibilityScoreResponse | None = None
     community: PublicUserCommunityResponse | None = None
     is_saved: bool = False
     connection_status: str = "NONE"

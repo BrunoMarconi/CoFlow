@@ -56,7 +56,7 @@ export default function CompatibilityRadar({
       .join(" ");
 
   return (
-    <section className={cn("rounded-24 border border-border bg-surface p-6 shadow-soft sm:p-8", className)}>
+    <section className={cn("mx-auto w-full max-w-2xl rounded-24 border border-border bg-surface p-6 shadow-soft sm:p-8", className)}>
       {(title || subtitle || icon) && (
         <div className="flex flex-col items-center text-center">
           {icon && (
