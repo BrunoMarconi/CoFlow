@@ -10,11 +10,13 @@ import {
   type KeyboardEvent,
 } from "react";
 import Image from "next/image";
+import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
   CHAT_MESSAGES_CHANGED_EVENT,
   type ChatMessageChangedDetail,
 } from "@/lib/chatEvents";
+import { MOTION_SPRING } from "@/lib/motionTokens";
 
 const POLL_INTERVAL_MS = 3500;
 const PAGE_SIZE = 100;
@@ -390,6 +392,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   const showEmpty = messages.length === 0 && pendingMessages.length === 0;
 
   return (
+    <MotionConfig reducedMotion="user">
     <div
       className={cn(
         "flex flex-col overflow-hidden bg-surface",
@@ -425,20 +428,24 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           ) : showEmpty ? (
             <ConversationWelcome />
           ) : (
-            <>
+            <AnimatePresence initial={false}>
               {renderItems.map((item) =>
                 item.type === "date" ? (
                   <div
                     key={item.key}
                     className="sticky top-0 z-10 mb-3 flex justify-center first:mt-0 not-first:mt-4"
                   >
-                    <span className="rounded-full border border-border bg-surface/95 px-3 py-1 text-[11px] font-semibold text-secondary shadow-soft backdrop-blur-sm">
+                    <span className="rounded-full border border-border/70 bg-surface/90 px-3 py-1 text-[11px] font-semibold text-secondary shadow-soft backdrop-blur-md">
                       {item.label}
                     </span>
                   </div>
                 ) : (
-                  <div
+                  <motion.div
                     key={item.message.id}
+                    layout="position"
+                    initial={{ opacity: 0, y: 10, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={MOTION_SPRING.snappy}
                     className={item.firstOfGroup ? "mt-3 first:mt-0" : "mt-0.5"}
                   >
                     <MessageBubble
@@ -448,18 +455,26 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                       firstOfGroup={item.firstOfGroup}
                       lastOfGroup={item.lastOfGroup}
                     />
-                  </div>
+                  </motion.div>
                 )
               )}
 
               {pendingMessages.map((message) => (
-                <PendingMessageBubble
+                <motion.div
                   key={message.id}
-                  message={message}
-                  onRetry={() => void deliverMessage(message)}
-                />
+                  layout="position"
+                  initial={{ opacity: 0, y: 10, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={MOTION_SPRING.snappy}
+                  className="mt-3"
+                >
+                  <PendingMessageBubble
+                    message={message}
+                    onRetry={() => void deliverMessage(message)}
+                  />
+                </motion.div>
               ))}
-            </>
+            </AnimatePresence>
           )}
         </div>
 
@@ -473,26 +488,33 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           </button>
         )}
 
-        {!isNearBottom && !showEmpty && (
-          <button
-            type="button"
-            onClick={() => scrollToBottom("smooth")}
-            aria-label="Ir a los mensajes recientes"
-            className={cn(
-              "absolute bottom-3 right-3 flex h-11 min-w-11 items-center justify-center gap-2 rounded-full px-3 shadow-soft transition active:scale-95",
-              newArrivals > 0
-                ? "bg-primary text-white hover:bg-primary-hover"
-                : "border border-border bg-surface text-foreground hover:border-foreground/20"
-            )}
-          >
-            <DownArrowIcon />
-            {newArrivals > 0 && (
-              <span className="text-xs font-bold">
-                {newArrivals > 9 ? "9+ nuevos" : `${newArrivals} nuevo${newArrivals === 1 ? "" : "s"}`}
-              </span>
-            )}
-          </button>
-        )}
+        <AnimatePresence>
+          {!isNearBottom && !showEmpty && (
+            <motion.button
+              type="button"
+              onClick={() => scrollToBottom("smooth")}
+              aria-label="Ir a los mensajes recientes"
+              initial={{ opacity: 0, scale: 0.6, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.6, y: 8 }}
+              transition={MOTION_SPRING.snappy}
+              whileTap={{ scale: 0.92 }}
+              className={cn(
+                "absolute bottom-3 right-3 flex h-11 min-w-11 items-center justify-center gap-2 rounded-full px-3 shadow-button transition-colors",
+                newArrivals > 0
+                  ? "bg-primary text-white hover:bg-primary-hover"
+                  : "border border-border bg-surface text-foreground hover:border-foreground/20"
+              )}
+            >
+              <DownArrowIcon />
+              {newArrivals > 0 && (
+                <span className="text-xs font-bold">
+                  {newArrivals > 9 ? "9+ nuevos" : `${newArrivals} nuevo${newArrivals === 1 ? "" : "s"}`}
+                </span>
+              )}
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
 
       {!isOnline && (
@@ -505,7 +527,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
         onSubmit={handleSubmit}
         className="border-t border-border bg-surface px-3 pb-[max(0.75rem,var(--safe-bottom))] pt-3 sm:px-4 sm:pb-4"
       >
-        <div className="flex items-end gap-2 rounded-24 border border-border bg-surface-soft px-2 py-2 transition focus-within:border-primary/40 focus-within:bg-surface focus-within:ring-4 focus-within:ring-primary/10">
+        <div className="flex items-end gap-2 rounded-24 border border-border bg-surface-soft px-2 py-2 shadow-[inset_0_1px_2px_rgb(0_0_0/0.03)] transition-all duration-200 focus-within:border-primary/50 focus-within:bg-surface focus-within:shadow-[0_2px_12px_-2px_rgb(0_0_0/0.08)] focus-within:ring-4 focus-within:ring-primary/10">
           <textarea
             ref={textareaRef}
             value={content}
@@ -521,14 +543,16 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
             className="max-h-30 min-h-11 min-w-0 flex-1 resize-none bg-transparent px-3 py-2.5 text-base leading-6 text-foreground outline-none placeholder:text-muted"
           />
 
-          <button
+          <motion.button
             type="submit"
             disabled={!content.trim()}
             aria-label="Enviar mensaje"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-button transition hover:bg-primary-hover active:scale-95 disabled:cursor-not-allowed disabled:bg-border disabled:text-muted disabled:shadow-none"
+            whileTap={content.trim() ? { scale: 0.9 } : undefined}
+            transition={MOTION_SPRING.snappy}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-button transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-border disabled:text-muted disabled:shadow-none"
           >
             <SendIcon />
-          </button>
+          </motion.button>
         </div>
 
         <div className="mt-1.5 flex min-h-4 items-center justify-between px-2">
@@ -543,6 +567,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
         </div>
       </form>
     </div>
+    </MotionConfig>
   );
 }
 
@@ -598,8 +623,16 @@ const MessageBubble = memo(function MessageBubble({
         className={cn(
           "max-w-[84%] min-w-0 rounded-18 px-3.5 py-2 shadow-[0_1px_2px_rgb(0_0_0/0.05)] sm:max-w-[72%]",
           isOwn
-            ? cn("bg-primary text-white", lastOfGroup && "chat-tail-own rounded-br-md")
-            : cn("border border-border bg-surface text-foreground", lastOfGroup && "chat-tail-other rounded-bl-md")
+            ? cn(
+                "bg-primary text-white",
+                lastOfGroup && "chat-tail-own rounded-br-md",
+                !firstOfGroup && "rounded-tr-md"
+              )
+            : cn(
+                "border border-border bg-surface text-foreground",
+                lastOfGroup && "chat-tail-other rounded-bl-md",
+                !firstOfGroup && "rounded-tl-md"
+              )
         )}
       >
         {!isOwn && showSenderName && firstOfGroup && (
@@ -657,24 +690,30 @@ function PendingMessageBubble({
 
 function ConversationWelcome() {
   return (
-    <div className="flex h-full min-h-60 flex-col items-center justify-center px-8 text-center">
-      <div className="flex h-16 w-16 items-center justify-center text-primary-dark">
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className="flex h-full min-h-60 flex-col items-center justify-center px-8 text-center"
+    >
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/8 text-primary-dark">
         <ConversationIcon />
       </div>
-      <p className="mt-3 text-base font-bold text-foreground">Empieza con naturalidad</p>
+      <p className="mt-4 text-base font-bold text-foreground">Empieza con naturalidad</p>
       <p className="mt-1 max-w-xs text-sm leading-6 text-secondary">
         Un saludo breve es suficiente. Este espacio es privado para vosotros.
       </p>
-    </div>
+    </motion.div>
   );
 }
 
 function MessageSkeleton() {
   return (
-    <div className="flex h-full flex-col justify-end gap-3 py-2" aria-label="Cargando mensajes">
-      <div className="h-12 w-3/5 animate-pulse self-start rounded-18 bg-surface" />
-      <div className="h-16 w-4/5 animate-pulse self-end rounded-18 bg-border/70" />
-      <div className="h-12 w-1/2 animate-pulse self-start rounded-18 bg-surface" />
+    <div className="skeleton-shimmer flex h-full flex-col justify-end gap-3 py-2" aria-label="Cargando mensajes">
+      <div className="h-11 w-2/5 self-start rounded-18 rounded-bl-md bg-surface" />
+      <div className="h-16 w-3/5 self-start rounded-18 bg-surface" />
+      <div className="h-11 w-3/5 self-end rounded-18 rounded-br-md bg-primary/15" />
+      <div className="h-12 w-2/5 self-end rounded-18 bg-primary/15" />
     </div>
   );
 }

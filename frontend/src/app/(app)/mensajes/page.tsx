@@ -18,6 +18,7 @@ import {
   markConversationReadNow,
 } from "@/lib/conversationReadState";
 import { NAV_TRANSITION } from "@/lib/navTransition";
+import { MOTION_SPRING } from "@/lib/motionTokens";
 
 // Diferidos: en cada visita solo se muestra uno de los dos a la vez
 // (chat privado o de comunidad), según lo que el usuario seleccione.
@@ -452,7 +453,7 @@ export default function MensajesPage() {
 
         <Link
           href="/usuarios"
-          className="mb-4 mt-5 flex items-center gap-3 rounded-24 border border-border bg-surface p-4 shadow-soft transition-transform duration-200 active:scale-[0.99]"
+          className="mb-4 mt-5 flex items-center gap-3 rounded-24 border border-primary/15 bg-linear-to-br from-primary/6 to-transparent p-4 shadow-soft transition-transform duration-200 active:scale-[0.99]"
         >
           <span className="flex h-11 w-11 shrink-0 items-center justify-center text-primary">
             <ComposeIcon />
@@ -494,10 +495,10 @@ export default function MensajesPage() {
               whileHover={{ x: 2 }}
               whileTap={{ scale: 0.99 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className={`flex items-center gap-3 border-l-[3px] px-4 py-3.5 text-left transition-colors duration-200 ${
+              className={`mx-2 mt-2 flex items-center gap-3 rounded-16 border-l-[3px] px-3.5 py-3.5 text-left transition-all duration-200 ${
                 communitySelected
-                  ? "border-primary bg-surface-soft"
-                  : "border-transparent hover:bg-surface-soft"
+                  ? "border-primary bg-surface-soft shadow-soft"
+                  : "border-transparent hover:border-primary/20 hover:bg-surface-soft"
               }`}
             >
               <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
@@ -561,10 +562,10 @@ export default function MensajesPage() {
                   }}
                   whileHover={{ x: 2 }}
                   whileTap={{ scale: 0.99 }}
-                  className={`flex items-center gap-3 border-l-[3px] px-4 py-3.5 text-left transition-colors duration-200 ${
+                  className={`mx-2 mt-1 flex items-center gap-3 rounded-16 border-l-[3px] px-3.5 py-3.5 text-left transition-all duration-200 ${
                     isSelected
-                      ? "border-primary bg-surface-soft"
-                      : "border-transparent hover:bg-surface-soft"
+                      ? "border-primary bg-surface-soft shadow-soft"
+                      : "border-transparent hover:border-primary/20 hover:bg-surface-soft"
                   }`}
                 >
                   <ConversationAvatar
@@ -777,10 +778,17 @@ function InboxSearchAndTabs({
             aria-pressed={tab === option.key}
             className={`relative flex h-11 shrink-0 items-center justify-center overflow-hidden rounded-full border px-4 text-xs font-semibold transition-colors duration-200 sm:h-9 sm:min-w-0 sm:px-2 sm:text-[11px] ${
               tab === option.key
-                ? "border-primary bg-primary text-white shadow-button"
+                ? "border-primary text-white"
                 : "border-border bg-surface text-foreground shadow-soft hover:border-primary/30"
             }`}
           >
+            {tab === option.key && (
+              <motion.span
+                layoutId={`${layoutIdPrefix}-tab-indicator`}
+                transition={MOTION_SPRING.snappy}
+                className="absolute inset-0 rounded-full bg-primary shadow-button"
+              />
+            )}
             <span className="relative block min-w-0 whitespace-nowrap">
               {option.label}
             </span>
