@@ -467,7 +467,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           <button
             type="button"
             onClick={() => window.dispatchEvent(new Event("online"))}
-            className="absolute left-1/2 top-3 z-20 min-h-10 -translate-x-1/2 rounded-full border border-border bg-surface px-4 text-xs font-semibold text-danger shadow-soft"
+            className="absolute left-1/2 top-3 z-20 min-h-10 -translate-x-1/2 rounded-full border border-red-200 bg-surface px-4 text-xs font-semibold text-red-600 shadow-soft"
           >
             {loadError} Reintentar
           </button>
@@ -478,7 +478,12 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
             type="button"
             onClick={() => scrollToBottom("smooth")}
             aria-label="Ir a los mensajes recientes"
-            className="absolute bottom-3 right-3 flex h-11 min-w-11 items-center justify-center gap-2 rounded-full border border-border bg-surface px-3 text-foreground shadow-soft transition hover:border-foreground/20 active:scale-95"
+            className={cn(
+              "absolute bottom-3 right-3 flex h-11 min-w-11 items-center justify-center gap-2 rounded-full px-3 shadow-soft transition active:scale-95",
+              newArrivals > 0
+                ? "bg-primary text-white hover:bg-primary-hover"
+                : "border border-border bg-surface text-foreground hover:border-foreground/20"
+            )}
           >
             <DownArrowIcon />
             {newArrivals > 0 && (
@@ -500,7 +505,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
         onSubmit={handleSubmit}
         className="border-t border-border bg-surface px-3 pb-[max(0.75rem,var(--safe-bottom))] pt-3 sm:px-4 sm:pb-4"
       >
-        <div className="flex items-end gap-2 rounded-24 border border-border bg-surface px-2 py-2 shadow-soft transition focus-within:border-foreground/40 focus-within:ring-2 focus-within:ring-foreground/5">
+        <div className="flex items-end gap-2 rounded-24 border border-border bg-surface-soft px-2 py-2 transition focus-within:border-primary/40 focus-within:bg-surface focus-within:ring-4 focus-within:ring-primary/10">
           <textarea
             ref={textareaRef}
             value={content}
@@ -520,7 +525,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
             type="submit"
             disabled={!content.trim()}
             aria-label="Enviar mensaje"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-foreground text-white transition hover:bg-black active:scale-95 disabled:cursor-not-allowed disabled:bg-surface-soft disabled:text-muted"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-button transition hover:bg-primary-hover active:scale-95 disabled:cursor-not-allowed disabled:bg-border disabled:text-muted disabled:shadow-none"
           >
             <SendIcon />
           </button>
@@ -581,7 +586,7 @@ const MessageBubble = memo(function MessageBubble({
               className="h-7 w-7 shrink-0 rounded-full object-cover"
             />
           ) : (
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-white">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
               {initials || "CF"}
             </div>
           )
@@ -593,7 +598,7 @@ const MessageBubble = memo(function MessageBubble({
         className={cn(
           "max-w-[84%] min-w-0 rounded-18 px-3.5 py-2 shadow-[0_1px_2px_rgb(0_0_0/0.05)] sm:max-w-[72%]",
           isOwn
-            ? cn("bg-foreground text-white", lastOfGroup && "chat-tail-own rounded-br-md")
+            ? cn("bg-primary text-white", lastOfGroup && "chat-tail-own rounded-br-md")
             : cn("border border-border bg-surface text-foreground", lastOfGroup && "chat-tail-other rounded-bl-md")
         )}
       >
@@ -624,7 +629,7 @@ function PendingMessageBubble({
     <div className="mt-3 flex flex-row-reverse items-end">
       <div
         className={cn(
-          "chat-tail-own max-w-[84%] rounded-18 rounded-br-md bg-foreground px-3.5 py-2 text-white shadow-soft sm:max-w-[72%]",
+          "chat-tail-own max-w-[84%] rounded-18 rounded-br-md bg-primary px-3.5 py-2 text-white shadow-soft sm:max-w-[72%]",
           message.status === "sending" && "opacity-80"
         )}
       >

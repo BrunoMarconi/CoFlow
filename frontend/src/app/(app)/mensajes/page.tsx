@@ -465,7 +465,7 @@ export default function MensajesPage() {
               Conoce a más personas o encuentra tu comunidad ideal.
             </span>
           </span>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-foreground text-2xl font-light text-white shadow-button">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-light text-white shadow-button">
             +
           </span>
         </Link>
@@ -496,7 +496,7 @@ export default function MensajesPage() {
               transition={{ duration: 0.2, ease: "easeOut" }}
               className={`flex items-center gap-3 border-l-[3px] px-4 py-3.5 text-left transition-colors duration-200 ${
                 communitySelected
-                  ? "border-foreground bg-surface-soft"
+                  ? "border-primary bg-surface-soft"
                   : "border-transparent hover:bg-surface-soft"
               }`}
             >
@@ -563,7 +563,7 @@ export default function MensajesPage() {
                   whileTap={{ scale: 0.99 }}
                   className={`flex items-center gap-3 border-l-[3px] px-4 py-3.5 text-left transition-colors duration-200 ${
                     isSelected
-                      ? "border-foreground bg-surface-soft"
+                      ? "border-primary bg-surface-soft"
                       : "border-transparent hover:bg-surface-soft"
                   }`}
                 >
@@ -777,8 +777,8 @@ function InboxSearchAndTabs({
             aria-pressed={tab === option.key}
             className={`relative flex h-11 shrink-0 items-center justify-center overflow-hidden rounded-full border px-4 text-xs font-semibold transition-colors duration-200 sm:h-9 sm:min-w-0 sm:px-2 sm:text-[11px] ${
               tab === option.key
-                ? "border-foreground bg-foreground text-white shadow-button"
-                : "border-border bg-surface text-foreground shadow-soft hover:border-foreground/30"
+                ? "border-primary bg-primary text-white shadow-button"
+                : "border-border bg-surface text-foreground shadow-soft hover:border-primary/30"
             }`}
           >
             <span className="relative block min-w-0 whitespace-nowrap">
@@ -927,7 +927,7 @@ function ConversationPreview({
               initial={{ scale: 0.6, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="h-2 w-2 rounded-full bg-primary"
+              className="h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_0_3px_var(--surface-soft)]"
             />
           )}
           <ChevronRightIcon className="h-4 w-4 text-muted sm:hidden" />
