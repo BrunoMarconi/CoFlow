@@ -6,13 +6,13 @@ import { Sparkles } from "lucide-react";
 import type { CompatibilityCategoryScore } from "@/types/compatibilityScore";
 import { cn } from "@/lib/utils";
 
-const WIDTH = 380;
-const HEIGHT = 320;
+const WIDTH = 300;
+const HEIGHT = 260;
 const CENTER_X = WIDTH / 2;
 const CENTER_Y = HEIGHT / 2;
-const MAX_RADIUS = 92;
-const LABEL_RADIUS = MAX_RADIUS + 28;
-const GRID_RINGS = [0.25, 0.5, 0.75, 1];
+const MAX_RADIUS = 78;
+const LABEL_RADIUS = MAX_RADIUS + 26;
+const GRID_RINGS = [0.33, 0.66, 1];
 
 function pointAt(index: number, total: number, radius: number) {
   const angle = (index * 360) / total;
@@ -46,7 +46,7 @@ export default function CompatibilityRadar({
 }) {
   if (categories.length === 0) return null;
 
-  const scoreRadius = (score: number) => MAX_RADIUS * (0.08 + 0.92 * (Math.max(0, Math.min(100, score)) / 100));
+  const scoreRadius = (score: number) => MAX_RADIUS * (0.1 + 0.9 * (Math.max(0, Math.min(100, score)) / 100));
   const gridPoints = (fraction: number) =>
     Array.from({ length: categories.length })
       .map((_, index) => {
@@ -56,21 +56,29 @@ export default function CompatibilityRadar({
       .join(" ");
 
   return (
-    <section className={cn("mx-auto w-full max-w-2xl rounded-24 border border-border bg-surface p-6 shadow-soft sm:p-8", className)}>
+    <section className={cn("mx-auto w-full max-w-2xl rounded-24 border border-border bg-surface p-5 shadow-soft sm:p-6", className)}>
       {(title || subtitle || icon) && (
-        <div className="flex flex-col items-center text-center">
+        <div className="flex items-center gap-3">
           {icon && (
-            <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-18 bg-primary/10 text-primary">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-14 bg-primary/10 text-primary">
               {icon}
             </span>
           )}
-          {title && <h2 className="font-rounded text-2xl font-bold tracking-[-0.02em] text-brand-dark sm:text-3xl">{title}</h2>}
-          {subtitle && <p className="mt-2 text-sm text-secondary">{subtitle}</p>}
+          <div className="min-w-0">
+            {title && <h2 className="truncate font-rounded text-lg font-bold tracking-[-0.02em] text-brand-dark sm:text-xl">{title}</h2>}
+            {subtitle && <p className="truncate text-xs text-secondary">{subtitle}</p>}
+          </div>
         </div>
       )}
 
-      <div className={cn("mt-6 rounded-24 bg-primary/5 p-4", (title || subtitle || icon) && "mt-7")}>
-        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="mx-auto w-full max-w-md" role="img" aria-label="Radar del perfil de convivencia">
+      <div className={cn("flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:gap-6", (title || subtitle || icon) && "mt-5")}>
+        <div className="mx-auto w-full max-w-[220px] shrink-0 sm:max-w-[230px]">
+        <svg
+          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+          className="w-full"
+          role="img"
+          aria-label="Radar del perfil de convivencia"
+        >
           {GRID_RINGS.map((fraction) => (
             <polygon key={fraction} points={gridPoints(fraction)} fill="none" stroke="var(--line)" strokeWidth={1} />
           ))}
@@ -89,7 +97,7 @@ export default function CompatibilityRadar({
             style={{ transformBox: "fill-box", transformOrigin: "50% 50%" }}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
+            transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
           />
           {categories.map((category, index) => {
             const point = pointAt(index, categories.length, scoreRadius(category.score));
@@ -98,11 +106,11 @@ export default function CompatibilityRadar({
                 key={category.key}
                 cx={point.x}
                 cy={point.y}
-                r={4}
+                r={3.5}
                 fill="var(--brand)"
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: 0.5 + index * 0.05 }}
+                transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
                 style={{ transformBox: "fill-box", transformOrigin: "50% 50%" }}
               />
             );
@@ -119,7 +127,7 @@ export default function CompatibilityRadar({
                 y={point.y}
                 textAnchor={anchor}
                 dominantBaseline="middle"
-                className="fill-secondary text-[11px] font-bold uppercase tracking-[0.04em]"
+                className="fill-secondary text-[9px] font-bold uppercase tracking-[0.03em]"
               >
                 {words.map((word, wordIndex) => (
                   <tspan key={word} x={point.x} dy={wordIndex === 0 ? (words.length > 1 ? "-0.5em" : 0) : "1.1em"}>
@@ -130,30 +138,40 @@ export default function CompatibilityRadar({
             );
           })}
         </svg>
+        </div>
+
+        <div className="min-w-0 flex-1 space-y-2">
+          {categories.map((category, index) => (
+            <div key={category.key} className="flex items-center gap-2.5">
+              <span className="w-24 shrink-0 truncate text-[11px] font-bold uppercase tracking-[0.03em] text-secondary sm:w-28">
+                {category.label}
+              </span>
+              <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-soft">
+                <motion.span
+                  className="block h-full rounded-full bg-primary"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.max(4, Math.min(100, category.score))}%` }}
+                  transition={{ duration: 0.7, delay: 0.1 + index * 0.06, ease: [0.2, 0.8, 0.2, 1] }}
+                />
+              </span>
+              <AnimatedScore value={category.score} delay={0.15 + index * 0.06} />
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {categories.map((category, index) => (
-          <div key={category.key} className="rounded-18 bg-surface-soft p-4">
-            <p className="text-xs font-bold uppercase tracking-[0.04em] text-secondary">{category.label}</p>
-            <AnimatedScore value={category.score} delay={0.15 + index * 0.06} />
-            <p className="mt-1 text-xs leading-5 text-secondary">{category.description}</p>
-          </div>
-        ))}
-      </div>
-
-      {actions && <div className="mt-7 grid gap-3 sm:grid-cols-2">{actions}</div>}
+      {actions && <div className="mt-5 grid gap-3 sm:grid-cols-2">{actions}</div>}
     </section>
   );
 }
 
 function AnimatedScore({ value, delay = 0 }: { value: number; delay?: number }) {
   const [display, setDisplay] = useState(0);
-  const ref = useRef<HTMLParagraphElement>(null);
+  const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const controls = animate(0, value, {
-      duration: 0.9,
+      duration: 0.8,
       delay,
       ease: [0.2, 0.8, 0.2, 1],
       onUpdate: (latest) => setDisplay(Math.round(latest)),
@@ -162,12 +180,12 @@ function AnimatedScore({ value, delay = 0 }: { value: number; delay?: number }) 
   }, [value, delay]);
 
   return (
-    <p ref={ref} className="mt-1 text-2xl font-bold tracking-[-0.02em] text-brand-dark">
+    <span ref={ref} className="w-7 shrink-0 text-right text-xs font-bold tabular-nums text-brand-dark">
       {display}
-    </p>
+    </span>
   );
 }
 
 export function CompatibilityRadarIcon() {
-  return <Sparkles className="h-6 w-6" />;
+  return <Sparkles className="h-5 w-5" />;
 }
