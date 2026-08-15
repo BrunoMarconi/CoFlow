@@ -6,6 +6,9 @@ export interface RegisterRequest {
   email: string;
   password: string;
   role?: "USER" | "OWNER";
+  birth_date: string;
+  terms_accepted: boolean;
+  marketing_consent?: boolean;
 }
 
 export interface LoginRequest {

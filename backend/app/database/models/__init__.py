@@ -26,3 +26,4 @@ from app.database.models.financial_analysis import FinancialAnalysis
 from app.database.models.financial_monthly_summary import FinancialMonthlySummary
 from app.database.models.solvency_passport import SolvencyPassport
 from app.database.models.email_verification_token import EmailVerificationToken
+from app.database.models.legal_report import LegalReport

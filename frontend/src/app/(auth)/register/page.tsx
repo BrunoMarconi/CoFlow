@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, UserRound, Users2, Building2 } from "lucide-react";
+import { ArrowRight, Cake, Eye, EyeOff, LockKeyhole, Mail, UserRound, Users2, Building2 } from "lucide-react";
 import AuthBrand from "@/components/auth/AuthBrand";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -29,23 +29,48 @@ export default function RegisterPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!termsAccepted) {
+      setError("Debes aceptar los Términos y Condiciones para crear una cuenta.");
+      return;
+    }
     setError("");
     setLoading(true);
     try {
-      const data = await register({ first_name: firstName, last_name: lastName, email, password, role });
+      const data = await register({
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password,
+        role,
+        birth_date: birthDate,
+        terms_accepted: termsAccepted,
+        marketing_consent: marketingConsent,
+      });
       setToken(data.access_token);
       applyAuthenticatedUser(data.user);
       if (role === "OWNER") setPostVerificationOwnerIntent();
       router.push("/verificacion-pendiente");
     } catch (reason) {
-      const status = (reason as { response?: { status?: number } })?.response?.status;
-      setError(status === 409 ? "Ese correo ya tiene una cuenta. Inicia sesión o utiliza otro." : "No pudimos crear tu cuenta. Revisa los datos e inténtalo de nuevo.");
+      const response = (reason as { response?: { status?: number; data?: { detail?: unknown } } })?.response;
+      const status = response?.status;
+      const detail = response?.data?.detail;
+      const firstDetailMessage = Array.isArray(detail) ? detail[0]?.msg : undefined;
+      setError(
+        status === 409
+          ? "Ese correo ya tiene una cuenta. Inicia sesión o utiliza otro."
+          : status === 422 && typeof firstDetailMessage === "string"
+            ? firstDetailMessage.replace(/^Value error,\s*/, "")
+            : "No pudimos crear tu cuenta. Revisa los datos e inténtalo de nuevo."
+      );
     } finally {
       setLoading(false);
     }
@@ -72,6 +97,7 @@ export default function RegisterPage() {
             <Input aria-label="Apellidos" value={lastName} onChange={(event) => setLastName(event.target.value)} placeholder="Apellidos" leftElement={<UserRound className="h-5 w-5" />} autoComplete="family-name" required />
           </div>
           <Input aria-label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email" leftElement={<Mail className="h-5 w-5" />} autoComplete="email" required />
+          <Input aria-label="Fecha de nacimiento" type="date" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} leftElement={<Cake className="h-5 w-5" />} autoComplete="bday" max={new Date().toISOString().slice(0, 10)} required />
           <div className="relative">
             <Input aria-label="Contraseña" type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Contraseña" leftElement={<LockKeyhole className="h-5 w-5" />} autoComplete="new-password" minLength={8} required className="pr-12" />
             <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"} className="absolute right-3 top-0 flex h-11.5 w-10 items-center justify-center text-muted">
@@ -85,6 +111,41 @@ export default function RegisterPage() {
               Como propietario/a accedes directamente a tu panel para publicar viviendas, sin el test de convivencia. Podrás activarlo más adelante si también quieres buscar compañero de piso.
             </p>
           )}
+
+          <div className="space-y-3">
+            <label className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={(event) => setTermsAccepted(event.target.checked)}
+                required
+                className="mt-0.5 h-5 w-5 shrink-0 rounded border-border text-primary focus:ring-primary/30"
+              />
+              <span className="text-sm leading-6 text-secondary">
+                He leído y acepto los{" "}
+                <Link href="/legal/terminos" target="_blank" className="font-bold text-primary-dark underline underline-offset-4">
+                  Términos y Condiciones
+                </Link>{" "}
+                de CoFlow.
+              </span>
+            </label>
+            <p className="text-xs leading-5 text-muted">
+              Al crear tu cuenta, tus datos serán tratados de acuerdo con nuestra{" "}
+              <Link href="/legal/privacidad" target="_blank" className="font-semibold text-primary-dark underline underline-offset-4">
+                Política de Privacidad
+              </Link>
+              .
+            </p>
+            <label className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                checked={marketingConsent}
+                onChange={(event) => setMarketingConsent(event.target.checked)}
+                className="mt-0.5 h-5 w-5 shrink-0 rounded border-border text-primary focus:ring-primary/30"
+              />
+              <span className="text-sm leading-6 text-secondary">Quiero recibir novedades y comunicaciones de CoFlow.</span>
+            </label>
+          </div>
 
           {error && <p role="alert" className="rounded-14 border border-red-200 bg-surface px-4 py-3 text-sm font-semibold text-red-600">{error}</p>}
 

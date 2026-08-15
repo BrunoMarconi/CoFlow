@@ -13,8 +13,19 @@ const accountLinks = [
   { href: "/register", label: "Crear cuenta" },
 ] as const;
 
-// Sin páginas legales publicadas todavía: se muestran como próximamente en vez de enlazar a rutas inexistentes.
-const infoItems = ["Privacidad", "Términos", "Contacto"] as const;
+const legalLinks = [
+  { href: "/legal/aviso-legal", label: "Aviso legal" },
+  { href: "/legal/privacidad", label: "Privacidad" },
+  { href: "/legal/cookies", label: "Cookies" },
+  { href: "/legal/terminos", label: "Términos y condiciones" },
+  { href: "/legal/normas-comunidad", label: "Normas de la comunidad" },
+  { href: "/legal/reportar", label: "Denunciar contenido ilegal" },
+] as const;
+
+const supportLinks = [
+  { href: "mailto:soporte@coflowapp.es", label: "Soporte" },
+  { href: "mailto:legal@coflowapp.es", label: "Contacto" },
+] as const;
 
 export default function Footer() {
   return (
@@ -33,6 +44,18 @@ export default function Footer() {
               Encuentra personas y comunidades compatibles para compartir
               vivienda de una forma más clara.
             </p>
+
+            <div className="mt-4 flex gap-4">
+              {supportLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm font-semibold text-muted hover:text-brand-dark"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
           </div>
 
           <FooterColumn title="Producto">
@@ -59,15 +82,15 @@ export default function Footer() {
             ))}
           </FooterColumn>
 
-          <FooterColumn title="Información">
-            {infoItems.map((label) => (
-              <span
-                key={label}
-                className="text-sm font-semibold text-muted/60"
-                title="Próximamente"
+          <FooterColumn title="Legal">
+            {legalLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-semibold text-muted hover:text-brand-dark"
               >
-                {label}
-              </span>
+                {link.label}
+              </Link>
             ))}
           </FooterColumn>
         </div>

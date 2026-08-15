@@ -1,8 +1,8 @@
 import enum
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
-from sqlalchemy import JSON, Boolean, DateTime, Enum, Integer, String, Text
+from sqlalchemy import JSON, Boolean, Date, DateTime, Enum, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -108,6 +108,35 @@ class User(Base):
     # aquí se calcula is_online en el perfil público (sin guardar un
     # booleano aparte que podría quedar desincronizado).
     last_active_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    birth_date: Mapped[date | None] = mapped_column(
+        Date,
+        nullable=True,
+    )
+    # Versión de los Términos y de la Política de Privacidad aceptadas
+    # al registrarse (ej. "1.0", "2026-08-15") — permite saber bajo qué
+    # texto exacto dio su consentimiento cada usuario si esos
+    # documentos cambian más adelante.
+    terms_version: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True,
+    )
+    terms_accepted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    privacy_version: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True,
+    )
+    marketing_consent: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+    )
+    marketing_consent_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
     )

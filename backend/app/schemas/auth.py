@@ -1,7 +1,9 @@
+from datetime import date
 from typing import Literal
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
+from app.core.config import MINIMUM_REGISTRATION_AGE
 from app.schemas.user import UserResponse
 
 
@@ -11,6 +13,31 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
     role: Literal["USER", "OWNER"] = "USER"
+    birth_date: date
+    # Debe ser True para poder registrarse (ver validador). No es
+    # opcional: el checkbox de Términos y Condiciones es obligatorio.
+    terms_accepted: bool
+    marketing_consent: bool = False
+
+    @field_validator("terms_accepted")
+    @classmethod
+    def validate_terms_accepted(cls, value: bool) -> bool:
+        if not value:
+            raise ValueError("Debes aceptar los Términos y Condiciones para crear una cuenta.")
+        return value
+
+    @field_validator("birth_date")
+    @classmethod
+    def validate_minimum_age(cls, value: date) -> date:
+        today = date.today()
+        age = today.year - value.year - ((today.month, today.day) < (value.month, value.day))
+        if age < MINIMUM_REGISTRATION_AGE:
+            raise ValueError(
+                f"Debes tener al menos {MINIMUM_REGISTRATION_AGE} años para crear una cuenta en CoFlow."
+            )
+        if value > today:
+            raise ValueError("La fecha de nacimiento no puede ser futura.")
+        return value
 
 
 class LoginRequest(BaseModel):

@@ -11,6 +11,7 @@ from app.api.routes import (
     connections,
     financial_analysis,
     invitations,
+    legal,
     notifications,
     onboarding,
     owner_properties,
@@ -81,6 +82,11 @@ app.include_router(
     invitations.router,
     prefix="/invitations",
     tags=["Invitations"],
+)
+app.include_router(
+    legal.router,
+    prefix="/legal",
+    tags=["Legal"],
 )
 app.include_router(
     applications.router,

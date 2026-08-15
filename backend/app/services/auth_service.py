@@ -3,7 +3,11 @@ from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from datetime import datetime, timezone
+
 from app.core.config import (
+    CURRENT_PRIVACY_VERSION,
+    CURRENT_TERMS_VERSION,
     ENVIRONMENT,
     EMAIL_VERIFICATION_ENABLED,
     EMAIL_VERIFICATION_TEST_MODE,
@@ -47,6 +51,7 @@ class AuthService:
                 detail="Email already registered"
             )
 
+        now = datetime.now(timezone.utc)
         user = User(
             first_name=data.first_name.strip(),
             last_name=data.last_name.strip(),
@@ -54,6 +59,12 @@ class AuthService:
             password_hash=hash_password(data.password),
             is_email_verified=not EMAIL_VERIFICATION_ENABLED,
             role=data.role,
+            birth_date=data.birth_date,
+            terms_version=CURRENT_TERMS_VERSION,
+            terms_accepted_at=now,
+            privacy_version=CURRENT_PRIVACY_VERSION,
+            marketing_consent=data.marketing_consent,
+            marketing_consent_at=now if data.marketing_consent else None,
         )
 
         db.add(user)

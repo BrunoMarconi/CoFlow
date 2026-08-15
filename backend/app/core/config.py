@@ -2,6 +2,17 @@ import os
 
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
+# Versiones vigentes de los documentos legales que se aceptan al
+# registrarse (frontend/src/app/legal/terminos y /privacidad). Se
+# guardan junto a cada usuario en el momento del registro para saber
+# bajo qué texto exacto dio su consentimiento si estos documentos
+# cambian más adelante. Súbelas aquí cuando publiques una revisión.
+CURRENT_TERMS_VERSION = "1.0"
+CURRENT_PRIVACY_VERSION = "2026-08-15"
+
+# Edad mínima para registrarse en CoFlow (Política de Privacidad, Términos).
+MINIMUM_REGISTRATION_AGE = 14
+
 PROPERTY_MARKETPLACE_ENABLED = (
     os.getenv("PROPERTY_MARKETPLACE_ENABLED", "false").lower() == "true"
 )
