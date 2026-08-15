@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { refresh, refreshCommunity, refreshOwnerProfile } = useAuth();
+  const { applyAuthenticatedUser, refreshCommunity, refreshOwnerProfile } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +27,8 @@ export default function LoginPage() {
     try {
       const data = await login({ email, password });
       setToken(data.access_token);
-      const currentUser = await refresh();
+      applyAuthenticatedUser(data.user);
+      const currentUser = data.user;
 
       if (currentUser?.role === "OWNER") {
         const ownerProfile = await refreshOwnerProfile();
@@ -35,7 +36,11 @@ export default function LoginPage() {
         return;
       }
 
-      if (currentUser?.onboarding_completed) await refreshCommunity();
+      // No se espera: el destino ya se decide con currentUser, y la
+      // comunidad puede seguir cargando en segundo plano una vez
+      // dentro — esperarla aquí solo añadía otro round-trip antes de
+      // poder navegar.
+      if (currentUser?.onboarding_completed) void refreshCommunity();
       router.replace(currentUser?.onboarding_completed ? "/comunidades" : "/onboarding");
     } catch (reason) {
       const status = (reason as { response?: { status?: number } })?.response?.status;

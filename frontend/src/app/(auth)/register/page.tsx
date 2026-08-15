@@ -7,7 +7,7 @@ import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, UserRound, Users2, Building
 import AuthBrand from "@/components/auth/AuthBrand";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { login, register } from "@/services/auth";
+import { register } from "@/services/auth";
 import { setToken } from "@/lib/auth";
 import { useAuth } from "@/hooks/useAuth";
 import { setPostVerificationOwnerIntent } from "@/lib/postVerificationIntent";
@@ -17,7 +17,7 @@ type Role = "USER" | "OWNER";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { refresh } = useAuth();
+  const { applyAuthenticatedUser } = useAuth();
   const [role, setRole] = useState<Role>("USER");
 
   useEffect(() => {
@@ -38,10 +38,9 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
-      await register({ first_name: firstName, last_name: lastName, email, password, role });
-      const data = await login({ email, password });
+      const data = await register({ first_name: firstName, last_name: lastName, email, password, role });
       setToken(data.access_token);
-      await refresh();
+      applyAuthenticatedUser(data.user);
       if (role === "OWNER") setPostVerificationOwnerIntent();
       router.push("/verificacion-pendiente");
     } catch (reason) {

@@ -16,7 +16,11 @@ if not DATABASE_URL:
         "aplicación."
     )
 
-engine = create_engine(DATABASE_URL)
+# pool_pre_ping evita usar una conexión que Neon (Postgres serverless)
+# ya cerró por inactividad — sin esto, la primera query tras un rato
+# sin tráfico podía fallar o tardar de más al reintentar. pool_recycle
+# recicla conexiones antes de que el propio Neon las corte por su cuenta.
+engine = create_engine(DATABASE_URL, pool_pre_ping=True, pool_recycle=280)
 
 SessionLocal = sessionmaker(
     autocommit=False,

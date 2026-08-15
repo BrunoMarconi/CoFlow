@@ -12,8 +12,14 @@ from app.core.jwt import create_access_token
 from app.core.security import hash_password, verify_password
 from app.database.models.user import User
 from app.schemas.auth import LoginRequest, RegisterRequest
-from app.schemas.user import UpdateProfileRequest
+from app.schemas.user import UpdateProfileRequest, UserResponse
 from app.services.email_verification_service import request_verification_email
+
+
+def _build_user_response(user: User) -> UserResponse:
+    response = UserResponse.model_validate(user)
+    response.email_verification_enabled = EMAIL_VERIFICATION_ENABLED
+    return response
 
 
 class AuthService:
@@ -70,15 +76,29 @@ class AuthService:
 
         db.refresh(user)
 
+        # Igual que en login: el token de sesión no depende de si el
+        # email está verificado, así que se emite aquí directamente en
+        # vez de obligar al frontend a hacer un login aparte justo
+        # después de registrarse (un round-trip HTTP + un
+        # verify_password de bcrypt menos en el camino crítico).
+        access_token = create_access_token(str(user.id))
+        user_response = _build_user_response(user)
+
         if not EMAIL_VERIFICATION_ENABLED:
-            return {"message": "Cuenta creada correctamente."}
+            return {
+                "message": "Cuenta creada correctamente.",
+                "access_token": access_token,
+                "user": user_response,
+            }
 
         raw_token = request_verification_email(
             db, user, background_tasks, ip_hash=ip_hash
         )
 
         response = {
-            "message": "Cuenta creada. Revisa tu correo para verificarla."
+            "message": "Cuenta creada. Revisa tu correo para verificarla.",
+            "access_token": access_token,
+            "user": user_response,
         }
         if EMAIL_VERIFICATION_TEST_MODE and ENVIRONMENT != "production":
             response["debug_token"] = raw_token
@@ -114,6 +134,7 @@ class AuthService:
             "token_type": "bearer",
             "is_email_verified": user.is_email_verified,
             "email_verification_enabled": EMAIL_VERIFICATION_ENABLED,
+            "user": _build_user_response(user),
         }
 
     def update_profile(

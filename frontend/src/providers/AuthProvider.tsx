@@ -41,6 +41,7 @@ interface AuthContextValue {
   notifications: AppNotification[];
   notificationsLoading: boolean;
   refresh: () => Promise<User | null>;
+  applyAuthenticatedUser: (user: User) => void;
   refreshCommunity: () => Promise<Community | null>;
   refreshOwnerProfile: () => Promise<OwnerProfile | null>;
   refreshUnreadCount: () => Promise<boolean>;
@@ -361,6 +362,15 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [refreshUnreadCount]);
 
+  // login/register ya devuelven el usuario completo en su propia
+  // respuesta — esto evita encadenar un GET /auth/me justo después
+  // (un round-trip HTTP menos en el camino más sensible a la latencia).
+  const applyAuthenticatedUser = useCallback((nextUser: User) => {
+    setUser(nextUser);
+    setLoading(false);
+    void refreshUnreadCount();
+  }, [refreshUnreadCount]);
+
   useEffect(() => {
     let active = true;
 
@@ -467,6 +477,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         notifications,
         notificationsLoading,
         refresh,
+        applyAuthenticatedUser,
         refreshCommunity,
         refreshOwnerProfile,
         refreshUnreadCount,

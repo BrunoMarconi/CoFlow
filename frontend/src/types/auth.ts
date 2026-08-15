@@ -18,6 +18,7 @@ export interface LoginResponse {
   token_type: string;
   is_email_verified: boolean;
   email_verification_enabled: boolean;
+  user: User;
 }
 
 export interface User {
@@ -43,6 +44,9 @@ export interface User {
 
 export interface RegisterResponse {
   message: string;
+  access_token: string;
+  token_type: string;
+  user: User;
   debug_token?: string | null;
 }
 
