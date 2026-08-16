@@ -559,7 +559,7 @@ function NoCommunity() {
         </div>
         <h1 className="mt-5 text-3xl font-extrabold tracking-tight text-brand-dark">Todavía no tienes comunidad</h1>
         <p className="mt-3 max-w-md text-sm leading-6 text-secondary">
-          Explora las comunidades disponibles o crea la tuya para tener aquí vuestro espacio privado.
+          Es el grupo con quien vas a compartir piso. Explora las disponibles o crea la tuya para tener aquí vuestro espacio privado.
         </p>
         <div className="mt-6 flex gap-3">
           <Link href="/comunidades" className="flex h-11 items-center rounded-14 border border-border bg-surface px-5 text-sm font-bold text-foreground shadow-soft transition hover:border-primary/30">Explorar</Link>

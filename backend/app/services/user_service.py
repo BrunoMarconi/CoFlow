@@ -22,9 +22,19 @@ from app.schemas.user_public import (
     PublicUserPreferencesResponse,
     PublicUserProfileResponse,
 )
-from app.services.compatibility_score_service import compute_category_scores
+from app.services.compatibility_score_service import (
+    compute_category_scores,
+    compute_match_score,
+)
 
 MAX_LIMIT = 100
+
+# Centinela para build_public_profile(viewer_preferences=...): distingue
+# "no se pasó, búscalo tú" de "se pasó explícitamente None porque el
+# viewer no tiene test de convivencia completado" (evita una query de
+# más por tarjeta en list_public_profiles, que ya lo resuelve una sola
+# vez para todo el listado).
+_UNSET = object()
 
 # Umbral para considerar a alguien "En línea": su última actividad
 # registrada (ver get_current_user) debe estar dentro de esta ventana.
@@ -56,6 +66,7 @@ class UserService:
         db: Session,
         user: User,
         viewer: User | None = None,
+        viewer_preferences: CompatibilityProfile | None | object = _UNSET,
     ) -> PublicUserProfileResponse:
         preferences = (
             db.query(CompatibilityProfile)
@@ -152,6 +163,20 @@ class UserService:
             < ONLINE_THRESHOLD
         )
 
+        match_score = None
+        if viewer is not None and viewer.id != user.id and preferences is not None:
+            resolved_viewer_preferences = viewer_preferences
+            if resolved_viewer_preferences is _UNSET:
+                resolved_viewer_preferences = (
+                    db.query(CompatibilityProfile)
+                    .filter(CompatibilityProfile.user_id == viewer.id)
+                    .first()
+                )
+            if resolved_viewer_preferences is not None:
+                match_score = compute_match_score(
+                    resolved_viewer_preferences, preferences
+                )
+
         return PublicUserProfileResponse(
             id=user.id,
             first_name=user.first_name,
@@ -175,6 +200,7 @@ class UserService:
                 if preferences is not None
                 else None
             ),
+            match_score=match_score,
             community=(
                 PublicUserCommunityResponse.model_validate(community)
                 if community is not None
@@ -272,7 +298,15 @@ class UserService:
             .all()
         )
 
+        viewer_preferences = (
+            db.query(CompatibilityProfile)
+            .filter(CompatibilityProfile.user_id == viewer.id)
+            .first()
+        )
+
         return [
-            self.build_public_profile(db, user, viewer)
+            self.build_public_profile(
+                db, user, viewer, viewer_preferences=viewer_preferences
+            )
             for user in users
         ]

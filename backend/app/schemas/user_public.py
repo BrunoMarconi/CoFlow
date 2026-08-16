@@ -57,6 +57,11 @@ class PublicUserProfileResponse(StorageBackedAvatarResponse):
     rental_budget: int | None = None
     preferences: PublicUserPreferencesResponse | None = None
     compatibility: CompatibilityScoreResponse | None = None
+    # Similitud 0-100 entre el perfil de convivencia de quien consulta
+    # y el de esta persona (ver UserService.build_public_profile). Null
+    # si cualquiera de los dos no ha completado el test de convivencia,
+    # o si se consulta el propio perfil.
+    match_score: int | None = None
     community: PublicUserCommunityResponse | None = None
     is_saved: bool = False
     connection_status: str = "NONE"

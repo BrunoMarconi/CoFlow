@@ -83,7 +83,7 @@ export default function RegisterPage() {
 
         <div className="mt-8 text-center">
           <h1 className="text-3xl font-bold tracking-[-0.03em] text-brand-dark">Crea tu cuenta</h1>
-          <p className="mt-2 text-sm leading-6 text-secondary">Vive en comunidad, comparte más que un espacio.</p>
+          <p className="mt-2 text-sm leading-6 text-secondary">Encuentra compañero de piso y únete a su comunidad.</p>
         </div>
 
         <div className="mt-7 grid grid-cols-2 gap-2 rounded-14 border border-border bg-surface-soft p-1">

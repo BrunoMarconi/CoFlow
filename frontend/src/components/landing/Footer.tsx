@@ -3,9 +3,9 @@ import Link from "next/link";
 import { Logo } from "./shared";
 
 const productLinks = [
-  { href: "#comunidades", label: "Comunidades" },
   { href: "#personas", label: "Personas" },
   { href: "#como-funciona", label: "Cómo funciona" },
+  { href: "/register?role=owner", label: "Publica tu piso" },
 ] as const;
 
 const accountLinks = [

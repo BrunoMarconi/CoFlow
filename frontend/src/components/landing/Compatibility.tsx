@@ -24,8 +24,9 @@ export default function Compatibility() {
               respuestas en un perfil visual con 6 ejes: limpieza, energía
               social, horario, economía, forma de resolver conflictos y
               tolerancia. Se muestra en tu perfil y como media en cada
-              comunidad, para que se entienda de un vistazo cómo se convive
-              ahí antes de hablar con nadie.
+              comunidad (el grupo con el que compartirías piso), para que se
+              entienda de un vistazo cómo se convive ahí antes de hablar con
+              nadie.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-2.5">

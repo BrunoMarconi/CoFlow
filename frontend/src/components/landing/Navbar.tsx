@@ -7,7 +7,6 @@ import { CloseIcon, MenuIcon } from "./icons";
 
 const NAV_LINKS = [
   { href: "#como-funciona", label: "Cómo funciona" },
-  { href: "#comunidades", label: "Comunidades" },
   { href: "#personas", label: "Personas" },
   { href: "#preguntas", label: "Preguntas" },
 ] as const;

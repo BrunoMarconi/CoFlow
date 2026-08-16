@@ -31,68 +31,14 @@ export default function TrustSection({ user }: { user: User }) {
     };
   }, []);
 
-  // El pasaporte de solvencia solo se emite tras conectar y verificar
-  // el banco: esa misma comprobación es lo más parecido a una
-  // verificación de identidad real que tenemos, así que la usamos
-  // también para la mini tarjeta "Identidad verificada" (mismo dato,
-  // distinto enfoque — financiero vs. identidad).
   const solvencyVerified = passport?.status === "ISSUED";
   const emailVerified = user.is_email_verified;
 
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-[1fr_1.5fr] gap-3">
-        <IdentityCard verified={solvencyVerified} loading={loadingPassport} />
-        <PassportCard verified={solvencyVerified} loading={loadingPassport} />
-      </div>
-
+    <div className="grid grid-cols-2 gap-3">
+      <PassportCard verified={solvencyVerified} loading={loadingPassport} />
       <EmailCard verified={emailVerified} email={user.email} />
     </div>
-  );
-}
-
-function IdentityCard({
-  verified,
-  loading,
-}: {
-  verified: boolean;
-  loading: boolean;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-      className="flex flex-col gap-3 rounded-18 border border-border bg-surface p-4"
-    >
-      <div className="flex items-start justify-between gap-2">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center text-primary">
-          <ShieldIcon />
-        </span>
-
-        {!loading && verified && (
-          <motion.span
-            initial={{ opacity: 0, scale: 0.7 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
-            className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-white"
-          >
-            <CheckIcon className="h-3 w-3" />
-          </motion.span>
-        )}
-      </div>
-
-      <div>
-        <p className="text-sm font-bold text-brand-dark">
-          Identidad verificada
-        </p>
-        <p className="mt-1 text-xs leading-5 text-muted">
-          {verified
-            ? "Tu identidad está verificada"
-            : "Aún no está verificada"}
-        </p>
-      </div>
-    </motion.div>
   );
 }
 
@@ -156,24 +102,39 @@ function PassportCard({
 function EmailCard({ verified, email }: { verified: boolean; email: string }) {
   const content = (
     <motion.div
-      whileTap={{ scale: MOTION_HOME_TAP_SCALE }}
+      whileTap={verified ? undefined : { scale: MOTION_HOME_TAP_SCALE }}
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-      className="flex items-center gap-3 rounded-18 border border-border bg-surface p-4 transition-colors duration-180 hover:bg-surface-soft"
+      className={`h-full rounded-18 border p-4 transition-colors duration-180 ${
+        verified
+          ? "border-primary/25 bg-surface shadow-soft"
+          : "border-border bg-surface shadow-soft hover:bg-surface-soft"
+      }`}
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center text-primary">
-        <MailIcon />
-      </span>
+      <div className="flex items-start justify-between gap-2">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-surface text-primary shadow-soft">
+          <MailIcon />
+        </span>
 
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-bold text-brand-dark">Email verificado</p>
-        <p className="mt-0.5 truncate text-xs text-muted">{email}</p>
+        <span
+          className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
+            verified
+              ? "bg-primary text-white"
+              : "bg-surface-soft text-muted"
+          }`}
+        >
+          {verified ? "Verificado" : "Pendiente"}
+        </span>
       </div>
 
-      {verified && (
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white">
-          <CheckIcon className="h-3.5 w-3.5" />
+      <p className="mt-3 text-sm font-bold text-brand-dark">Email verificado</p>
+      <p className="mt-1 truncate text-xs leading-5 text-muted">{email}</p>
+
+      {!verified && (
+        <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-primary-dark">
+          Verificar ahora
+          <ChevronIcon className="h-3.5 w-3.5" />
         </span>
       )}
     </motion.div>
@@ -184,44 +145,10 @@ function EmailCard({ verified, email }: { verified: boolean; email: string }) {
   return (
     <Link
       href="/verificacion-pendiente"
-      className="block rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      className="block h-full rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
       {content}
     </Link>
-  );
-}
-
-function ShieldIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4.5 w-4.5"
-      aria-hidden="true"
-    >
-      <path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5Z" />
-    </svg>
-  );
-}
-
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="m5 12 4 4L19 6" />
-    </svg>
   );
 }
 

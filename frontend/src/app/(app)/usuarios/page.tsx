@@ -198,7 +198,7 @@ export default function UsuariosPage() {
           {loading ? (
             <div className="grid auto-rows-max grid-cols-2 items-start gap-3 sm:gap-5 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, index) => (
-                <SkeletonCard key={index} />
+                <SkeletonCard key={index} withCover coverClassName="h-40 sm:h-44" />
               ))}
             </div>
           ) : resultCount === 0 ? (

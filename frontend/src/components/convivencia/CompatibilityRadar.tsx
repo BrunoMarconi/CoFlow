@@ -35,6 +35,7 @@ export default function CompatibilityRadar({
   subtitle,
   icon,
   actions,
+  actionsCaption,
   className,
 }: {
   categories: CompatibilityCategoryScore[];
@@ -42,6 +43,7 @@ export default function CompatibilityRadar({
   subtitle?: string;
   icon?: ReactNode;
   actions?: ReactNode;
+  actionsCaption?: string;
   className?: string;
 }) {
   if (categories.length === 0) return null;
@@ -160,7 +162,16 @@ export default function CompatibilityRadar({
         </div>
       </div>
 
-      {actions && <div className="mt-5 grid gap-3 sm:grid-cols-2">{actions}</div>}
+      {actions && (
+        <div className="mt-5">
+          {actionsCaption && (
+            <p className="mb-3 text-center text-sm leading-6 text-secondary">
+              {actionsCaption}
+            </p>
+          )}
+          <div className="grid gap-3 sm:grid-cols-2">{actions}</div>
+        </div>
+      )}
     </section>
   );
 }

@@ -11,18 +11,16 @@ export default function Cities() {
     >
       <div className="mx-auto max-w-7xl">
         <SectionHeader
-          eyebrow="Encuentra tu lugar"
+          eyebrow="Disponible en toda España"
           title="La convivencia que buscas puede estar en tu ciudad"
-          description="Descubre personas y comunidades que buscan una forma más compatible de compartir hogar."
+          description="Descubre personas y comunidades que buscan una forma más compatible de compartir hogar, en cualquier ciudad del país."
         />
 
         <div className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3">
           {cities.map((city) => (
             <article
               key={city.name}
-              className={`group relative min-h-80 overflow-hidden rounded-[2rem] bg-brand-dark shadow-sm ${
-                city.available ? "ring-2 ring-brand ring-offset-2" : ""
-              }`}
+              className="group relative min-h-80 overflow-hidden rounded-4xl bg-brand-dark shadow-sm"
             >
               <Image
                 src={city.image}
@@ -39,16 +37,6 @@ export default function Cities() {
                 <span className="rounded-full border border-white/25 bg-black/20 px-3 py-2 text-xs font-bold text-white backdrop-blur">
                   {city.region}
                 </span>
-
-                <span
-                  className={`rounded-full px-3 py-2 text-xs font-bold backdrop-blur ${
-                    city.available
-                      ? "bg-brand text-white"
-                      : "border border-white/25 bg-black/20 text-white"
-                  }`}
-                >
-                  {city.available ? "Disponible" : "Próximamente"}
-                </span>
               </div>
 
               <div className="absolute inset-x-0 bottom-0 p-6">
@@ -61,9 +49,7 @@ export default function Cities() {
                 </p>
 
                 <div className="mt-4 flex items-center gap-2 text-sm font-bold text-white">
-                  {city.available
-                    ? `Explorar comunidades en ${city.name}`
-                    : "Muy pronto en CoFlow"}
+                  {`Explorar comunidades en ${city.name}`}
 
                   <span className="transition group-hover:translate-x-1">
                     <ArrowRightIcon />
@@ -73,6 +59,11 @@ export default function Cities() {
             </article>
           ))}
         </div>
+
+        <p className="mx-auto mt-8 max-w-2xl text-center text-sm leading-6 text-muted">
+          Estas son solo algunas ciudades de ejemplo — puedes crear o unirte a
+          una comunidad en cualquier punto de España.
+        </p>
       </div>
     </section>
   );

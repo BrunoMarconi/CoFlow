@@ -15,7 +15,7 @@ export const howItWorksSteps = [
     number: "03",
     title: "Decide",
     description:
-      "Habla, conecta con quien encaje y solicita entrar solo cuando tenga sentido.",
+      "Escribe en privado con quien encaje y solicita entrar en su comunidad solo cuando tenga sentido.",
   },
 ] as const;
 
@@ -52,75 +52,78 @@ export const peopleExamples = [
   },
 ] as const;
 
+// Ciudades destacadas como ejemplo/punto de entrada en la home — CoFlow
+// está disponible en toda España, esta lista no es exhaustiva ni implica
+// que otras ciudades estén restringidas (ver componente Cities.tsx).
 export const cities = [
   {
     name: "Málaga",
     region: "Andalucía",
     image: "/images/cities/malaga.webp",
     description: "Comunidades en Teatinos, el centro y otras zonas de Málaga.",
-    available: true,
   },
   {
     name: "Madrid",
     region: "Comunidad de Madrid",
     image: "/images/cities/madrid.webp",
     description: "Personas y comunidades compatibles en distintos barrios.",
-    available: false,
   },
   {
     name: "Barcelona",
     region: "Cataluña",
     image: "/images/cities/barcelona.webp",
     description: "Conecta con personas que buscan compartir hogar.",
-    available: false,
   },
   {
     name: "Valencia",
     region: "Comunidad Valenciana",
     image: "/images/cities/valencia.webp",
     description: "Comunidades cerca de universidades y zonas de trabajo.",
-    available: false,
   },
   {
     name: "Sevilla",
     region: "Andalucía",
     image: "/images/cities/sevilla.webp",
     description: "Una convivencia compatible en una ciudad llena de vida.",
-    available: false,
   },
   {
     name: "Granada",
     region: "Andalucía",
     image: "/images/cities/granada.webp",
     description: "Conecta con estudiantes, trabajadores y nuevas comunidades.",
-    available: false,
   },
 ] as const;
 
-export const trustPoints = [
+// Funciones reales de seguridad/confianza (verificadas contra el
+// backend antes de escribir este copy). No incluir aquí nada que no
+// esté implementado — en concreto, CoFlow NO tiene verificación de
+// identidad (DNI/selfie) ni de teléfono, así que ese tipo de insignia
+// no debe aparecer en esta lista.
+export const safetyPoints = [
   {
-    title: "Conoce cómo conviven",
-    without: "Entras a ciegas, sin saber cómo vive la gente",
-    description:
-      "Cada comunidad muestra sus preferencias de convivencia antes de que hables con nadie.",
+    icon: "block",
+    title: "Bloquea a quien quieras",
+    description: "Deja de aparecer para esa persona al instante, sin explicaciones.",
   },
   {
-    title: "Habla antes de entrar",
-    without: "Hablas por primera vez ya viviendo allí",
-    description:
-      "Usa el chat para resolver dudas con la comunidad antes de solicitar una plaza.",
+    icon: "flag",
+    title: "Denuncia comportamientos",
+    description: "Reporta perfiles que no respeten las normas de la comunidad.",
   },
   {
-    title: "Comprueba si el presupuesto encaja",
-    without: "El precio real se aclara cuando ya es tarde",
-    description:
-      "La aportación mensual y el depósito están visibles desde el primer momento.",
+    icon: "lock",
+    title: "Controla qué compartes",
+    description: "Elige si tu perfil es público o solo visible para tus conexiones.",
   },
   {
-    title: "Controla tu privacidad",
-    without: "No decides qué compartes ni cuándo",
-    description:
-      "Decides qué información de tu perfil es pública antes de compartirla.",
+    icon: "chat",
+    title: "Habla antes de decidir",
+    description: "Escribe en privado antes de solicitar una plaza.",
+  },
+  {
+    icon: "mail",
+    title: "Email verificado",
+    description: "Confirmamos el email de cada cuenta antes de conectar con otras personas.",
   },
 ] as const;
 
@@ -150,6 +153,11 @@ export const faqItems = [
     question: "¿Puedo invitar a mis compañeros actuales?",
     answer:
       "Sí, como administrador de una comunidad puedes invitar directamente a personas concretas, sin que tengan que pasar por el proceso de solicitud.",
+  },
+  {
+    question: "¿Puedo hablar con alguien antes de unirme a su comunidad?",
+    answer:
+      "Sí. Puedes escribir en privado a cualquier persona que esté buscando compañeros de piso, aunque todavía no pertenezcas a su comunidad, para resolver dudas antes de decidir. El chat grupal de cada comunidad, en cambio, solo se abre a quienes ya forman parte de ella.",
   },
   {
     question: "¿Qué ocurre cuando entro en una comunidad?",

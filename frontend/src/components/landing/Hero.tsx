@@ -1,10 +1,10 @@
+import Link from "next/link";
 import Image from "next/image";
 import { CheckItem, Logo } from "./shared";
 import {
   ArrowRightIcon,
   CheckIcon,
   CommunityIcon,
-  PlayIcon,
   SearchIcon,
   SparklesIcon,
 } from "./icons";
@@ -20,7 +20,7 @@ export default function Hero() {
 
 function MobileHero() {
   return (
-    <div className="relative min-h-[560px] overflow-hidden sm:hidden">
+    <div className="relative min-h-130 overflow-hidden sm:hidden">
       <Image
         src="/images/hero/madrid.webp"
         alt="Gran Vía de Madrid"
@@ -33,41 +33,42 @@ function MobileHero() {
       <div className="absolute inset-0 bg-linear-to-t from-brand-dark via-brand-dark/75 to-brand-dark/25" />
       <div className="absolute inset-0 bg-linear-to-b from-black/35 via-transparent to-transparent" />
 
-      <div className="relative flex min-h-[560px] flex-col justify-end px-5 pb-10 pt-28">
-        <h1 className="max-w-xs text-4xl font-black leading-[1.05] tracking-[-0.035em] text-white min-[375px]:text-[2.75rem] min-[375px]:leading-[1.03]">
-          No busques solo una habitación.
-          <span className="block text-green-300">
-            Encuentra una convivencia que encaje contigo.
-          </span>
+      <div className="relative flex min-h-130 flex-col justify-end px-5 pb-9 pt-24">
+        <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-green-300" />
+          Disponible en toda España
+        </div>
+
+        <h1 className="mt-4 max-w-xs text-4xl font-black leading-[1.05] tracking-[-0.035em] text-white min-[375px]:text-[2.6rem] min-[375px]:leading-[1.05]">
+          Encuentra compañeros de piso <span className="text-green-300">compatibles</span>
         </h1>
 
-        <p className="mt-5 max-w-xs text-base leading-7 text-white/85">
-          Descubre comunidades, conoce a tus futuros compañeros y habla con
-          ellos antes de compartir vivienda.
+        <p className="mt-4 max-w-xs text-base leading-7 text-white/85">
+          Conoce hábitos, presupuesto y forma de convivir antes de decidir
+          compartir piso.
         </p>
 
-        <div className="mt-7 flex flex-col gap-3">
-          <a
-            href="#comunidades"
+        <div className="mt-6 flex flex-col gap-3">
+          <Link
+            href="/register"
             className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-brand px-7 text-sm font-bold text-white shadow-[0_16px_35px_rgba(0,0,0,0.25)] transition active:scale-[0.98]"
           >
-            Explorar comunidades
+            Crear mi perfil gratis
             <ArrowRightIcon />
-          </a>
+          </Link>
 
           <a
             href="#personas"
             className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-white/40 bg-white/10 px-7 text-sm font-bold text-white backdrop-blur transition active:scale-[0.98]"
           >
-            Descubrir personas
-            <PlayIcon />
+            Explorar personas
+            <SearchIcon />
           </a>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-white/80">
-          <MobileCheckItem text="Crear cuenta gratis" />
-          <MobileCheckItem text="Sin compromisos" />
-          <MobileCheckItem text="Disponible en España" />
+        <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-white/80">
+          <MobileCheckItem text="Perfil gratis" />
+          <MobileCheckItem text="Sin compromiso" />
         </div>
       </div>
     </div>
@@ -95,43 +96,45 @@ function DesktopHero() {
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-brand/25 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.13em] text-brand-dark shadow-sm">
             <span className="h-2 w-2 shrink-0 rounded-full bg-brand" />
-            Encuentra personas, no solo habitaciones
+            Disponible en toda España
           </div>
 
-          <h1 className="mt-6 max-w-3xl text-6xl font-black leading-[1.02] tracking-[-0.045em] text-brand-dark lg:text-[4.6rem]">
-            No busques solo una habitación.
-            <span className="block text-brand">
-              Encuentra una convivencia que encaje contigo.
-            </span>
+          <h1 className="mt-6 max-w-2xl text-5xl font-black leading-[1.05] tracking-[-0.04em] text-brand-dark lg:text-6xl">
+            Encuentra compañeros de piso{" "}
+            <span className="text-brand">compatibles</span>
           </h1>
 
           <p className="mt-6 max-w-xl text-xl leading-8 text-muted">
-            Descubre comunidades, conoce a tus futuros compañeros y habla con
-            ellos antes de compartir vivienda.
+            Conoce hábitos, presupuesto y forma de convivir antes de decidir
+            compartir piso.
+          </p>
+
+          <p className="mt-3 max-w-xl text-sm font-semibold text-brand-dark/70">
+            No busques solo una habitación. Encuentra una convivencia que
+            encaje contigo.
           </p>
 
           <div className="mt-8 flex flex-row gap-3">
-            <a
-              href="#comunidades"
+            <Link
+              href="/register"
               className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-brand px-7 text-sm font-bold text-white shadow-[0_16px_35px_rgba(22,163,74,0.28)] transition hover:-translate-y-1 hover:bg-brand-dark"
             >
-              Explorar comunidades
+              Crear mi perfil gratis
               <ArrowRightIcon />
-            </a>
+            </Link>
 
             <a
               href="#personas"
               className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-line bg-white px-7 text-sm font-bold text-brand-dark shadow-sm transition hover:-translate-y-1 hover:border-brand/30"
             >
-              Descubrir personas
-              <PlayIcon />
+              Explorar personas
+              <SearchIcon />
             </a>
           </div>
 
           <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-muted">
-            <CheckItem text="Crear cuenta gratis" />
-            <CheckItem text="Sin compromisos" />
-            <CheckItem text="Disponible en España" />
+            <CheckItem text="Perfil gratis" />
+            <CheckItem text="Sin compromiso" />
           </div>
         </div>
 
@@ -205,17 +208,17 @@ function HeroProductMockup() {
 
             <div className="mt-5 grid grid-cols-2 gap-4">
               <MockCommunityCard
-                name="Casa Teatinos"
-                location="Teatinos, Málaga"
-                initials="CT"
+                name="Piso Malasaña"
+                location="Malasaña, Madrid"
+                initials="PM"
                 type="Abierta"
                 capacity="3 de 4"
               />
 
               <MockCommunityCard
-                name="Piso Alameda"
-                location="Centro, Málaga"
-                initials="PA"
+                name="Casa Gràcia"
+                location="Gràcia, Barcelona"
+                initials="CG"
                 type="Con solicitud"
                 capacity="2 de 4"
               />

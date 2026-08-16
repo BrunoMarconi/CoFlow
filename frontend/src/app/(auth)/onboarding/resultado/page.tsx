@@ -46,6 +46,7 @@ export default function OnboardingResultadoPage() {
             icon={<CompatibilityRadarIcon />}
             title="¡Tu Perfil de Convivencia!"
             subtitle="Así te ven tus futuros compañeros"
+            actionsCaption="Ahora puedes explorar comunidades: grupos de personas que ya buscan compañero de piso."
             actions={
               <>
                 <Link href="/comunidades" className="flex h-14 items-center justify-center gap-2 rounded-14 bg-primary px-6 text-base font-bold text-white shadow-button transition hover:bg-primary-hover">

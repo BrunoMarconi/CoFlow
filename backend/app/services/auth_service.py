@@ -173,6 +173,4 @@ class AuthService:
         db.commit()
         db.refresh(current_user)
 
-        return {
-            "message": "Profile updated successfully"
-        }
+        return current_user

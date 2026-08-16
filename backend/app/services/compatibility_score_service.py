@@ -148,6 +148,37 @@ def compute_category_scores(
     return categories
 
 
+def compute_match_score(
+    viewer_profile: CompatibilityProfile,
+    other_profile: CompatibilityProfile,
+) -> int:
+    """Similitud 0-100 entre dos perfiles de convivencia.
+
+    Por cada uno de los 6 ejes ya calculados (compute_category_scores),
+    la similitud es 100 menos la diferencia absoluta de puntuación en
+    ese eje — dos personas con el mismo score en un eje son 100%
+    afines en él, y la distancia máxima posible (0 vs. 100) da 0%. El
+    resultado final es la media de los 6 ejes, redondeada. No pondera
+    ningún eje por encima de otro: los 6 pesan igual, igual que en el
+    radar individual.
+    """
+    viewer_scores = {
+        category.key: category.score
+        for category in compute_category_scores(viewer_profile)
+    }
+    other_scores = {
+        category.key: category.score
+        for category in compute_category_scores(other_profile)
+    }
+
+    similarities = [
+        100 - abs(viewer_scores[key] - other_scores[key])
+        for key in CATEGORY_QUESTIONS
+    ]
+
+    return round(sum(similarities) / len(similarities))
+
+
 def average_category_scores(
     all_scores: list[list[CompatibilityCategoryScore]],
 ) -> list[CompatibilityCategoryScore]:

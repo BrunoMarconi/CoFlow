@@ -5,9 +5,11 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
+import MatchScoreBadge from "./MatchScoreBadge";
 import { useUserConnection } from "@/hooks/useUserConnection";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import { detailTransitionName } from "@/lib/detailTransitions";
+import { getHabitChips } from "@/lib/habitLabels";
 import type { UserPublicProfile } from "@/types/userPublic";
 
 const CONNECTION_LABELS: Record<string, string> = {
@@ -42,13 +44,10 @@ export default function UserCard({
     user.rental_budget !== null
       ? `${user.rental_budget.toLocaleString("es-ES")} € / mes`
       : "Sin definir";
-  const traits = [
-    user.occupation,
-    user.preferences?.lifestyle,
-    user.preferences?.cleanliness,
-  ].filter((trait): trait is string => Boolean(trait));
+  const habitChips = getHabitChips(user.preferences);
   const statusLabel = CONNECTION_LABELS[connectionStatus];
   const locationLabel = user.community?.city || (user.is_owner ? "Propietario" : "Busca comunidad");
+  const metaLine = [user.occupation, locationLabel].filter(Boolean).join(" · ");
   const profilePhoto =
     [...user.photos].sort((a, b) => a.position - b.position)[0]?.image_url ||
     user.avatar_url;
@@ -129,6 +128,10 @@ export default function UserCard({
                 </div>
               )}
 
+              {user.match_score !== null && (
+                <MatchScoreBadge score={user.match_score} size="sm" className="absolute left-2.5 top-2.5" />
+              )}
+
               <button
                 type="button"
                 onClick={handleSave}
@@ -149,15 +152,24 @@ export default function UserCard({
                 {user.is_verified && <VerifiedIcon className="h-4 w-4 shrink-0 text-primary" />}
               </div>
 
-              <p className="mt-1 flex items-center gap-1 truncate text-[11px] text-secondary">
-                <LocationIcon />
-                {locationLabel}
-              </p>
+              {metaLine && (
+                <p className="mt-1 flex items-center gap-1 truncate text-[11px] text-secondary">
+                  <LocationIcon />
+                  {metaLine}
+                </p>
+              )}
 
-              {!user.community && (
-                <span className="mt-2 inline-flex max-w-full truncate rounded-full border border-border bg-surface px-2 py-1 text-[10px] font-bold text-primary-dark shadow-soft">
-                  Busca comunidad
-                </span>
+              {habitChips.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {habitChips.slice(0, 2).map((chip) => (
+                    <span
+                      key={chip}
+                      className="max-w-full truncate rounded-full border border-border bg-surface px-2 py-1 text-[9px] font-bold text-primary-dark shadow-soft"
+                    >
+                      {chip}
+                    </span>
+                  ))}
+                </div>
               )}
 
               <p className="mt-2 truncate text-[11px] text-secondary">
@@ -196,27 +208,25 @@ export default function UserCard({
                 <h3 className="truncate text-sm font-extrabold text-foreground">{shortName}</h3>
                 {user.is_verified && <VerifiedIcon className="h-3.5 w-3.5 shrink-0 text-primary" />}
               </div>
-              <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-secondary">
-                <LocationIcon />
-                {locationLabel}
-              </p>
+              {metaLine && (
+                <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-secondary">
+                  <LocationIcon />
+                  {metaLine}
+                </p>
+              )}
               <p className="mt-1 truncate text-[11px] text-secondary">
                 Presupuesto: <span className="font-bold text-primary-dark">{budgetLabel}</span>
               </p>
             </div>
 
-            {traits.length > 0 && (
-              <div className="hidden max-w-[42%] flex-wrap gap-1 min-[380px]:flex">
-                {traits.slice(0, 3).map((trait) => (
-                  <span
-                    key={trait}
-                    className="max-w-full truncate rounded-full border border-border bg-surface px-2 py-1 text-[9px] font-bold text-primary-dark shadow-soft"
-                  >
-                    {trait}
-                  </span>
-                ))}
-              </div>
-            )}
+            <div className="hidden shrink-0 flex-col items-end gap-1.5 min-[380px]:flex">
+              {user.match_score !== null && <MatchScoreBadge score={user.match_score} size="sm" />}
+              {habitChips.length > 0 && (
+                <span className="max-w-24 truncate rounded-full border border-border bg-surface px-2 py-1 text-[9px] font-bold text-primary-dark shadow-soft">
+                  {habitChips[0]}
+                </span>
+              )}
+            </div>
 
             <ChevronIcon />
           </div>
@@ -248,6 +258,10 @@ export default function UserCard({
             </div>
           )}
 
+          {user.match_score !== null && (
+            <MatchScoreBadge score={user.match_score} className="absolute left-3 top-3" />
+          )}
+
           <button
             type="button"
             onClick={handleSave}
@@ -270,10 +284,12 @@ export default function UserCard({
                 </h3>
                 {user.is_verified && <VerifiedIcon className="h-4 w-4 shrink-0 text-primary" />}
               </div>
-              <p className="mt-1 flex items-center gap-1.5 text-xs text-secondary">
-                <LocationIcon />
-                {locationLabel}
-              </p>
+              {metaLine && (
+                <p className="mt-1 flex items-center gap-1.5 truncate text-xs text-secondary">
+                  <LocationIcon />
+                  {metaLine}
+                </p>
+              )}
             </div>
             {statusLabel && (
               <span className="shrink-0 rounded-full border border-border bg-surface px-2 py-1 text-[10px] font-bold text-primary-dark shadow-soft">
@@ -282,13 +298,11 @@ export default function UserCard({
             )}
           </div>
 
-          {user.bio && <p className="mt-3 line-clamp-2 text-sm leading-5 text-secondary">{user.bio}</p>}
-
-          {traits.length > 0 && (
+          {habitChips.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1.5">
-              {traits.slice(0, 3).map((trait) => (
-                <span key={trait} className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-bold text-primary-dark shadow-soft">
-                  {trait}
+              {habitChips.slice(0, 4).map((chip) => (
+                <span key={chip} className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-bold text-primary-dark shadow-soft">
+                  {chip}
                 </span>
               ))}
             </div>

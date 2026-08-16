@@ -23,16 +23,16 @@ export default function FinalCta() {
         </h2>
 
         <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-green-50/80">
-          Explora comunidades, conoce personas y habla con ellas antes de
-          decidir.
+          Explora comunidades, conoce personas y escríbeles en privado antes
+          de decidir.
         </p>
 
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <a
-            href="#comunidades"
+            href="#personas"
             className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-brand px-7 text-sm font-bold text-white shadow-xl transition hover:-translate-y-1 hover:bg-green-400"
           >
-            Explorar comunidades
+            Explorar personas
             <ArrowRightIcon />
           </a>
 

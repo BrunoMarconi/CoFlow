@@ -198,3 +198,45 @@ def test_register_does_not_send_email_when_flag_disabled(db_session):
 
     assert response.status_code == 200
     mocked_request_verification_email.assert_not_called()
+
+
+def test_update_profile_returns_updated_user_not_500(db_session):
+    """Regresión: AuthService.update_profile devolvía un dict plano
+    ({"message": ...}) en vez del User actualizado, lo que rompía la
+    validación contra response_model=UserResponse y convertía CADA
+    llamada a PUT /auth/me en un 500 — endpoint usado por onboarding,
+    perfil/editar, perfil/preferencias y propietarios/perfil. Los tests
+    de servicio existentes (test_user_profile_extra_fields.py) no lo
+    detectaban porque llaman a update_profile() directamente, sin pasar
+    por la capa HTTP donde FastAPI aplica esa validación."""
+    client = _client(db_session)
+
+    register_payload = {
+        "first_name": "Grace",
+        "last_name": "Hopper",
+        "email": "grace.http.test@example.com",
+        "password": "password123",
+        "birth_date": "1995-01-01",
+        "terms_accepted": True,
+    }
+
+    with patch("app.services.auth_service.EMAIL_VERIFICATION_ENABLED", False):
+        register_response = client.post("/auth/register", json=register_payload)
+        assert register_response.status_code == 200
+        token = register_response.json()["access_token"]
+
+        response = client.put(
+            "/auth/me",
+            json={
+                "first_name": "Grace",
+                "last_name": "Hopper",
+                "occupation": "Ingeniera",
+                "rental_budget": 500,
+            },
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["occupation"] == "Ingeniera"
+    assert body["rental_budget"] == 500

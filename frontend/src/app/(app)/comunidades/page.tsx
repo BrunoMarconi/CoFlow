@@ -330,9 +330,14 @@ export default function ComunidadesPage() {
             className="mt-6"
           >
             <header className="flex items-center justify-between gap-4">
-              <h1 className="font-rounded text-lg font-semibold text-brand-dark">
-                Comunidades
-              </h1>
+              <div>
+                <h1 className="font-rounded text-lg font-semibold text-brand-dark">
+                  Comunidades
+                </h1>
+                <p className="mt-0.5 text-xs font-medium text-secondary">
+                  Grupos de personas que ya buscan compañero de piso
+                </p>
+              </div>
 
               {!loadingMyCommunity && !myCommunity && (
                 <PrimaryButton href="/crear/comunidad" className="hidden shrink-0 sm:inline-flex">
