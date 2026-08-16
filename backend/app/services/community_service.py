@@ -18,6 +18,7 @@ from app.database.models.community_member import (
 from app.database.models.community_preferences import CommunityPreferences
 from app.database.models.compatibility_profile import CompatibilityProfile
 from app.database.models.notification import NotificationType
+from app.database.models.saved_community import SavedCommunity
 from app.database.models.user import User
 from app.schemas.community import CommunityCreate, CommunityUpdate
 from app.schemas.compatibility_score import CompatibilityScoreResponse
@@ -82,6 +83,16 @@ class CommunityService:
         )
         community.is_full = (
             member_count >= community.max_members
+        )
+
+        community.is_saved = (
+            db.query(SavedCommunity)
+            .filter(
+                SavedCommunity.user_id == current_user.id,
+                SavedCommunity.community_id == community.id,
+            )
+            .first()
+            is not None
         )
 
         community.members = sorted(

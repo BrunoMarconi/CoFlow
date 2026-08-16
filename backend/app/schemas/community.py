@@ -262,6 +262,7 @@ class CommunityResponse(StorageBackedCommunityCoverResponse):
     is_member: bool = False
     current_user_role: CommunityMemberRole | None = None
     is_full: bool = False
+    is_saved: bool = False
 
     members: list[CommunityMemberResponse] = Field(
         default_factory=list

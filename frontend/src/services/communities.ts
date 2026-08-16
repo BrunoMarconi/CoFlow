@@ -33,6 +33,22 @@ export async function getCommunity(
   return data;
 }
 
+export async function saveCommunity(id: number | string) {
+  const { data } = await api.post<{ saved: boolean }>(
+    `/communities/${id}/save`
+  );
+
+  return data;
+}
+
+export async function unsaveCommunity(id: number | string) {
+  const { data } = await api.delete<{ saved: boolean }>(
+    `/communities/${id}/save`
+  );
+
+  return data;
+}
+
 export async function getMyCommunity() {
   const { data } = await api.get<Community | null>(
     "/communities/me"

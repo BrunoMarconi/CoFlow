@@ -23,16 +23,19 @@ import ActiveFilterChips, {
 import SectionHeader from "@/components/ui/SectionHeader";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SecondaryButton from "@/components/ui/SecondaryButton";
-import SkeletonCard from "@/components/ui/SkeletonCard";
 import ErrorState from "@/components/ui/ErrorState";
 import HomeFab from "@/components/explorer/HomeFab";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
+import { seoCities } from "@/lib/seoCities";
 
 const SEARCH_BAR_LAYOUT_ID = "community-search-bar";
 const SEARCH_ICON_LAYOUT_ID = "community-search-icon";
 
+const CITY_FILTER_OPTIONS = ["Todas", ...seoCities.map((city) => city.name)];
+
 export default function ComunidadesPage() {
   const [search, setSearch] = useState("");
+  const [cityFilter, setCityFilter] = useState("Todas");
   const [filters, setFilters] = useState<CommunityFilterState>(
     defaultCommunityFilters
   );
@@ -56,6 +59,7 @@ export default function ComunidadesPage() {
     loadingMore,
     loadMore,
   } = useCommunities({
+    city: cityFilter !== "Todas" ? cityFilter : undefined,
     profile_type:
       filters.profileType !== "ALL" ? filters.profileType : undefined,
   });
@@ -242,9 +246,22 @@ export default function ComunidadesPage() {
   // Mismo bloque de resultados en la vista normal y dentro del modo
   // búsqueda: se reutiliza tal cual, nunca se duplica.
   const resultsBlock = loading ? (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
+    <div className="flex flex-col gap-3 sm:gap-4">
       {Array.from({ length: 4 }).map((_, index) => (
-        <SkeletonCard key={index} withCover coverClassName="h-32 sm:h-36" />
+        <div
+          key={index}
+          className="skeleton-shimmer flex min-h-36 overflow-hidden rounded-18 border border-border bg-surface shadow-soft"
+        >
+          <div className="w-28 shrink-0 bg-[#eef0f2] sm:w-36" />
+          <div className="flex flex-1 flex-col justify-between gap-3 p-4">
+            <div className="space-y-2">
+              <div className="h-4 w-2/5 rounded-full bg-[#e7eaed]" />
+              <div className="h-3 w-1/3 rounded-full bg-[#e7eaed]" />
+              <div className="h-3 w-1/2 rounded-full bg-[#e7eaed]" />
+            </div>
+            <div className="h-8 w-28 rounded-full bg-[#e7eaed]" />
+          </div>
+        </div>
       ))}
     </div>
   ) : error ? (
@@ -313,6 +330,27 @@ export default function ComunidadesPage() {
             )
           }
         />
+
+        <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {CITY_FILTER_OPTIONS.map((city) => {
+            const active = cityFilter === city;
+            return (
+              <button
+                key={city}
+                type="button"
+                onClick={() => setCityFilter(city)}
+                aria-pressed={active}
+                className={`flex h-10 shrink-0 items-center rounded-full border px-4 text-sm font-bold transition-colors duration-200 ${
+                  active
+                    ? "border-brand-dark bg-brand-dark text-white shadow-button"
+                    : "border-border bg-surface text-foreground shadow-soft hover:border-primary/30"
+                }`}
+              >
+                {city}
+              </button>
+            );
+          })}
+        </div>
 
         {searchOpen && hasQuery && !filtersOpen && (
           <ActiveFilterChips chips={activeChips} />

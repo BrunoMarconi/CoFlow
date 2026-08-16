@@ -74,6 +74,7 @@ export interface Community {
   is_member: boolean;
   current_user_role: CommunityMemberRole | null;
   is_full: boolean;
+  is_saved: boolean;
   members: CommunityMember[];
   average_compatibility: CompatibilityScore | null;
 }

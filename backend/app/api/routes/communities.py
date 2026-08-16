@@ -29,7 +29,9 @@ from app.schemas.community_application import (
     CommunityApplicationCreate,
     CommunityApplicationResponse,
 )
+from app.schemas.saved_profile import SavedProfileActionResponse
 from app.services.community_service import CommunityService
+from app.services.saved_community_service import SavedCommunityService
 from app.services.community_message_service import CommunityMessageService
 from app.services.community_rent_split_service import (
     CommunityRentSplitService,
@@ -44,6 +46,7 @@ from app.services.community_application_service import (
 router = APIRouter()
 
 community_service = CommunityService()
+saved_community_service = SavedCommunityService()
 community_message_service = CommunityMessageService()
 community_rent_split_service = CommunityRentSplitService()
 community_invitation_service = CommunityInvitationService()
@@ -86,6 +89,42 @@ def get_my_community(
         db=db,
         current_user=current_user,
     )
+
+
+@router.post(
+    "/{community_id}/save",
+    response_model=SavedProfileActionResponse,
+)
+def save_community(
+    community_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    saved = saved_community_service.save_community(
+        db=db,
+        current_user=current_user,
+        community_id=community_id,
+    )
+
+    return SavedProfileActionResponse(saved=saved)
+
+
+@router.delete(
+    "/{community_id}/save",
+    response_model=SavedProfileActionResponse,
+)
+def unsave_community(
+    community_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    saved = saved_community_service.unsave_community(
+        db=db,
+        current_user=current_user,
+        community_id=community_id,
+    )
+
+    return SavedProfileActionResponse(saved=saved)
 
 
 @router.post(

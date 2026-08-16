@@ -44,10 +44,10 @@ export default function CommunityGrid({
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]"
+      className="flex flex-col gap-3 sm:gap-4"
     >
       {communities.map((community) => (
-        <motion.div key={community.id} variants={itemVariants} className="h-full">
+        <motion.div key={community.id} variants={itemVariants}>
           <CommunityCard
             community={community}
             isOwn={community.id === ownCommunityId}

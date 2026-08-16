@@ -1,12 +1,19 @@
+"use client";
+
 import Link from "next/link";
 import { ViewTransition } from "react";
 import { motion } from "framer-motion";
 import CommunityCover from "@/components/ui/CommunityCover";
 import AvatarGroup from "@/components/ui/AvatarGroup";
+import SaveHeartButton from "@/components/ui/SaveHeartButton";
+import { useCommunitySave } from "@/hooks/useCommunitySave";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
 import { detailTransitionName } from "@/lib/detailTransitions";
 import type { Community } from "@/types/community";
 
+/* Fila horizontal (foto a la izquierda, contenido a la derecha) en vez
+ * del formato de tarjeta vertical anterior — mismo contenido, misma
+ * lógica de navegación/estado, solo cambia la estructura visual. */
 export default function CommunityCard({
   community,
   isOwn = false,
@@ -14,6 +21,8 @@ export default function CommunityCard({
   community: Community;
   isOwn?: boolean;
 }) {
+  const { saved, savingToggle, toggleSave } = useCommunitySave(community);
+
   const location = community.neighborhood
     ? `${community.neighborhood}, ${community.city}`
     : community.city;
@@ -29,116 +38,122 @@ export default function CommunityCard({
   const visibleMembers = community.members.slice(0, 4);
 
   return (
-    <Link
-      href={`/comunidades/${community.id}`}
-      transitionTypes={["nav-forward"]}
-      className="group block h-full"
-    >
-      <ViewTransition name={detailTransitionName("community", community.id)} share="coflow-detail-morph">
-      <motion.article
-        whileHover={{ y: -2 }}
-        whileTap={{ scale: 0.985 }}
-        className={`flex h-full flex-col overflow-hidden rounded-18 border shadow-soft transition-shadow duration-200 ease-out sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)] ${
-          isLookingForMembers
-            ? "border-border bg-surface"
-            : "border-border bg-surface-muted opacity-85"
-        }`}
+    <div className="relative">
+      <Link
+        href={`/comunidades/${community.id}`}
+        transitionTypes={["nav-forward"]}
+        className="group block"
       >
-        <div className="relative">
-          <CommunityCover
-            name={community.name}
-            coverColor={community.cover_color}
-            coverImageUrl={community.cover_image_url}
-            members={visibleMembers.map((member) => ({
-              id: member.id.toString(),
-              firstName: member.user.first_name,
-              lastName: member.user.last_name,
-              imageUrl: member.user.avatar_url,
-            }))}
-            memberCount={community.member_count}
-            isOwn={isOwn}
-            className={`h-36 sm:h-40 ${
-              !isLookingForMembers ? "grayscale" : ""
+        <ViewTransition name={detailTransitionName("community", community.id)} share="coflow-detail-morph">
+          <motion.article
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.99 }}
+            className={`flex min-h-36 items-stretch overflow-hidden rounded-18 border shadow-soft transition-shadow duration-200 ease-out sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)] ${
+              isLookingForMembers
+                ? "border-border bg-surface"
+                : "border-border bg-surface-muted opacity-85"
             }`}
-          />
-
-          {!isOwn && community.urgency !== "NORMAL" && isLookingForMembers && (
-            <span className="absolute right-3 top-3 inline-flex h-6.5 items-center rounded-full bg-white/95 px-3 text-xs font-bold text-amber-700 shadow-soft backdrop-blur">
-              {community.urgency === "URGENT" ? "Urgente" : "Próximamente"}
-            </span>
-          )}
-        </div>
-
-        <div className="flex flex-1 flex-col p-4 sm:p-5">
-          <div>
-            <h3 className="truncate font-rounded text-xl font-semibold tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark">
-              <span className="inline">{community.name}</span>
-            </h3>
-
-            <div className="mt-1 flex items-center gap-1.5 text-sm font-medium text-secondary">
-              <LocationIcon />
-              <span className="truncate">{location}</span>
-            </div>
-          </div>
-
-          <div className="mt-2.5 flex items-center gap-2">
-            <AvatarGroup
+          >
+            <CommunityCover
+              name={community.name}
+              coverColor={community.cover_color}
+              coverImageUrl={community.cover_image_url}
               members={visibleMembers.map((member) => ({
                 id: member.id.toString(),
                 firstName: member.user.first_name,
                 lastName: member.user.last_name,
                 imageUrl: member.user.avatar_url,
               }))}
-              size="sm"
+              memberCount={community.member_count}
+              isOwn={isOwn}
+              className={`w-28 shrink-0 sm:w-36 ${
+                !isLookingForMembers ? "grayscale" : ""
+              }`}
             />
-            <span className="text-xs font-medium text-muted">
-              {community.member_count}{" "}
-              {community.member_count === 1 ? "miembro" : "miembros"}
-            </span>
-          </div>
 
-          <div className="flex flex-1 flex-col">
-            {isLookingForMembers ? (
-              <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                <span className="inline-flex items-center rounded-full border border-border bg-surface px-2.5 py-1 text-xs font-bold text-primary-dark shadow-soft">
-                  {community.open_spots}{" "}
-                  {community.open_spots === 1 ? "plaza libre" : "plazas libres"}
-                </span>
-                {community.monthly_rent !== null && (
-                  <span className="inline-flex items-center rounded-full bg-surface-muted px-2.5 py-1 text-xs font-bold text-foreground">
-                    {community.monthly_rent.toLocaleString("es-ES")} €/mes
-                  </span>
+            <div className="flex min-w-0 flex-1 flex-col justify-between gap-2 p-3.5 sm:p-4">
+              <div className="min-w-0 pr-9">
+                <h3 className="truncate font-rounded text-lg font-semibold tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark sm:text-xl">
+                  {community.name}
+                </h3>
+
+                <div className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-secondary">
+                  <LocationIcon />
+                  <span className="truncate">{location}</span>
+                </div>
+
+                {isLookingForMembers ? (
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    <span className="inline-flex items-center rounded-full border border-border bg-surface px-2.5 py-1 text-xs font-bold text-primary-dark shadow-soft">
+                      {community.open_spots}{" "}
+                      {community.open_spots === 1 ? "plaza libre" : "plazas libres"}
+                    </span>
+                    {community.monthly_rent !== null && (
+                      <span className="inline-flex items-center rounded-full bg-surface-muted px-2.5 py-1 text-xs font-bold text-foreground">
+                        {community.monthly_rent.toLocaleString("es-ES")} €/mes
+                      </span>
+                    )}
+                    {!isOwn && community.urgency !== "NORMAL" && (
+                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700">
+                        {community.urgency === "URGENT" ? "Urgente" : "Próximamente"}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="mt-2">
+                    <span className="inline-flex items-center rounded-full bg-surface-muted px-2.5 py-1 text-xs font-bold text-secondary">
+                      {community.is_full ? capacityReachedLabel : notLookingLabel}
+                    </span>
+                  </div>
                 )}
+
+                {tag && (
+                  <p className="mt-2 line-clamp-1 text-xs font-semibold text-primary-dark">
+                    🌿 {tag}
+                  </p>
+                )}
+
+                <p className="mt-1 text-xs font-medium text-muted">
+                  {getProfileTypeLabel(community.profile_type)}
+                </p>
               </div>
-            ) : (
-              <div className="mt-3">
-                <span className="inline-flex items-center rounded-full bg-surface-muted px-2.5 py-1 text-xs font-bold text-secondary">
-                  {community.is_full ? capacityReachedLabel : notLookingLabel}
+
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <AvatarGroup
+                    members={visibleMembers.map((member) => ({
+                      id: member.id.toString(),
+                      firstName: member.user.first_name,
+                      lastName: member.user.last_name,
+                      imageUrl: member.user.avatar_url,
+                    }))}
+                    size="sm"
+                  />
+                  <span className="truncate text-xs font-medium text-muted">
+                    {community.member_count}{" "}
+                    {community.member_count === 1 ? "miembro" : "miembros"}
+                  </span>
+                </div>
+
+                <span className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-brand-dark px-4 py-2.5 text-sm font-bold text-white transition-colors duration-180 group-hover:bg-primary-dark">
+                  {isOwn ? "Mi comunidad" : "Ver comunidad"}
+                  <ArrowIcon />
                 </span>
               </div>
-            )}
+            </div>
+          </motion.article>
+        </ViewTransition>
+      </Link>
 
-            {tag && (
-              <span className="mt-2.5 line-clamp-1 text-xs font-semibold text-primary-dark">
-                🌿 {tag}
-              </span>
-            )}
-
-            <span className="mt-1 text-xs font-medium text-muted">
-              {getProfileTypeLabel(community.profile_type)}
-            </span>
-
-            <div className="mt-3.5 flex-1" />
-
-            <span className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-brand-dark px-4 py-2.5 text-sm font-bold text-white transition-colors duration-180 group-hover:bg-primary-dark">
-              {isOwn ? "Mi comunidad" : "Ver comunidad"}
-              <ArrowIcon />
-            </span>
-          </div>
-        </div>
-      </motion.article>
-      </ViewTransition>
-    </Link>
+      {!isOwn && (
+        <SaveHeartButton
+          saved={saved}
+          saving={savingToggle}
+          onToggle={toggleSave}
+          className="absolute right-3 top-3"
+        />
+      )}
+    </div>
   );
 }
 
