@@ -35,15 +35,17 @@ from app.api.routes import (
     users,
 )
 from app.core.config import CORS_ALLOWED_ORIGINS, FRONTEND_URL
+from app.services import storage_service
 from fastapi.middleware.cors import CORSMiddleware
 
-# El arranque en producción normalmente exige las 5 variables R2_* de
-# Cloudflare (ver app.services.storage_service.ensure_persistent_storage_configured)
-# para que las imágenes no desaparezcan en cada deploy/reinicio. Desactivado
-# temporalmente porque todavía no hay cuenta de R2 creada: mientras tanto,
-# las imágenes se guardan en disco local (efímero en Render). En cuanto se
-# configuren las 5 variables R2_* en Render, volver a llamar aquí a
-# storage_service.ensure_persistent_storage_configured().
+# Las 5 variables R2_* ya están configuradas en Render (confirmado
+# 2026-08-16): storage_service.upload_file() ya sube ahí las imágenes
+# nuevas en producción, no a disco local. Esta comprobación es la red
+# de seguridad para que, si en un despliegue futuro alguna de esas 5
+# variables faltase o tuviera un error, el servicio se niegue a
+# arrancar en vez de caer silenciosamente a disco local efímero (que
+# es justo como se perdían imágenes antes de tener R2).
+storage_service.ensure_persistent_storage_configured()
 
 app = FastAPI(
     title="CoFlow API",
@@ -152,13 +154,13 @@ app.include_router(
     tags=["Solvency Passports (Public)"],
 )
 
-# Almacenamiento de imágenes pensado SOLO para desarrollo local: en
-# producción, en cuanto se configuren las 5 variables R2_* y se
-# reactive ensure_persistent_storage_configured() (ver comentario más
-# arriba), este mount deja de usarse. Mientras esa comprobación siga
-# desactivada, producción también sirve imágenes desde aquí (disco
-# efímero de Render) — por eso este fix de Content-Type importa
-# igualmente para producción, no solo para desarrollo.
+# Almacenamiento de imágenes pensado para desarrollo local. Con las 5
+# variables R2_* ya configuradas en Render (ver comentario más arriba),
+# las imágenes NUEVAS en producción ya no pasan por aquí — pero este
+# mount sigue activo y sirviendo cualquier imagen antigua que se
+# hubiera subido antes de configurar R2 (si la hubo), así que el fix de
+# Content-Type de mimetypes.add_type() de arriba sigue teniendo valor
+# también en producción para ese caso, no solo en desarrollo.
 MEDIA_ROOT = Path(__file__).resolve().parent.parent / "media"
 MEDIA_ROOT.mkdir(exist_ok=True)
 app.mount("/media", StaticFiles(directory=str(MEDIA_ROOT)), name="media")
