@@ -1,7 +1,20 @@
+import mimetypes
 from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+
+# El módulo estándar mimetypes no trae ".webp" registrado en todas las
+# versiones/plataformas de Python (confirmado ausente en 3.10, el
+# entorno de desarrollo local) — sin esto, StaticFiles sirve cada
+# imagen guardada en disco (todas se normalizan a WebP, ver
+# storage_service.validate_image) con Content-Type
+# "application/octet-stream" en vez de "image/webp", y el navegador
+# descarta el contenido en vez de pintarlo: un hueco en blanco, no un
+# icono de imagen rota, porque la petición sí devuelve 200. Registrarlo
+# explícitamente hace el comportamiento correcto sin depender de la
+# versión de Python del despliegue.
+mimetypes.add_type("image/webp", ".webp")
 
 from app.api.auth import router as auth_router
 from app.api.routes import (
@@ -139,8 +152,13 @@ app.include_router(
     tags=["Solvency Passports (Public)"],
 )
 
-# Almacenamiento de imágenes SOLO para desarrollo local. En producción,
-# ensure_persistent_storage_configured() exige R2 antes de llegar aquí.
+# Almacenamiento de imágenes pensado SOLO para desarrollo local: en
+# producción, en cuanto se configuren las 5 variables R2_* y se
+# reactive ensure_persistent_storage_configured() (ver comentario más
+# arriba), este mount deja de usarse. Mientras esa comprobación siga
+# desactivada, producción también sirve imágenes desde aquí (disco
+# efímero de Render) — por eso este fix de Content-Type importa
+# igualmente para producción, no solo para desarrollo.
 MEDIA_ROOT = Path(__file__).resolve().parent.parent / "media"
 MEDIA_ROOT.mkdir(exist_ok=True)
 app.mount("/media", StaticFiles(directory=str(MEDIA_ROOT)), name="media")
