@@ -23,6 +23,7 @@ import ActiveFilterChips, {
 import SectionHeader from "@/components/ui/SectionHeader";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SecondaryButton from "@/components/ui/SecondaryButton";
+import SkeletonCard from "@/components/ui/SkeletonCard";
 import ErrorState from "@/components/ui/ErrorState";
 import HomeFab from "@/components/explorer/HomeFab";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
@@ -246,22 +247,9 @@ export default function ComunidadesPage() {
   // Mismo bloque de resultados en la vista normal y dentro del modo
   // búsqueda: se reutiliza tal cual, nunca se duplica.
   const resultsBlock = loading ? (
-    <div className="flex flex-col gap-3 sm:gap-4">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
       {Array.from({ length: 4 }).map((_, index) => (
-        <div
-          key={index}
-          className="skeleton-shimmer flex min-h-36 overflow-hidden rounded-18 border border-border bg-surface shadow-soft"
-        >
-          <div className="w-28 shrink-0 bg-[#eef0f2] sm:w-36" />
-          <div className="flex flex-1 flex-col justify-between gap-3 p-4">
-            <div className="space-y-2">
-              <div className="h-4 w-2/5 rounded-full bg-[#e7eaed]" />
-              <div className="h-3 w-1/3 rounded-full bg-[#e7eaed]" />
-              <div className="h-3 w-1/2 rounded-full bg-[#e7eaed]" />
-            </div>
-            <div className="h-8 w-28 rounded-full bg-[#e7eaed]" />
-          </div>
-        </div>
+        <SkeletonCard key={index} withCover coverClassName="h-32 sm:h-36" />
       ))}
     </div>
   ) : error ? (
