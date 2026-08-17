@@ -145,3 +145,27 @@ except ValueError:
 EMAIL_VERIFICATION_TEST_MODE = (
     os.getenv("EMAIL_VERIFICATION_TEST_MODE", "false").lower() == "true"
 )
+
+# --- Stripe (suscripción de propietarios) ------------------------------
+# Cada piso publicado genera su propia Subscription de Stripe (30 días
+# de prueba gratuita desde que el piso pasa a READY, luego
+# PROPERTY_SUBSCRIPTION_PRICE_CENTS/mes recurrente). Todas las
+# suscripciones de un mismo propietario comparten un único Customer de
+# Stripe (una sola tarjeta guardada sirve para todos sus pisos). Se
+# validan (RuntimeError) solo al usarse (app/services/billing_service.py),
+# no al importar este módulo. Claves de
+# https://dashboard.stripe.com/test/apikeys en modo prueba.
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+# Firma del webhook, de https://dashboard.stripe.com/test/webhooks (o de
+# `stripe listen` en local). Sin esto, /billing/webhook rechaza todos
+# los eventos entrantes: nunca se procesa un webhook sin verificar su
+# firma.
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+
+PROPERTY_SUBSCRIPTION_PRICE_CENTS = int(
+    os.getenv("PROPERTY_SUBSCRIPTION_PRICE_CENTS", "2399")
+)
+PROPERTY_SUBSCRIPTION_TRIAL_DAYS = int(
+    os.getenv("PROPERTY_SUBSCRIPTION_TRIAL_DAYS", "30")
+)

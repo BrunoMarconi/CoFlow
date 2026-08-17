@@ -34,6 +34,14 @@ class PropertyStatus(str, enum.Enum):
     ARCHIVED = "ARCHIVED"
 
 
+class PropertySubscriptionStatus(str, enum.Enum):
+    NONE = "NONE"
+    TRIALING = "TRIALING"
+    ACTIVE = "ACTIVE"
+    PAST_DUE = "PAST_DUE"
+    CANCELED = "CANCELED"
+
+
 class Property(Base):
     __tablename__ = "properties"
 
@@ -131,6 +139,24 @@ class Property(Base):
     )
     additional_requirements: Mapped[str | None] = mapped_column(
         Text,
+        nullable=True,
+    )
+
+    # Suscripción de Stripe de este piso (23,99€/mes, 30 días de prueba
+    # desde que el piso pasa a READY por primera vez). Ver
+    # app/services/billing_service.py. subscription_status se mantiene
+    # sincronizado desde los webhooks de Stripe, no se infiere en local.
+    stripe_subscription_id: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+    subscription_status: Mapped[PropertySubscriptionStatus] = mapped_column(
+        Enum(PropertySubscriptionStatus, name="property_subscription_status"),
+        nullable=False,
+        default=PropertySubscriptionStatus.NONE,
+    )
+    trial_ends_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
         nullable=True,
     )
 

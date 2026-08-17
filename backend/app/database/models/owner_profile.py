@@ -46,6 +46,14 @@ class OwnerProfile(Base):
     )
     tax_id: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
+    # Customer de Stripe compartido por todas las suscripciones de este
+    # propietario (una por piso). Se crea la primera vez que guarda una
+    # tarjeta, en app/services/billing_service.py.
+    stripe_customer_id: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

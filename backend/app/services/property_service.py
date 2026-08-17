@@ -9,6 +9,7 @@ from app.database.models.property import Property, PropertyStatus
 from app.database.models.property_amenity import PropertyAmenity
 from app.database.models.user import User
 from app.schemas.property import PropertyCreate, PropertyUpdate
+from app.services import billing_service
 
 EDITABLE_STATUSES = {
     PropertyStatus.DRAFT,
@@ -328,6 +329,8 @@ class PropertyService:
             db.rollback()
             raise
 
+        billing_service.cancel_property_subscription(db, property_obj)
+
         return self.get_my_property(db, current_user, property_obj.id)
 
     def resume(
@@ -394,5 +397,7 @@ class PropertyService:
         except Exception:
             db.rollback()
             raise
+
+        billing_service.cancel_property_subscription(db, property_obj)
 
         return self.get_my_property(db, current_user, property_obj.id)

@@ -20,6 +20,7 @@ from app.api.auth import router as auth_router
 from app.api.routes import (
     applications,
     bank_connections,
+    billing,
     communities,
     connections,
     financial_analysis,
@@ -152,6 +153,11 @@ app.include_router(
     public_solvency_passports.router,
     prefix="/public/solvency-passports",
     tags=["Solvency Passports (Public)"],
+)
+app.include_router(
+    billing.router,
+    prefix="/billing",
+    tags=["Billing"],
 )
 
 # Almacenamiento de imágenes pensado para desarrollo local. Con las 5

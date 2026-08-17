@@ -16,7 +16,7 @@ from app.schemas.property_image import (
     PropertyImageOrderUpdate,
     PropertyImageResponse,
 )
-from app.services import storage_service
+from app.services import billing_service, storage_service
 from app.services.property_image_service import PropertyImageService
 from app.services.property_service import PropertyService
 
@@ -152,6 +152,34 @@ def mark_property_ready(
     db: Session = Depends(get_db),
 ):
     return property_service.mark_ready(
+        db=db,
+        current_user=current_user,
+        property_id=property_id,
+    )
+
+
+@router.post(
+    "/{property_id}/subscribe",
+    response_model=PropertyResponse,
+)
+def subscribe_property(
+    property_id: int,
+    current_user: User = Depends(require_verified_email),
+    db: Session = Depends(get_db),
+):
+    property_obj = property_service.get_my_property(
+        db=db,
+        current_user=current_user,
+        property_id=property_id,
+    )
+
+    billing_service.start_property_subscription(
+        db=db,
+        current_user=current_user,
+        property_obj=property_obj,
+    )
+
+    return property_service.get_my_property(
         db=db,
         current_user=current_user,
         property_id=property_id,

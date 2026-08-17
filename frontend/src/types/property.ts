@@ -13,6 +13,13 @@ export type PropertyStatus =
   | "RENTED"
   | "ARCHIVED";
 
+export type PropertySubscriptionStatus =
+  | "NONE"
+  | "TRIALING"
+  | "ACTIVE"
+  | "PAST_DUE"
+  | "CANCELED";
+
 export interface Amenity {
   id: number;
   key: string;
@@ -69,6 +76,9 @@ export interface Property {
   ready_at: string | null;
   rented_at: string | null;
   archived_at: string | null;
+
+  subscription_status: PropertySubscriptionStatus;
+  trial_ends_at: string | null;
 
   created_at: string;
   updated_at: string;

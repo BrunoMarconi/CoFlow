@@ -2,7 +2,11 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from app.database.models.property import PropertyStatus, PropertyType
+from app.database.models.property import (
+    PropertyStatus,
+    PropertySubscriptionStatus,
+    PropertyType,
+)
 from app.schemas.amenity import AmenityResponse
 from app.schemas.property_image import PropertyImageResponse
 
@@ -133,6 +137,9 @@ class PropertyResponse(BaseModel):
     ready_at: datetime | None = None
     rented_at: datetime | None = None
     archived_at: datetime | None = None
+
+    subscription_status: PropertySubscriptionStatus
+    trial_ends_at: datetime | None = None
 
     created_at: datetime
     updated_at: datetime

@@ -11,6 +11,13 @@ import {
 } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  CardElement,
+  Elements,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
 import ViewportPortal from "@/components/ui/ViewportPortal";
 import {
   Archive,
@@ -24,6 +31,7 @@ import {
   ChevronLeft,
   CircleHelp,
   CookingPot,
+  CreditCard,
   Home,
   ImagePlus,
   KeyRound,
@@ -46,13 +54,26 @@ import AddressAutocomplete, {
 } from "./AddressAutocomplete";
 import PropertyLocationMap from "./PropertyLocationMap";
 import { useOwnerMode } from "@/hooks/useOwnerMode";
+import { confirmPaymentMethod, createSetupIntent, getPaymentMethodStatus } from "@/services/billing";
 import {
   createProperty,
   getPropertyAmenities,
   markPropertyReady,
+  subscribeProperty,
   uploadPropertyImages,
 } from "@/services/properties";
 import type { Amenity, PropertyCreate, PropertyType } from "@/types/property";
+
+// Suscripción de 23,99€/mes por piso, 30 días de prueba gratis desde
+// que se publica (ver backend PROPERTY_SUBSCRIPTION_TRIAL_DAYS). Se usa
+// solo para el mensaje informativo de esta pantalla — la fecha real la
+// fija Stripe en el momento de crear la suscripción.
+const TRIAL_DAYS = 30;
+const SUBSCRIPTION_PRICE_LABEL = "23,99 €/mes";
+
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ""
+);
 
 const MIN_PHOTOS = 5;
 const MAX_PHOTOS = 10;
@@ -70,7 +91,8 @@ type Screen =
   | "title"
   | "vibe"
   | "description"
-  | "conditions";
+  | "conditions"
+  | "payment";
 
 type PendingPhoto = {
   id: string;
@@ -94,6 +116,7 @@ const SCREENS: Screen[] = [
   "vibe",
   "description",
   "conditions",
+  "payment",
 ];
 
 const PROPERTY_TYPES: Array<{
@@ -147,10 +170,23 @@ const AMENITIES: Array<{ label: string; icon: ReactNode }> = [
 const today = () => new Date().toISOString().slice(0, 10);
 
 export default function PropertyPublishFlow() {
+  return (
+    <Elements stripe={stripePromise}>
+      <PropertyPublishFlowInner />
+    </Elements>
+  );
+}
+
+function PropertyPublishFlowInner() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const prefersReducedMotion = useReducedMotion();
   const { activateOwnerMode } = useOwnerMode();
+  const stripe = useStripe();
+  const elements = useElements();
+  const [hasPaymentMethod, setHasPaymentMethod] = useState<boolean | null>(
+    null
+  );
   const [screen, setScreen] = useState<Screen>("welcome");
   const [direction, setDirection] = useState(1);
   const [addressSheetOpen, setAddressSheetOpen] = useState(false);
@@ -186,6 +222,12 @@ export default function PropertyPublishFlow() {
 
   useEffect(() => {
     getPropertyAmenities().then(setAmenities).catch(() => setAmenities([]));
+  }, []);
+
+  useEffect(() => {
+    getPaymentMethodStatus()
+      .then(setHasPaymentMethod)
+      .catch(() => setHasPaymentMethod(false));
   }, []);
 
   useEffect(() => {
@@ -299,9 +341,39 @@ export default function PropertyPublishFlow() {
     };
 
     try {
+      if (!hasPaymentMethod) {
+        if (!stripe || !elements) {
+          setError("El formulario de pago todavía no está listo. Espera un momento e inténtalo de nuevo.");
+          setPublishing(false);
+          return;
+        }
+
+        const cardElement = elements.getElement(CardElement);
+        if (!cardElement) {
+          setError("Añade los datos de tu tarjeta para continuar.");
+          setPublishing(false);
+          return;
+        }
+
+        const { client_secret } = await createSetupIntent();
+        const result = await stripe.confirmCardSetup(client_secret, {
+          payment_method: { card: cardElement },
+        });
+
+        if (result.error || !result.setupIntent?.payment_method) {
+          setError(result.error?.message ?? "No hemos podido guardar la tarjeta. Revísala e inténtalo de nuevo.");
+          setPublishing(false);
+          return;
+        }
+
+        await confirmPaymentMethod(result.setupIntent.payment_method as string);
+        setHasPaymentMethod(true);
+      }
+
       const property = await createProperty(payload);
       await uploadPropertyImages(property.id, photos.map((photo) => photo.file));
       await markPropertyReady(property.id);
+      await subscribeProperty(property.id);
       await queryClient.invalidateQueries({ queryKey: ["my-properties"] });
       activateOwnerMode();
       router.push("/propietarios/pisos");
@@ -339,11 +411,12 @@ export default function PropertyPublishFlow() {
             {screen === "vibe" ? <VibeScreen selected={vibes} onToggle={(vibe) => setVibes((current) => current.includes(vibe) ? current.filter((item) => item !== vibe) : [...current, vibe])} /> : null}
             {screen === "description" ? <TextScreen title="Cuéntales cómo es tu vivienda" value={description} onChange={setDescription} placeholder="Describe el espacio, la zona y el ambiente que quieres crear…" multiline maxLength={2000} /> : null}
             {screen === "conditions" ? <ConditionsScreen rent={rent} deposit={deposit} utilitiesIncluded={utilitiesIncluded} minimumStayMonths={minimumStayMonths} onOpen={setPriceSheet} onUtilities={setUtilitiesIncluded} /> : null}
+            {screen === "payment" ? <PaymentScreen hasPaymentMethod={hasPaymentMethod} /> : null}
           </motion.div>
         </AnimatePresence>
       </main>
 
-      <FlowFooter screen={screen} progress={progress} publishing={publishing} error={error} onBack={goBack} onNext={() => { const validation = validate(nextScreen(screen)); if (validation) setError(validation); }} onPublish={publish} />
+      <FlowFooter screen={screen} progress={progress} publishing={publishing} hasPaymentMethod={hasPaymentMethod} error={error} onBack={goBack} onNext={() => { const validation = validate(nextScreen(screen)); if (validation) setError(validation); }} onPublish={publish} />
       <AddressSheet open={addressSheetOpen} inputRef={addressInputRef} value={addressLine} onChange={setAddressLine} onClose={() => setAddressSheetOpen(false)} onResolved={(address) => { resolveAddress(address); setAddressSheetOpen(false); goTo("map"); }} />
       <PriceSheet field={priceSheet} rent={rent} deposit={deposit} minimumStay={minimumStayMonths} onRent={setRent} onDeposit={setDeposit} onMinimumStay={setMinimumStayMonths} onClose={() => setPriceSheet(null)} />
     </div>
@@ -529,12 +602,61 @@ function ConditionsScreen({ rent, deposit, utilitiesIncluded, minimumStayMonths,
   );
 }
 
+const CARD_ELEMENT_OPTIONS = {
+  style: {
+    base: {
+      fontSize: "18px",
+      color: "#191919",
+      fontFamily: "inherit",
+      "::placeholder": { color: "#8c8c8c" },
+    },
+    invalid: { color: "#dc2626" },
+  },
+};
+
+function PaymentScreen({ hasPaymentMethod }: { hasPaymentMethod: boolean | null }) {
+  const trialEndDate = new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+  const trialEndLabel = trialEndDate.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
+
+  return (
+    <section className="mx-auto max-w-2xl pt-4 sm:pt-8">
+      <ScreenTitle>Añade tu método de pago</ScreenTitle>
+      <p className="mt-3 text-sm leading-6 text-[#717171] sm:text-base">
+        Cada piso publicado tiene una cuota de {SUBSCRIPTION_PRICE_LABEL}. No se te cobrará nada durante los primeros {TRIAL_DAYS} días: el primer cobro de este piso sería el <strong className="text-[#191919]">{trialEndLabel}</strong>, y solo si sigue publicado.
+      </p>
+
+      {hasPaymentMethod === null ? (
+        <div className="mt-8 flex items-center gap-3 text-[#717171]">
+          <LoaderCircle className="h-5 w-5 animate-spin" />
+          <span>Comprobando tu método de pago…</span>
+        </div>
+      ) : hasPaymentMethod ? (
+        <div className="mt-8 flex items-center gap-4 rounded-[1.5rem] border border-[#dddddd] bg-white p-5 shadow-[0_6px_20px_rgba(0,0,0,0.055)]">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f5f5f5] text-[#222]"><CreditCard className="h-5 w-5" /></span>
+          <p className="text-sm font-semibold text-[#191919]">Ya tienes una tarjeta guardada. Se usará también para este piso.</p>
+        </div>
+      ) : (
+        <div className="mt-8 rounded-[1.5rem] border border-[#c9c9c9] bg-white p-5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] sm:p-6">
+          <CardElement options={CARD_ELEMENT_OPTIONS} />
+        </div>
+      )}
+    </section>
+  );
+}
+
 function ConditionRow({ label, value, icon, onClick, emphasized = false }: { label: string; value: string; icon: ReactNode; onClick: () => void; emphasized?: boolean }) {
   return <button type="button" onClick={onClick} className="flex min-h-19 w-full items-center gap-3 py-3 text-left"><span className="[&>svg]:h-5 [&>svg]:w-5">{icon}</span><span className="flex-1 font-semibold">{label}</span><strong className={emphasized ? "text-xl font-bold" : "text-base font-semibold"}>{value}</strong><ChevronLeft className="h-5 w-5 rotate-180 text-[#717171]" /></button>;
 }
 
-function FlowFooter({ screen, progress, publishing, error, onBack, onNext, onPublish }: { screen: Screen; progress: number; publishing: boolean; error: string; onBack: () => void; onNext: () => void; onPublish: () => void }) {
-  const final = screen === "conditions";
+function FlowFooter({ screen, progress, publishing, hasPaymentMethod, error, onBack, onNext, onPublish }: { screen: Screen; progress: number; publishing: boolean; hasPaymentMethod: boolean | null; error: string; onBack: () => void; onNext: () => void; onPublish: () => void }) {
+  const final = screen === "payment";
+  const actionDisabled = publishing || (final && hasPaymentMethod === null);
+  const actionLabel = publishing
+    ? <><LoaderCircle className="mr-2 h-5 w-5 animate-spin" />Publicando…</>
+    : final
+      ? (hasPaymentMethod ? "Publicar anuncio" : "Guardar tarjeta y publicar")
+      : screen === "welcome" ? "Empezar" : "Siguiente";
+
   return (
     <footer className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e5e5e5] bg-white/96 px-5 pb-[calc(1rem+var(--safe-bottom))] pt-3 backdrop-blur-xl sm:px-8">
       <div className="mx-auto max-w-4xl">
@@ -542,7 +664,7 @@ function FlowFooter({ screen, progress, publishing, error, onBack, onNext, onPub
         {error ? <p role="alert" className="mt-2 truncate text-center text-xs font-semibold text-red-600">{error}</p> : null}
         <div className={`mt-3 grid gap-3 ${screen === "welcome" ? "grid-cols-1" : "grid-cols-[.68fr_1.32fr]"}`}>
           {screen !== "welcome" ? <button type="button" onClick={onBack} disabled={publishing} className="h-13 rounded-full px-5 text-base font-semibold text-[#191919] underline underline-offset-4 disabled:opacity-50">Atrás</button> : null}
-          <button type="button" onClick={final ? onPublish : onNext} disabled={publishing} className="flex h-13 items-center justify-center rounded-full bg-black px-5 text-base font-semibold text-white shadow-[0_8px_20px_rgba(0,0,0,0.16)] transition hover:bg-[#282828] disabled:opacity-60">{publishing ? <><LoaderCircle className="mr-2 h-5 w-5 animate-spin" />Publicando…</> : final ? "Publicar anuncio" : screen === "welcome" ? "Empezar" : "Siguiente"}</button>
+          <button type="button" onClick={final ? onPublish : onNext} disabled={actionDisabled} className="flex h-13 items-center justify-center rounded-full bg-black px-5 text-base font-semibold text-white shadow-[0_8px_20px_rgba(0,0,0,0.16)] transition hover:bg-[#282828] disabled:opacity-60">{actionLabel}</button>
         </div>
       </div>
     </footer>

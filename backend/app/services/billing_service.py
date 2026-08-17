@@ -1,0 +1,233 @@
+from datetime import datetime, timezone
+
+import stripe
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+
+from app.core.config import (
+    PROPERTY_SUBSCRIPTION_PRICE_CENTS,
+    PROPERTY_SUBSCRIPTION_TRIAL_DAYS,
+    STRIPE_PUBLISHABLE_KEY,
+    STRIPE_SECRET_KEY,
+)
+from app.database.models.owner_profile import OwnerProfile
+from app.database.models.property import Property, PropertySubscriptionStatus
+from app.database.models.user import User
+
+# Mapea el status de una Subscription de Stripe a nuestro enum interno.
+# Stripe usa "trialing"/"active"/"past_due"/"canceled"/"unpaid"/
+# "incomplete"/"incomplete_expired" (ver
+# https://docs.stripe.com/api/subscriptions/object#subscription_object-status).
+_STRIPE_STATUS_MAP = {
+    "trialing": PropertySubscriptionStatus.TRIALING,
+    "active": PropertySubscriptionStatus.ACTIVE,
+    "past_due": PropertySubscriptionStatus.PAST_DUE,
+    "unpaid": PropertySubscriptionStatus.PAST_DUE,
+    "canceled": PropertySubscriptionStatus.CANCELED,
+    "incomplete_expired": PropertySubscriptionStatus.CANCELED,
+}
+
+
+def _require_configured() -> None:
+    if not STRIPE_SECRET_KEY:
+        raise RuntimeError(
+            "STRIPE_SECRET_KEY no está configurada: define las claves de "
+            "Stripe (modo prueba) en backend/.env antes de usar /billing."
+        )
+    stripe.api_key = STRIPE_SECRET_KEY
+
+
+def _get_owner_profile(db: Session, current_user: User) -> OwnerProfile:
+    profile = (
+        db.query(OwnerProfile)
+        .filter(OwnerProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if profile is None:
+        raise HTTPException(
+            status_code=403,
+            detail="You need an owner profile to manage billing",
+        )
+
+    return profile
+
+
+def _get_or_create_customer(
+    db: Session,
+    owner_profile: OwnerProfile,
+    current_user: User,
+) -> str:
+    if owner_profile.stripe_customer_id:
+        return owner_profile.stripe_customer_id
+
+    customer = stripe.Customer.create(
+        email=current_user.email,
+        name=owner_profile.display_name,
+        metadata={
+            "owner_profile_id": str(owner_profile.id),
+            "user_id": str(current_user.id),
+        },
+    )
+
+    owner_profile.stripe_customer_id = customer.id
+    db.commit()
+
+    return customer.id
+
+
+def create_setup_intent(db: Session, current_user: User) -> tuple[str, str]:
+    """Crea un SetupIntent para guardar una tarjeta sin cobrar nada."""
+    _require_configured()
+
+    profile = _get_owner_profile(db, current_user)
+    customer_id = _get_or_create_customer(db, profile, current_user)
+
+    setup_intent = stripe.SetupIntent.create(
+        customer=customer_id,
+        payment_method_types=["card"],
+    )
+
+    return setup_intent.client_secret, STRIPE_PUBLISHABLE_KEY
+
+
+def confirm_payment_method(
+    db: Session,
+    current_user: User,
+    payment_method_id: str,
+) -> None:
+    """Fija la tarjeta recién guardada como método de pago por defecto
+    del propietario (se reutiliza para todos sus pisos)."""
+    _require_configured()
+
+    profile = _get_owner_profile(db, current_user)
+
+    if not profile.stripe_customer_id:
+        raise HTTPException(
+            status_code=409,
+            detail="No hay ningún cliente de Stripe asociado todavía",
+        )
+
+    stripe.PaymentMethod.attach(
+        payment_method_id,
+        customer=profile.stripe_customer_id,
+    )
+    stripe.Customer.modify(
+        profile.stripe_customer_id,
+        invoice_settings={"default_payment_method": payment_method_id},
+    )
+
+
+def has_payment_method(db: Session, current_user: User) -> bool:
+    _require_configured()
+
+    profile = _get_owner_profile(db, current_user)
+
+    if not profile.stripe_customer_id:
+        return False
+
+    customer = stripe.Customer.retrieve(profile.stripe_customer_id)
+    return bool(customer.invoice_settings.default_payment_method)
+
+
+def start_property_subscription(
+    db: Session,
+    current_user: User,
+    property_obj: Property,
+) -> Property:
+    """Crea la Subscription de Stripe de un piso: 23,99€/mes con 30 días
+    de prueba gratuita desde hoy (el momento en que el piso pasa a
+    READY). Requiere que el propietario ya tenga una tarjeta guardada."""
+    _require_configured()
+
+    if property_obj.stripe_subscription_id:
+        return property_obj
+
+    profile = _get_owner_profile(db, current_user)
+
+    if not profile.stripe_customer_id:
+        raise HTTPException(
+            status_code=409,
+            detail="Añade una tarjeta antes de publicar un piso",
+        )
+
+    customer = stripe.Customer.retrieve(profile.stripe_customer_id)
+    if not customer.invoice_settings.default_payment_method:
+        raise HTTPException(
+            status_code=409,
+            detail="Añade una tarjeta antes de publicar un piso",
+        )
+
+    subscription = stripe.Subscription.create(
+        customer=profile.stripe_customer_id,
+        items=[
+            {
+                "price_data": {
+                    "currency": "eur",
+                    "unit_amount": PROPERTY_SUBSCRIPTION_PRICE_CENTS,
+                    "recurring": {"interval": "month"},
+                    "product_data": {
+                        "name": f"Publicación de piso — {property_obj.title}",
+                    },
+                },
+            },
+        ],
+        trial_period_days=PROPERTY_SUBSCRIPTION_TRIAL_DAYS,
+        metadata={
+            "property_id": str(property_obj.id),
+            "owner_profile_id": str(profile.id),
+        },
+    )
+
+    property_obj.stripe_subscription_id = subscription.id
+    property_obj.subscription_status = _STRIPE_STATUS_MAP.get(
+        subscription.status, PropertySubscriptionStatus.TRIALING
+    )
+    property_obj.trial_ends_at = (
+        datetime.fromtimestamp(subscription.trial_end, tz=timezone.utc)
+        if subscription.trial_end
+        else None
+    )
+    db.commit()
+
+    return property_obj
+
+
+def cancel_property_subscription(db: Session, property_obj: Property) -> None:
+    """Cancela la suscripción de un piso al final del periodo ya pagado
+    (no se cobra de nuevo, pero no hay reembolso del periodo en curso)."""
+    if not property_obj.stripe_subscription_id:
+        return
+
+    _require_configured()
+
+    try:
+        stripe.Subscription.modify(
+            property_obj.stripe_subscription_id,
+            cancel_at_period_end=True,
+        )
+    except stripe.InvalidRequestError:
+        # Ya no existe en Stripe (borrada manualmente, etc.) — no bloquea
+        # la acción del propietario en nuestro lado.
+        pass
+
+
+def sync_subscription_status(
+    db: Session,
+    stripe_subscription_id: str,
+    stripe_status: str,
+) -> None:
+    """Actualiza subscription_status desde un evento de webhook."""
+    property_obj = (
+        db.query(Property)
+        .filter(Property.stripe_subscription_id == stripe_subscription_id)
+        .first()
+    )
+
+    if property_obj is None:
+        return
+
+    property_obj.subscription_status = _STRIPE_STATUS_MAP.get(
+        stripe_status, property_obj.subscription_status
+    )
+    db.commit()

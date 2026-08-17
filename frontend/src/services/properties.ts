@@ -52,6 +52,13 @@ export async function markPropertyReady(propertyId: number) {
   return data;
 }
 
+export async function subscribeProperty(propertyId: number) {
+  const { data } = await api.post<Property>(
+    `/owner/properties/${propertyId}/subscribe`
+  );
+  return data;
+}
+
 export async function pauseProperty(propertyId: number) {
   const { data } = await api.post<Property>(
     `/owner/properties/${propertyId}/pause`
