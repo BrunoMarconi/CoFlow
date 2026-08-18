@@ -133,6 +133,16 @@ html {
   html {
     font-size: 15px;
   }
+
+  /* Safari en iOS hace zoom automático al enfocar cualquier campo con
+     menos de 16px de letra. Con la raíz reducida arriba, hasta
+     text-base (1rem) se queda corto — se fuerza aquí sin depender de
+     que cada input recuerde usar text-base o más. */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
 }
 
 body {
