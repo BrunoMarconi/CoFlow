@@ -11,7 +11,6 @@ import {
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { createPortal } from "react-dom";
 import Image from "next/image";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -21,6 +20,7 @@ import {
 } from "@/lib/chatEvents";
 import { MOTION_SPRING } from "@/lib/motionTokens";
 import BottomSheet from "@/components/ui/BottomSheet";
+import ImageLightbox from "@/components/chat/ImageLightbox";
 
 const LONG_PRESS_MS = 450;
 const LONG_PRESS_MOVE_TOLERANCE_PX = 10;
@@ -1003,42 +1003,6 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
       </AnimatePresence>
     </div>
     </MotionConfig>
-  );
-}
-
-function ImageLightbox({ url, onClose }: { url: string; onClose: () => void }) {
-  useEffect(() => {
-    function handleKeyDown(event: globalThis.KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
-
-  return createPortal(
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-      className="fixed inset-0 z-(--z-modal) flex items-center justify-center bg-black/90 p-4"
-    >
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="Cerrar"
-        className="absolute right-4 top-[calc(1rem+var(--safe-top))] flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white"
-      >
-        <CloseIcon />
-      </button>
-      <img
-        src={url}
-        alt="Foto ampliada"
-        onClick={(event) => event.stopPropagation()}
-        className="max-h-full max-w-full rounded-14 object-contain"
-      />
-    </motion.div>,
-    document.body
   );
 }
 

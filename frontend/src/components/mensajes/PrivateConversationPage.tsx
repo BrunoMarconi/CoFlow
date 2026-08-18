@@ -9,7 +9,7 @@ import Spinner from "@/components/ui/Spinner";
 import PrivateChat from "@/components/mensajes/PrivateChat";
 import ChatSettingsSheet from "@/components/chat/ChatSettingsSheet";
 import UserSafetyActions from "@/components/usuario/UserSafetyActions";
-import { getConnections } from "@/services/connections";
+import { getConnections, getPrivateMessages } from "@/services/connections";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { markConversationReadNow } from "@/lib/conversationReadState";
 import { NAV_TRANSITION } from "@/lib/navTransition";
@@ -76,6 +76,7 @@ export default function PrivateConversationPage({ connectionId, owner = false }:
           viewLabel="Ver perfil"
           onView={() => router.push(`/personas/${other.id}`)}
           onOpenSafety={() => setSafetyOpen(true)}
+          fetchMessages={(params) => getPrivateMessages(connection.id, params)}
         />
         <UserSafetyActions open={safetyOpen} userId={other.id} firstName={other.first_name || "esta persona"} onClose={() => setSafetyOpen(false)} onBlocked={() => router.replace(listHref)} />
       </div>

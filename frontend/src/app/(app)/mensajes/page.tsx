@@ -37,7 +37,7 @@ const CommunityChat = dynamic(
   { loading: () => chatLoadingFallback }
 );
 import { HomeIcon } from "@/components/layout/NavIcons";
-import { getPrivateConversationInbox } from "@/services/connections";
+import { getPrivateConversationInbox, getPrivateMessages } from "@/services/connections";
 import { getCommunityMessages } from "@/services/communities";
 import type { UserConnection } from "@/types/connection";
 import type { PrivateMessage } from "@/types/privateMessage";
@@ -644,6 +644,7 @@ export default function MensajesPage() {
                 subtitle={`${community.member_count} ${community.member_count === 1 ? "miembro" : "miembros"}`}
                 viewLabel="Ver comunidad"
                 onView={() => router.push("/mi-comunidad")}
+                fetchMessages={(params) => getCommunityMessages(community.id, params)}
               />
             </>
           ) : !selectedConnection || !selectedOther || !user ? (
@@ -700,6 +701,7 @@ export default function MensajesPage() {
                 viewLabel="Ver perfil"
                 onView={() => router.push(`/personas/${selectedOther.id}`)}
                 onOpenSafety={() => setSafetyOpen(true)}
+                fetchMessages={(params) => getPrivateMessages(selectedConnection.id, params)}
               />
             </>
           )}

@@ -9,6 +9,7 @@ import CommunityChat from "@/components/comunidad/CommunityChat";
 import ChatSettingsSheet from "@/components/chat/ChatSettingsSheet";
 import { HomeIcon } from "@/components/layout/NavIcons";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
+import { getCommunityMessages } from "@/services/communities";
 import { markConversationReadNow } from "@/lib/conversationReadState";
 import { NAV_TRANSITION } from "@/lib/navTransition";
 
@@ -122,6 +123,7 @@ export default function MensajesComunidadPage() {
         subtitle={`${community.member_count} ${community.member_count === 1 ? "miembro" : "miembros"}`}
         viewLabel="Ver comunidad"
         onView={() => router.push("/mi-comunidad")}
+        fetchMessages={(params) => getCommunityMessages(community.id, params)}
       />
     </div>
     </ViewTransition>
