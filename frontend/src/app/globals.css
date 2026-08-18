@@ -104,6 +104,14 @@
   box-sizing: border-box;
 }
 
+/* Solo el texto de los mensajes de chat: la fuente nativa del sistema
+   en vez de Jakarta (marca) — es lo que usan WhatsApp/iMessage, se lee
+   más "de mensajería" en tandas largas de conversación. */
+.chat-message-text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+}
+
 html {
   scroll-behavior: smooth;
   background: var(--background);

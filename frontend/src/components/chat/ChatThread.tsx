@@ -1165,7 +1165,7 @@ const MessageBubble = memo(function MessageBubble({
           )}
 
           {message.content && (
-            <p className="whitespace-pre-wrap text-[15px] leading-6 wrap-anywhere">
+            <p className="chat-message-text whitespace-pre-wrap text-[15px] leading-6 wrap-anywhere">
               {message.content}
             </p>
           )}
@@ -1224,7 +1224,7 @@ function PendingMessageBubble({
           </div>
         )}
         {message.content && (
-          <p className="whitespace-pre-wrap text-[15px] leading-6 wrap-anywhere">
+          <p className="chat-message-text whitespace-pre-wrap text-[15px] leading-6 wrap-anywhere">
             {message.content}
           </p>
         )}
