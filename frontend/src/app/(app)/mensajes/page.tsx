@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState, ViewTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { motion, MotionConfig } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
+import ChatSettingsSheet from "@/components/chat/ChatSettingsSheet";
 import EmptyState from "@/components/ui/EmptyState";
 import SearchInput from "@/components/ui/SearchInput";
 import Spinner from "@/components/ui/Spinner";
@@ -17,6 +18,7 @@ import {
   isConversationUnread,
   markConversationReadNow,
 } from "@/lib/conversationReadState";
+import { CHAT_MUTE_CHANGED_EVENT, isChatMuted } from "@/lib/chatMute";
 import { NAV_TRANSITION } from "@/lib/navTransition";
 import { MOTION_SPRING } from "@/lib/motionTokens";
 
@@ -140,6 +142,7 @@ function formatPreviewTime(value: string) {
 
 export default function MensajesPage() {
   const { user, community, markNotificationsForLinkAsRead } = useAuth();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const requestedId = Number(searchParams.get("c"));
@@ -156,6 +159,15 @@ export default function MensajesPage() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<InboxTab>("all");
   const [safetyOpen, setSafetyOpen] = useState(false);
+  const [chatSettingsOpen, setChatSettingsOpen] = useState(false);
+  const [, forceMuteRerender] = useState(0);
+
+  useEffect(() => {
+    const handleMuteChanged = () => forceMuteRerender((value) => value + 1);
+    window.addEventListener(CHAT_MUTE_CHANGED_EVENT, handleMuteChanged);
+    return () =>
+      window.removeEventListener(CHAT_MUTE_CHANGED_EVENT, handleMuteChanged);
+  }, []);
 
   const {
     data: connectionsData,
@@ -280,6 +292,7 @@ export default function MensajesPage() {
   const communityUnread =
     Boolean(community) &&
     Boolean(user) &&
+    !isChatMuted("community") &&
     isConversationUnread("community", communityLastMessage, user!.id);
 
   const normalizedSearch = search.trim().toLowerCase();
@@ -411,11 +424,13 @@ export default function MensajesPage() {
             if (!user) return null;
             const other = otherParticipant(connection, user.id);
             const lastMessage = lastMessages[connection.id];
-            const unread = isConversationUnread(
-              `connection:${connection.id}`,
-              lastMessage,
-              user.id
-            );
+            const unread =
+              !isChatMuted(`connection:${connection.id}`) &&
+              isConversationUnread(
+                `connection:${connection.id}`,
+                lastMessage,
+                user.id
+              );
 
             return (
               <MotionLink
@@ -539,7 +554,9 @@ export default function MensajesPage() {
               const lastMessage = lastMessages[connection.id];
               const isSelected =
                 !communitySelected && connection.id === effectiveSelectedId;
-              const unread = isConversationUnread(
+              const unread =
+                !isChatMuted(`connection:${connection.id}`) &&
+                isConversationUnread(
                 `connection:${connection.id}`,
                 lastMessage,
                 user.id
@@ -588,7 +605,11 @@ export default function MensajesPage() {
         <div className="flex min-h-0 flex-col">
           {communitySelected && community && user ? (
             <>
-              <div className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4">
+              <button
+                type="button"
+                onClick={() => setChatSettingsOpen(true)}
+                className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4 text-left hover:bg-surface-soft/60"
+              >
                 <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
 
                 <div className="min-w-0 flex-1">
@@ -604,7 +625,7 @@ export default function MensajesPage() {
                     {community.member_count === 1 ? "miembro" : "miembros"}
                   </p>
                 </div>
-              </div>
+              </button>
 
               <div className="min-h-0 flex-1 p-4">
                 <CommunityChat
@@ -613,6 +634,17 @@ export default function MensajesPage() {
                   variant="full"
                 />
               </div>
+
+              <ChatSettingsSheet
+                open={chatSettingsOpen}
+                onClose={() => setChatSettingsOpen(false)}
+                threadKey="community"
+                avatar={<CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />}
+                title={community.name}
+                subtitle={`${community.member_count} ${community.member_count === 1 ? "miembro" : "miembros"}`}
+                viewLabel="Ver comunidad"
+                onView={() => router.push("/mi-comunidad")}
+              />
             </>
           ) : !selectedConnection || !selectedOther || !user ? (
             <div className="flex flex-1 items-center justify-center p-6 text-center text-sm font-medium text-muted">
@@ -620,7 +652,11 @@ export default function MensajesPage() {
             </div>
           ) : (
             <>
-              <div className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4">
+              <button
+                type="button"
+                onClick={() => setChatSettingsOpen(true)}
+                className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4 text-left hover:bg-surface-soft/60"
+              >
                 <ConversationAvatar
                   initials={initialsOf(
                     selectedOther.first_name,
@@ -640,15 +676,7 @@ export default function MensajesPage() {
                     </p>
                   )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setSafetyOpen(true)}
-                  aria-label="Opciones de seguridad"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-soft hover:text-foreground"
-                >
-                  <MoreIcon />
-                </button>
-              </div>
+              </button>
 
               <div className="min-h-0 flex-1 p-4">
                 <PrivateChat
@@ -657,6 +685,22 @@ export default function MensajesPage() {
                   variant="full"
                 />
               </div>
+
+              <ChatSettingsSheet
+                open={chatSettingsOpen}
+                onClose={() => setChatSettingsOpen(false)}
+                threadKey={`connection:${selectedConnection.id}`}
+                avatar={
+                  <ConversationAvatar
+                    initials={initialsOf(selectedOther.first_name, selectedOther.last_name)}
+                    imageUrl={selectedOther.avatar_url}
+                  />
+                }
+                title={`${selectedOther.first_name} ${selectedOther.last_name}`.trim()}
+                viewLabel="Ver perfil"
+                onView={() => router.push(`/personas/${selectedOther.id}`)}
+                onOpenSafety={() => setSafetyOpen(true)}
+              />
             </>
           )}
         </div>
@@ -973,12 +1017,3 @@ function ComposeIcon() {
   );
 }
 
-function MoreIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
-      <circle cx="5" cy="12" r="1.5" />
-      <circle cx="12" cy="12" r="1.5" />
-      <circle cx="19" cy="12" r="1.5" />
-    </svg>
-  );
-}

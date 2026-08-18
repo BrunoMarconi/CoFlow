@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect, ViewTransition } from "react";
+import { useEffect, useState, ViewTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
 import CommunityChat from "@/components/comunidad/CommunityChat";
+import ChatSettingsSheet from "@/components/chat/ChatSettingsSheet";
 import { HomeIcon } from "@/components/layout/NavIcons";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { markConversationReadNow } from "@/lib/conversationReadState";
 import { NAV_TRANSITION } from "@/lib/navTransition";
 
 export default function MensajesComunidadPage() {
+  const router = useRouter();
   const {
     user,
     community,
@@ -18,6 +21,7 @@ export default function MensajesComunidadPage() {
     markNotificationsForLinkAsRead,
   } = useAuth();
   const { setChatActive } = useMobileChrome();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     setChatActive(true);
@@ -75,7 +79,12 @@ export default function MensajesComunidadPage() {
           <ArrowLeftIcon />
         </Link>
 
-        <div className="flex min-w-0 flex-1 items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setSettingsOpen(true)}
+          aria-label="Ajustes del chat"
+          className="flex min-w-0 flex-1 items-center gap-3 text-left"
+        >
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary-dark">
             <HomeIcon className="h-5 w-5" />
           </div>
@@ -89,16 +98,7 @@ export default function MensajesComunidadPage() {
               {community.member_count === 1 ? "miembro" : "miembros"}
             </p>
           </div>
-        </div>
-
-        <Link
-          href="/mi-comunidad"
-          aria-label="Ver comunidad"
-          title="Ver comunidad"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-soft hover:text-brand-dark"
-        >
-          <MoreIcon />
-        </Link>
+        </button>
       </div>
 
       <div className="min-h-0 flex-1 sm:flex-none">
@@ -108,23 +108,23 @@ export default function MensajesComunidadPage() {
           variant="full"
         />
       </div>
+
+      <ChatSettingsSheet
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        threadKey="community"
+        avatar={
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-soft text-primary-dark">
+            <HomeIcon className="h-7 w-7" />
+          </div>
+        }
+        title={community.name}
+        subtitle={`${community.member_count} ${community.member_count === 1 ? "miembro" : "miembros"}`}
+        viewLabel="Ver comunidad"
+        onView={() => router.push("/mi-comunidad")}
+      />
     </div>
     </ViewTransition>
-  );
-}
-
-function MoreIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className="h-5 w-5"
-      aria-hidden="true"
-    >
-      <circle cx="5" cy="12" r="1.8" />
-      <circle cx="12" cy="12" r="1.8" />
-      <circle cx="19" cy="12" r="1.8" />
-    </svg>
   );
 }
 
