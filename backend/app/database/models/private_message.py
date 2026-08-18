@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Text
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -15,6 +15,17 @@ class PrivateMessage(Base):
         Integer,
         primary_key=True,
         autoincrement=True,
+    )
+
+    reply_to_id: Mapped[int | None] = mapped_column(
+        ForeignKey("private_messages.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
+    liked_by_user_ids: Mapped[list[str]] = mapped_column(
+        JSON,
+        nullable=False,
+        default=list,
     )
 
     connection_id: Mapped[int] = mapped_column(
@@ -56,4 +67,10 @@ class PrivateMessage(Base):
     sender: Mapped["User"] = relationship(
         "User",
         foreign_keys=[sender_id],
+    )
+
+    reply_to: Mapped["PrivateMessage | None"] = relationship(
+        "PrivateMessage",
+        remote_side=[id],
+        foreign_keys=[reply_to_id],
     )

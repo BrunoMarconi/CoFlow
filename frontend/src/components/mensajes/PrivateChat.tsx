@@ -2,7 +2,12 @@
 
 import ChatThread from "@/components/chat/ChatThread";
 import { useAuth } from "@/hooks/useAuth";
-import { getPrivateMessages, sendPrivateMessage } from "@/services/connections";
+import {
+  deletePrivateMessage,
+  getPrivateMessages,
+  likePrivateMessage,
+  sendPrivateMessage,
+} from "@/services/connections";
 import { markConversationReadNow } from "@/lib/conversationReadState";
 
 export default function PrivateChat({
@@ -22,8 +27,11 @@ export default function PrivateChat({
       threadKey={`connection:${connectionId}`}
       currentUserId={currentUserId}
       fetchMessages={(params) => getPrivateMessages(connectionId, params)}
-      sendMessage={(content) =>
-        sendPrivateMessage(connectionId, { content })
+      sendMessage={(content, replyToId) =>
+        sendPrivateMessage(connectionId, {
+          content,
+          reply_to_id: typeof replyToId === "number" ? replyToId : null,
+        })
       }
       showSenderName={false}
       placeholder="Escribe un mensaje..."
@@ -34,6 +42,11 @@ export default function PrivateChat({
           () => {}
         );
       }}
+      canDeleteMessage={(message) => message.sender.id === currentUserId}
+      onDeleteMessage={(messageId) =>
+        deletePrivateMessage(connectionId, messageId)
+      }
+      onLikeMessage={(messageId) => likePrivateMessage(connectionId, messageId)}
     />
   );
 }

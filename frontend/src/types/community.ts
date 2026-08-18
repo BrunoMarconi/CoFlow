@@ -165,6 +165,13 @@ export interface CommunityMessageSender {
   avatar_url: string | null;
 }
 
+export interface CommunityMessageReplyPreview {
+  id: number;
+  content: string;
+  sender_id: string;
+  sender_first_name: string;
+}
+
 export interface CommunityMessage {
   id: number;
   community_id: number;
@@ -172,10 +179,14 @@ export interface CommunityMessage {
   created_at: string;
   updated_at: string;
   sender: CommunityMessageSender;
+  reply_to: CommunityMessageReplyPreview | null;
+  like_count: number;
+  liked_by_me: boolean;
 }
 
 export interface CommunityMessageCreate {
   content: string;
+  reply_to_id?: number | null;
 }
 
 export interface GetCommunityMessagesParams {

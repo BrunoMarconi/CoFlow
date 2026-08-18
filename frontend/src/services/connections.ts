@@ -102,3 +102,21 @@ export async function sendPrivateMessage(
 
   return data;
 }
+
+export async function deletePrivateMessage(
+  connectionId: number | string,
+  messageId: number | string
+) {
+  await api.delete(`/connections/${connectionId}/messages/${messageId}`);
+}
+
+export async function likePrivateMessage(
+  connectionId: number | string,
+  messageId: number | string
+) {
+  const { data } = await api.post<PrivateMessage>(
+    `/connections/${connectionId}/messages/${messageId}/like`
+  );
+
+  return data;
+}

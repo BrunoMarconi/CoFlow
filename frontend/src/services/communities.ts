@@ -162,6 +162,17 @@ export async function deleteCommunityMessage(
   await api.delete(`/communities/${id}/messages/${messageId}`);
 }
 
+export async function likeCommunityMessage(
+  id: number | string,
+  messageId: number | string
+) {
+  const { data } = await api.post<CommunityMessage>(
+    `/communities/${id}/messages/${messageId}/like`
+  );
+
+  return data;
+}
+
 export async function uploadCommunityCover(
   id: number | string,
   file: File

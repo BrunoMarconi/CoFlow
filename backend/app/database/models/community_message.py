@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Text
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -15,6 +15,20 @@ class CommunityMessage(Base):
         Integer,
         primary_key=True,
         autoincrement=True,
+    )
+
+    reply_to_id: Mapped[int | None] = mapped_column(
+        ForeignKey("community_messages.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
+    # IDs (como texto) de quienes le han dado "me gusta" — una lista
+    # simple basta para el volumen de un chat de comunidad; no hace
+    # falta una tabla aparte por like.
+    liked_by_user_ids: Mapped[list[str]] = mapped_column(
+        JSON,
+        nullable=False,
+        default=list,
     )
 
     community_id: Mapped[int] = mapped_column(
@@ -68,4 +82,10 @@ class CommunityMessage(Base):
     sender: Mapped["User"] = relationship(
         "User",
         back_populates="community_messages",
+    )
+
+    reply_to: Mapped["CommunityMessage | None"] = relationship(
+        "CommunityMessage",
+        remote_side=[id],
+        foreign_keys=[reply_to_id],
     )

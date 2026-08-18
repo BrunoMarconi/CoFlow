@@ -5,6 +5,13 @@ export interface PrivateMessageSender {
   avatar_url: string | null;
 }
 
+export interface PrivateMessageReplyPreview {
+  id: number;
+  content: string;
+  sender_id: string;
+  sender_first_name: string;
+}
+
 export interface PrivateMessage {
   id: number;
   connection_id: number;
@@ -12,10 +19,14 @@ export interface PrivateMessage {
   created_at: string;
   updated_at: string;
   sender: PrivateMessageSender;
+  reply_to: PrivateMessageReplyPreview | null;
+  like_count: number;
+  liked_by_me: boolean;
 }
 
 export interface PrivateMessageCreate {
   content: string;
+  reply_to_id?: number | null;
 }
 
 export interface PrivateConversationSummary {

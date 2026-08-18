@@ -8,6 +8,8 @@ import {
   useState,
   type FormEvent,
   type KeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
 } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
@@ -17,6 +19,19 @@ import {
   type ChatMessageChangedDetail,
 } from "@/lib/chatEvents";
 import { MOTION_SPRING } from "@/lib/motionTokens";
+import BottomSheet from "@/components/ui/BottomSheet";
+
+const LONG_PRESS_MS = 450;
+const LONG_PRESS_MOVE_TOLERANCE_PX = 10;
+
+type LongPressHandlers = {
+  onPointerDown: (event: ReactPointerEvent) => void;
+  onPointerMove: (event: ReactPointerEvent) => void;
+  onPointerUp: () => void;
+  onPointerLeave: () => void;
+  onPointerCancel: () => void;
+  onContextMenu: (event: ReactMouseEvent) => void;
+};
 
 const POLL_INTERVAL_MS = 3500;
 const PAGE_SIZE = 100;
@@ -33,11 +48,21 @@ export interface ChatThreadSender {
   avatar_url?: string | null;
 }
 
+export interface ChatThreadReplyPreview {
+  id: number | string;
+  content: string;
+  sender_id: string;
+  sender_first_name: string;
+}
+
 export interface ChatThreadMessage {
   id: number | string;
   content: string;
   created_at: string;
   sender: ChatThreadSender;
+  reply_to?: ChatThreadReplyPreview | null;
+  like_count?: number;
+  liked_by_me?: boolean;
 }
 
 interface PendingMessage {
@@ -45,6 +70,7 @@ interface PendingMessage {
   content: string;
   createdAt: string;
   status: "sending" | "failed";
+  replyTo?: ChatThreadReplyPreview | null;
 }
 
 export default function ChatThread<TMessage extends ChatThreadMessage>({
@@ -58,11 +84,12 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   onMessagesReceived,
   canDeleteMessage,
   onDeleteMessage,
+  onLikeMessage,
 }: {
   threadKey: number | string;
   currentUserId: string;
   fetchMessages: (params: { limit: number; skip?: number }) => Promise<TMessage[]>;
-  sendMessage: (content: string) => Promise<TMessage>;
+  sendMessage: (content: string, replyToId?: number | string | null) => Promise<TMessage>;
   showSenderName: boolean;
   placeholder: string;
   variant?: "card" | "full";
@@ -71,6 +98,8 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
    * botón de reintentar en los propios que fallaron al enviar). */
   canDeleteMessage?: (message: TMessage) => boolean;
   onDeleteMessage?: (messageId: TMessage["id"]) => Promise<void>;
+  /** Si no se pasa, no aparece la opción de "Me gusta". */
+  onLikeMessage?: (messageId: TMessage["id"]) => Promise<TMessage>;
 }) {
   const [messages, setMessages] = useState<TMessage[]>([]);
   const [pendingMessages, setPendingMessages] = useState<PendingMessage[]>([]);
@@ -82,6 +111,9 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [newArrivals, setNewArrivals] = useState(0);
   const [isOnline, setIsOnline] = useState(true);
+  const [menuMessage, setMenuMessage] = useState<TMessage | null>(null);
+  const [replyingTo, setReplyingTo] = useState<TMessage | null>(null);
+  const [likingMessageId, setLikingMessageId] = useState<TMessage["id"] | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -329,7 +361,10 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
     );
 
     try {
-      const delivered = await sendMessageRef.current(pending.content);
+      const delivered = await sendMessageRef.current(
+        pending.content,
+        pending.replyTo?.id ?? null
+      );
       seenMessageIdsRef.current.add(delivered.id);
       setMessages((current) => mergeMessages(current, [delivered]));
       setPendingMessages((current) =>
@@ -367,10 +402,19 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
       content: trimmed,
       createdAt: new Date().toISOString(),
       status: "sending",
+      replyTo: replyingTo
+        ? {
+            id: replyingTo.id,
+            content: replyingTo.content,
+            sender_id: replyingTo.sender.id,
+            sender_first_name: replyingTo.sender.first_name,
+          }
+        : null,
     };
 
     setPendingMessages((current) => [...current, optimisticMessage]);
     setContent("");
+    setReplyingTo(null);
     requestAnimationFrame(() => {
       resizeTextarea();
       scrollToBottom("smooth");
@@ -388,6 +432,72 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
     } catch {
       setLoadError("No hemos podido borrar el mensaje.");
     }
+  }
+
+  async function handleLikeMessage(message: TMessage) {
+    if (!onLikeMessage || likingMessageId !== null) return;
+    setLikingMessageId(message.id);
+    try {
+      const updated = await onLikeMessage(message.id);
+      setMessages((current) =>
+        current.map((item) => (item.id === message.id ? updated : item))
+      );
+    } catch {
+      setLoadError("No hemos podido guardar el \"me gusta\".");
+    } finally {
+      setLikingMessageId(null);
+    }
+  }
+
+  function openMessageMenu(message: TMessage) {
+    setMenuMessage(message);
+  }
+
+  // Pulsación larga (móvil) o clic derecho (escritorio) sobre una
+  // burbuja abre el menú de acciones — igual que WhatsApp. Un simple
+  // timeout basta: se cancela si el dedo se mueve más de la
+  // tolerancia (para no confundirlo con un scroll) o se levanta antes.
+  function longPressHandlers(message: TMessage): LongPressHandlers {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let start: { x: number; y: number } | null = null;
+
+    function clear() {
+      if (timer) clearTimeout(timer);
+      timer = null;
+      start = null;
+    }
+
+    return {
+      onPointerDown: (event: ReactPointerEvent) => {
+        if (event.pointerType === "mouse") return;
+        start = { x: event.clientX, y: event.clientY };
+        timer = setTimeout(() => {
+          openMessageMenu(message);
+          clear();
+        }, LONG_PRESS_MS);
+      },
+      onPointerMove: (event: ReactPointerEvent) => {
+        if (!start) return;
+        const dx = Math.abs(event.clientX - start.x);
+        const dy = Math.abs(event.clientY - start.y);
+        if (dx > LONG_PRESS_MOVE_TOLERANCE_PX || dy > LONG_PRESS_MOVE_TOLERANCE_PX) {
+          clear();
+        }
+      },
+      onPointerUp: clear,
+      onPointerLeave: clear,
+      onPointerCancel: clear,
+      onContextMenu: (event: ReactMouseEvent) => {
+        event.preventDefault();
+        openMessageMenu(message);
+      },
+    };
+  }
+
+  function startReply(message: TMessage) {
+    setReplyingTo(message);
+    setMenuMessage(null);
+    requestAnimationFrame(() => textareaRef.current?.focus());
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -472,8 +582,9 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                       showSenderName={showSenderName}
                       firstOfGroup={item.firstOfGroup}
                       lastOfGroup={item.lastOfGroup}
-                      canDelete={Boolean(onDeleteMessage && canDeleteMessage?.(item.message))}
-                      onDelete={() => void handleDeleteMessage(item.message)}
+                      canLike={Boolean(onLikeMessage)}
+                      onQuickLike={() => void handleLikeMessage(item.message)}
+                      pressHandlers={longPressHandlers(item.message)}
                     />
                   </motion.div>
                 )
@@ -547,6 +658,25 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
         onSubmit={handleSubmit}
         className="border-t border-border bg-surface px-3 pb-[max(0.75rem,var(--safe-bottom))] pt-3 sm:px-4 sm:pb-4"
       >
+        {replyingTo && (
+          <div className="mb-2 flex items-center gap-2 rounded-14 border-l-4 border-primary bg-primary/6 py-1.5 pl-2.5 pr-1.5">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-bold text-primary-dark">
+                Respondiendo a {replyingTo.sender.first_name}
+              </p>
+              <p className="truncate text-xs text-secondary">{replyingTo.content}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setReplyingTo(null)}
+              aria-label="Cancelar respuesta"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted hover:bg-surface-soft"
+            >
+              <CloseIcon />
+            </button>
+          </div>
+        )}
+
         <div className="flex items-end gap-2 rounded-24 border border-border bg-surface-soft px-2 py-2 shadow-[inset_0_1px_2px_rgb(0_0_0/0.03)] transition-all duration-200 focus-within:border-primary/50 focus-within:bg-surface focus-within:shadow-[0_2px_12px_-2px_rgb(0_0_0/0.08)] focus-within:ring-4 focus-within:ring-primary/10">
           <textarea
             ref={textareaRef}
@@ -586,6 +716,54 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           )}
         </div>
       </form>
+
+      {menuMessage && (
+        <BottomSheet onClose={() => setMenuMessage(null)} ariaLabel="Acciones del mensaje" className="sm:max-w-xs">
+          <div className="p-4">
+            <p className="truncate rounded-14 bg-surface-soft px-3 py-2 text-xs text-secondary">
+              {menuMessage.content}
+            </p>
+
+            <div className="mt-2 divide-y divide-border">
+              <button
+                type="button"
+                onClick={() => startReply(menuMessage)}
+                className="flex h-13 w-full items-center gap-3 px-1 text-left text-sm font-semibold text-foreground"
+              >
+                <ReplyIcon /> Responder
+              </button>
+
+              {onLikeMessage && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    void handleLikeMessage(menuMessage);
+                    setMenuMessage(null);
+                  }}
+                  className="flex h-13 w-full items-center gap-3 px-1 text-left text-sm font-semibold text-foreground"
+                >
+                  <HeartIcon filled={menuMessage.liked_by_me ?? false} />
+                  {menuMessage.liked_by_me ? "Quitar me gusta" : "Me gusta"}
+                </button>
+              )}
+
+              {onDeleteMessage && canDeleteMessage?.(menuMessage) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const target = menuMessage;
+                    setMenuMessage(null);
+                    void handleDeleteMessage(target);
+                  }}
+                  className="flex h-13 w-full items-center gap-3 px-1 text-left text-sm font-semibold text-red-600"
+                >
+                  <DeleteIcon /> Borrar mensaje
+                </button>
+              )}
+            </div>
+          </div>
+        </BottomSheet>
+      )}
     </div>
     </MotionConfig>
   );
@@ -597,16 +775,18 @@ const MessageBubble = memo(function MessageBubble({
   showSenderName,
   firstOfGroup,
   lastOfGroup,
-  canDelete,
-  onDelete,
+  canLike,
+  onQuickLike,
+  pressHandlers,
 }: {
   message: ChatThreadMessage;
   isOwn: boolean;
   showSenderName: boolean;
   firstOfGroup: boolean;
   lastOfGroup: boolean;
-  canDelete: boolean;
-  onDelete: () => void;
+  canLike: boolean;
+  onQuickLike: () => void;
+  pressHandlers: LongPressHandlers;
 }) {
   const [avatarError, setAvatarError] = useState(false);
   const fullName = [message.sender.first_name, message.sender.last_name]
@@ -619,6 +799,9 @@ const MessageBubble = memo(function MessageBubble({
     .join("")
     .toUpperCase();
   const showAvatarColumn = showSenderName && !isOwn;
+
+  const likeCount = message.like_count ?? 0;
+  const likedByMe = message.liked_by_me ?? false;
 
   return (
     <div className={cn("flex items-end gap-2", isOwn ? "flex-row-reverse" : "flex-row")}>
@@ -643,46 +826,71 @@ const MessageBubble = memo(function MessageBubble({
           <div className="h-7 w-7 shrink-0" aria-hidden="true" />
         ))}
 
-      <div
-        className={cn(
-          "max-w-[84%] min-w-0 rounded-18 px-3.5 py-2 shadow-[0_1px_2px_rgb(0_0_0/0.05)] sm:max-w-[72%]",
-          isOwn
-            ? cn(
-                "bg-primary text-white",
-                lastOfGroup && "chat-tail-own rounded-br-md",
-                !firstOfGroup && "rounded-tr-md"
-              )
-            : cn(
-                "border border-border bg-surface text-foreground",
-                lastOfGroup && "chat-tail-other rounded-bl-md",
-                !firstOfGroup && "rounded-tl-md"
-              )
-        )}
-      >
-        {!isOwn && showSenderName && firstOfGroup && (
-          <p className="truncate text-xs font-bold text-primary-dark">
-            {fullName || "Miembro de CoFlow"}
-          </p>
-        )}
-        <p className="whitespace-pre-wrap text-[15px] leading-6 wrap-anywhere">
-          {message.content}
-        </p>
-        <p className={cn("mt-0.5 text-right text-[10px] font-medium", isOwn ? "text-white/65" : "text-muted")}>
-          {formatMessageTime(message.created_at)}
-        </p>
-      </div>
-
-      {canDelete && (
-        <button
-          type="button"
-          onClick={onDelete}
-          aria-label="Borrar mensaje"
-          title="Borrar mensaje"
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted/60 transition hover:bg-surface-soft hover:text-red-600"
+      <div className="relative max-w-[84%] min-w-0 sm:max-w-[72%]">
+        <div
+          {...pressHandlers}
+          className={cn(
+            "select-none touch-none rounded-18 px-3.5 py-2 shadow-[0_1px_2px_rgb(0_0_0/0.05)]",
+            isOwn
+              ? cn(
+                  "bg-primary text-white",
+                  lastOfGroup && "chat-tail-own rounded-br-md",
+                  !firstOfGroup && "rounded-tr-md"
+                )
+              : cn(
+                  "border border-border bg-surface text-foreground",
+                  lastOfGroup && "chat-tail-other rounded-bl-md",
+                  !firstOfGroup && "rounded-tl-md"
+                )
+          )}
         >
-          <DeleteIcon />
-        </button>
-      )}
+          {!isOwn && showSenderName && firstOfGroup && (
+            <p className="truncate text-xs font-bold text-primary-dark">
+              {fullName || "Miembro de CoFlow"}
+            </p>
+          )}
+
+          {message.reply_to && (
+            <div
+              className={cn(
+                "mb-1.5 rounded-10 border-l-4 px-2.5 py-1.5 text-xs leading-5",
+                isOwn
+                  ? "border-white/50 bg-white/15 text-white/85"
+                  : "border-primary/50 bg-primary/6 text-secondary"
+              )}
+            >
+              <p className={cn("truncate font-bold", isOwn ? "text-white" : "text-primary-dark")}>
+                {message.reply_to.sender_first_name}
+              </p>
+              <p className="truncate">{message.reply_to.content}</p>
+            </div>
+          )}
+
+          <p className="whitespace-pre-wrap text-[15px] leading-6 wrap-anywhere">
+            {message.content}
+          </p>
+          <p className={cn("mt-0.5 text-right text-[10px] font-medium", isOwn ? "text-white/65" : "text-muted")}>
+            {formatMessageTime(message.created_at)}
+          </p>
+        </div>
+
+        {canLike && likeCount > 0 && (
+          <button
+            type="button"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={onQuickLike}
+            aria-label={likedByMe ? "Quitar me gusta" : "Me gusta"}
+            className={cn(
+              "absolute -bottom-2.5 flex h-5 items-center gap-0.5 rounded-full border border-border bg-surface px-1.5 text-[10px] font-bold shadow-soft",
+              isOwn ? "left-1.5" : "right-1.5",
+              likedByMe ? "text-red-600" : "text-secondary"
+            )}
+          >
+            <HeartIcon filled={likedByMe} />
+            {likeCount}
+          </button>
+        )}
+      </div>
     </div>
   );
 });
@@ -702,6 +910,12 @@ function PendingMessageBubble({
           message.status === "sending" && "opacity-80"
         )}
       >
+        {message.replyTo && (
+          <div className="mb-1.5 rounded-10 border-l-4 border-white/50 bg-white/15 px-2.5 py-1.5 text-xs leading-5 text-white/85">
+            <p className="truncate font-bold text-white">{message.replyTo.sender_first_name}</p>
+            <p className="truncate">{message.replyTo.content}</p>
+          </div>
+        )}
         <p className="whitespace-pre-wrap text-[15px] leading-6 wrap-anywhere">
           {message.content}
         </p>
@@ -790,7 +1004,9 @@ function messagesAreEquivalent(
     current.created_at === incoming.created_at &&
     current.sender.id === incoming.sender.id &&
     current.sender.first_name === incoming.sender.first_name &&
-    current.sender.last_name === incoming.sender.last_name
+    current.sender.last_name === incoming.sender.last_name &&
+    (current.like_count ?? 0) === (incoming.like_count ?? 0) &&
+    (current.liked_by_me ?? false) === (incoming.liked_by_me ?? false)
   );
 }
 
@@ -878,6 +1094,31 @@ function SendIcon() {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
       <path d="m22 2-7 20-4-9-9-4Z" />
       <path d="M22 2 11 13" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
+function HeartIcon({ filled }: { filled: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden="true">
+      <path d="M19 8.6c0 4.3-4.6 7.5-7 9.7-2.4-2.2-7-5.4-7-9.7C5 5.6 7.2 4 9.3 4c1.3 0 2.4.6 2.7 1.7C12.3 4.6 13.4 4 14.7 4 16.8 4 19 5.6 19 8.6Z" />
+    </svg>
+  );
+}
+
+function ReplyIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
+      <path d="M9 10 4 15l5 5" />
+      <path d="M4 15h10a6 6 0 0 0 6-6V4" />
     </svg>
   );
 }

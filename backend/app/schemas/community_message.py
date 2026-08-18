@@ -14,6 +14,7 @@ class CommunityMessageSenderResponse(StorageBackedAvatarResponse):
 
 class CommunityMessageCreate(BaseModel):
     content: str = Field(min_length=1, max_length=2000)
+    reply_to_id: int | None = None
 
     @field_validator("content")
     @classmethod
@@ -26,6 +27,13 @@ class CommunityMessageCreate(BaseModel):
         return stripped
 
 
+class CommunityMessageReplyPreview(BaseModel):
+    id: int
+    content: str
+    sender_id: UUID
+    sender_first_name: str
+
+
 class CommunityMessageResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -35,3 +43,6 @@ class CommunityMessageResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     sender: CommunityMessageSenderResponse
+    reply_to: CommunityMessageReplyPreview | None = None
+    like_count: int = 0
+    liked_by_me: bool = False

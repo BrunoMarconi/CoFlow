@@ -186,3 +186,39 @@ def create_private_message(
         connection_id=connection_id,
         data=data,
     )
+
+
+@router.delete(
+    "/{connection_id}/messages/{message_id}",
+    status_code=204,
+)
+def delete_private_message(
+    connection_id: int,
+    message_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    private_message_service.delete_message(
+        db=db,
+        current_user=current_user,
+        connection_id=connection_id,
+        message_id=message_id,
+    )
+
+
+@router.post(
+    "/{connection_id}/messages/{message_id}/like",
+    response_model=PrivateMessageResponse,
+)
+def toggle_private_message_like(
+    connection_id: int,
+    message_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return private_message_service.toggle_like(
+        db=db,
+        current_user=current_user,
+        connection_id=connection_id,
+        message_id=message_id,
+    )

@@ -4,6 +4,7 @@ import ChatThread, { type ChatThreadMessage } from "@/components/chat/ChatThread
 import {
   deleteCommunityMessage,
   getCommunityMessages,
+  likeCommunityMessage,
   sendCommunityMessage,
 } from "@/services/communities";
 import { markConversationReadNow } from "@/lib/conversationReadState";
@@ -28,8 +29,11 @@ export default function CommunityChat({
       threadKey={`community:${communityId}`}
       currentUserId={currentUserId}
       fetchMessages={(params) => getCommunityMessages(communityId, params)}
-      sendMessage={(content) =>
-        sendCommunityMessage(communityId, { content })
+      sendMessage={(content, replyToId) =>
+        sendCommunityMessage(communityId, {
+          content,
+          reply_to_id: typeof replyToId === "number" ? replyToId : null,
+        })
       }
       showSenderName
       placeholder="Escribe un mensaje para la comunidad..."
@@ -41,6 +45,7 @@ export default function CommunityChat({
       onDeleteMessage={(messageId) =>
         deleteCommunityMessage(communityId, messageId)
       }
+      onLikeMessage={(messageId) => likeCommunityMessage(communityId, messageId)}
     />
   );
 }

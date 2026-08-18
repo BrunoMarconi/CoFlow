@@ -15,6 +15,7 @@ class PrivateMessageSenderResponse(StorageBackedAvatarResponse):
 
 class PrivateMessageCreate(BaseModel):
     content: str = Field(min_length=1, max_length=2000)
+    reply_to_id: int | None = None
 
     @field_validator("content")
     @classmethod
@@ -27,6 +28,13 @@ class PrivateMessageCreate(BaseModel):
         return stripped
 
 
+class PrivateMessageReplyPreview(BaseModel):
+    id: int
+    content: str
+    sender_id: UUID
+    sender_first_name: str
+
+
 class PrivateMessageResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -36,6 +44,9 @@ class PrivateMessageResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     sender: PrivateMessageSenderResponse
+    reply_to: PrivateMessageReplyPreview | None = None
+    like_count: int = 0
+    liked_by_me: bool = False
 
 
 class PrivateConversationSummaryResponse(BaseModel):
