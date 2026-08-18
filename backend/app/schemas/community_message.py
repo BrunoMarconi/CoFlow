@@ -40,9 +40,23 @@ class CommunityMessageResponse(BaseModel):
     id: int
     community_id: int
     content: str
+    image_url: str | None = None
     created_at: datetime
     updated_at: datetime
     sender: CommunityMessageSenderResponse
     reply_to: CommunityMessageReplyPreview | None = None
     like_count: int = 0
     liked_by_me: bool = False
+
+
+class CommunityTypingUsersResponse(BaseModel):
+    typing_names: list[str]
+
+
+class CommunityMarkReadRequest(BaseModel):
+    last_read_message_id: int
+
+
+class CommunityReadReceiptsResponse(BaseModel):
+    # user_id (str) -> id del último mensaje que ese usuario ha leído.
+    read_by: dict[str, int]

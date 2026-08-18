@@ -5,8 +5,13 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   deletePrivateMessage,
   getPrivateMessages,
+  getPrivateReadReceipt,
+  getPrivateTyping,
   likePrivateMessage,
+  markPrivateMessagesRead,
+  sendPrivateImageMessage,
   sendPrivateMessage,
+  sendPrivateTyping,
 } from "@/services/connections";
 import { markConversationReadNow } from "@/lib/conversationReadState";
 
@@ -47,6 +52,15 @@ export default function PrivateChat({
         deletePrivateMessage(connectionId, messageId)
       }
       onLikeMessage={(messageId) => likePrivateMessage(connectionId, messageId)}
+      onSendImage={(file, caption) =>
+        sendPrivateImageMessage(connectionId, file, caption)
+      }
+      onTypingHeartbeat={() => sendPrivateTyping(connectionId)}
+      fetchTypingNames={() => getPrivateTyping(connectionId)}
+      onMarkRead={(messageId) =>
+        markPrivateMessagesRead(connectionId, Number(messageId))
+      }
+      fetchReadUpTo={() => getPrivateReadReceipt(connectionId)}
     />
   );
 }

@@ -55,6 +55,10 @@ class CommunityMessage(Base):
         nullable=False,
     )
 
+    # Presente solo en mensajes con foto — el pie de foto (si lo hay)
+    # va en `content` igualmente (puede quedar como cadena vacía).
+    image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     is_deleted: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,

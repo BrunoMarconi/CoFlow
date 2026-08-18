@@ -120,3 +120,48 @@ export async function likePrivateMessage(
 
   return data;
 }
+
+export async function sendPrivateImageMessage(
+  connectionId: number | string,
+  file: File,
+  content: string
+) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("content", content);
+
+  const { data } = await api.post<PrivateMessage>(
+    `/connections/${connectionId}/messages/image`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+
+  return data;
+}
+
+export async function markPrivateMessagesRead(
+  connectionId: number | string,
+  lastReadMessageId: number
+) {
+  await api.post(`/connections/${connectionId}/messages/read`, {
+    last_read_message_id: lastReadMessageId,
+  });
+}
+
+export async function getPrivateReadReceipt(connectionId: number | string) {
+  const { data } = await api.get<{ last_read_message_id: number | null }>(
+    `/connections/${connectionId}/messages/read`
+  );
+  return data.last_read_message_id;
+}
+
+export async function sendPrivateTyping(connectionId: number | string) {
+  await api.post(`/connections/${connectionId}/typing`);
+}
+
+export async function getPrivateTyping(connectionId: number | string) {
+  const { data } = await api.get<{ typing_names: string[] }>(
+    `/connections/${connectionId}/typing`
+  );
+  return data.typing_names;
+}

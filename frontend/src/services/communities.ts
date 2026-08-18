@@ -173,6 +173,51 @@ export async function likeCommunityMessage(
   return data;
 }
 
+export async function sendCommunityImageMessage(
+  id: number | string,
+  file: File,
+  content: string
+) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("content", content);
+
+  const { data } = await api.post<CommunityMessage>(
+    `/communities/${id}/messages/image`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+
+  return data;
+}
+
+export async function markCommunityMessagesRead(
+  id: number | string,
+  lastReadMessageId: number
+) {
+  await api.post(`/communities/${id}/messages/read`, {
+    last_read_message_id: lastReadMessageId,
+  });
+}
+
+export async function getCommunityReadReceipts(id: number | string) {
+  const { data } = await api.get<{ read_by: Record<string, number> }>(
+    `/communities/${id}/messages/read`
+  );
+  return data.read_by;
+}
+
+export async function sendCommunityTyping(id: number | string) {
+  await api.post(`/communities/${id}/typing`);
+}
+
+export async function getCommunityTyping(id: number | string) {
+  const { data } = await api.get<{ typing_names: string[] }>(
+    `/communities/${id}/typing`
+  );
+  return data.typing_names;
+}
+
 export async function uploadCommunityCover(
   id: number | string,
   file: File

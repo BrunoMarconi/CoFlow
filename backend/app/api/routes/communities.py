@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user, require_verified_email
@@ -14,8 +14,11 @@ from app.schemas.community import (
     CommunityUpdate,
 )
 from app.schemas.community_message import (
+    CommunityMarkReadRequest,
     CommunityMessageCreate,
     CommunityMessageResponse,
+    CommunityReadReceiptsResponse,
+    CommunityTypingUsersResponse,
 )
 from app.schemas.community_rent_split import (
     CommunityRentSplitResponse,
@@ -266,6 +269,84 @@ def toggle_community_message_like(
         community_id=community_id,
         message_id=message_id,
         current_user=current_user,
+    )
+
+
+@router.post(
+    "/{community_id}/messages/image",
+    response_model=CommunityMessageResponse,
+)
+async def create_community_image_message(
+    community_id: int,
+    file: UploadFile = File(...),
+    content: str = Form(default=""),
+    current_user: User = Depends(require_verified_email),
+    db: Session = Depends(get_db),
+):
+    return await community_message_service.create_image_message(
+        db=db,
+        community_id=community_id,
+        current_user=current_user,
+        file=file,
+        content=content,
+    )
+
+
+@router.post("/{community_id}/messages/read")
+def mark_community_messages_read(
+    community_id: int,
+    data: CommunityMarkReadRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    community_message_service.mark_read(
+        db=db,
+        community_id=community_id,
+        current_user=current_user,
+        last_read_message_id=data.last_read_message_id,
+    )
+    return {"ok": True}
+
+
+@router.get(
+    "/{community_id}/messages/read",
+    response_model=CommunityReadReceiptsResponse,
+)
+def get_community_read_receipts(
+    community_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return CommunityReadReceiptsResponse(
+        read_by=community_message_service.get_read_receipts(
+            db=db, community_id=community_id, current_user=current_user,
+        )
+    )
+
+
+@router.post("/{community_id}/typing")
+def send_community_typing(
+    community_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    community_message_service.mark_typing(db, community_id, current_user)
+    return {"ok": True}
+
+
+@router.get(
+    "/{community_id}/typing",
+    response_model=CommunityTypingUsersResponse,
+)
+def get_community_typing(
+    community_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return CommunityTypingUsersResponse(
+        typing_names=community_message_service.get_typing_names(
+            db, community_id, current_user
+        )
     )
 
 

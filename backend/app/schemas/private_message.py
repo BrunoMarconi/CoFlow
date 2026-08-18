@@ -41,12 +41,25 @@ class PrivateMessageResponse(BaseModel):
     id: int
     connection_id: int
     content: str
+    image_url: str | None = None
     created_at: datetime
     updated_at: datetime
     sender: PrivateMessageSenderResponse
     reply_to: PrivateMessageReplyPreview | None = None
     like_count: int = 0
     liked_by_me: bool = False
+
+
+class PrivateTypingUsersResponse(BaseModel):
+    typing_names: list[str]
+
+
+class PrivateMarkReadRequest(BaseModel):
+    last_read_message_id: int
+
+
+class PrivateReadReceiptResponse(BaseModel):
+    last_read_message_id: int | None
 
 
 class PrivateConversationSummaryResponse(BaseModel):

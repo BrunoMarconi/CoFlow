@@ -58,6 +58,7 @@ export interface ChatThreadReplyPreview {
 export interface ChatThreadMessage {
   id: number | string;
   content: string;
+  image_url?: string | null;
   created_at: string;
   sender: ChatThreadSender;
   reply_to?: ChatThreadReplyPreview | null;
@@ -71,7 +72,13 @@ interface PendingMessage {
   createdAt: string;
   status: "sending" | "failed";
   replyTo?: ChatThreadReplyPreview | null;
+  imagePreviewUrl?: string;
+  imageFile?: File;
 }
+
+const TYPING_POLL_MS = 2500;
+const TYPING_HEARTBEAT_MS = 2000;
+const READ_POLL_MS = 4000;
 
 export default function ChatThread<TMessage extends ChatThreadMessage>({
   threadKey,
@@ -85,6 +92,11 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   canDeleteMessage,
   onDeleteMessage,
   onLikeMessage,
+  onSendImage,
+  onTypingHeartbeat,
+  fetchTypingNames,
+  onMarkRead,
+  fetchReadUpTo,
 }: {
   threadKey: number | string;
   currentUserId: string;
@@ -100,6 +112,16 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   onDeleteMessage?: (messageId: TMessage["id"]) => Promise<void>;
   /** Si no se pasa, no aparece la opción de "Me gusta". */
   onLikeMessage?: (messageId: TMessage["id"]) => Promise<TMessage>;
+  /** Si no se pasa, no aparece el botón de adjuntar foto. */
+  onSendImage?: (file: File, caption: string) => Promise<TMessage>;
+  /** Avisa al otro lado de que estás escribiendo ahora mismo. */
+  onTypingHeartbeat?: () => Promise<void>;
+  /** Nombres de quienes están escribiendo ahora mismo (sin ti). */
+  fetchTypingNames?: () => Promise<string[]>;
+  onMarkRead?: (lastMessageId: TMessage["id"]) => Promise<void>;
+  /** El id de mensaje más alto que alguien más ya ha leído — se usa
+   * para pintar el doble check azul en tus propios mensajes. */
+  fetchReadUpTo?: () => Promise<number | null>;
 }) {
   const [messages, setMessages] = useState<TMessage[]>([]);
   const [pendingMessages, setPendingMessages] = useState<PendingMessage[]>([]);
@@ -114,9 +136,13 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   const [menuMessage, setMenuMessage] = useState<TMessage | null>(null);
   const [replyingTo, setReplyingTo] = useState<TMessage | null>(null);
   const [likingMessageId, setLikingMessageId] = useState<TMessage["id"] | null>(null);
+  const [typingNames, setTypingNames] = useState<string[]>([]);
+  const [readUpTo, setReadUpTo] = useState<number | null>(null);
+  const [sendingImage, setSendingImage] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const fetchMessagesRef = useRef(fetchMessages);
   const sendMessageRef = useRef(sendMessage);
   const onMessagesReceivedRef = useRef(onMessagesReceived);
@@ -125,6 +151,8 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   const isNearBottomRef = useRef(true);
   const requestInFlightRef = useRef(false);
   const hasLoadedRef = useRef(false);
+  const lastTypingHeartbeatRef = useRef(0);
+  const lastMarkedReadIdRef = useRef<TMessage["id"] | null>(null);
 
   const draftKey = `${DRAFT_PREFIX}${threadKey}`;
   const outboxKey = `${OUTBOX_PREFIX}${threadKey}`;
@@ -297,6 +325,134 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
       window.removeEventListener("online", refreshInForeground);
     };
   }, [threadKey]);
+
+  useEffect(() => {
+    if (!fetchTypingNames) return;
+    let active = true;
+
+    async function poll() {
+      try {
+        const names = await fetchTypingNames!();
+        if (active) setTypingNames(names);
+      } catch {
+        // Un fallo puntual del indicador de "escribiendo" no debe
+        // interrumpir el resto del chat.
+      }
+    }
+
+    void poll();
+    const intervalId = setInterval(() => void poll(), TYPING_POLL_MS);
+    return () => {
+      active = false;
+      clearInterval(intervalId);
+    };
+  }, [threadKey, fetchTypingNames]);
+
+  useEffect(() => {
+    if (!fetchReadUpTo) return;
+    let active = true;
+
+    async function poll() {
+      try {
+        const value = await fetchReadUpTo!();
+        if (active) setReadUpTo(value);
+      } catch {
+        // Igual que el indicador de escritura: no bloquea el chat.
+      }
+    }
+
+    void poll();
+    const intervalId = setInterval(() => void poll(), READ_POLL_MS);
+    return () => {
+      active = false;
+      clearInterval(intervalId);
+    };
+  }, [threadKey, fetchReadUpTo]);
+
+  useEffect(() => {
+    if (!onMarkRead || messages.length === 0) return;
+    const newestId = messages[messages.length - 1].id;
+    if (newestId === lastMarkedReadIdRef.current) return;
+    lastMarkedReadIdRef.current = newestId;
+    void onMarkRead(newestId).catch(() => {
+      // Si falla, el próximo mensaje que llegue reintentará igualmente.
+    });
+  }, [messages, onMarkRead]);
+
+  function notifyTyping() {
+    if (!onTypingHeartbeat) return;
+    const now = Date.now();
+    if (now - lastTypingHeartbeatRef.current < TYPING_HEARTBEAT_MS) return;
+    lastTypingHeartbeatRef.current = now;
+    void onTypingHeartbeat().catch(() => {});
+  }
+
+  async function handleImageSelected(file: File) {
+    if (!onSendImage || sendingImage) return;
+
+    const caption = content.trim();
+    const previewUrl = URL.createObjectURL(file);
+    const pendingId = `pending-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const optimisticMessage: PendingMessage = {
+      id: pendingId,
+      content: caption,
+      createdAt: new Date().toISOString(),
+      status: "sending",
+      imagePreviewUrl: previewUrl,
+      imageFile: file,
+    };
+
+    setPendingMessages((current) => [...current, optimisticMessage]);
+    setContent("");
+    setSendingImage(true);
+    requestAnimationFrame(() => {
+      resizeTextarea();
+      scrollToBottom("smooth");
+    });
+
+    try {
+      const delivered = await onSendImage(file, caption);
+      seenMessageIdsRef.current.add(delivered.id);
+      setMessages((current) => mergeMessages(current, [delivered]));
+      setPendingMessages((current) => current.filter((message) => message.id !== pendingId));
+      if (isNearBottomRef.current) {
+        requestAnimationFrame(() => scrollToBottom("auto"));
+      }
+    } catch {
+      setPendingMessages((current) =>
+        current.map((message) =>
+          message.id === pendingId ? { ...message, status: "failed" } : message
+        )
+      );
+    } finally {
+      setSendingImage(false);
+    }
+  }
+
+  async function retryPendingMessage(pending: PendingMessage) {
+    if (pending.imageFile && onSendImage) {
+      setPendingMessages((current) =>
+        current.map((message) =>
+          message.id === pending.id ? { ...message, status: "sending" } : message
+        )
+      );
+      try {
+        const delivered = await onSendImage(pending.imageFile, pending.content);
+        seenMessageIdsRef.current.add(delivered.id);
+        setMessages((current) => mergeMessages(current, [delivered]));
+        setPendingMessages((current) => current.filter((message) => message.id !== pending.id));
+      } catch {
+        setPendingMessages((current) =>
+          current.map((message) =>
+            message.id === pending.id ? { ...message, status: "failed" } : message
+          )
+        );
+      }
+      return;
+    }
+
+    void deliverMessage(pending);
+  }
 
   async function loadOlderMessages() {
     if (loadingOlder || !hasOlder) return;
@@ -585,6 +741,13 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                       canLike={Boolean(onLikeMessage)}
                       onQuickLike={() => void handleLikeMessage(item.message)}
                       pressHandlers={longPressHandlers(item.message)}
+                      isRead={Boolean(
+                        fetchReadUpTo &&
+                          readUpTo !== null &&
+                          typeof item.message.id === "number" &&
+                          item.message.id <= readUpTo
+                      )}
+                      showReadStatus={Boolean(fetchReadUpTo)}
                     />
                   </motion.div>
                 )
@@ -601,7 +764,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                 >
                   <PendingMessageBubble
                     message={message}
-                    onRetry={() => void deliverMessage(message)}
+                    onRetry={() => void retryPendingMessage(message)}
                   />
                 </motion.div>
               ))}
@@ -654,6 +817,15 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
         </div>
       )}
 
+      {typingNames.length > 0 && (
+        <div className="flex items-center gap-1.5 border-t border-border bg-surface px-4 py-1.5 text-xs font-semibold text-secondary">
+          <TypingDots />
+          {typingNames.length === 1
+            ? `${typingNames[0]} está escribiendo…`
+            : `${typingNames.slice(0, 2).join(", ")} están escribiendo…`}
+        </div>
+      )}
+
       <form
         onSubmit={handleSubmit}
         className="border-t border-border bg-surface px-3 pb-[max(0.75rem,var(--safe-bottom))] pt-3 sm:px-4 sm:pb-4"
@@ -678,12 +850,38 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
         )}
 
         <div className="flex items-end gap-2 rounded-24 border border-border bg-surface-soft px-2 py-2 shadow-[inset_0_1px_2px_rgb(0_0_0/0.03)] transition-all duration-200 focus-within:border-primary/50 focus-within:bg-surface focus-within:shadow-[0_2px_12px_-2px_rgb(0_0_0/0.08)] focus-within:ring-4 focus-within:ring-primary/10">
+          {onSendImage && (
+            <>
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = "";
+                  if (file) void handleImageSelected(file);
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => imageInputRef.current?.click()}
+                disabled={sendingImage}
+                aria-label="Adjuntar foto"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface hover:text-foreground disabled:opacity-50"
+              >
+                <ImageIcon />
+              </button>
+            </>
+          )}
+
           <textarea
             ref={textareaRef}
             value={content}
             onChange={(event) => {
               setContent(event.target.value);
               resizeTextarea();
+              notifyTyping();
             }}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
@@ -778,6 +976,8 @@ const MessageBubble = memo(function MessageBubble({
   canLike,
   onQuickLike,
   pressHandlers,
+  isRead,
+  showReadStatus,
 }: {
   message: ChatThreadMessage;
   isOwn: boolean;
@@ -787,6 +987,8 @@ const MessageBubble = memo(function MessageBubble({
   canLike: boolean;
   onQuickLike: () => void;
   pressHandlers: LongPressHandlers;
+  isRead: boolean;
+  showReadStatus: boolean;
 }) {
   const [avatarError, setAvatarError] = useState(false);
   const fullName = [message.sender.first_name, message.sender.last_name]
@@ -866,11 +1068,26 @@ const MessageBubble = memo(function MessageBubble({
             </div>
           )}
 
-          <p className="whitespace-pre-wrap text-[15px] leading-6 wrap-anywhere">
-            {message.content}
-          </p>
-          <p className={cn("mt-0.5 text-right text-[10px] font-medium", isOwn ? "text-white/65" : "text-muted")}>
+          {message.image_url && (
+            <a href={message.image_url} target="_blank" rel="noreferrer" className="-mx-3.5 -mt-2 mb-1.5 block overflow-hidden first:mt-0">
+              <img
+                src={message.image_url}
+                alt="Foto enviada en el chat"
+                className="max-h-72 w-full object-cover"
+                loading="lazy"
+              />
+            </a>
+          )}
+
+          {message.content && (
+            <p className="whitespace-pre-wrap text-[15px] leading-6 wrap-anywhere">
+              {message.content}
+            </p>
+          )}
+
+          <p className={cn("mt-0.5 flex items-center justify-end gap-1 text-[10px] font-medium", isOwn ? "text-white/65" : "text-muted")}>
             {formatMessageTime(message.created_at)}
+            {isOwn && showReadStatus && <ReadTicks read={isRead} />}
           </p>
         </div>
 
@@ -916,9 +1133,16 @@ function PendingMessageBubble({
             <p className="truncate">{message.replyTo.content}</p>
           </div>
         )}
-        <p className="whitespace-pre-wrap text-[15px] leading-6 wrap-anywhere">
-          {message.content}
-        </p>
+        {message.imagePreviewUrl && (
+          <div className="-mx-3.5 -mt-2 mb-1.5 overflow-hidden">
+            <img src={message.imagePreviewUrl} alt="" className="max-h-72 w-full object-cover opacity-90" />
+          </div>
+        )}
+        {message.content && (
+          <p className="whitespace-pre-wrap text-[15px] leading-6 wrap-anywhere">
+            {message.content}
+          </p>
+        )}
         <div className="mt-0.5 flex items-center justify-end gap-1.5 text-[10px] font-medium text-white/65">
           <span>{formatMessageTime(message.createdAt)}</span>
           {message.status === "sending" ? (
@@ -1127,6 +1351,35 @@ function DeleteIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true">
       <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16Z" />
+    </svg>
+  );
+}
+
+function ReadTicks({ read }: { read: boolean }) {
+  return (
+    <svg viewBox="0 0 24 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={cn("h-3 w-4.5 shrink-0", read && "text-sky-300")} aria-hidden="true">
+      <path d="m1 8 4 4 4-8" />
+      <path d="m9 8 4 4 8-11" />
+    </svg>
+  );
+}
+
+function TypingDots() {
+  return (
+    <span className="flex items-center gap-0.5">
+      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-secondary [animation-delay:-0.3s]" />
+      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-secondary [animation-delay:-0.15s]" />
+      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-secondary" />
+    </span>
+  );
+}
+
+function ImageIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5.5 w-5.5" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="16" rx="2.5" />
+      <circle cx="8.5" cy="9.5" r="1.5" />
+      <path d="m4 17 5-5 4 4 3-3 4 4" />
     </svg>
   );
 }

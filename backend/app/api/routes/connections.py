@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user, require_verified_email
@@ -6,8 +6,11 @@ from app.database.models.user import User
 from app.database.session import get_db
 from app.schemas.private_message import (
     PrivateConversationSummaryResponse,
+    PrivateMarkReadRequest,
     PrivateMessageCreate,
     PrivateMessageResponse,
+    PrivateReadReceiptResponse,
+    PrivateTypingUsersResponse,
 )
 from app.schemas.user_connection import (
     UserConnectionOverviewResponse,
@@ -185,6 +188,84 @@ def create_private_message(
         current_user=current_user,
         connection_id=connection_id,
         data=data,
+    )
+
+
+@router.post(
+    "/{connection_id}/messages/image",
+    response_model=PrivateMessageResponse,
+)
+async def create_private_image_message(
+    connection_id: int,
+    file: UploadFile = File(...),
+    content: str = Form(default=""),
+    current_user: User = Depends(require_verified_email),
+    db: Session = Depends(get_db),
+):
+    return await private_message_service.create_image_message(
+        db=db,
+        current_user=current_user,
+        connection_id=connection_id,
+        file=file,
+        content=content,
+    )
+
+
+@router.post("/{connection_id}/messages/read")
+def mark_private_messages_read(
+    connection_id: int,
+    data: PrivateMarkReadRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    private_message_service.mark_read(
+        db=db,
+        current_user=current_user,
+        connection_id=connection_id,
+        last_read_message_id=data.last_read_message_id,
+    )
+    return {"ok": True}
+
+
+@router.get(
+    "/{connection_id}/messages/read",
+    response_model=PrivateReadReceiptResponse,
+)
+def get_private_read_receipt(
+    connection_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return PrivateReadReceiptResponse(
+        last_read_message_id=private_message_service.get_read_receipt(
+            db=db, current_user=current_user, connection_id=connection_id,
+        )
+    )
+
+
+@router.post("/{connection_id}/typing")
+def send_private_typing(
+    connection_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    private_message_service.mark_typing(db, current_user, connection_id)
+    return {"ok": True}
+
+
+@router.get(
+    "/{connection_id}/typing",
+    response_model=PrivateTypingUsersResponse,
+)
+def get_private_typing(
+    connection_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return PrivateTypingUsersResponse(
+        typing_names=private_message_service.get_typing_names(
+            db, current_user, connection_id
+        )
     )
 
 

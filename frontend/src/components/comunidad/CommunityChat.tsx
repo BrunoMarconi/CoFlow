@@ -4,8 +4,13 @@ import ChatThread, { type ChatThreadMessage } from "@/components/chat/ChatThread
 import {
   deleteCommunityMessage,
   getCommunityMessages,
+  getCommunityReadReceipts,
+  getCommunityTyping,
   likeCommunityMessage,
+  markCommunityMessagesRead,
+  sendCommunityImageMessage,
   sendCommunityMessage,
+  sendCommunityTyping,
 } from "@/services/communities";
 import { markConversationReadNow } from "@/lib/conversationReadState";
 
@@ -46,6 +51,19 @@ export default function CommunityChat({
         deleteCommunityMessage(communityId, messageId)
       }
       onLikeMessage={(messageId) => likeCommunityMessage(communityId, messageId)}
+      onSendImage={(file, caption) =>
+        sendCommunityImageMessage(communityId, file, caption)
+      }
+      onTypingHeartbeat={() => sendCommunityTyping(communityId)}
+      fetchTypingNames={() => getCommunityTyping(communityId)}
+      onMarkRead={(messageId) =>
+        markCommunityMessagesRead(communityId, Number(messageId))
+      }
+      fetchReadUpTo={async () => {
+        const readBy = await getCommunityReadReceipts(communityId);
+        const values = Object.values(readBy);
+        return values.length > 0 ? Math.max(...values) : null;
+      }}
     />
   );
 }

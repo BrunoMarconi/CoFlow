@@ -45,6 +45,8 @@ class PrivateMessage(Base):
         nullable=False,
     )
 
+    image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

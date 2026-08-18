@@ -1,13 +1,18 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session, joinedload
 
+from app.core.config import MAX_IMAGE_SIZE_BYTES
 from app.database.models.community import Community
 from app.database.models.community_member import CommunityMember
 from app.database.models.community_message import CommunityMessage
+from app.database.models.community_message_read import CommunityMessageRead
 from app.database.models.user import User
 from app.schemas.community_message import CommunityMessageCreate
+from app.services import storage_service
+from app.services import typing_indicator_service
 
 MAX_LIMIT = 100
+CHAT_IMAGE_SUBFOLDER = "chat"
 
 
 class CommunityMessageService:
@@ -71,6 +76,7 @@ class CommunityMessageService:
             "id": message.id,
             "community_id": message.community_id,
             "content": message.content,
+            "image_url": message.image_url,
             "created_at": message.created_at,
             "updated_at": message.updated_at,
             "sender": message.sender,
@@ -169,6 +175,114 @@ class CommunityMessageService:
         )
 
         return self._to_response(loaded, current_user.id)
+
+    async def create_image_message(
+        self,
+        db: Session,
+        community_id: int,
+        current_user: User,
+        file: UploadFile,
+        content: str,
+    ):
+        self._ensure_active_membership(db, community_id, current_user)
+
+        raw = await file.read()
+        validated = storage_service.validate_image(raw, MAX_IMAGE_SIZE_BYTES)
+        storage_key, url = storage_service.upload_file(validated, CHAT_IMAGE_SUBFOLDER)
+
+        message = CommunityMessage(
+            community_id=community_id,
+            sender_id=current_user.id,
+            content=content.strip(),
+            image_url=url,
+        )
+
+        try:
+            db.add(message)
+            db.commit()
+            db.refresh(message)
+        except Exception:
+            db.rollback()
+            storage_service.delete_file(storage_key, CHAT_IMAGE_SUBFOLDER)
+            raise
+
+        loaded = (
+            db.query(CommunityMessage)
+            .options(*self._load_options())
+            .filter(CommunityMessage.id == message.id)
+            .first()
+        )
+        return self._to_response(loaded, current_user.id)
+
+    def mark_read(
+        self,
+        db: Session,
+        community_id: int,
+        current_user: User,
+        last_read_message_id: int,
+    ) -> None:
+        self._ensure_active_membership(db, community_id, current_user)
+
+        record = (
+            db.query(CommunityMessageRead)
+            .filter(
+                CommunityMessageRead.community_id == community_id,
+                CommunityMessageRead.user_id == current_user.id,
+            )
+            .first()
+        )
+
+        if record is None:
+            record = CommunityMessageRead(
+                community_id=community_id,
+                user_id=current_user.id,
+                last_read_message_id=last_read_message_id,
+            )
+            db.add(record)
+        elif last_read_message_id > record.last_read_message_id:
+            record.last_read_message_id = last_read_message_id
+        else:
+            return
+
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+
+    def get_read_receipts(
+        self,
+        db: Session,
+        community_id: int,
+        current_user: User,
+    ) -> dict[str, int]:
+        self._ensure_active_membership(db, community_id, current_user)
+
+        records = (
+            db.query(CommunityMessageRead)
+            .filter(
+                CommunityMessageRead.community_id == community_id,
+                CommunityMessageRead.user_id != current_user.id,
+            )
+            .all()
+        )
+        return {str(record.user_id): record.last_read_message_id for record in records}
+
+    def mark_typing(
+        self, db: Session, community_id: int, current_user: User
+    ) -> None:
+        self._ensure_active_membership(db, community_id, current_user)
+        typing_indicator_service.mark_typing(
+            f"community:{community_id}", str(current_user.id), current_user.first_name
+        )
+
+    def get_typing_names(
+        self, db: Session, community_id: int, current_user: User
+    ) -> list[str]:
+        self._ensure_active_membership(db, community_id, current_user)
+        return typing_indicator_service.get_typing_users(
+            f"community:{community_id}", str(current_user.id)
+        )
 
     def delete_message(
         self,
