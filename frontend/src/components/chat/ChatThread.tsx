@@ -885,7 +885,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           </div>
         )}
 
-        <div className="flex items-end gap-2 rounded-24 border border-border bg-surface-soft px-2 py-2 shadow-[inset_0_1px_2px_rgb(0_0_0/0.03)] transition-all duration-200 focus-within:border-primary/50 focus-within:bg-surface focus-within:shadow-[0_2px_12px_-2px_rgb(0_0_0/0.08)] focus-within:ring-4 focus-within:ring-primary/10">
+        <div className="flex items-end gap-2">
           {onSendImage && (
             <>
               <input
@@ -904,28 +904,30 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                 onClick={() => imageInputRef.current?.click()}
                 disabled={sendingImage}
                 aria-label="Adjuntar foto"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface hover:text-foreground disabled:opacity-50"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-soft hover:text-foreground disabled:opacity-50"
               >
                 <ImageIcon />
               </button>
             </>
           )}
 
-          <textarea
-            ref={textareaRef}
-            value={content}
-            onChange={(event) => {
-              setContent(event.target.value);
-              resizeTextarea();
-              notifyTyping();
-            }}
-            onKeyDown={handleKeyDown}
-            placeholder={placeholder}
-            aria-label="Mensaje"
-            maxLength={2000}
-            rows={1}
-            className="max-h-30 min-h-11 min-w-0 flex-1 resize-none bg-transparent px-3 py-2.5 text-base leading-6 text-foreground outline-none placeholder:text-muted"
-          />
+          <div className="flex min-h-11 flex-1 items-end rounded-24 border border-border bg-surface-soft px-4 py-2 transition-colors duration-200 focus-within:border-primary/40">
+            <textarea
+              ref={textareaRef}
+              value={content}
+              onChange={(event) => {
+                setContent(event.target.value);
+                resizeTextarea();
+                notifyTyping();
+              }}
+              onKeyDown={handleKeyDown}
+              placeholder={placeholder}
+              aria-label="Mensaje"
+              maxLength={2000}
+              rows={1}
+              className="max-h-30 min-h-7 min-w-0 flex-1 resize-none bg-transparent text-base leading-6 text-foreground outline-none placeholder:text-muted"
+            />
+          </div>
 
           <motion.button
             type="submit"
@@ -933,22 +935,17 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
             aria-label="Enviar mensaje"
             whileTap={content.trim() ? { scale: 0.9 } : undefined}
             transition={MOTION_SPRING.snappy}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-button transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-border disabled:text-muted disabled:shadow-none"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-border disabled:text-muted"
           >
             <SendIcon />
           </motion.button>
         </div>
 
-        <div className="mt-1.5 flex min-h-4 items-center justify-between px-2">
-          <p className="hidden text-[10px] text-muted sm:block">
-            Enter para enviar · Mayús + Enter para una nueva línea
+        {content.length > 1800 && (
+          <p className="mt-1.5 text-right text-[10px] font-semibold text-secondary">
+            {content.length}/2000
           </p>
-          {content.length > 1800 && (
-            <p className="ml-auto text-[10px] font-semibold text-secondary">
-              {content.length}/2000
-            </p>
-          )}
-        </div>
+        )}
       </form>
 
       {menuMessage && (
