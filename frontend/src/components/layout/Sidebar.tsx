@@ -124,6 +124,17 @@ export default function Sidebar() {
       className="fixed left-0 top-(--mobile-header-height) z-(--z-sticky-header) hidden h-[calc(100dvh-var(--mobile-header-height))] w-66 shrink-0 flex-col overflow-y-auto border-r border-border bg-surface/90 px-3 py-6 backdrop-blur-xl md:flex"
     >
       <Link
+        href="/"
+        aria-label="Volver a la web de CoFlow"
+        title="Volver a la web"
+        className="mb-2 flex h-7 w-7 items-center justify-center self-start rounded-8 text-muted/70 transition-colors duration-180 hover:bg-surface-soft hover:text-muted"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
+          <path d="M19 12H5M11 18l-6-6 6-6" />
+        </svg>
+      </Link>
+
+      <Link
         href={isOwnerMode ? "/propietarios/pisos" : "/comunidades"}
         className="mb-6 flex items-center gap-2.5 px-4"
         aria-label="CoFlow"
