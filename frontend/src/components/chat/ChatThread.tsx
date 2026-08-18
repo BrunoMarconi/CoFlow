@@ -56,6 +56,8 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   placeholder,
   variant = "card",
   onMessagesReceived,
+  canDeleteMessage,
+  onDeleteMessage,
 }: {
   threadKey: number | string;
   currentUserId: string;
@@ -65,6 +67,10 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   placeholder: string;
   variant?: "card" | "full";
   onMessagesReceived?: () => void;
+  /** Si no se pasa, nadie puede borrar mensajes de otros (solo el
+   * botón de reintentar en los propios que fallaron al enviar). */
+  canDeleteMessage?: (message: TMessage) => boolean;
+  onDeleteMessage?: (messageId: TMessage["id"]) => Promise<void>;
 }) {
   const [messages, setMessages] = useState<TMessage[]>([]);
   const [pendingMessages, setPendingMessages] = useState<PendingMessage[]>([]);
@@ -372,6 +378,18 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
     void deliverMessage(optimisticMessage);
   }
 
+  async function handleDeleteMessage(message: TMessage) {
+    if (!onDeleteMessage) return;
+    if (!window.confirm("¿Borrar este mensaje?")) return;
+
+    try {
+      await onDeleteMessage(message.id);
+      setMessages((current) => current.filter((item) => item.id !== message.id));
+    } catch {
+      setLoadError("No hemos podido borrar el mensaje.");
+    }
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     submitMessage();
@@ -454,6 +472,8 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                       showSenderName={showSenderName}
                       firstOfGroup={item.firstOfGroup}
                       lastOfGroup={item.lastOfGroup}
+                      canDelete={Boolean(onDeleteMessage && canDeleteMessage?.(item.message))}
+                      onDelete={() => void handleDeleteMessage(item.message)}
                     />
                   </motion.div>
                 )
@@ -577,12 +597,16 @@ const MessageBubble = memo(function MessageBubble({
   showSenderName,
   firstOfGroup,
   lastOfGroup,
+  canDelete,
+  onDelete,
 }: {
   message: ChatThreadMessage;
   isOwn: boolean;
   showSenderName: boolean;
   firstOfGroup: boolean;
   lastOfGroup: boolean;
+  canDelete: boolean;
+  onDelete: () => void;
 }) {
   const [avatarError, setAvatarError] = useState(false);
   const fullName = [message.sender.first_name, message.sender.last_name]
@@ -647,6 +671,18 @@ const MessageBubble = memo(function MessageBubble({
           {formatMessageTime(message.created_at)}
         </p>
       </div>
+
+      {canDelete && (
+        <button
+          type="button"
+          onClick={onDelete}
+          aria-label="Borrar mensaje"
+          title="Borrar mensaje"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted/60 transition hover:bg-surface-soft hover:text-red-600"
+        >
+          <DeleteIcon />
+        </button>
+      )}
     </div>
   );
 });
@@ -842,6 +878,14 @@ function SendIcon() {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
       <path d="m22 2-7 20-4-9-9-4Z" />
       <path d="M22 2 11 13" />
+    </svg>
+  );
+}
+
+function DeleteIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true">
+      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16Z" />
     </svg>
   );
 }

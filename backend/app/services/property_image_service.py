@@ -6,7 +6,7 @@ from app.database.models.property import Property
 from app.database.models.property_image import PropertyImage
 from app.database.models.user import User
 from app.services import storage_service
-from app.services.property_service import PropertyService
+from app.services.property_service import EDITABLE_STATUSES, PropertyService
 
 MAX_IMAGES_PER_PROPERTY = 15
 
@@ -27,9 +27,21 @@ class PropertyImageService:
         # PropertyService (get_my_property ya valida OwnerProfile +
         # pertenencia del piso y lanza 403/404), para no duplicar esa
         # lógica de "solo el propietario del piso puede gestionarlo".
-        return property_service.get_my_property(
+        property_obj = property_service.get_my_property(
             db, current_user, property_id,
         )
+
+        # Mismo conjunto de estados que update_property — sin esto, las
+        # fotos de un piso ya alquilado o archivado se podían seguir
+        # añadiendo/borrando/reordenando aunque el resto de campos ya
+        # estuviera bloqueado.
+        if property_obj.status not in EDITABLE_STATUSES:
+            raise HTTPException(
+                status_code=409,
+                detail="This property's photos cannot be edited in its current status",
+            )
+
+        return property_obj
 
     async def upload_images(
         self,

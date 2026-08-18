@@ -38,6 +38,8 @@ export default function CommunityInvitationsManager({
   const atCapacity = Boolean(
     community && community.member_count >= community.max_members
   );
+  const noOpenSpots = Boolean(community && !atCapacity && community.open_spots <= 0);
+  const inviteBlocked = atCapacity || noOpenSpots;
 
   useEffect(() => {
     let active = true;
@@ -87,7 +89,7 @@ export default function CommunityInvitationsManager({
   }, [people, query]);
 
   async function createInvitation(invitedUserId?: string) {
-    if (busyKey || atCapacity) return;
+    if (busyKey || inviteBlocked) return;
     setBusyKey(invitedUserId ?? "link");
     setError("");
     try {
@@ -153,9 +155,11 @@ export default function CommunityInvitationsManager({
         </p>
       </div>
 
-      {atCapacity ? (
+      {inviteBlocked ? (
         <p className="rounded-18 border border-border p-4 text-sm font-medium text-foreground">
-          La comunidad está completa. Aumenta su capacidad antes de invitar a otra persona.
+          {atCapacity
+            ? "La comunidad está completa. Aumenta su capacidad antes de invitar a otra persona."
+            : "No tienes plazas abiertas ahora mismo. Abre alguna en \"Gestionar plazas\" antes de invitar a otra persona."}
         </p>
       ) : (
         <>

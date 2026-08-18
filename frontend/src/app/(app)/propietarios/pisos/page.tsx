@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import PropertyCard from "@/components/propietario/PropertyCard";
-import { archiveProperty, getMyProperties, markPropertyReady, markPropertyRented, pauseProperty, resumeProperty } from "@/services/properties";
+import { archiveProperty, getMyProperties, markPropertyRented, pauseProperty, resumeProperty } from "@/services/properties";
 
 const QUERY_KEY = ["my-properties"];
 
@@ -37,7 +37,7 @@ export default function MisPisosPage() {
       </section>
 
       <section className="mt-6">
-        {isLoading ? <div className="grid gap-4"><SkeletonCard withCover /><SkeletonCard withCover /></div> : isError ? <ErrorState /> : properties.length === 0 ? <EmptyProperties /> : <div className="grid gap-4">{properties.map((property) => <PropertyCard key={property.id} property={property} onMarkReady={(id) => refresh(() => markPropertyReady(id))} onPause={(id) => refresh(() => pauseProperty(id))} onResume={(id) => refresh(() => resumeProperty(id))} onMarkRented={(id) => refresh(() => markPropertyRented(id))} onArchive={(id) => refresh(() => archiveProperty(id))} />)}</div>}
+        {isLoading ? <div className="grid gap-4"><SkeletonCard withCover /><SkeletonCard withCover /></div> : isError ? <ErrorState /> : properties.length === 0 ? <EmptyProperties /> : <div className="grid gap-4">{properties.map((property) => <PropertyCard key={property.id} property={property} onPause={(id) => refresh(() => pauseProperty(id))} onResume={(id) => refresh(() => resumeProperty(id))} onMarkRented={(id) => refresh(() => markPropertyRented(id))} onArchive={(id) => refresh(() => archiveProperty(id))} />)}</div>}
       </section>
     </div>
   );

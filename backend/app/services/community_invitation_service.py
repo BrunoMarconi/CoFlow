@@ -81,6 +81,17 @@ class CommunityInvitationService:
                 detail="This community has reached its maximum capacity",
             )
 
+        # Mismo criterio que community_application_service: si el
+        # propietario marcó la comunidad como "sin plazas abiertas" no
+        # tiene sentido dejarle crear invitaciones directas que lo
+        # saltan — antes esto solo se comprobaba para solicitudes, no
+        # para invitaciones directas.
+        if community.open_spots <= 0:
+            raise HTTPException(
+                status_code=409,
+                detail="This community has no open spots right now",
+            )
+
         if data.invited_user_id is not None:
             invited_user = (
                 db.query(User)

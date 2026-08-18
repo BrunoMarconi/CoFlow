@@ -62,9 +62,10 @@ import {
   getPropertyAmenities,
   markPropertyReady,
   subscribeProperty,
+  updateProperty,
   uploadPropertyImages,
 } from "@/services/properties";
-import type { Amenity, PropertyCreate, PropertyType } from "@/types/property";
+import type { Amenity, Property, PropertyCreate, PropertyType } from "@/types/property";
 
 // Suscripción de 23,99€/mes por piso, 30 días de prueba gratis desde
 // que se publica (ver backend PROPERTY_SUBSCRIPTION_TRIAL_DAYS). Se usa
@@ -167,11 +168,22 @@ const AMENITIES: Array<{ label: string; icon: ReactNode }> = [
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export default function PropertyPublishFlow() {
-  return <PropertyPublishFlowInner />;
+export default function PropertyPublishFlow({
+  resumeProperty,
+}: {
+  /** Piso DRAFT ya existente (creado en un intento anterior que falló
+   * a medias) — precarga el asistente con sus datos en vez de partir
+   * de cero, para no dejarlo huérfano sin forma de terminarlo. */
+  resumeProperty?: Property;
+}) {
+  return <PropertyPublishFlowInner resumeProperty={resumeProperty} />;
 }
 
-function PropertyPublishFlowInner() {
+function propertyKindFromApiType(apiType: PropertyType): string {
+  return PROPERTY_TYPES.find((item) => item.propertyType === apiType)?.value ?? "apartment";
+}
+
+function PropertyPublishFlowInner({ resumeProperty }: { resumeProperty?: Property }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const prefersReducedMotion = useReducedMotion();
@@ -181,38 +193,65 @@ function PropertyPublishFlowInner() {
     null
   );
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [screen, setScreen] = useState<Screen>("welcome");
+  const [screen, setScreen] = useState<Screen>(
+    resumeProperty ? (resumeProperty.images.length > 0 ? "conditions" : "photos") : "welcome"
+  );
   const [direction, setDirection] = useState(1);
   const [addressSheetOpen, setAddressSheetOpen] = useState(false);
   const [priceSheet, setPriceSheet] = useState<PriceField | null>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
-  const [addressLine, setAddressLine] = useState("");
-  const [city, setCity] = useState("");
-  const [province, setProvince] = useState("");
-  const [postalCode, setPostalCode] = useState("");
-  const [neighborhood, setNeighborhood] = useState<string | null>(null);
-  const [latitude, setLatitude] = useState(36.7213);
-  const [longitude, setLongitude] = useState(-4.4214);
-  const [propertyKind, setPropertyKind] = useState("apartment");
+  const [addressLine, setAddressLine] = useState(resumeProperty?.address_line ?? "");
+  const [city, setCity] = useState(resumeProperty?.city ?? "");
+  const [province, setProvince] = useState(resumeProperty?.province ?? "");
+  const [postalCode, setPostalCode] = useState(resumeProperty?.postal_code ?? "");
+  const [neighborhood, setNeighborhood] = useState<string | null>(resumeProperty?.neighborhood ?? null);
+  const [latitude, setLatitude] = useState(resumeProperty?.latitude ?? 36.7213);
+  const [longitude, setLongitude] = useState(resumeProperty?.longitude ?? -4.4214);
+  const [propertyKind, setPropertyKind] = useState(
+    resumeProperty ? propertyKindFromApiType(resumeProperty.property_type) : "apartment"
+  );
   const [listingType, setListingType] = useState<(typeof LISTING_TYPES)[number]["value"]>("private");
-  const [bedrooms, setBedrooms] = useState(3);
-  const [bathrooms, setBathrooms] = useState(1);
-  const [maxTenants, setMaxTenants] = useState(4);
+  const [bedrooms, setBedrooms] = useState(resumeProperty?.bedrooms ?? 3);
+  const [bathrooms, setBathrooms] = useState(resumeProperty?.bathrooms ?? 1);
+  const [maxTenants, setMaxTenants] = useState(resumeProperty?.max_tenants ?? 4);
   const [availableRooms, setAvailableRooms] = useState(1);
   const [amenities, setAmenities] = useState<Amenity[]>([]);
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>(
+    resumeProperty?.amenities.map((item) => item.label) ?? []
+  );
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
   const photosRef = useRef<PendingPhoto[]>([]);
   const [photoError, setPhotoError] = useState("");
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(resumeProperty?.title ?? "");
   const [vibes, setVibes] = useState<string[]>([]);
-  const [description, setDescription] = useState("");
-  const [rent, setRent] = useState("");
-  const [deposit, setDeposit] = useState("");
-  const [utilitiesIncluded, setUtilitiesIncluded] = useState(false);
-  const [minimumStayMonths, setMinimumStayMonths] = useState("6");
+  const [description, setDescription] = useState(resumeProperty?.description ?? "");
+  const [rent, setRent] = useState(resumeProperty?.total_monthly_rent?.toString() ?? "");
+  const [deposit, setDeposit] = useState(resumeProperty?.deposit?.toString() ?? "");
+  const [utilitiesIncluded, setUtilitiesIncluded] = useState(resumeProperty?.utilities_included ?? false);
+  const [minimumStayMonths, setMinimumStayMonths] = useState(
+    resumeProperty?.minimum_stay_months?.toString() ?? "6"
+  );
   const [error, setError] = useState("");
   const [publishing, setPublishing] = useState(false);
+  const existingImageCount = resumeProperty?.images.length ?? 0;
+  // Recuerda hasta dónde llegó un intento de publicar que falló a
+  // medias, para que reintentar retome desde ahí en vez de crear un
+  // piso duplicado cada vez que se pulsa "Publicar" de nuevo. Al
+  // retomar un borrador ya existente, arranca con lo que ya sabemos de
+  // él en vez de cero.
+  const publishProgressRef = useRef<{
+    propertyId: number | null;
+    imagesUploaded: boolean;
+    marked: boolean;
+  }>({
+    propertyId: resumeProperty?.id ?? null,
+    // El backend solo exige 1 foto como mínimo para poder publicar
+    // (el asistente pide 5 por calidad, pero eso es una preferencia
+    // nuestra, no un requisito real) — con al menos una ya subida no
+    // hace falta forzar a volver a la pantalla de fotos para terminar.
+    imagesUploaded: existingImageCount >= 1,
+    marked: resumeProperty ? resumeProperty.status !== "DRAFT" : false,
+  });
 
   useEffect(() => {
     getPropertyAmenities().then(setAmenities).catch(() => setAmenities([]));
@@ -287,7 +326,7 @@ function PropertyPublishFlowInner() {
 
   function validate(next: Screen) {
     if (screen === "address" && !addressLine) return "Selecciona una dirección para continuar.";
-    if (screen === "photos" && photos.length < MIN_PHOTOS) return `Añade al menos ${MIN_PHOTOS} fotos.`;
+    if (screen === "photos" && photos.length < MIN_PHOTOS && existingImageCount < 1) return `Añade al menos ${MIN_PHOTOS} fotos.`;
     if (screen === "title" && title.trim().length < 5) return "El título necesita al menos 5 caracteres.";
     if (screen === "vibe" && vibes.length === 0) return "Selecciona al menos una opción.";
     if (screen === "description" && description.trim().length < 30) return "La descripción necesita al menos 30 caracteres.";
@@ -354,15 +393,39 @@ function PropertyPublishFlowInner() {
         setHasPaymentMethod(true);
       }
 
-      const property = await createProperty(payload);
-      await uploadPropertyImages(property.id, photos.map((photo) => photo.file));
-      await markPropertyReady(property.id);
-      await subscribeProperty(property.id, termsAccepted);
+      const progress = publishProgressRef.current;
+
+      if (progress.propertyId === null) {
+        const property = await createProperty(payload);
+        progress.propertyId = property.id;
+      } else {
+        // Ya existía (retomando un borrador, o reintentando tras un
+        // fallo a medias): guarda cualquier cambio hecho en el
+        // asistente en vez de dejarlo con los datos de la creación
+        // original.
+        await updateProperty(progress.propertyId, payload);
+      }
+
+      if (photos.length > 0) {
+        await uploadPropertyImages(progress.propertyId, photos.map((photo) => photo.file));
+        progress.imagesUploaded = true;
+      }
+
+      if (!progress.marked) {
+        await markPropertyReady(progress.propertyId);
+        progress.marked = true;
+      }
+
+      await subscribeProperty(progress.propertyId, termsAccepted);
       await queryClient.invalidateQueries({ queryKey: ["my-properties"] });
       activateOwnerMode();
       router.push("/propietarios/pisos");
     } catch {
-      setError("No hemos podido publicar el piso. Revisa los datos e inténtalo de nuevo.");
+      setError(
+        publishProgressRef.current.propertyId === null
+          ? "No hemos podido publicar el piso. Revisa los datos e inténtalo de nuevo."
+          : "No hemos podido terminar de publicar el piso. Vuelve a intentarlo — no se creará un piso duplicado."
+      );
       setPublishing(false);
     }
   }

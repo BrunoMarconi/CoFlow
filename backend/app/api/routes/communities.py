@@ -233,6 +233,24 @@ def create_community_message(
     )
 
 
+@router.delete(
+    "/{community_id}/messages/{message_id}",
+    status_code=204,
+)
+def delete_community_message(
+    community_id: int,
+    message_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    community_message_service.delete_message(
+        db=db,
+        community_id=community_id,
+        message_id=message_id,
+        current_user=current_user,
+    )
+
+
 @router.get(
     "/{community_id}/rent-split",
     response_model=CommunityRentSplitResponse,

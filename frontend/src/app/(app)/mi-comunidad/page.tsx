@@ -71,6 +71,18 @@ export default function MiComunidadPage() {
     return () => setChatActive(false);
   }, [panel, setChatActive]);
 
+  // AuthProvider solo carga la comunidad una vez al arrancar la app —
+  // si el usuario fue aceptado en una solicitud (o una invitación)
+  // después de eso, "community" sigue en null en el contexto hasta que
+  // algo lo refresque. Sin esto, alguien que acaba de ser aceptado ve
+  // "Todavía no tienes comunidad" hasta recargar la página a mano.
+  useEffect(() => {
+    if (!community && !communityLoading) {
+      refreshCommunity();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (community && !hasSeenCommunityWelcome(community.id)) {
       setShowWelcome(true);
@@ -541,7 +553,7 @@ function PrivatePanel({
         </div>
       </header>
 
-      {panel === "chat" && <CommunityChat communityId={community.id} currentUserId={currentUserId} />}
+      {panel === "chat" && <CommunityChat communityId={community.id} currentUserId={currentUserId} isOwner={isOwner} />}
       {panel === "members" && (
         <CommunityMembersList
           communityId={community.id}

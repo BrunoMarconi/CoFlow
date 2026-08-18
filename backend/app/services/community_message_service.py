@@ -117,3 +117,44 @@ class CommunityMessageService:
             .filter(CommunityMessage.id == message.id)
             .first()
         )
+
+    def delete_message(
+        self,
+        db: Session,
+        community_id: int,
+        message_id: int,
+        current_user: User,
+    ) -> None:
+        """Borrado lógico (is_deleted, no se borra la fila) — permitido
+        para quien escribió el mensaje, o para el administrador de la
+        comunidad como moderación de su propio chat (antes no existía
+        ninguna forma de que el dueño moderase mensajes ajenos)."""
+        community = self._ensure_active_membership(db, community_id, current_user)
+
+        message = (
+            db.query(CommunityMessage)
+            .filter(
+                CommunityMessage.id == message_id,
+                CommunityMessage.community_id == community_id,
+                CommunityMessage.is_deleted.is_(False),
+            )
+            .first()
+        )
+
+        if message is None:
+            raise HTTPException(status_code=404, detail="Message not found")
+
+        is_owner = community.owner_id == current_user.id
+        if message.sender_id != current_user.id and not is_owner:
+            raise HTTPException(
+                status_code=403,
+                detail="You can only delete your own messages",
+            )
+
+        message.is_deleted = True
+
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise

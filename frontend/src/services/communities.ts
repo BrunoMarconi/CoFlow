@@ -155,6 +155,13 @@ export async function sendCommunityMessage(
   return data;
 }
 
+export async function deleteCommunityMessage(
+  id: number | string,
+  messageId: number | string
+) {
+  await api.delete(`/communities/${id}/messages/${messageId}`);
+}
+
 export async function uploadCommunityCover(
   id: number | string,
   file: File

@@ -774,7 +774,29 @@ class CommunityService:
         community.is_active = False
         community.open_spots = 0
 
+        other_member_ids = [
+            row[0]
+            for row in db.query(CommunityMember.user_id)
+            .filter(
+                CommunityMember.community_id == community.id,
+                CommunityMember.user_id != current_user.id,
+            )
+            .all()
+        ]
+
         try:
+            for member_id in other_member_ids:
+                create_notification(
+                    db=db,
+                    user_id=member_id,
+                    type=NotificationType.COMMUNITY_CLOSED,
+                    title="Una comunidad se ha cerrado",
+                    message=(
+                        f"La administración ha cerrado {community.name}. "
+                        "Ya no está activa."
+                    ),
+                )
+
             db.commit()
             db.refresh(community)
 

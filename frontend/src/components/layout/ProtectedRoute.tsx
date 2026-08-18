@@ -22,6 +22,19 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
     !user.is_email_verified &&
     !ALLOWED_WHILE_UNVERIFIED.includes(pathname);
 
+  // Los propietarios entran directo a su panel sin el test de
+  // convivencia (ver register/page.tsx) — solo se exige a quien busca
+  // compañero de piso. Sin esto, alguien podía abandonar el
+  // onboarding a medias y aun así entrar a explorar/aplicar a
+  // comunidades con un perfil de compatibilidad vacío. /onboarding en
+  // sí vive fuera de este layout (grupo de rutas (auth)), así que
+  // nunca hace falta excluirlo aquí explícitamente.
+  const needsOnboarding =
+    !!user &&
+    !needsVerification &&
+    user.role !== "OWNER" &&
+    !user.onboarding_completed;
+
   useEffect(() => {
     if (loading) return;
 
@@ -32,10 +45,15 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
 
     if (needsVerification) {
       router.replace("/verificacion-pendiente");
+      return;
     }
-  }, [loading, user, needsVerification, router]);
 
-  if (loading || !user || needsVerification) {
+    if (needsOnboarding) {
+      router.replace("/onboarding");
+    }
+  }, [loading, user, needsVerification, needsOnboarding, router]);
+
+  if (loading || !user || needsVerification || needsOnboarding) {
     return (
       <div className="flex min-h-dvh items-center justify-center">
         <Spinner />
