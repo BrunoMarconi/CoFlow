@@ -8,6 +8,9 @@ interface EmptyStateProps {
   action?: ReactNode;
   className?: string;
   variant?: "search" | "community" | "saved" | "messages" | "invitations" | "notifications" | "generic";
+  /** Sin tarjeta (borde/fondo/sombra) — para pantallas ya planas como
+   * la lista de Mensajes, donde una tarjeta desentonaría. */
+  flat?: boolean;
 }
 
 export default function EmptyState({
@@ -17,12 +20,15 @@ export default function EmptyState({
   action,
   className,
   variant = "generic",
+  flat = false,
 }: EmptyStateProps) {
   const resolvedVariant = variant === "generic" ? inferVariant(title) : variant;
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-24 border border-border bg-surface p-7 text-center shadow-soft sm:p-10",
+        flat
+          ? "flex flex-col items-center justify-center p-7 text-center sm:p-10"
+          : "flex flex-col items-center justify-center rounded-24 border border-border bg-surface p-7 text-center shadow-soft sm:p-10",
         className
       )}
     >

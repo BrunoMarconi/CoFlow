@@ -34,7 +34,7 @@ const CommunityChat = dynamic(
   () => import("@/components/comunidad/CommunityChat"),
   { loading: () => chatLoadingFallback }
 );
-import { HomeIcon, ChevronRightIcon } from "@/components/layout/NavIcons";
+import { HomeIcon } from "@/components/layout/NavIcons";
 import { getPrivateConversationInbox } from "@/services/connections";
 import { getCommunityMessages } from "@/services/communities";
 import type { UserConnection } from "@/types/connection";
@@ -326,12 +326,12 @@ export default function MensajesPage() {
     return (
       <div className="-mx-5 -my-4 flex flex-col border-t border-border sm:-mx-6 sm:-my-6 lg:-mx-8">
         <InboxHeader />
-        {Array.from({ length: 5 }).map((_, index) => (
+        {Array.from({ length: 6 }).map((_, index) => (
           <div
             key={index}
-            className="flex animate-pulse items-center gap-3 border-b border-border/60 px-4 py-3"
+            className="flex animate-pulse items-center gap-3.5 border-b border-border px-4 py-3.5"
           >
-            <div className="h-11 w-11 shrink-0 rounded-full bg-surface-soft" />
+            <div className="h-14 w-14 shrink-0 rounded-full bg-surface-soft sm:h-11 sm:w-11" />
             <div className="min-w-0 flex-1 space-y-2">
               <div className="h-3 w-1/3 rounded-full bg-surface-soft" />
               <div className="h-3 w-2/3 rounded-full bg-surface-soft" />
@@ -392,6 +392,7 @@ export default function MensajesPage() {
         {isEmpty ? (
           <div className="p-6">
             <EmptyState
+              flat
               variant="messages"
               title={
                 tab === "unread"
@@ -453,21 +454,18 @@ export default function MensajesPage() {
 
         <Link
           href="/usuarios"
-          className="mb-4 mt-5 flex items-center gap-3 rounded-24 border border-primary/15 bg-linear-to-br from-primary/6 to-transparent p-4 shadow-soft transition-transform duration-200 active:scale-[0.99]"
+          className="flex items-center gap-3.5 border-b border-border px-1 py-3.5 transition-colors duration-200 active:bg-surface-soft"
         >
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center text-primary">
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary">
             <ComposeIcon />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-sm font-extrabold text-foreground">
+            <span className="block text-base font-extrabold text-foreground">
               Inicia una nueva conversación
             </span>
-            <span className="mt-1 block text-xs leading-5 text-secondary">
+            <span className="mt-1 block truncate text-sm text-secondary">
               Conoce a más personas o encuentra tu comunidad ideal.
             </span>
-          </span>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-light text-white shadow-button">
-            +
           </span>
         </Link>
       </div>
@@ -492,13 +490,12 @@ export default function MensajesPage() {
               variants={rowVariants}
               initial="hidden"
               animate="show"
-              whileHover={{ x: 2 }}
               whileTap={{ scale: 0.99 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className={`mx-2 mt-2 flex items-center gap-3 rounded-16 border-l-[3px] px-3.5 py-3.5 text-left transition-all duration-200 ${
+              className={`flex items-center gap-3 border-b border-border/60 px-4 py-3.5 text-left transition-colors duration-150 ${
                 communitySelected
-                  ? "border-primary bg-surface-soft shadow-soft"
-                  : "border-transparent hover:border-primary/20 hover:bg-surface-soft"
+                  ? "bg-surface-soft"
+                  : "hover:bg-surface-soft/60"
               }`}
             >
               <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
@@ -521,6 +518,7 @@ export default function MensajesPage() {
           {isEmpty ? (
             <div className="p-6">
               <EmptyState
+                flat
                 variant="messages"
                 title={
                   tab === "unread"
@@ -560,12 +558,11 @@ export default function MensajesPage() {
                     ease: "easeOut",
                     delay: Math.min(index, 8) * 0.02,
                   }}
-                  whileHover={{ x: 2 }}
                   whileTap={{ scale: 0.99 }}
-                  className={`mx-2 mt-1 flex items-center gap-3 rounded-16 border-l-[3px] px-3.5 py-3.5 text-left transition-all duration-200 ${
+                  className={`flex items-center gap-3 border-b border-border/60 px-4 py-3.5 text-left transition-colors duration-150 ${
                     isSelected
-                      ? "border-primary bg-surface-soft shadow-soft"
-                      : "border-transparent hover:border-primary/20 hover:bg-surface-soft"
+                      ? "bg-surface-soft"
+                      : "hover:bg-surface-soft/60"
                   }`}
                 >
                   <ConversationAvatar
@@ -697,23 +694,18 @@ export default function MensajesPage() {
 
 function InboxHeader() {
   return (
-    <div className="flex shrink-0 items-start justify-between pb-5 pt-2 sm:items-center sm:border-b sm:border-border/60 sm:px-4 sm:py-4">
-      <div>
-        <h1 className="text-3xl font-extrabold tracking-[-0.03em] text-foreground sm:text-lg sm:tracking-normal">
-          Mensajes
-        </h1>
-        <p className="mt-1 text-sm text-secondary sm:hidden">
-          Conversa con personas y comunidades
-        </p>
-      </div>
+    <div className="flex shrink-0 items-center justify-between pb-3 pt-2 sm:border-b sm:border-border/60 sm:px-4 sm:py-3">
+      <h1 className="text-2xl font-extrabold tracking-[-0.02em] text-foreground sm:text-base sm:tracking-normal">
+        Mensajes
+      </h1>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <motion.div whileTap={{ scale: 0.9 }} transition={{ duration: 0.15 }}>
           <Link
             href="/conexiones"
             aria-label="Gestionar conexiones"
             title="Gestionar conexiones"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-transparent text-foreground transition-colors duration-200 hover:border-border hover:bg-surface"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors duration-200 hover:bg-surface-soft hover:text-foreground"
           >
             <FilterIcon />
           </Link>
@@ -724,7 +716,7 @@ function InboxHeader() {
             href="/usuarios"
             aria-label="Nueva conversación"
             title="Nueva conversación"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-transparent text-foreground transition-colors duration-200 hover:border-border hover:bg-surface hover:text-primary"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors duration-200 hover:bg-surface-soft hover:text-primary"
           >
             <ComposeIcon />
           </Link>
@@ -759,7 +751,7 @@ function InboxSearchAndTabs({
       className="shrink-0 pb-3 sm:border-b sm:border-border/60 sm:px-4 sm:py-3"
       data-layout-prefix={layoutIdPrefix}
     >
-      <div className="flex h-12 items-center gap-2 rounded-14 border border-border bg-surface px-4 shadow-soft transition-all duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 sm:h-10">
+      <div className="flex h-11 items-center gap-2 rounded-full bg-surface-soft px-4 transition-colors duration-200 focus-within:bg-surface focus-within:ring-2 focus-within:ring-primary/20 sm:h-9">
         <SearchInput
           bare
           value={search}
@@ -776,17 +768,17 @@ function InboxSearchAndTabs({
             type="button"
             onClick={() => onTabChange(option.key)}
             aria-pressed={tab === option.key}
-            className={`relative flex h-11 shrink-0 items-center justify-center overflow-hidden rounded-full border px-4 text-xs font-semibold transition-colors duration-200 sm:h-9 sm:min-w-0 sm:px-2 sm:text-[11px] ${
+            className={`relative flex h-9 shrink-0 items-center justify-center overflow-hidden rounded-full px-4 text-xs font-semibold transition-colors duration-200 sm:h-8 sm:min-w-0 sm:px-2 sm:text-[11px] ${
               tab === option.key
-                ? "border-primary text-white"
-                : "border-border bg-surface text-foreground shadow-soft hover:border-primary/30"
+                ? "text-white"
+                : "bg-surface-soft text-foreground hover:bg-surface-soft/70"
             }`}
           >
             {tab === option.key && (
               <motion.span
                 layoutId={`${layoutIdPrefix}-tab-indicator`}
                 transition={MOTION_SPRING.snappy}
-                className="absolute inset-0 rounded-full bg-primary shadow-button"
+                className="absolute inset-0 rounded-full bg-primary"
               />
             )}
             <span className="relative block min-w-0 whitespace-nowrap">
@@ -823,7 +815,7 @@ function ConversationAvatar({
   }
 
   return (
-    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-sm font-bold text-primary-dark shadow-soft sm:h-11 sm:w-11">
+    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-surface-soft text-sm font-bold text-primary-dark sm:h-11 sm:w-11">
       {initials || "CF"}
     </div>
   );
@@ -853,7 +845,7 @@ function CommunityAvatar({
   }
 
   return (
-    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-primary shadow-soft sm:h-11 sm:w-11">
+    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary sm:h-11 sm:w-11">
       <HomeIcon className="h-5 w-5" />
     </div>
   );
@@ -861,7 +853,7 @@ function CommunityAvatar({
 
 function CommunityBadge() {
   return (
-    <span className="shrink-0 rounded-full border border-primary/20 bg-surface px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-dark shadow-soft">
+    <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-dark">
       Comunidad
     </span>
   );
@@ -938,7 +930,6 @@ function ConversationPreview({
               className="h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_0_3px_var(--surface-soft)]"
             />
           )}
-          <ChevronRightIcon className="h-4 w-4 text-muted sm:hidden" />
         </span>
       </div>
     </div>

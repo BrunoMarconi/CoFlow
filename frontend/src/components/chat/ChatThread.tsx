@@ -1115,7 +1115,7 @@ const MessageBubble = memo(function MessageBubble({
             "select-none touch-none rounded-18 px-3.5 py-2 shadow-[0_1px_2px_rgb(0_0_0/0.05)]",
             isOwn
               ? cn(
-                  "bg-primary text-white",
+                  "bg-chat-bubble-own text-foreground",
                   lastOfGroup && "chat-tail-own rounded-br-md",
                   !firstOfGroup && "rounded-tr-md"
                 )
@@ -1137,11 +1137,11 @@ const MessageBubble = memo(function MessageBubble({
               className={cn(
                 "mb-1.5 rounded-10 border-l-4 px-2.5 py-1.5 text-xs leading-5",
                 isOwn
-                  ? "border-white/50 bg-white/15 text-white/85"
+                  ? "border-primary/40 bg-black/5 text-secondary"
                   : "border-primary/50 bg-primary/6 text-secondary"
               )}
             >
-              <p className={cn("truncate font-bold", isOwn ? "text-white" : "text-primary-dark")}>
+              <p className="truncate font-bold text-primary-dark">
                 {message.reply_to.sender_first_name}
               </p>
               <p className="truncate">{message.reply_to.content}</p>
@@ -1170,7 +1170,7 @@ const MessageBubble = memo(function MessageBubble({
             </p>
           )}
 
-          <p className={cn("mt-0.5 flex items-center justify-end gap-1 text-[10px] font-medium", isOwn ? "text-white/65" : "text-muted")}>
+          <p className="mt-0.5 flex items-center justify-end gap-1 text-[10px] font-medium text-muted">
             {formatMessageTime(message.created_at)}
             {isOwn && showReadStatus && <ReadTicks read={isRead} />}
           </p>
@@ -1208,13 +1208,13 @@ function PendingMessageBubble({
     <div className="mt-3 flex flex-row-reverse items-end">
       <div
         className={cn(
-          "chat-tail-own max-w-[84%] rounded-18 rounded-br-md bg-primary px-3.5 py-2 text-white shadow-soft sm:max-w-[72%]",
+          "chat-tail-own max-w-[84%] rounded-18 rounded-br-md bg-chat-bubble-own px-3.5 py-2 text-foreground shadow-[0_1px_2px_rgb(0_0_0/0.05)] sm:max-w-[72%]",
           message.status === "sending" && "opacity-80"
         )}
       >
         {message.replyTo && (
-          <div className="mb-1.5 rounded-10 border-l-4 border-white/50 bg-white/15 px-2.5 py-1.5 text-xs leading-5 text-white/85">
-            <p className="truncate font-bold text-white">{message.replyTo.sender_first_name}</p>
+          <div className="mb-1.5 rounded-10 border-l-4 border-primary/40 bg-black/5 px-2.5 py-1.5 text-xs leading-5 text-secondary">
+            <p className="truncate font-bold text-primary-dark">{message.replyTo.sender_first_name}</p>
             <p className="truncate">{message.replyTo.content}</p>
           </div>
         )}
@@ -1228,7 +1228,7 @@ function PendingMessageBubble({
             {message.content}
           </p>
         )}
-        <div className="mt-0.5 flex items-center justify-end gap-1.5 text-[10px] font-medium text-white/65">
+        <div className="mt-0.5 flex items-center justify-end gap-1.5 text-[10px] font-medium text-muted">
           <span>{formatMessageTime(message.createdAt)}</span>
           {message.status === "sending" ? (
             <span>Enviando…</span>
@@ -1236,7 +1236,7 @@ function PendingMessageBubble({
             <button
               type="button"
               onClick={onRetry}
-              className="min-h-6 rounded-full border border-white/30 px-2 font-bold text-white"
+              className="min-h-6 rounded-full border border-red-300 px-2 font-bold text-red-600"
             >
               No enviado · Reintentar
             </button>
@@ -1463,7 +1463,7 @@ function DeleteIcon() {
 
 function ReadTicks({ read }: { read: boolean }) {
   return (
-    <svg viewBox="0 0 24 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={cn("h-3 w-4.5 shrink-0", read && "text-sky-300")} aria-hidden="true">
+    <svg viewBox="0 0 24 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={cn("h-3 w-4.5 shrink-0", read && "text-sky-500")} aria-hidden="true">
       <path d="m1 8 4 4 4-8" />
       <path d="m9 8 4 4 8-11" />
     </svg>
