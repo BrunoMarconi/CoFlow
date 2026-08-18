@@ -496,9 +496,8 @@ export default function CreateCommunityWizard({
 
             {user && !user.is_email_verified && !emailNotVerified && (
               <div className="rounded-18 border border-amber-200 bg-amber-50 px-4 py-4 text-sm font-semibold leading-6 text-amber-800">
-                Tu correo todavía no está verificado. Podrás intentar
-                crear la comunidad, pero necesitarás confirmarlo antes de
-                que se guarde —{" "}
+                Tu correo todavía no está verificado. Tendrás que
+                confirmarlo antes de poder crear la comunidad —{" "}
                 <a href="/verificacion-pendiente" className="underline">
                   ver cómo verificarlo
                 </a>
