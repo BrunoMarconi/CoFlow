@@ -9,6 +9,8 @@ export const LEGAL_LINKS = [
   { href: "/legal/terminos", label: "Términos y condiciones" },
   { href: "/legal/normas-comunidad", label: "Normas de la comunidad" },
   { href: "/legal/reportar", label: "Denunciar contenido ilegal" },
+  { href: "/legal/condiciones-propietarios", label: "Condiciones para propietarios" },
+  { href: "/legal/condiciones-contratacion", label: "Condiciones de contratación" },
 ] as const;
 
 export default function LegalLayout({

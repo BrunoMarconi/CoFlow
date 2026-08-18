@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import LegalLayout, { Section, Ul } from "@/components/legal/LegalLayout";
+import Link from "next/link";
+import LegalLayout, { Section, Ul, H3 } from "@/components/legal/LegalLayout";
 
 export const metadata: Metadata = { title: "Términos y condiciones" };
 
@@ -112,6 +113,25 @@ export default function TerminosPage() {
             "Anuncios discriminatorios",
           ]}
         />
+
+        <H3>Publicación de propiedades y tarifas</H3>
+        <p>La publicación de cada inmueble está asociada a su propio plan. Cada propiedad dispone de 30 días gratuitos desde su publicación.</p>
+        <p>Tras finalizar el periodo gratuito, la publicación tendrá un coste de <strong>23,99 € al mes por propiedad</strong>. La suscripción se renovará automáticamente de forma mensual mientras permanezca activa. El propietario podrá cancelar la renovación de cada propiedad desde su cuenta.</p>
+        <p>Cada propiedad tiene su propio ciclo de facturación. Por tanto, si un propietario mantiene varias propiedades activas, se cobrará la tarifa correspondiente por cada una. Ejemplo: 3 propiedades activas sujetas a facturación = 3 × 23,99 € = 71,97 €/mes.</p>
+        <p>Antes de publicar se mostrará al propietario: el precio, la duración del periodo gratuito, la fecha del primer cobro, la periodicidad, la renovación automática y las instrucciones de cancelación. No se realizará ningún cargo durante los primeros 30 días.</p>
+
+        <H3>Renovación automática</H3>
+        <p>Una vez finalizados los 30 días gratuitos, CoFlow cobrará automáticamente 23,99 € cada mes utilizando el método de pago autorizado por el propietario, salvo que este haya cancelado previamente la renovación.</p>
+
+        <H3>Cancelación</H3>
+        <p>La cancelación impedirá futuras renovaciones. La propiedad podrá permanecer publicada hasta el final del periodo gratuito o del periodo mensual ya abonado. Después se desactivará salvo que se reactive una suscripción válida.</p>
+        <p>
+          Más detalle en las{" "}
+          <Link href="/legal/condiciones-propietarios" className="font-bold text-primary-dark underline underline-offset-4">
+            Condiciones para propietarios
+          </Link>
+          .
+        </p>
       </Section>
 
       <Section title="10. Igualdad y no discriminación">

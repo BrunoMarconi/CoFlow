@@ -9,6 +9,11 @@ ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 # cambian más adelante. Súbelas aquí cuando publiques una revisión.
 CURRENT_TERMS_VERSION = "1.0"
 CURRENT_PRIVACY_VERSION = "2026-08-15"
+# Versión de /legal/condiciones-propietarios aceptada al publicar un
+# piso con cobro (ver PropertyBillingConsent) — independiente de
+# CURRENT_TERMS_VERSION porque cubre un consentimiento distinto (pago
+# recurrente por propiedad), con su propio ciclo de revisiones.
+CURRENT_OWNER_TERMS_VERSION = "1.0"
 
 # Edad mínima para registrarse en CoFlow (Política de Privacidad, Términos).
 MINIMUM_REGISTRATION_AGE = 14

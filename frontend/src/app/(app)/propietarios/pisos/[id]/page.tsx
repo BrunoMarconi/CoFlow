@@ -4,11 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bath, BedDouble, ChevronLeft, MapPin, Pencil, Share2, Users, WalletCards } from "lucide-react";
+import { Bath, BedDouble, ChevronLeft, MapPin, Pencil, Share2, TriangleAlert, Users, WalletCards } from "lucide-react";
 import Spinner from "@/components/ui/Spinner";
 import PhotoDetailShell from "@/components/ui/PhotoDetailShell";
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import PropertyStatusBadge from "@/components/propietario/PropertyStatusBadge";
+import BillingPlanCard from "@/components/propietario/BillingPlanCard";
 import { getMyProperty, markPropertyRented, pauseProperty, resumeProperty } from "@/services/properties";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import { detailTransitionName } from "@/lib/detailTransitions";
@@ -63,7 +64,20 @@ export default function PropertyDetailPage() {
         {property.amenities.length ? <div className="mt-7"><h2 className="text-xl font-semibold">Lo que ofrece</h2><div className="mt-3 flex flex-wrap gap-2">{property.amenities.map((amenity) => <span key={amenity.id} className="rounded-full border border-[#dddddd] bg-white px-3 py-2 text-xs font-semibold">{amenity.label}</span>)}</div></div> : null}
       </PhotoDetailShell>
       {actionError ? <p role="alert" className="mt-4 rounded-[1rem] bg-red-50 p-4 text-sm font-semibold text-red-700">{actionError}</p> : null}
+
+      {property.subscription_status === "PAST_DUE" ? (
+        <div className="mt-5 flex items-start gap-3 rounded-[1.15rem] border border-amber-200 bg-amber-50 p-4">
+          <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-amber-900">Tenemos un problema con el método de pago de esta propiedad.</p>
+            <Link href="/ajustes" className="mt-2 inline-flex h-9 items-center rounded-full bg-amber-600 px-4 text-xs font-bold text-white">Actualizar método de pago</Link>
+          </div>
+        </div>
+      ) : null}
+
       <div className="mt-5 flex flex-wrap gap-3">{["READY", "PUBLISHED"].includes(property.status) ? <button type="button" disabled={actioning} onClick={() => run(() => pauseProperty(property.id))} className="h-12 rounded-full border border-[#cfcfcf] bg-white px-6 font-semibold disabled:opacity-50">Pausar anuncio</button> : null}{property.status === "PAUSED" ? <button type="button" disabled={actioning} onClick={() => run(() => resumeProperty(property.id))} className="h-12 rounded-full bg-black px-6 font-semibold text-white disabled:opacity-50">Reactivar anuncio</button> : null}{["READY", "PUBLISHED", "PAUSED"].includes(property.status) ? <button type="button" disabled={actioning} onClick={() => run(() => markPropertyRented(property.id))} className="h-12 rounded-full border border-[#cfcfcf] bg-white px-6 font-semibold disabled:opacity-50">Marcar como alquilado</button> : null}</div>
+
+      <BillingPlanCard property={property} onUpdated={(updated) => queryClient.setQueryData(queryKey, updated)} />
     </div>
   );
 }

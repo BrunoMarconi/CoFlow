@@ -52,9 +52,17 @@ export async function markPropertyReady(propertyId: number) {
   return data;
 }
 
-export async function subscribeProperty(propertyId: number) {
+export async function subscribeProperty(propertyId: number, termsAccepted: boolean) {
   const { data } = await api.post<Property>(
-    `/owner/properties/${propertyId}/subscribe`
+    `/owner/properties/${propertyId}/subscribe`,
+    { terms_accepted: termsAccepted }
+  );
+  return data;
+}
+
+export async function cancelPropertyRenewal(propertyId: number) {
+  const { data } = await api.post<Property>(
+    `/owner/properties/${propertyId}/cancel-renewal`
   );
   return data;
 }

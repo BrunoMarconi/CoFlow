@@ -1,10 +1,14 @@
-from fastapi import APIRouter, Depends, File, Query, UploadFile
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Query, Request, UploadFile
 from sqlalchemy.orm import Session
 
+from app.core.config import PROPERTY_SUBSCRIPTION_PRICE_CENTS
 from app.core.dependencies import get_current_user, require_verified_email
 from app.database.models.property import Property
 from app.database.models.user import User
 from app.database.session import get_db
+from app.schemas.billing import PropertySubscribeRequest
 from app.schemas.property import (
     PropertyCreate,
     PropertyReadyCheckResponse,
@@ -17,6 +21,8 @@ from app.schemas.property_image import (
     PropertyImageResponse,
 )
 from app.services import billing_service, storage_service
+from app.services.billing_email_service import send_property_published_email
+from app.services.email_verification_service import hash_ip
 from app.services.property_image_service import PropertyImageService
 from app.services.property_service import PropertyService
 
@@ -166,6 +172,9 @@ def mark_property_ready(
 )
 def subscribe_property(
     property_id: int,
+    data: PropertySubscribeRequest,
+    request: Request,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(require_verified_email),
     db: Session = Depends(get_db),
 ):
@@ -175,11 +184,60 @@ def subscribe_property(
         property_id=property_id,
     )
 
+    client = request.client
     billing_service.start_property_subscription(
         db=db,
         current_user=current_user,
         property_obj=property_obj,
+        ip_hash=hash_ip(client.host if client else None),
+        user_agent=request.headers.get("user-agent"),
     )
+
+    if property_obj.trial_ends_at:
+        trial_end = property_obj.trial_ends_at
+        price_label = f"{PROPERTY_SUBSCRIPTION_PRICE_CENTS / 100:.2f} €/mes".replace(".", ",")
+        background_tasks.add_task(
+            send_property_published_email,
+            to_email=current_user.email,
+            first_name=current_user.first_name,
+            property_id=property_obj.id,
+            property_title=property_obj.title,
+            published_date=billing_service.format_spanish_date(
+                datetime.now(timezone.utc)
+            ),
+            trial_end_date=billing_service.format_spanish_date(trial_end),
+            first_charge_date=billing_service.format_spanish_date(trial_end),
+            price_label=price_label,
+        )
+
+    return property_service.get_my_property(
+        db=db,
+        current_user=current_user,
+        property_id=property_id,
+    )
+
+
+@router.post(
+    "/{property_id}/cancel-renewal",
+    response_model=PropertyResponse,
+)
+def cancel_property_renewal(
+    property_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    # A diferencia de /pause, esto NO despublica el piso: solo impide
+    # que la suscripción de Stripe se renueve. El piso sigue visible
+    # hasta el final del periodo ya cubierto (prueba gratis o mes ya
+    # pagado) — cuando Stripe cierre la suscripción de verdad, el
+    # webhook customer.subscription.deleted pasa el piso a PAUSED.
+    property_obj = property_service.get_my_property(
+        db=db,
+        current_user=current_user,
+        property_id=property_id,
+    )
+
+    billing_service.cancel_property_subscription(db, property_obj)
 
     return property_service.get_my_property(
         db=db,

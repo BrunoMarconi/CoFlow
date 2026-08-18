@@ -5,13 +5,20 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.config import (
+    CURRENT_OWNER_TERMS_VERSION,
+    CURRENT_TERMS_VERSION,
     PROPERTY_SUBSCRIPTION_PRICE_CENTS,
     PROPERTY_SUBSCRIPTION_TRIAL_DAYS,
     STRIPE_PUBLISHABLE_KEY,
     STRIPE_SECRET_KEY,
 )
 from app.database.models.owner_profile import OwnerProfile
-from app.database.models.property import Property, PropertySubscriptionStatus
+from app.database.models.property import (
+    Property,
+    PropertyStatus,
+    PropertySubscriptionStatus,
+)
+from app.database.models.property_billing_consent import PropertyBillingConsent
 from app.database.models.user import User
 
 # Mapea el status de una Subscription de Stripe a nuestro enum interno.
@@ -180,10 +187,16 @@ def start_property_subscription(
     db: Session,
     current_user: User,
     property_obj: Property,
+    *,
+    ip_hash: str | None = None,
+    user_agent: str | None = None,
 ) -> Property:
     """Crea la Subscription de Stripe de un piso: 23,99€/mes con 30 días
     de prueba gratuita desde hoy (el momento en que el piso pasa a
-    READY). Requiere que el propietario ya tenga una tarjeta guardada."""
+    READY). Requiere que el propietario ya tenga una tarjeta guardada.
+    Deja constancia legal del consentimiento (precio, periodicidad,
+    renovación automática) en PropertyBillingConsent — el caller ya
+    validó que terms_accepted es True antes de llegar aquí."""
     _require_configured()
 
     if property_obj.stripe_subscription_id:
@@ -212,7 +225,9 @@ def start_property_subscription(
         trial_period_days=PROPERTY_SUBSCRIPTION_TRIAL_DAYS,
         metadata={
             "property_id": str(property_obj.id),
+            "owner_id": str(current_user.id),
             "owner_profile_id": str(profile.id),
+            "coflow_plan": "property_listing",
         },
     )
 
@@ -224,6 +239,23 @@ def start_property_subscription(
         datetime.fromtimestamp(subscription.trial_end, tz=timezone.utc)
         if subscription.trial_end
         else None
+    )
+
+    db.add(
+        PropertyBillingConsent(
+            owner_id=current_user.id,
+            property_id=property_obj.id,
+            terms_version=CURRENT_TERMS_VERSION,
+            owner_terms_version=CURRENT_OWNER_TERMS_VERSION,
+            price_accepted=PROPERTY_SUBSCRIPTION_PRICE_CENTS / 100,
+            currency="EUR",
+            billing_interval="month",
+            trial_days=PROPERTY_SUBSCRIPTION_TRIAL_DAYS,
+            automatic_renewal_accepted=True,
+            accepted_at=datetime.now(timezone.utc),
+            ip_address_hash=ip_hash,
+            user_agent=user_agent[:500] if user_agent else None,
+        )
     )
     db.commit()
 
@@ -279,3 +311,49 @@ def sync_subscription_status(
         stripe_status, property_obj.subscription_status
     )
     db.commit()
+
+
+def get_property_and_owner_by_subscription(
+    db: Session, stripe_subscription_id: str
+) -> tuple[Property, User] | None:
+    property_obj = (
+        db.query(Property)
+        .filter(Property.stripe_subscription_id == stripe_subscription_id)
+        .first()
+    )
+    if property_obj is None:
+        return None
+
+    owner = (
+        db.query(User)
+        .join(OwnerProfile, OwnerProfile.user_id == User.id)
+        .filter(OwnerProfile.id == property_obj.owner_profile_id)
+        .first()
+    )
+    if owner is None:
+        return None
+
+    return property_obj, owner
+
+
+def pause_property_from_deleted_subscription(
+    db: Session, property_obj: Property
+) -> None:
+    """Cuando Stripe cierra de verdad una suscripción cancelada
+    (customer.subscription.deleted — ya no es "cancel_at_period_end",
+    el periodo ya se agotó), el piso deja de estar cubierto: se pausa
+    en vez de quedar publicado sin facturación detrás. No se toca si ya
+    está alquilado o archivado."""
+    if property_obj.status in (PropertyStatus.READY, PropertyStatus.PUBLISHED):
+        property_obj.status = PropertyStatus.PAUSED
+        db.commit()
+
+
+_SPANISH_MONTHS = [
+    "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
+]
+
+
+def format_spanish_date(value: datetime) -> str:
+    return f"{value.day} de {_SPANISH_MONTHS[value.month - 1]} de {value.year}"
