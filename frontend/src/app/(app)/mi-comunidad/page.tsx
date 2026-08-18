@@ -21,7 +21,9 @@ import OpenSpotsManager from "@/components/comunidad/OpenSpotsManager";
 import LeaveCommunityButton from "@/components/comunidad/LeaveCommunityButton";
 import { SettingsRow, SettingsSection } from "@/components/comunidad/SettingsRow";
 import CompatibilityRadar, { CompatibilityRadarIcon } from "@/components/convivencia/CompatibilityRadar";
+import CommunityWelcomeSheet from "@/components/comunidad/CommunityWelcomeSheet";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
+import { hasSeenCommunityWelcome, markCommunityWelcomeSeen } from "@/lib/communityWelcome";
 import type { Community } from "@/types/community";
 
 type Panel = "dashboard" | "chat" | "members" | "applications";
@@ -62,11 +64,23 @@ export default function MiComunidadPage() {
   const { setChatActive } = useMobileChrome();
   const searchParams = useSearchParams();
   const [panel, setPanel] = useState<Panel>(() => initialPanel(searchParams.get("tab")));
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
     setChatActive(panel === "chat");
     return () => setChatActive(false);
   }, [panel, setChatActive]);
+
+  useEffect(() => {
+    if (community && !hasSeenCommunityWelcome(community.id)) {
+      setShowWelcome(true);
+    }
+  }, [community]);
+
+  function dismissWelcome() {
+    if (community) markCommunityWelcomeSeen(community.id);
+    setShowWelcome(false);
+  }
 
   if (communityLoading) {
     return (
@@ -84,6 +98,8 @@ export default function MiComunidadPage() {
 
   return (
     <MotionConfig reducedMotion="user">
+      {showWelcome && <CommunityWelcomeSheet onClose={dismissWelcome} />}
+
       <AnimatePresence mode="wait" initial={false}>
         {panel !== "dashboard" ? (
           <motion.div

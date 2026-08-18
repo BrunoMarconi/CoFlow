@@ -130,6 +130,32 @@ def has_payment_method(db: Session, current_user: User) -> bool:
     return bool(customer.invoice_settings.default_payment_method)
 
 
+_PROPERTY_PRICE_LOOKUP_KEY = "property_subscription_monthly"
+
+
+def _get_or_create_property_price() -> str:
+    """Devuelve el id del Price de Stripe para la cuota mensual por
+    piso (23,99€/mes), creándolo una única vez. Subscription.create no
+    admite crear el Product al vuelo (a diferencia de Price.create o
+    Checkout Session), así que hace falta un Price ya existente."""
+    existing = stripe.Price.list(
+        lookup_keys=[_PROPERTY_PRICE_LOOKUP_KEY],
+        active=True,
+        limit=1,
+    )
+    if existing.data:
+        return existing.data[0].id
+
+    price = stripe.Price.create(
+        currency="eur",
+        unit_amount=PROPERTY_SUBSCRIPTION_PRICE_CENTS,
+        recurring={"interval": "month"},
+        product_data={"name": "Publicación de piso en CoFlow"},
+        lookup_key=_PROPERTY_PRICE_LOOKUP_KEY,
+    )
+    return price.id
+
+
 def start_property_subscription(
     db: Session,
     current_user: User,
@@ -158,20 +184,11 @@ def start_property_subscription(
             detail="Añade una tarjeta antes de publicar un piso",
         )
 
+    price_id = _get_or_create_property_price()
+
     subscription = stripe.Subscription.create(
         customer=profile.stripe_customer_id,
-        items=[
-            {
-                "price_data": {
-                    "currency": "eur",
-                    "unit_amount": PROPERTY_SUBSCRIPTION_PRICE_CENTS,
-                    "recurring": {"interval": "month"},
-                    "product_data": {
-                        "name": f"Publicación de piso — {property_obj.title}",
-                    },
-                },
-            },
-        ],
+        items=[{"price": price_id}],
         trial_period_days=PROPERTY_SUBSCRIPTION_TRIAL_DAYS,
         metadata={
             "property_id": str(property_obj.id),
