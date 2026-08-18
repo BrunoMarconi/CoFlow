@@ -63,9 +63,18 @@ export default function ComunidadesPage() {
     city: cityFilter !== "Todas" ? cityFilter : undefined,
     profile_type:
       filters.profileType !== "ALL" ? filters.profileType : undefined,
+    join_type: filters.joinType !== "ALL" ? filters.joinType : undefined,
+    urgency: filters.urgency !== "ALL" ? filters.urgency : undefined,
+    max_budget: filters.maxBudget ? Number(filters.maxBudget) : undefined,
+    move_in_before: filters.moveInBefore || undefined,
+    only_with_spots: !filters.showNoSpots,
   });
 
-  const searchedCommunities = useMemo(() => {
+  // Ciudad, tipo de acceso, urgencia, presupuesto, fecha de entrada y
+  // plazas abiertas ya se filtran en el servidor (ver useCommunities
+  // arriba) — aquí solo queda el texto libre, que no tiene endpoint de
+  // búsqueda por nombre y se aplica sobre la página ya cargada.
+  const visibleCommunities = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
 
     if (!normalizedSearch) return communities;
@@ -76,75 +85,6 @@ export default function ComunidadesPage() {
         community.city.toLowerCase().includes(normalizedSearch)
     );
   }, [communities, search]);
-
-  const matchesFilters = useMemo(() => {
-    const maxBudgetValue = filters.maxBudget
-      ? Number(filters.maxBudget)
-      : null;
-
-    const moveInBeforeValue = filters.moveInBefore
-      ? new Date(filters.moveInBefore)
-      : null;
-
-    return (community: (typeof communities)[number]) => {
-      if (
-        filters.joinType !== "ALL" &&
-        community.join_type !== filters.joinType
-      ) {
-        return false;
-      }
-
-      if (
-        filters.urgency !== "ALL" &&
-        community.urgency !== filters.urgency
-      ) {
-        return false;
-      }
-
-      if (
-        maxBudgetValue !== null &&
-        (community.monthly_rent === null ||
-          community.monthly_rent > maxBudgetValue)
-      ) {
-        return false;
-      }
-
-      if (moveInBeforeValue !== null) {
-        if (!community.move_in_date) return false;
-
-        const moveIn = new Date(`${community.move_in_date}T00:00:00`);
-
-        if (moveIn > moveInBeforeValue) return false;
-      }
-
-      return true;
-    };
-  }, [filters]);
-
-  const withSpots = useMemo(
-    () =>
-      searchedCommunities
-        .filter(
-          (community) => community.open_spots > 0 && !community.is_full
-        )
-        .filter(matchesFilters),
-    [searchedCommunities, matchesFilters]
-  );
-
-  const withoutSpots = useMemo(
-    () =>
-      searchedCommunities
-        .filter(
-          (community) => !(community.open_spots > 0 && !community.is_full)
-        )
-        .filter(matchesFilters),
-    [searchedCommunities, matchesFilters]
-  );
-
-  const visibleCommunities = useMemo(
-    () => (filters.showNoSpots ? [...withSpots, ...withoutSpots] : withSpots),
-    [filters.showNoSpots, withSpots, withoutSpots]
-  );
 
   const hasQuery = search.trim().length > 0;
   const showFiltersPanel = !hasQuery || filtersOpen;
@@ -328,10 +268,10 @@ export default function ComunidadesPage() {
                 type="button"
                 onClick={() => setCityFilter(city)}
                 aria-pressed={active}
-                className={`flex h-10 shrink-0 items-center rounded-full border px-4 text-sm font-bold transition-colors duration-200 ${
+                className={`flex h-10 shrink-0 items-center rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
                   active
-                    ? "border-brand-dark bg-brand-dark text-white shadow-button"
-                    : "border-border bg-surface text-foreground shadow-soft hover:border-primary/30"
+                    ? "bg-brand-dark text-white"
+                    : "bg-surface-soft text-foreground hover:bg-surface-soft/70"
                 }`}
               >
                 {city}

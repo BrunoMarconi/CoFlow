@@ -45,10 +45,10 @@ export default function CommunityCard({
         <motion.article
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.985 }}
-          className={`flex h-full flex-col overflow-hidden rounded-18 border shadow-soft transition-shadow duration-200 ease-out sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)] ${
+          className={`flex h-full flex-col overflow-hidden rounded-18 shadow-soft transition-shadow duration-200 ease-out sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)] ${
             isLookingForMembers
-              ? "border-border bg-surface"
-              : "border-border bg-surface-muted opacity-85"
+              ? "bg-surface"
+              : "bg-surface-muted opacity-85"
           }`}
         >
           <div className="relative">
@@ -70,7 +70,7 @@ export default function CommunityCard({
             />
 
             {!isOwn && community.urgency !== "NORMAL" && isLookingForMembers && (
-              <span className="absolute right-3 top-3 inline-flex h-6.5 items-center rounded-full bg-white/95 px-3 text-xs font-bold text-amber-700 shadow-soft backdrop-blur">
+              <span className="absolute right-3 top-3 inline-flex h-6.5 items-center rounded-full bg-white/95 px-3 text-xs font-bold text-amber-700 backdrop-blur">
                 {community.urgency === "URGENT" ? "Urgente" : "Próximamente"}
               </span>
             )}
@@ -78,9 +78,14 @@ export default function CommunityCard({
 
           <div className="flex flex-1 flex-col p-4 sm:p-5">
             <div>
-              <h3 className="truncate font-rounded text-xl font-semibold tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark">
-                <span className="inline">{community.name}</span>
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="min-w-0 flex-1 truncate font-rounded text-xl font-semibold tracking-[-0.01em] text-foreground transition-colors duration-180 group-hover:text-brand-dark">
+                  {community.name}
+                </h3>
+                <span className="shrink-0 text-muted transition-all duration-180 group-hover:translate-x-0.5 group-hover:text-brand-dark">
+                  <ArrowIcon />
+                </span>
+              </div>
 
               <div className="mt-1 flex items-center gap-1.5 text-sm font-medium text-secondary">
                 <LocationIcon />
@@ -107,7 +112,7 @@ export default function CommunityCard({
             <div className="flex flex-1 flex-col">
               {isLookingForMembers ? (
                 <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                  <span className="inline-flex items-center rounded-full border border-border bg-surface px-2.5 py-1 text-xs font-bold text-primary-dark shadow-soft">
+                  <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary-dark">
                     {community.open_spots}{" "}
                     {community.open_spots === 1 ? "plaza libre" : "plazas libres"}
                   </span>
@@ -127,7 +132,7 @@ export default function CommunityCard({
 
               {tag && (
                 <span className="mt-2.5 line-clamp-1 text-xs font-semibold text-primary-dark">
-                  🌿 {tag}
+                  {tag}
                 </span>
               )}
 
@@ -135,12 +140,11 @@ export default function CommunityCard({
                 {getProfileTypeLabel(community.profile_type)}
               </span>
 
-              <div className="mt-3.5 flex-1" />
-
-              <span className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-brand-dark px-4 py-2.5 text-sm font-bold text-white transition-colors duration-180 group-hover:bg-primary-dark">
-                {isOwn ? "Mi comunidad" : "Ver comunidad"}
-                <ArrowIcon />
-              </span>
+              {isOwn && (
+                <span className="mt-3 inline-flex w-fit items-center rounded-full bg-surface-muted px-2.5 py-1 text-xs font-bold text-primary-dark">
+                  Mi comunidad
+                </span>
+              )}
             </div>
           </div>
         </motion.article>

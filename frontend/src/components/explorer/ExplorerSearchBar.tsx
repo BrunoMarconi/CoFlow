@@ -10,8 +10,8 @@ import {
   MOTION_SPRING,
 } from "@/lib/motionTokens";
 
-const COLLAPSED_SHADOW = "0 1px 2px rgba(13,59,42,0.06)";
-const EXPANDED_SHADOW = "0 14px 32px -10px rgba(13,59,42,0.28)";
+const COLLAPSED_SHADOW = "0 0 0 0 rgba(0,0,0,0)";
+const EXPANDED_SHADOW = "0 6px 16px -8px rgba(13,59,42,0.18)";
 
 /** Barra de búsqueda de dos estados (trigger colapsado <-> header
  * expandido) compartida por Personas y Comunidades — el corazón
@@ -68,7 +68,7 @@ export default function ExplorerSearchBar({
               boxShadow: { duration: MOTION_DURATION.fast },
               scale: { duration: MOTION_SEARCH_LIFT_DURATION },
             }}
-            className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-full border border-border bg-surface pl-5 pr-4 text-left"
+            className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-full bg-surface-soft pl-5 pr-4 text-left"
           >
             <motion.span
               layoutId={layoutIdIcon}

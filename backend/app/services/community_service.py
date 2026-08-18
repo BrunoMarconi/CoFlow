@@ -1,3 +1,4 @@
+from datetime import date
 from uuid import UUID
 
 from fastapi import HTTPException, UploadFile
@@ -10,6 +11,7 @@ from app.database.models.community import (
     Community,
     CommunityJoinType,
     CommunityProfileType,
+    CommunityUrgency,
 )
 from app.database.models.community_member import (
     CommunityMember,
@@ -446,6 +448,11 @@ class CommunityService:
         city: str | None = None,
         province: str | None = None,
         profile_type: CommunityProfileType | None = None,
+        join_type: CommunityJoinType | None = None,
+        urgency: CommunityUrgency | None = None,
+        max_budget: int | None = None,
+        move_in_before: date | None = None,
+        only_with_spots: bool = False,
         skip: int = 0,
         limit: int = 20,
     ):
@@ -479,6 +486,42 @@ class CommunityService:
         if profile_type:
             query = query.filter(
                 Community.profile_type == profile_type,
+            )
+
+        if join_type:
+            query = query.filter(Community.join_type == join_type)
+
+        if urgency:
+            query = query.filter(Community.urgency == urgency)
+
+        if max_budget is not None:
+            query = query.filter(
+                Community.monthly_rent.isnot(None),
+                Community.monthly_rent <= max_budget,
+            )
+
+        if move_in_before is not None:
+            query = query.filter(
+                Community.move_in_date.isnot(None),
+                Community.move_in_date <= move_in_before,
+            )
+
+        if only_with_spots:
+            # "Plazas abiertas" depende de cuántos miembros tiene YA la
+            # comunidad, no es una columna — se compara open_spots contra
+            # un recuento correlacionado en vez de traer todo y filtrar
+            # en Python (eso es justo lo que hacía que "cargar más" se
+            # sintiera roto: una página entera podía quedarse sin nada
+            # tras filtrar en el cliente).
+            member_count_subquery = (
+                db.query(func.count(CommunityMember.id))
+                .filter(CommunityMember.community_id == Community.id)
+                .correlate(Community)
+                .scalar_subquery()
+            )
+            query = query.filter(
+                Community.open_spots > 0,
+                member_count_subquery < Community.max_members,
             )
 
         communities = (

@@ -10,14 +10,27 @@ export function useCommunities(params?: GetCommunitiesParams) {
   const city = params?.city;
   const province = params?.province;
   const profileType = params?.profile_type;
+  const joinType = params?.join_type;
+  const urgency = params?.urgency;
+  const maxBudget = params?.max_budget;
+  const moveInBefore = params?.move_in_before;
+  const onlyWithSpots = params?.only_with_spots;
 
   const query = useInfiniteQuery({
-    queryKey: ["communities", { city, province, profileType }],
+    queryKey: [
+      "communities",
+      { city, province, profileType, joinType, urgency, maxBudget, moveInBefore, onlyWithSpots },
+    ],
     queryFn: ({ pageParam }): Promise<Community[]> =>
       getCommunities({
         city,
         province,
         profile_type: profileType,
+        join_type: joinType,
+        urgency,
+        max_budget: maxBudget,
+        move_in_before: moveInBefore,
+        only_with_spots: onlyWithSpots,
         skip: pageParam,
         limit: PAGE_SIZE,
       }),

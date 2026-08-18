@@ -133,6 +133,11 @@ export interface GetCommunitiesParams {
   city?: string;
   province?: string;
   profile_type?: CommunityProfileType;
+  join_type?: CommunityJoinType;
+  urgency?: CommunityUrgency;
+  max_budget?: number;
+  move_in_before?: string;
+  only_with_spots?: boolean;
   skip?: number;
   limit?: number;
 }

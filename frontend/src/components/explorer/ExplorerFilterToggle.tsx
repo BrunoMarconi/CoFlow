@@ -34,10 +34,10 @@ export default function ExplorerFilterToggle({
       whileTap={{ scale: 0.92 }}
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
       {...motionProps}
-      className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border shadow-soft transition-colors duration-200 ${
+      className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full transition-colors duration-200 ${
         active
-          ? "border-primary/30 bg-mint-100 text-primary-dark"
-          : "border-border bg-surface text-secondary hover:bg-surface-soft"
+          ? "bg-mint-100 text-primary-dark"
+          : "bg-surface-soft text-secondary hover:bg-surface-soft/70"
       }`}
     >
       <FilterIcon />

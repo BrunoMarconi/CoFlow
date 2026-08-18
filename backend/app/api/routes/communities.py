@@ -1,10 +1,15 @@
+from datetime import date
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user, require_verified_email
-from app.database.models.community import CommunityProfileType
+from app.database.models.community import (
+    CommunityJoinType,
+    CommunityProfileType,
+    CommunityUrgency,
+)
 from app.database.models.user import User
 from app.database.session import get_db
 from app.schemas.community import (
@@ -65,6 +70,11 @@ def list_communities(
     city: str | None = Query(default=None),
     province: str | None = Query(default=None),
     profile_type: CommunityProfileType | None = Query(default=None),
+    join_type: CommunityJoinType | None = Query(default=None),
+    urgency: CommunityUrgency | None = Query(default=None),
+    max_budget: int | None = Query(default=None, ge=0),
+    move_in_before: date | None = Query(default=None),
+    only_with_spots: bool = Query(default=False),
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
@@ -76,6 +86,11 @@ def list_communities(
         city=city,
         province=province,
         profile_type=profile_type,
+        join_type=join_type,
+        urgency=urgency,
+        max_budget=max_budget,
+        move_in_before=move_in_before,
+        only_with_spots=only_with_spots,
         skip=skip,
         limit=limit,
     )
