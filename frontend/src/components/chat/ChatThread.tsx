@@ -727,7 +727,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                 type="button"
                 onClick={() => void loadOlderMessages()}
                 disabled={loadingOlder}
-                className="min-h-11 rounded-full border border-border bg-surface px-4 text-xs font-semibold text-secondary shadow-soft transition hover:border-foreground/30 hover:text-foreground disabled:opacity-60 sm:min-h-9"
+                className="min-h-11 rounded-full bg-surface/90 px-4 text-xs font-semibold text-secondary backdrop-blur-md transition hover:text-foreground disabled:opacity-60 sm:min-h-9"
               >
                 {loadingOlder ? "Cargando…" : "Ver mensajes anteriores"}
               </button>
@@ -746,7 +746,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                     key={item.key}
                     className="sticky top-0 z-10 mb-3 flex justify-center first:mt-0 not-first:mt-4"
                   >
-                    <span className="rounded-full border border-border/70 bg-surface/90 px-3 py-1 text-[11px] font-semibold text-secondary shadow-soft backdrop-blur-md">
+                    <span className="rounded-full bg-surface/90 px-3 py-1 text-[11px] font-semibold text-secondary backdrop-blur-md">
                       {item.label}
                     </span>
                   </div>
@@ -812,7 +812,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           <button
             type="button"
             onClick={() => window.dispatchEvent(new Event("online"))}
-            className="absolute left-1/2 top-3 z-20 min-h-10 -translate-x-1/2 rounded-full border border-red-200 bg-surface px-4 text-xs font-semibold text-red-600 shadow-soft"
+            className="absolute left-1/2 top-3 z-20 min-h-10 -translate-x-1/2 rounded-full bg-red-50 px-4 text-xs font-semibold text-red-600"
           >
             {loadError} Reintentar
           </button>
@@ -1180,7 +1180,7 @@ const MessageBubble = memo(function MessageBubble({
             onClick={onQuickLike}
             aria-label={likedByMe ? "Quitar me gusta" : "Me gusta"}
             className={cn(
-              "absolute -bottom-2.5 flex h-5 items-center gap-0.5 rounded-full border border-border bg-surface px-1.5 text-[10px] font-bold shadow-soft",
+              "absolute -bottom-2.5 flex h-5 items-center gap-0.5 rounded-full bg-surface px-1.5 text-[10px] font-bold shadow-[0_1px_3px_rgb(0_0_0/0.12)]",
               isOwn ? "left-1.5" : "right-1.5",
               likedByMe ? "text-red-600" : "text-secondary"
             )}
