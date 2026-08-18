@@ -4,6 +4,7 @@ import ChatThread from "@/components/chat/ChatThread";
 import { useAuth } from "@/hooks/useAuth";
 import {
   deletePrivateMessage,
+  getMyPrivateReadState,
   getPrivateMessages,
   getPrivateReadReceipt,
   getPrivateTyping,
@@ -61,6 +62,7 @@ export default function PrivateChat({
         markPrivateMessagesRead(connectionId, Number(messageId))
       }
       fetchReadUpTo={() => getPrivateReadReceipt(connectionId)}
+      fetchMyLastReadId={() => getMyPrivateReadState(connectionId)}
     />
   );
 }

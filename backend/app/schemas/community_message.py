@@ -60,3 +60,7 @@ class CommunityMarkReadRequest(BaseModel):
 class CommunityReadReceiptsResponse(BaseModel):
     # user_id (str) -> id del último mensaje que ese usuario ha leído.
     read_by: dict[str, int]
+
+
+class CommunityOwnReadStateResponse(BaseModel):
+    last_read_message_id: int | None

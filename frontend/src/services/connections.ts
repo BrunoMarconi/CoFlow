@@ -148,6 +148,13 @@ export async function markPrivateMessagesRead(
   });
 }
 
+export async function getMyPrivateReadState(connectionId: number | string) {
+  const { data } = await api.get<{ last_read_message_id: number | null }>(
+    `/connections/${connectionId}/messages/read/me`
+  );
+  return data.last_read_message_id;
+}
+
 export async function getPrivateReadReceipt(connectionId: number | string) {
   const { data } = await api.get<{ last_read_message_id: number | null }>(
     `/connections/${connectionId}/messages/read`

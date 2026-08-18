@@ -228,6 +228,22 @@ def mark_private_messages_read(
 
 
 @router.get(
+    "/{connection_id}/messages/read/me",
+    response_model=PrivateReadReceiptResponse,
+)
+def get_my_private_read_state(
+    connection_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return PrivateReadReceiptResponse(
+        last_read_message_id=private_message_service.get_own_read_state(
+            db=db, current_user=current_user, connection_id=connection_id,
+        )
+    )
+
+
+@router.get(
     "/{connection_id}/messages/read",
     response_model=PrivateReadReceiptResponse,
 )

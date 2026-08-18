@@ -11,6 +11,7 @@ import {
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -97,6 +98,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   fetchTypingNames,
   onMarkRead,
   fetchReadUpTo,
+  fetchMyLastReadId,
 }: {
   threadKey: number | string;
   currentUserId: string;
@@ -122,6 +124,10 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   /** El id de mensaje más alto que alguien más ya ha leído — se usa
    * para pintar el doble check azul en tus propios mensajes. */
   fetchReadUpTo?: () => Promise<number | null>;
+  /** Hasta dónde habías leído TÚ la última vez (antes de que abrir el
+   * chat ahora lo actualice) — para pintar el separador de "mensajes
+   * nuevos" justo donde lo dejaste. Se consulta una sola vez al abrir. */
+  fetchMyLastReadId?: () => Promise<number | null>;
 }) {
   const [messages, setMessages] = useState<TMessage[]>([]);
   const [pendingMessages, setPendingMessages] = useState<PendingMessage[]>([]);
@@ -139,6 +145,8 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   const [typingNames, setTypingNames] = useState<string[]>([]);
   const [readUpTo, setReadUpTo] = useState<number | null>(null);
   const [sendingImage, setSendingImage] = useState(false);
+  const [myLastReadId, setMyLastReadId] = useState<number | null | undefined>(undefined);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -325,6 +333,22 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
       window.removeEventListener("online", refreshInForeground);
     };
   }, [threadKey]);
+
+  useEffect(() => {
+    setMyLastReadId(undefined);
+    if (!fetchMyLastReadId) return;
+    let active = true;
+    fetchMyLastReadId()
+      .then((value) => {
+        if (active) setMyLastReadId(value);
+      })
+      .catch(() => {
+        if (active) setMyLastReadId(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [threadKey, fetchMyLastReadId]);
 
   useEffect(() => {
     if (!fetchTypingNames) return;
@@ -672,7 +696,10 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
     }
   }
 
-  const renderItems = useMemo(() => buildRenderItems(messages), [messages]);
+  const renderItems = useMemo(
+    () => buildRenderItems(messages, myLastReadId, currentUserId),
+    [messages, myLastReadId, currentUserId]
+  );
   const showEmpty = messages.length === 0 && pendingMessages.length === 0;
 
   return (
@@ -723,6 +750,14 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                       {item.label}
                     </span>
                   </div>
+                ) : item.type === "unread-divider" ? (
+                  <div key={item.key} className="my-4 flex items-center gap-3">
+                    <span className="h-px flex-1 bg-red-200" />
+                    <span className="rounded-full bg-red-50 px-3 py-1 text-[11px] font-bold text-red-600">
+                      Mensajes nuevos
+                    </span>
+                    <span className="h-px flex-1 bg-red-200" />
+                  </div>
                 ) : (
                   <motion.div
                     key={item.message.id}
@@ -748,6 +783,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                           item.message.id <= readUpTo
                       )}
                       showReadStatus={Boolean(fetchReadUpTo)}
+                      onOpenImage={setLightboxUrl}
                     />
                   </motion.div>
                 )
@@ -962,8 +998,50 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           </div>
         </BottomSheet>
       )}
+
+      <AnimatePresence>
+        {lightboxUrl && (
+          <ImageLightbox key={lightboxUrl} url={lightboxUrl} onClose={() => setLightboxUrl(null)} />
+        )}
+      </AnimatePresence>
     </div>
     </MotionConfig>
+  );
+}
+
+function ImageLightbox({ url, onClose }: { url: string; onClose: () => void }) {
+  useEffect(() => {
+    function handleKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      className="fixed inset-0 z-(--z-modal) flex items-center justify-center bg-black/90 p-4"
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Cerrar"
+        className="absolute right-4 top-[calc(1rem+var(--safe-top))] flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white"
+      >
+        <CloseIcon />
+      </button>
+      <img
+        src={url}
+        alt="Foto ampliada"
+        onClick={(event) => event.stopPropagation()}
+        className="max-h-full max-w-full rounded-14 object-contain"
+      />
+    </motion.div>,
+    document.body
   );
 }
 
@@ -978,6 +1056,7 @@ const MessageBubble = memo(function MessageBubble({
   pressHandlers,
   isRead,
   showReadStatus,
+  onOpenImage,
 }: {
   message: ChatThreadMessage;
   isOwn: boolean;
@@ -989,6 +1068,7 @@ const MessageBubble = memo(function MessageBubble({
   pressHandlers: LongPressHandlers;
   isRead: boolean;
   showReadStatus: boolean;
+  onOpenImage: (url: string) => void;
 }) {
   const [avatarError, setAvatarError] = useState(false);
   const fullName = [message.sender.first_name, message.sender.last_name]
@@ -1069,14 +1149,19 @@ const MessageBubble = memo(function MessageBubble({
           )}
 
           {message.image_url && (
-            <a href={message.image_url} target="_blank" rel="noreferrer" className="-mx-3.5 -mt-2 mb-1.5 block overflow-hidden first:mt-0">
+            <button
+              type="button"
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={() => onOpenImage(message.image_url as string)}
+              className="-mx-3.5 -mt-2 mb-1.5 block w-[calc(100%+1.75rem)] overflow-hidden first:mt-0"
+            >
               <img
                 src={message.image_url}
                 alt="Foto enviada en el chat"
                 className="max-h-72 w-full object-cover"
                 loading="lazy"
               />
-            </a>
+            </button>
           )}
 
           {message.content && (
@@ -1234,11 +1319,22 @@ function messagesAreEquivalent(
   );
 }
 
-function buildRenderItems<TMessage extends ChatThreadMessage>(messages: TMessage[]) {
+function buildRenderItems<TMessage extends ChatThreadMessage>(
+  messages: TMessage[],
+  myLastReadId: number | null | undefined,
+  currentUserId: string
+) {
   type Item =
     | { type: "date"; key: string; label: string }
+    | { type: "unread-divider"; key: string }
     | { type: "message"; message: TMessage; firstOfGroup: boolean; lastOfGroup: boolean };
   const items: Item[] = [];
+
+  // Solo se marca la PRIMERA vez que aparece un mensaje de otra
+  // persona posterior a lo último que leíste — no tiene sentido en una
+  // conversación que nunca has abierto antes (myLastReadId === null),
+  // ahí no hay "hasta dónde llegaste" con lo que comparar.
+  let unreadDividerPlaced = myLastReadId == null;
 
   messages.forEach((message, index) => {
     const previous = messages[index - 1];
@@ -1252,6 +1348,16 @@ function buildRenderItems<TMessage extends ChatThreadMessage>(messages: TMessage
         key: `date-${message.id}`,
         label: formatDateSeparatorLabel(messageDate),
       });
+    }
+
+    if (
+      !unreadDividerPlaced &&
+      typeof message.id === "number" &&
+      message.id > (myLastReadId as number) &&
+      message.sender.id !== currentUserId
+    ) {
+      items.push({ type: "unread-divider", key: `unread-${message.id}` });
+      unreadDividerPlaced = true;
     }
 
     const withinGroupWindow =
@@ -1272,7 +1378,7 @@ function buildRenderItems<TMessage extends ChatThreadMessage>(messages: TMessage
     const item = items[index];
     if (item.type !== "message") continue;
     const next = items[index + 1];
-    item.lastOfGroup = !next || next.type === "date" || next.firstOfGroup;
+    item.lastOfGroup = !next || next.type !== "message" || next.firstOfGroup;
   }
   return items;
 }

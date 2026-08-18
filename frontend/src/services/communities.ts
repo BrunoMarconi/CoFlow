@@ -200,6 +200,13 @@ export async function markCommunityMessagesRead(
   });
 }
 
+export async function getMyCommunityReadState(id: number | string) {
+  const { data } = await api.get<{ last_read_message_id: number | null }>(
+    `/communities/${id}/messages/read/me`
+  );
+  return data.last_read_message_id;
+}
+
 export async function getCommunityReadReceipts(id: number | string) {
   const { data } = await api.get<{ read_by: Record<string, number> }>(
     `/communities/${id}/messages/read`

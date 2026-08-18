@@ -250,6 +250,27 @@ class CommunityMessageService:
             db.rollback()
             raise
 
+    def get_own_read_state(
+        self,
+        db: Session,
+        community_id: int,
+        current_user: User,
+    ) -> int | None:
+        """Hasta qué mensaje había leído YO la última vez, antes de que
+        abrir el chat ahora mismo lo actualice — permite pintar el
+        separador de "mensajes nuevos" justo donde lo dejaste."""
+        self._ensure_active_membership(db, community_id, current_user)
+
+        record = (
+            db.query(CommunityMessageRead)
+            .filter(
+                CommunityMessageRead.community_id == community_id,
+                CommunityMessageRead.user_id == current_user.id,
+            )
+            .first()
+        )
+        return record.last_read_message_id if record else None
+
     def get_read_receipts(
         self,
         db: Session,

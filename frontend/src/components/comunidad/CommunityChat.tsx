@@ -6,6 +6,7 @@ import {
   getCommunityMessages,
   getCommunityReadReceipts,
   getCommunityTyping,
+  getMyCommunityReadState,
   likeCommunityMessage,
   markCommunityMessagesRead,
   sendCommunityImageMessage,
@@ -64,6 +65,7 @@ export default function CommunityChat({
         const values = Object.values(readBy);
         return values.length > 0 ? Math.max(...values) : null;
       }}
+      fetchMyLastReadId={() => getMyCommunityReadState(communityId)}
     />
   );
 }

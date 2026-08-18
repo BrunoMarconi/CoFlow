@@ -17,6 +17,7 @@ from app.schemas.community_message import (
     CommunityMarkReadRequest,
     CommunityMessageCreate,
     CommunityMessageResponse,
+    CommunityOwnReadStateResponse,
     CommunityReadReceiptsResponse,
     CommunityTypingUsersResponse,
 )
@@ -306,6 +307,22 @@ def mark_community_messages_read(
         last_read_message_id=data.last_read_message_id,
     )
     return {"ok": True}
+
+
+@router.get(
+    "/{community_id}/messages/read/me",
+    response_model=CommunityOwnReadStateResponse,
+)
+def get_my_community_read_state(
+    community_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return CommunityOwnReadStateResponse(
+        last_read_message_id=community_message_service.get_own_read_state(
+            db=db, community_id=community_id, current_user=current_user,
+        )
+    )
 
 
 @router.get(

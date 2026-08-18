@@ -305,6 +305,26 @@ class PrivateMessageService:
             db.rollback()
             raise
 
+    def get_own_read_state(
+        self,
+        db: Session,
+        current_user: User,
+        connection_id: int,
+    ) -> int | None:
+        """Hasta qué mensaje había leído YO la última vez, antes de que
+        abrir el chat ahora mismo lo actualice."""
+        user_connection_service.ensure_participant(db, current_user, connection_id)
+
+        record = (
+            db.query(PrivateMessageRead)
+            .filter(
+                PrivateMessageRead.connection_id == connection_id,
+                PrivateMessageRead.user_id == current_user.id,
+            )
+            .first()
+        )
+        return record.last_read_message_id if record else None
+
     def get_read_receipt(
         self,
         db: Session,
