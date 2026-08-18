@@ -5,6 +5,7 @@ import {
   LoginResponse,
   RegisterResponse,
   GenericMessageResponse,
+  ChangePasswordRequest,
   User,
 } from "@/types/auth";
 
@@ -45,5 +46,19 @@ export async function me(
     },
   });
 
+  return response.data;
+}
+
+export async function changePassword(
+  data: ChangePasswordRequest
+): Promise<GenericMessageResponse> {
+  const response = await api.put("/auth/me/password", data);
+  return response.data;
+}
+
+export async function deleteAccount(
+  password: string
+): Promise<GenericMessageResponse> {
+  const response = await api.delete("/auth/me", { data: { password } });
   return response.data;
 }

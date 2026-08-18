@@ -5,6 +5,12 @@ export interface SetupIntentResponse {
   publishable_key: string;
 }
 
+export interface PaymentMethodSummary {
+  has_payment_method: boolean;
+  card_brand: string | null;
+  card_last4: string | null;
+}
+
 export async function createSetupIntent() {
   const { data } = await api.post<SetupIntentResponse>(
     "/billing/setup-intent"
@@ -18,9 +24,14 @@ export async function confirmPaymentMethod(paymentMethodId: string) {
   });
 }
 
-export async function getPaymentMethodStatus() {
-  const { data } = await api.get<{ has_payment_method: boolean }>(
+export async function getPaymentMethodSummary() {
+  const { data } = await api.get<PaymentMethodSummary>(
     "/billing/payment-method"
   );
+  return data;
+}
+
+export async function getPaymentMethodStatus() {
+  const data = await getPaymentMethodSummary();
   return data.has_payment_method;
 }

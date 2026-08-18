@@ -12,6 +12,8 @@ from sqlalchemy.orm import Session
 
 from app.database.session import get_db
 from app.schemas.auth import (
+    ChangePasswordRequest,
+    DeleteAccountRequest,
     GenericMessageResponse,
     LoginRequest,
     LoginResponse,
@@ -121,6 +123,24 @@ def update_profile(
             db,
         )
     )
+
+
+@router.put("/me/password", response_model=GenericMessageResponse)
+def change_password(
+    data: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return auth_service.change_password(current_user, data, db)
+
+
+@router.delete("/me", response_model=GenericMessageResponse)
+def delete_account(
+    data: DeleteAccountRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return auth_service.delete_account(current_user, data, db)
 
 
 @router.post("/me/avatar", response_model=UserResponse)

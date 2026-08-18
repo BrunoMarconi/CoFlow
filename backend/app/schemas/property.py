@@ -161,6 +161,8 @@ class PropertySummaryResponse(BaseModel):
     bedrooms: int
     max_tenants: int
     cover_image_url: str | None = None
+    subscription_status: PropertySubscriptionStatus
+    trial_ends_at: datetime | None = None
     updated_at: datetime
 
 

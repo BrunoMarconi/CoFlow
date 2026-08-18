@@ -83,6 +83,13 @@ def create_setup_intent(db: Session, current_user: User) -> tuple[str, str]:
     profile = _get_owner_profile(db, current_user)
     customer_id = _get_or_create_customer(db, profile, current_user)
 
+    # Restringido a "card" a propósito: Apple Pay y Google Pay NO son
+    # tipos de payment_method aparte, viajan como "card" por debajo, así
+    # que el Payment Element los sigue ofreciendo como botones express
+    # cuando el navegador/dominio los soporta. automatic_payment_methods
+    # (probado antes) también activa métodos sueltos configurados en el
+    # Dashboard de Stripe (Klarna, Bancontact, Kakao Pay...) que no
+    # sirven para una suscripción recurrente y solo confunden aquí.
     setup_intent = stripe.SetupIntent.create(
         customer=customer_id,
         payment_method_types=["card"],
@@ -118,16 +125,29 @@ def confirm_payment_method(
     )
 
 
-def has_payment_method(db: Session, current_user: User) -> bool:
+def get_payment_method_summary(
+    db: Session, current_user: User
+) -> tuple[bool, str | None, str | None]:
+    """Devuelve (tiene_tarjeta, marca, últimos_4) de la tarjeta por
+    defecto del propietario, si tiene alguna guardada."""
     _require_configured()
 
     profile = _get_owner_profile(db, current_user)
 
     if not profile.stripe_customer_id:
-        return False
+        return False, None, None
 
-    customer = stripe.Customer.retrieve(profile.stripe_customer_id)
-    return bool(customer.invoice_settings.default_payment_method)
+    customer = stripe.Customer.retrieve(
+        profile.stripe_customer_id,
+        expand=["invoice_settings.default_payment_method"],
+    )
+    payment_method = customer.invoice_settings.default_payment_method
+
+    if not payment_method:
+        return False, None, None
+
+    card = payment_method.get("card") if payment_method else None
+    return True, card.get("brand") if card else None, card.get("last4") if card else None
 
 
 _PROPERTY_PRICE_LOOKUP_KEY = "property_subscription_monthly"
@@ -210,19 +230,30 @@ def start_property_subscription(
     return property_obj
 
 
-def cancel_property_subscription(db: Session, property_obj: Property) -> None:
-    """Cancela la suscripción de un piso al final del periodo ya pagado
-    (no se cobra de nuevo, pero no hay reembolso del periodo en curso)."""
+def cancel_property_subscription(
+    db: Session,
+    property_obj: Property,
+    *,
+    at_period_end: bool = True,
+) -> None:
+    """Cancela la suscripción de un piso. Por defecto, al final del
+    periodo ya pagado (no se cobra de nuevo, pero no hay reembolso del
+    periodo en curso) — usado al pausar/archivar un piso. Con
+    at_period_end=False cancela de inmediato — usado al eliminar la
+    cuenta del propietario, donde no tiene sentido seguir cobrando."""
     if not property_obj.stripe_subscription_id:
         return
 
     _require_configured()
 
     try:
-        stripe.Subscription.modify(
-            property_obj.stripe_subscription_id,
-            cancel_at_period_end=True,
-        )
+        if at_period_end:
+            stripe.Subscription.modify(
+                property_obj.stripe_subscription_id,
+                cancel_at_period_end=True,
+            )
+        else:
+            stripe.Subscription.cancel(property_obj.stripe_subscription_id)
     except stripe.InvalidRequestError:
         # Ya no existe en Stripe (borrada manualmente, etc.) — no bloquea
         # la acción del propietario en nuestro lado.

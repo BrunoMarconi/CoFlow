@@ -47,6 +47,8 @@ def _to_summary(property_obj: Property) -> PropertySummaryResponse:
             if cover
             else None
         ),
+        subscription_status=property_obj.subscription_status,
+        trial_ends_at=property_obj.trial_ends_at,
         updated_at=property_obj.updated_at,
     )
 

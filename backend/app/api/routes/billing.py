@@ -52,11 +52,14 @@ def get_payment_method_status(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    has_pm, brand, last4 = billing_service.get_payment_method_summary(
+        db=db,
+        current_user=current_user,
+    )
     return PaymentMethodStatusResponse(
-        has_payment_method=billing_service.has_payment_method(
-            db=db,
-            current_user=current_user,
-        )
+        has_payment_method=has_pm,
+        card_brand=brand,
+        card_last4=last4,
     )
 
 

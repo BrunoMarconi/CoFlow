@@ -15,8 +15,14 @@ from app.core.config import (
 from app.core.jwt import create_access_token
 from app.core.security import hash_password, verify_password
 from app.database.models.user import User
-from app.schemas.auth import LoginRequest, RegisterRequest
+from app.schemas.auth import (
+    ChangePasswordRequest,
+    DeleteAccountRequest,
+    LoginRequest,
+    RegisterRequest,
+)
 from app.schemas.user import UpdateProfileRequest, UserResponse
+from app.services import billing_service
 from app.services.email_verification_service import request_verification_email
 
 
@@ -174,3 +180,68 @@ class AuthService:
         db.refresh(current_user)
 
         return current_user
+
+    def change_password(
+        self,
+        current_user: User,
+        data: ChangePasswordRequest,
+        db: Session,
+    ):
+        if not verify_password(data.current_password, current_user.password_hash):
+            raise HTTPException(
+                status_code=401,
+                detail="La contraseña actual no es correcta.",
+            )
+
+        current_user.password_hash = hash_password(data.new_password)
+        db.commit()
+
+        return {"message": "Contraseña actualizada correctamente."}
+
+    def delete_account(
+        self,
+        current_user: User,
+        data: DeleteAccountRequest,
+        db: Session,
+    ):
+        if not verify_password(data.password, current_user.password_hash):
+            raise HTTPException(
+                status_code=401,
+                detail="La contraseña no es correcta.",
+            )
+
+        if current_user.owned_communities:
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    "Antes de eliminar tu cuenta, transfiere la propiedad "
+                    "de tu comunidad a otro miembro o elimínala."
+                ),
+            )
+
+        # Las suscripciones de Stripe de sus pisos no se cancelan solas
+        # al borrar la cuenta — sin esto, Stripe seguiría cobrando cada
+        # mes a una tarjeta de una cuenta que ya no existe en CoFlow.
+        # Cancelación inmediata (no "al final del periodo"): quien borra
+        # su cuenta no va a volver a comprobar que dejó de cobrarse.
+        if current_user.owner_profile:
+            for property_obj in current_user.owner_profile.properties:
+                if property_obj.stripe_subscription_id:
+                    billing_service.cancel_property_subscription(
+                        db, property_obj, at_period_end=False
+                    )
+
+        try:
+            db.delete(current_user)
+            db.commit()
+        except IntegrityError:
+            db.rollback()
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    "No hemos podido eliminar tu cuenta porque todavía "
+                    "tiene datos vinculados. Contacta con soporte."
+                ),
+            )
+
+        return {"message": "Cuenta eliminada correctamente."}

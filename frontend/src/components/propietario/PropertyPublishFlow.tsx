@@ -3,7 +3,9 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
+  forwardRef,
   useEffect,
+  useImperativeHandle,
   useRef,
   useState,
   type ReactNode,
@@ -11,13 +13,13 @@ import {
 } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
-import { loadStripe } from "@stripe/stripe-js";
 import {
-  CardElement,
   Elements,
+  PaymentElement,
   useElements,
   useStripe,
 } from "@stripe/react-stripe-js";
+import { stripePromise } from "@/lib/stripe";
 import ViewportPortal from "@/components/ui/ViewportPortal";
 import {
   Archive,
@@ -70,10 +72,6 @@ import type { Amenity, PropertyCreate, PropertyType } from "@/types/property";
 // fija Stripe en el momento de crear la suscripción.
 const TRIAL_DAYS = 30;
 const SUBSCRIPTION_PRICE_LABEL = "23,99 €/mes";
-
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ""
-);
 
 const MIN_PHOTOS = 5;
 const MAX_PHOTOS = 10;
@@ -170,11 +168,7 @@ const AMENITIES: Array<{ label: string; icon: ReactNode }> = [
 const today = () => new Date().toISOString().slice(0, 10);
 
 export default function PropertyPublishFlow() {
-  return (
-    <Elements stripe={stripePromise}>
-      <PropertyPublishFlowInner />
-    </Elements>
-  );
+  return <PropertyPublishFlowInner />;
 }
 
 function PropertyPublishFlowInner() {
@@ -182,8 +176,7 @@ function PropertyPublishFlowInner() {
   const queryClient = useQueryClient();
   const prefersReducedMotion = useReducedMotion();
   const { activateOwnerMode } = useOwnerMode();
-  const stripe = useStripe();
-  const elements = useElements();
+  const paymentRef = useRef<PaymentScreenHandle>(null);
   const [hasPaymentMethod, setHasPaymentMethod] = useState<boolean | null>(
     null
   );
@@ -342,31 +335,16 @@ function PropertyPublishFlowInner() {
 
     try {
       if (!hasPaymentMethod) {
-        if (!stripe || !elements) {
-          setError("El formulario de pago todavía no está listo. Espera un momento e inténtalo de nuevo.");
+        let paymentMethodId: string;
+        try {
+          paymentMethodId = await paymentRef.current!.confirmCard();
+        } catch (reason) {
+          setError(reason instanceof Error ? reason.message : "No hemos podido guardar la tarjeta. Revísala e inténtalo de nuevo.");
           setPublishing(false);
           return;
         }
 
-        const cardElement = elements.getElement(CardElement);
-        if (!cardElement) {
-          setError("Añade los datos de tu tarjeta para continuar.");
-          setPublishing(false);
-          return;
-        }
-
-        const { client_secret } = await createSetupIntent();
-        const result = await stripe.confirmCardSetup(client_secret, {
-          payment_method: { card: cardElement },
-        });
-
-        if (result.error || !result.setupIntent?.payment_method) {
-          setError(result.error?.message ?? "No hemos podido guardar la tarjeta. Revísala e inténtalo de nuevo.");
-          setPublishing(false);
-          return;
-        }
-
-        await confirmPaymentMethod(result.setupIntent.payment_method as string);
+        await confirmPaymentMethod(paymentMethodId);
         setHasPaymentMethod(true);
       }
 
@@ -411,7 +389,7 @@ function PropertyPublishFlowInner() {
             {screen === "vibe" ? <VibeScreen selected={vibes} onToggle={(vibe) => setVibes((current) => current.includes(vibe) ? current.filter((item) => item !== vibe) : [...current, vibe])} /> : null}
             {screen === "description" ? <TextScreen title="Cuéntales cómo es tu vivienda" value={description} onChange={setDescription} placeholder="Describe el espacio, la zona y el ambiente que quieres crear…" multiline maxLength={2000} /> : null}
             {screen === "conditions" ? <ConditionsScreen rent={rent} deposit={deposit} utilitiesIncluded={utilitiesIncluded} minimumStayMonths={minimumStayMonths} onOpen={setPriceSheet} onUtilities={setUtilitiesIncluded} /> : null}
-            {screen === "payment" ? <PaymentScreen hasPaymentMethod={hasPaymentMethod} /> : null}
+            {screen === "payment" ? <PaymentScreen ref={paymentRef} hasPaymentMethod={hasPaymentMethod} /> : null}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -602,47 +580,79 @@ function ConditionsScreen({ rent, deposit, utilitiesIncluded, minimumStayMonths,
   );
 }
 
-const CARD_ELEMENT_OPTIONS = {
-  style: {
-    base: {
-      fontSize: "18px",
-      color: "#191919",
-      fontFamily: "inherit",
-      "::placeholder": { color: "#8c8c8c" },
+export type PaymentScreenHandle = { confirmCard: () => Promise<string> };
+
+const PaymentScreen = forwardRef<PaymentScreenHandle, { hasPaymentMethod: boolean | null }>(
+  function PaymentScreen({ hasPaymentMethod }, ref) {
+    const trialEndDate = new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+    const trialEndLabel = trialEndDate.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
+    const [clientSecret, setClientSecret] = useState<string | null>(null);
+
+    useEffect(() => {
+      if (hasPaymentMethod === false && !clientSecret) {
+        createSetupIntent().then((data) => setClientSecret(data.client_secret));
+      }
+    }, [hasPaymentMethod, clientSecret]);
+
+    return (
+      <section className="mx-auto max-w-2xl pt-4 sm:pt-8">
+        <ScreenTitle>Añade tu método de pago</ScreenTitle>
+        <p className="mt-3 text-sm leading-6 text-[#717171] sm:text-base">
+          Cada piso publicado tiene una cuota de <strong className="text-[#191919]">{SUBSCRIPTION_PRICE_LABEL}</strong>, y se cobra <strong className="text-[#191919]">por separado en cada piso que tengas publicado</strong> — si tienes 2 pisos, son 2 cuotas; si tienes 3, son 3, y así con cada uno. No se te cobrará nada durante los primeros {TRIAL_DAYS} días: el primer cobro de este piso sería el <strong className="text-[#191919]">{trialEndLabel}</strong>, y solo si sigue publicado.
+        </p>
+
+        {hasPaymentMethod === null ? (
+          <div className="mt-8 flex items-center gap-3 text-[#717171]">
+            <LoaderCircle className="h-5 w-5 animate-spin" />
+            <span>Comprobando tu método de pago…</span>
+          </div>
+        ) : hasPaymentMethod ? (
+          <div className="mt-8 flex items-center gap-4 rounded-[1.5rem] border border-[#dddddd] bg-white p-5 shadow-[0_6px_20px_rgba(0,0,0,0.055)]">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f5f5f5] text-[#222]"><CreditCard className="h-5 w-5" /></span>
+            <p className="text-sm font-semibold text-[#191919]">Ya tienes una tarjeta guardada. Se usará también para este piso, como una cuota nueva e independiente de tus otros pisos.</p>
+          </div>
+        ) : clientSecret ? (
+          <div className="mt-8 rounded-[1.5rem] border border-[#c9c9c9] bg-white p-5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] sm:p-6">
+            <Elements stripe={stripePromise} options={{ clientSecret }}>
+              <PaymentForm ref={ref} />
+            </Elements>
+          </div>
+        ) : (
+          <div className="mt-8 flex items-center gap-3 text-[#717171]">
+            <LoaderCircle className="h-5 w-5 animate-spin" />
+            <span>Preparando el formulario de pago…</span>
+          </div>
+        )}
+      </section>
+    );
+  }
+);
+
+const PaymentForm = forwardRef<PaymentScreenHandle>(function PaymentForm(_props, ref) {
+  const stripe = useStripe();
+  const elements = useElements();
+
+  useImperativeHandle(ref, () => ({
+    async confirmCard() {
+      if (!stripe || !elements) {
+        throw new Error("El formulario de pago todavía no está listo. Espera un momento e inténtalo de nuevo.");
+      }
+
+      const { error, setupIntent } = await stripe.confirmSetup({
+        elements,
+        redirect: "if_required",
+      });
+
+      if (error || !setupIntent?.payment_method) {
+        throw new Error(error?.message ?? "No hemos podido guardar la tarjeta. Revísala e inténtalo de nuevo.");
+      }
+
+      return setupIntent.payment_method as string;
     },
-    invalid: { color: "#dc2626" },
-  },
-};
+  }));
 
-function PaymentScreen({ hasPaymentMethod }: { hasPaymentMethod: boolean | null }) {
-  const trialEndDate = new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
-  const trialEndLabel = trialEndDate.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
-
-  return (
-    <section className="mx-auto max-w-2xl pt-4 sm:pt-8">
-      <ScreenTitle>Añade tu método de pago</ScreenTitle>
-      <p className="mt-3 text-sm leading-6 text-[#717171] sm:text-base">
-        Cada piso publicado tiene una cuota de {SUBSCRIPTION_PRICE_LABEL}. No se te cobrará nada durante los primeros {TRIAL_DAYS} días: el primer cobro de este piso sería el <strong className="text-[#191919]">{trialEndLabel}</strong>, y solo si sigue publicado.
-      </p>
-
-      {hasPaymentMethod === null ? (
-        <div className="mt-8 flex items-center gap-3 text-[#717171]">
-          <LoaderCircle className="h-5 w-5 animate-spin" />
-          <span>Comprobando tu método de pago…</span>
-        </div>
-      ) : hasPaymentMethod ? (
-        <div className="mt-8 flex items-center gap-4 rounded-[1.5rem] border border-[#dddddd] bg-white p-5 shadow-[0_6px_20px_rgba(0,0,0,0.055)]">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f5f5f5] text-[#222]"><CreditCard className="h-5 w-5" /></span>
-          <p className="text-sm font-semibold text-[#191919]">Ya tienes una tarjeta guardada. Se usará también para este piso.</p>
-        </div>
-      ) : (
-        <div className="mt-8 rounded-[1.5rem] border border-[#c9c9c9] bg-white p-5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] sm:p-6">
-          <CardElement options={CARD_ELEMENT_OPTIONS} />
-        </div>
-      )}
-    </section>
-  );
-}
+  return <PaymentElement />;
+});
 
 function ConditionRow({ label, value, icon, onClick, emphasized = false }: { label: string; value: string; icon: ReactNode; onClick: () => void; emphasized?: boolean }) {
   return <button type="button" onClick={onClick} className="flex min-h-19 w-full items-center gap-3 py-3 text-left"><span className="[&>svg]:h-5 [&>svg]:w-5">{icon}</span><span className="flex-1 font-semibold">{label}</span><strong className={emphasized ? "text-xl font-bold" : "text-base font-semibold"}>{value}</strong><ChevronLeft className="h-5 w-5 rotate-180 text-[#717171]" /></button>;

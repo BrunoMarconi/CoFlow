@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export default function DangerZoneSection({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="flex flex-col items-center gap-3 pt-2 pb-6 text-center">
@@ -11,11 +13,9 @@ export default function DangerZoneSection({ onLogout }: { onLogout: () => void }
         Cerrar sesión
       </button>
 
-      {/* Sin flujo de baja de cuenta implementado todavía en backend —
-          se deja visible pero inerte, discreto a propósito. */}
-      <span className="text-xs font-semibold text-muted/70">
+      <Link href="/ajustes" className="text-xs font-semibold text-muted/70">
         Eliminar cuenta
-      </span>
+      </Link>
     </div>
   );
 }

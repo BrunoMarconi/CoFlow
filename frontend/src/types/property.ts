@@ -98,6 +98,8 @@ export interface PropertySummary {
   bedrooms: number;
   max_tenants: number;
   cover_image_url: string | null;
+  subscription_status: PropertySubscriptionStatus;
+  trial_ends_at: string | null;
   updated_at: string;
 }
 
