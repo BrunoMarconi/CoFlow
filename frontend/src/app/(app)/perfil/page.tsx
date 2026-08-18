@@ -20,6 +20,7 @@ import { getMyCompatibilityScore, getSavedProfiles } from "@/services/users";
 import { getConnectionOverview } from "@/services/connections";
 import { CONNECTION_OVERVIEW_QUERY_KEY } from "@/lib/connectionQueryState";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
+import { SOLVENCY_PASSPORT_ENABLED } from "@/lib/featureFlags";
 import type { OnboardingAnswers } from "@/types/onboarding";
 import type { User } from "@/types/auth";
 
@@ -257,7 +258,12 @@ export default function PerfilPage() {
         <h2 className="px-1 text-sm font-bold text-primary-dark">Mi CoFlow</h2>
         <div className="divide-y divide-border rounded-18 border border-border bg-surface">
           <ProfileMenuRow href="/perfil/editar" icon={<UserIcon />} label="Editar mi perfil" />
-          <ProfileMenuRow href="/pasaporte" icon={<ShieldIcon />} label="Pasaporte de solvencia" />
+          <ProfileMenuRow
+            href={SOLVENCY_PASSPORT_ENABLED ? "/pasaporte" : undefined}
+            icon={<ShieldIcon />}
+            label="Pasaporte de solvencia"
+            badge={SOLVENCY_PASSPORT_ENABLED ? undefined : "Próximamente"}
+          />
           <ProfileMenuRow href="/perfil/preferencias" icon={<HomeIcon />} label="Preferencias de vivienda" />
           <ProfileMenuRow href="/personas/guardadas" icon={<BookmarkIcon />} label={`Perfiles guardados (${savedCount})`} />
         </div>
@@ -359,10 +365,14 @@ function ProfileMenuRow({
   href,
   icon,
   label,
+  badge,
 }: {
   href?: string;
   icon: React.ReactNode;
   label: string;
+  /** Ej. "Próximamente" — se muestra en vez del icono de flecha y
+   * fuerza el estado deshabilitado (fila no navegable). */
+  badge?: string;
 }) {
   const content = (
     <>
@@ -372,11 +382,17 @@ function ProfileMenuRow({
       <span className="flex-1 text-sm font-semibold text-foreground">
         {label}
       </span>
-      <ChevronIcon />
+      {badge ? (
+        <span className="rounded-full bg-surface-soft px-2.5 py-1 text-[11px] font-bold text-muted">
+          {badge}
+        </span>
+      ) : (
+        <ChevronIcon />
+      )}
     </>
   );
 
-  if (!href) {
+  if (!href || badge) {
     return <div className="flex min-h-13 items-center gap-2 px-3 opacity-70">{content}</div>;
   }
 

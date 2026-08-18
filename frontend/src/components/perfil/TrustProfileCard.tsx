@@ -5,14 +5,17 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { getMySolvencyPassport } from "@/services/solvencyPassports";
 import { MOTION_DURATION, MOTION_EASE, MOTION_HOME_TAP_SCALE } from "@/lib/motionTokens";
+import { SOLVENCY_PASSPORT_ENABLED } from "@/lib/featureFlags";
 import type { SolvencyPassport } from "@/types/solvencyPassport";
 import type { User } from "@/types/auth";
 
 export default function TrustSection({ user }: { user: User }) {
   const [passport, setPassport] = useState<SolvencyPassport | null>(null);
-  const [loadingPassport, setLoadingPassport] = useState(true);
+  const [loadingPassport, setLoadingPassport] = useState(SOLVENCY_PASSPORT_ENABLED);
 
   useEffect(() => {
+    if (!SOLVENCY_PASSPORT_ENABLED) return;
+
     let active = true;
 
     getMySolvencyPassport()
@@ -49,6 +52,34 @@ function PassportCard({
   verified: boolean;
   loading: boolean;
 }) {
+  if (!SOLVENCY_PASSPORT_ENABLED) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+        className="rounded-18 border border-border bg-surface p-4 opacity-70"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-surface text-primary shadow-soft">
+            <PassportIcon />
+          </span>
+          <span className="rounded-full bg-surface-soft px-2.5 py-1 text-[11px] font-bold text-muted">
+            Próximamente
+          </span>
+        </div>
+
+        <p className="mt-3 text-sm font-bold text-brand-dark">
+          Pasaporte de solvencia
+        </p>
+
+        <p className="mt-1 text-xs leading-5 text-muted">
+          Estamos preparando esta función.
+        </p>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}

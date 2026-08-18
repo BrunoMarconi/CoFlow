@@ -20,6 +20,7 @@ import {
   runFinancialAnalysis,
 } from "@/services/financialAnalysis";
 import { getMySolvencyPassport } from "@/services/solvencyPassports";
+import { SOLVENCY_PASSPORT_ENABLED } from "@/lib/featureFlags";
 import type { BankConnectionSummary } from "@/types/bankConnection";
 import type {
   FinancialAnalysis,
@@ -51,6 +52,34 @@ function extractErrorMessage(error: unknown, fallback: string) {
 }
 
 export default function PasaportePage() {
+  if (!SOLVENCY_PASSPORT_ENABLED) return <PasaporteComingSoon />;
+
+  return <PasaportePageContent />;
+}
+
+function PasaporteComingSoon() {
+  return (
+    <div className="mx-auto flex min-h-[60dvh] w-full max-w-2xl flex-col items-center justify-center px-6 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/8 text-primary-dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7" aria-hidden="true">
+          <rect x="5" y="2" width="14" height="20" rx="2" />
+          <circle cx="12" cy="10" r="3" />
+          <path d="M8 18h8" />
+        </svg>
+      </div>
+      <h1 className="mt-5 text-2xl font-bold tracking-tight text-brand-dark">
+        Pasaporte de Solvencia
+      </h1>
+      <p className="mt-3 max-w-md text-sm leading-6 text-muted">
+        Estamos preparando esta función. Muy pronto podrás verificar tu
+        capacidad económica y compartirla con propietarios directamente
+        desde aquí.
+      </p>
+    </div>
+  );
+}
+
+function PasaportePageContent() {
   const [summary, setSummary] = useState<BankConnectionSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
