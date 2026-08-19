@@ -23,12 +23,12 @@ export default function ProfileCompletionBanner() {
     : "Tu perfil está incompleto. Complétalo para que las demás personas te conozcan mejor.";
 
   return (
-    <div className="mb-4 flex flex-col items-start justify-between gap-3 rounded-2xl border border-border bg-surface px-4 py-3 text-sm shadow-soft sm:flex-row sm:items-center">
-      <p className="font-semibold text-brand-dark">{message}</p>
+    <div className="mb-4 flex flex-col items-start justify-between gap-3 rounded-2xl border border-primary/25 bg-mint-50 px-4 py-3 text-sm sm:flex-row sm:items-center">
+      <p className="font-semibold text-primary-dark">{message}</p>
 
       <Link
         href="/perfil"
-        className="shrink-0 rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-brand-dark shadow-soft transition hover:border-primary/30"
+        className="shrink-0 rounded-xl border border-primary/30 bg-white px-4 py-2 text-xs font-bold text-primary-dark transition hover:bg-primary/10"
       >
         Completar perfil
       </Link>

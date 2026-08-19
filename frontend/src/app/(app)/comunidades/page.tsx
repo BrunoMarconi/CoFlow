@@ -318,6 +318,19 @@ export default function ComunidadesPage() {
                 Has abandonado la comunidad correctamente.
               </p>
             )}
+
+            {isCommunityFiltersActive(filters) && (
+              <div className="mt-4">
+                <ActiveFilterChips chips={activeChips} />
+                <button
+                  type="button"
+                  onClick={() => setFilters(defaultCommunityFilters)}
+                  className="mt-1 text-xs font-bold text-primary-dark underline underline-offset-2"
+                >
+                  Quitar filtros
+                </button>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
