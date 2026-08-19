@@ -19,14 +19,11 @@
   --mint-200: #ffffff;
   --danger: #dc2626;
   --warning: #d97706;
-  /* Relleno neutro garantizado sin tinte de color, para separar filas y
-     tarjetas planas de un fondo blanco — a diferencia de --surface-soft
-     (oklch con un toque de verde casi imperceptible en monitor, pero
-     que en algunas pantallas de móvil se nota como verde pastel), esto
-     es negro puro a muy baja opacidad: siempre lee como gris neutro,
-     nunca como color, en cualquier pantalla. */
-  --flat-neutral: rgb(0 0 0 / 4%);
-  --flat-neutral-strong: rgb(0 0 0 / 7%);
+  /* Blanco puro a propósito — sin tinte de ningún tipo, ni siquiera el
+     casi imperceptible de --surface-soft (oklch con un toque de verde
+     que en algunas pantallas de móvil se notaba como verde pastel). */
+  --flat-neutral: #ffffff;
+  --flat-neutral-strong: #ffffff;
   /* Burbuja de "tus mensajes" en el chat: única excepción deliberada al
      verde-solo-en-acciones de arriba — un verde pálido estilo WhatsApp
      (no el verde sólido de marca) para que sea fácil de leer en tandas
