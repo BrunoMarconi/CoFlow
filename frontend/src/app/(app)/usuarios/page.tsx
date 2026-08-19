@@ -225,7 +225,7 @@ export default function UsuariosPage() {
         {profileIncomplete && (
           <Link
             href="/perfil/editar"
-            className="mt-6 flex items-center gap-3 rounded-18 bg-flat p-4 transition-transform duration-200 active:scale-[0.99]"
+            className="mt-6 flex items-center gap-3 rounded-18 border border-border/60 bg-surface p-4 transition-transform duration-200 active:scale-[0.99]"
           >
             <span className="flex h-11 w-11 shrink-0 items-center justify-center text-primary">
               <ProfileIcon />

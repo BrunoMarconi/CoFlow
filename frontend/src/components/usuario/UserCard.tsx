@@ -105,7 +105,7 @@ export default function UserCard({
     return <>
       <div className="sm:hidden">
         {mobileVariant === "featured" ? (
-          <div className="h-full overflow-hidden rounded-18 bg-surface shadow-soft">
+          <div className="h-full overflow-hidden rounded-18 border border-border/60 bg-surface">
             <div className="relative h-36 bg-surface-muted min-[390px]:h-44">
               {hasProfilePhoto && profilePhoto ? (
                 <Image
@@ -189,7 +189,7 @@ export default function UserCard({
             </div>
           </div>
         ) : (
-          <div className="flex min-h-24 items-center gap-3 rounded-18 bg-flat p-3">
+          <div className="flex min-h-24 items-center gap-3 rounded-18 border border-border/60 bg-surface p-3">
             <div className="relative shrink-0">
               <UserAvatar
                 firstName={user.first_name}
@@ -233,7 +233,7 @@ export default function UserCard({
         )}
       </div>
 
-      <div className="hidden h-full flex-col overflow-hidden rounded-18 bg-surface shadow-soft transition-shadow duration-200 sm:flex sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]">
+      <div className="hidden h-full flex-col overflow-hidden rounded-18 border border-border/60 bg-surface transition-shadow duration-200 sm:flex sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]">
         <div className="relative h-40 shrink-0 border-b border-border bg-surface lg:h-44">
           {hasProfilePhoto && profilePhoto ? (
             <Image
