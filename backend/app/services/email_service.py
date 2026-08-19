@@ -42,7 +42,13 @@ def build_verification_url(raw_token: str) -> str:
     return f"{base}/verificar-email?token={raw_token}"
 
 
+def _logo_url() -> str:
+    base = FRONTEND_URL or "http://localhost:3000"
+    return f"{base}/logo-coflow.png"
+
+
 def _build_html(first_name: str, verify_url: str, expiry_minutes: int) -> str:
+    logo_url = _logo_url()
     return f"""\
 <!DOCTYPE html>
 <html lang="es">
@@ -53,7 +59,7 @@ def _build_html(first_name: str, verify_url: str, expiry_minutes: int) -> str:
           <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#FFFFFF;border-radius:16px;padding:32px;">
             <tr>
               <td align="center" style="padding-bottom:24px;">
-                <span style="font-size:22px;font-weight:bold;color:#12382C;">CoFlow</span>
+                <img src="{logo_url}" alt="CoFlow" height="36" style="height:36px;width:auto;display:block;border:0;" />
               </td>
             </tr>
             <tr>
