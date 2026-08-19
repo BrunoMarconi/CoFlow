@@ -80,7 +80,7 @@ export default function UserFilters({
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="rounded-24 border border-border bg-surface p-4 shadow-soft sm:p-5"
+      className="rounded-24 bg-surface-soft p-4 sm:p-5"
     >
       <motion.div variants={blockVariants} className="grid gap-4 sm:grid-cols-2">
         <div>
@@ -96,7 +96,7 @@ export default function UserFilters({
             value={filters.city}
             onChange={(event) => update({ city: event.target.value })}
             placeholder="Ej. Málaga"
-            className="h-11.5 w-full rounded-14 border border-border bg-surface px-4 text-[15px] text-foreground shadow-soft outline-none transition-all duration-180 placeholder:text-muted hover:border-secondary/40 focus:border-primary focus:ring-4 focus:ring-primary/10"
+            className="h-11.5 w-full rounded-14 border border-border bg-surface px-4 text-[15px] text-foreground outline-none transition-all duration-180 placeholder:text-muted hover:border-secondary/40 focus:border-primary focus:ring-4 focus:ring-primary/10"
           />
         </div>
 
@@ -123,7 +123,7 @@ export default function UserFilters({
                 update({ maxBudget: event.target.value })
               }
               placeholder="Sin límite"
-              className="h-11.5 w-full rounded-14 border border-border bg-surface pl-9 pr-4 text-[15px] text-foreground shadow-soft outline-none transition-all duration-180 placeholder:text-muted hover:border-secondary/40 focus:border-primary focus:ring-4 focus:ring-primary/10"
+              className="h-11.5 w-full rounded-14 border border-border bg-surface pl-9 pr-4 text-[15px] text-foreground outline-none transition-all duration-180 placeholder:text-muted hover:border-secondary/40 focus:border-primary focus:ring-4 focus:ring-primary/10"
             />
           </div>
         </div>
@@ -142,10 +142,10 @@ export default function UserFilters({
               onClick={() => update({ communityStatus: option.value })}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
-              className={`min-h-11 rounded-14 border px-4 text-sm font-bold transition-colors duration-200 ${
+              className={`min-h-11 rounded-14 px-4 text-sm font-bold transition-colors duration-200 ${
                 filters.communityStatus === option.value
-                  ? "border-primary bg-surface text-primary-dark shadow-soft"
-                  : "border-border bg-surface text-muted hover:border-primary/30"
+                  ? "bg-mint-100 text-primary-dark"
+                  : "bg-surface text-muted hover:bg-surface/70"
               }`}
             >
               {option.label}
@@ -165,7 +165,7 @@ export default function UserFilters({
           Limpiar filtros
         </motion.button>
 
-        <p className="flex h-12 flex-1 items-center justify-center rounded-14 border border-border bg-surface text-sm font-bold text-brand-dark shadow-soft sm:justify-start sm:px-4">
+        <p className="flex h-12 flex-1 items-center justify-center rounded-14 bg-surface text-sm font-bold text-brand-dark sm:justify-start sm:px-4">
           {resultCount}{" "}
           {resultCount === 1 ? "persona encontrada" : "personas encontradas"}
         </p>

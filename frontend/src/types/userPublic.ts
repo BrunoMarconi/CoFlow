@@ -63,6 +63,8 @@ export interface UserPublicProfile {
 
 export interface GetPublicUsersParams {
   max_budget?: number;
+  city?: string;
+  community_status?: "HAS_COMMUNITY" | "LOOKING";
   skip?: number;
   limit?: number;
 }

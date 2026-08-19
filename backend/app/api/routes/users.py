@@ -89,6 +89,8 @@ def list_blocked_users(
 )
 def list_public_users(
     max_budget: int | None = Query(default=None, ge=0),
+    city: str | None = Query(default=None),
+    community_status: str | None = Query(default=None, pattern="^(HAS_COMMUNITY|LOOKING)$"),
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
@@ -97,6 +99,8 @@ def list_public_users(
     return user_service.list_public_profiles(
         db=db,
         viewer=current_user,
+        city=city,
+        community_status=community_status,
         max_budget=max_budget,
         skip=skip,
         limit=limit,

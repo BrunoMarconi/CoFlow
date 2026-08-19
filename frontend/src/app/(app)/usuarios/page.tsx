@@ -17,6 +17,7 @@ import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import EmptyState from "@/components/ui/EmptyState";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
+import { getProfileCompletionChecklist } from "@/lib/profileCompletion";
 
 const CITY_OPTIONS = ["Málaga", "Madrid", "Valencia"];
 
@@ -30,61 +31,46 @@ export default function UsuariosPage() {
   const maxBudget = filters.maxBudget ? Number(filters.maxBudget) : undefined;
   const { users, loading, hasMore, loadingMore, loadMore } = useUsers({
     max_budget: maxBudget,
+    city: filters.city || undefined,
+    community_status:
+      filters.communityStatus !== "ALL" ? filters.communityStatus : undefined,
   });
 
+  // Ciudad, presupuesto y situación de convivencia ya se filtran en el
+  // servidor (ver useUsers arriba) — aquí solo queda el texto libre,
+  // que no tiene endpoint de búsqueda y se aplica sobre la página ya
+  // cargada.
   const visibleUsers = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
-    const normalizedCity = filters.city.trim().toLowerCase();
+
+    if (!normalizedSearch) return users;
 
     return users.filter((user) => {
-      if (normalizedSearch) {
-        const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
-        const searchableTraits = [
-          user.occupation,
-          user.bio,
-          user.preferences?.lifestyle,
-          user.preferences?.cleanliness,
-          user.community?.city,
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
+      const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
+      const searchableTraits = [
+        user.occupation,
+        user.bio,
+        user.preferences?.lifestyle,
+        user.preferences?.cleanliness,
+        user.community?.city,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
 
-        if (
-          !fullName.includes(normalizedSearch) &&
-          !searchableTraits.includes(normalizedSearch)
-        ) {
-          return false;
-        }
-      }
-
-      if (
-        normalizedCity &&
-        !user.community?.city.toLowerCase().includes(normalizedCity)
-      ) {
-        return false;
-      }
-
-      if (filters.communityStatus === "HAS_COMMUNITY" && !user.community) {
-        return false;
-      }
-
-      if (filters.communityStatus === "LOOKING" && user.community) {
-        return false;
-      }
-
-      return true;
+      return (
+        fullName.includes(normalizedSearch) ||
+        searchableTraits.includes(normalizedSearch)
+      );
     });
-  }, [users, search, filters]);
+  }, [users, search]);
 
   const hasQuery = search.trim().length > 0;
   const hasActiveFilters = isUserFiltersActive(filters);
   const resultCount = visibleUsers.length;
   const profileIncomplete = Boolean(
     currentUser &&
-      (!currentUser.avatar_url ||
-        !currentUser.phone ||
-        currentUser.rental_budget === null)
+      getProfileCompletionChecklist(currentUser).some((item) => !item.done)
   );
 
   function selectCity(city: string) {
@@ -106,7 +92,7 @@ export default function UsuariosPage() {
           </p>
         </header>
 
-        <div className="mt-5 flex h-13 items-center rounded-14 border border-border bg-surface px-4 shadow-soft transition-all duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 sm:h-14">
+        <div className="mt-5 flex h-13 items-center rounded-14 bg-surface-soft px-4 transition-colors duration-200 focus-within:bg-surface focus-within:ring-2 focus-within:ring-primary/20 sm:h-14">
           <SearchInput
             bare
             value={search}
@@ -126,10 +112,10 @@ export default function UsuariosPage() {
                 type="button"
                 onClick={() => selectCity(city)}
                 aria-pressed={active}
-                className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full border bg-surface px-4 text-sm font-bold shadow-soft transition-colors duration-200 ${
+                className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
                   active
-                    ? "border-primary text-primary-dark"
-                    : "border-border text-foreground hover:border-primary/40"
+                    ? "bg-mint-100 text-primary-dark"
+                    : "bg-surface-soft text-foreground hover:bg-surface-soft/70"
                 }`}
               >
                 {active && <LocationIcon />}
@@ -142,10 +128,10 @@ export default function UsuariosPage() {
             type="button"
             onClick={() => setFiltersOpen((current) => !current)}
             aria-expanded={filtersOpen}
-            className={`flex h-10 shrink-0 items-center gap-2 rounded-full border bg-surface px-4 text-sm font-bold shadow-soft transition-colors duration-200 ${
+            className={`flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
               filtersOpen || filters.maxBudget || filters.communityStatus !== "ALL"
-                ? "border-primary text-primary-dark"
-                : "border-border text-foreground hover:border-primary/40"
+                ? "bg-mint-100 text-primary-dark"
+                : "bg-surface-soft text-foreground hover:bg-surface-soft/70"
             }`}
           >
             <FilterIcon />
@@ -239,7 +225,7 @@ export default function UsuariosPage() {
         {profileIncomplete && (
           <Link
             href="/perfil/editar"
-            className="mt-6 flex items-center gap-3 rounded-18 border border-border bg-surface p-4 shadow-soft transition-transform duration-200 active:scale-[0.99]"
+            className="mt-6 flex items-center gap-3 rounded-18 bg-mint-50 p-4 transition-transform duration-200 active:scale-[0.99]"
           >
             <span className="flex h-11 w-11 shrink-0 items-center justify-center text-primary">
               <ProfileIcon />

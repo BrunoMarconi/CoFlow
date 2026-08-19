@@ -242,6 +242,8 @@ class UserService:
         db: Session,
         viewer: User,
         max_budget: int | None = None,
+        city: str | None = None,
+        community_status: str | None = None,
         skip: int = 0,
         limit: int = 20,
     ) -> list[PublicUserProfileResponse]:
@@ -289,6 +291,31 @@ class UserService:
                 User.rental_budget.is_not(None),
                 User.rental_budget <= max_budget,
             )
+
+        # "Ciudad" y "situación de convivencia" en esta pantalla se
+        # refieren a la comunidad del usuario, no a un campo propio de
+        # User — antes se filtraban en el cliente sobre la página ya
+        # descargada (mismo bug que en Comunidades: "cargar más" podía
+        # parecer roto). Se comprueba con un EXISTS correlacionado en
+        # vez de un JOIN para no duplicar filas de usuarios con más de
+        # una membresía.
+        membership_exists = (
+            db.query(CommunityMember.id)
+            .join(Community, Community.id == CommunityMember.community_id)
+            .filter(CommunityMember.user_id == User.id)
+        )
+
+        if city:
+            query = query.filter(
+                membership_exists.filter(
+                    Community.city.ilike(f"%{city.strip()}%")
+                ).exists()
+            )
+
+        if community_status == "HAS_COMMUNITY":
+            query = query.filter(membership_exists.exists())
+        elif community_status == "LOOKING":
+            query = query.filter(~membership_exists.exists())
 
         users = (
             query

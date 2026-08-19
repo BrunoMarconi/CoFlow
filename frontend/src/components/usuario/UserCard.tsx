@@ -105,7 +105,7 @@ export default function UserCard({
     return <>
       <div className="sm:hidden">
         {mobileVariant === "featured" ? (
-          <div className="h-full overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
+          <div className="h-full overflow-hidden rounded-18 bg-surface shadow-soft">
             <div className="relative h-36 bg-surface-muted min-[390px]:h-44">
               {hasProfilePhoto && profilePhoto ? (
                 <Image
@@ -138,7 +138,7 @@ export default function UserCard({
                 disabled={savingToggle}
                 aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
                 aria-pressed={saved}
-                className="absolute right-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-primary shadow-soft disabled:opacity-60"
+                className="absolute right-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-white text-primary shadow-[0_1px_3px_rgb(0_0_0/0.15)] disabled:opacity-60"
               >
                 <HeartIcon filled={saved} />
               </button>
@@ -164,7 +164,7 @@ export default function UserCard({
                   {habitChips.slice(0, 2).map((chip) => (
                     <span
                       key={chip}
-                      className="max-w-full truncate rounded-full border border-border bg-surface px-2 py-1 text-[9px] font-bold text-primary-dark shadow-soft"
+                      className="max-w-full truncate rounded-full bg-primary/8 px-2 py-1 text-[9px] font-bold text-primary-dark"
                     >
                       {chip}
                     </span>
@@ -189,7 +189,7 @@ export default function UserCard({
             </div>
           </div>
         ) : (
-          <div className="flex min-h-24 items-center gap-3 rounded-18 border border-border bg-surface p-3 shadow-soft">
+          <div className="flex min-h-24 items-center gap-3 rounded-18 bg-surface-soft p-3">
             <div className="relative shrink-0">
               <UserAvatar
                 firstName={user.first_name}
@@ -222,7 +222,7 @@ export default function UserCard({
             <div className="hidden shrink-0 flex-col items-end gap-1.5 min-[380px]:flex">
               {user.match_score !== null && <MatchScoreBadge score={user.match_score} size="sm" />}
               {habitChips.length > 0 && (
-                <span className="max-w-24 truncate rounded-full border border-border bg-surface px-2 py-1 text-[9px] font-bold text-primary-dark shadow-soft">
+                <span className="max-w-24 truncate rounded-full bg-primary/8 px-2 py-1 text-[9px] font-bold text-primary-dark">
                   {habitChips[0]}
                 </span>
               )}
@@ -233,7 +233,7 @@ export default function UserCard({
         )}
       </div>
 
-      <div className="hidden h-full flex-col overflow-hidden rounded-18 border border-border bg-surface shadow-soft transition-shadow duration-200 sm:flex sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]">
+      <div className="hidden h-full flex-col overflow-hidden rounded-18 bg-surface shadow-soft transition-shadow duration-200 sm:flex sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]">
         <div className="relative h-40 shrink-0 border-b border-border bg-surface lg:h-44">
           {hasProfilePhoto && profilePhoto ? (
             <Image
@@ -268,7 +268,7 @@ export default function UserCard({
             disabled={savingToggle}
             aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
             aria-pressed={saved}
-            className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-primary shadow-soft disabled:opacity-60"
+            className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-primary shadow-[0_1px_3px_rgb(0_0_0/0.15)] disabled:opacity-60"
           >
             <HeartIcon filled={saved} />
           </button>
@@ -292,7 +292,7 @@ export default function UserCard({
               )}
             </div>
             {statusLabel && (
-              <span className="shrink-0 rounded-full border border-border bg-surface px-2 py-1 text-[10px] font-bold text-primary-dark shadow-soft">
+              <span className="shrink-0 rounded-full bg-primary/8 px-2 py-1 text-[10px] font-bold text-primary-dark">
                 {statusLabel}
               </span>
             )}
@@ -301,7 +301,7 @@ export default function UserCard({
           {habitChips.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1.5">
               {habitChips.slice(0, 4).map((chip) => (
-                <span key={chip} className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-bold text-primary-dark shadow-soft">
+                <span key={chip} className="rounded-full bg-primary/8 px-2.5 py-1 text-[11px] font-bold text-primary-dark">
                   {chip}
                 </span>
               ))}
