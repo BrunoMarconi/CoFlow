@@ -293,13 +293,6 @@ summary::-webkit-details-marker {
    de WhatsApp — ver public/images/chat-wallpaper.svg. */
 .chat-wallpaper {
   background-color: color-mix(in srgb, var(--brand) 4%, var(--surface-soft));
-  background-image:
-    linear-gradient(180deg, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0.32)),
-    url("/images/chat-wallpaper.svg");
-  background-size:
-    100% 100%,
-    240px 240px;
-  background-repeat: repeat, repeat;
 }
 
 /* "Colita" de la burbuja — solo en el último mensaje de cada grupo
