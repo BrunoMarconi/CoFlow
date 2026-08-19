@@ -178,7 +178,7 @@ export default function PerfilPage() {
                 <Link
                   key={item.key}
                   href={item.href}
-                  className="inline-flex items-center gap-1 rounded-full bg-primary/8 px-2.5 py-1 text-xs font-bold text-primary-dark"
+                  className="inline-flex items-center gap-1 rounded-full bg-surface-soft px-2.5 py-1 text-xs font-bold text-primary-dark"
                 >
                   + {item.label}
                 </Link>

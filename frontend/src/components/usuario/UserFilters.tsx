@@ -144,7 +144,7 @@ export default function UserFilters({
               transition={{ duration: 0.15, ease: "easeOut" }}
               className={`min-h-11 rounded-14 px-4 text-sm font-bold transition-colors duration-200 ${
                 filters.communityStatus === option.value
-                  ? "bg-mint-100 text-primary-dark"
+                  ? "bg-brand-dark text-white"
                   : "bg-surface text-muted hover:bg-surface/70"
               }`}
             >

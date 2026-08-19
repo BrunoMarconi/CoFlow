@@ -130,7 +130,7 @@ export default function CommunityFilters({
               onClick={() => update({ joinType: option.value })}
               className={`min-h-11 rounded-14 px-4 text-sm font-bold transition-colors duration-200 ${
                 filters.joinType === option.value
-                  ? "bg-mint-100 text-primary-dark"
+                  ? "bg-brand-dark text-white"
                   : "bg-surface text-muted hover:bg-surface/70"
               }`}
             >
@@ -151,7 +151,7 @@ export default function CommunityFilters({
               onClick={() => update({ urgency: option.value })}
               className={`min-h-11 rounded-14 px-4 text-sm font-bold transition-colors duration-200 ${
                 filters.urgency === option.value
-                  ? "bg-mint-100 text-primary-dark"
+                  ? "bg-brand-dark text-white"
                   : "bg-surface text-muted hover:bg-surface/70"
               }`}
             >
@@ -172,7 +172,7 @@ export default function CommunityFilters({
             onClick={() => update({ profileType: "ALL" })}
             className={`min-h-11 rounded-14 px-4 text-sm font-bold transition-colors duration-200 ${
               filters.profileType === "ALL"
-                ? "bg-mint-100 text-primary-dark"
+                ? "bg-brand-dark text-white"
                 : "bg-surface text-muted hover:bg-surface/70"
             }`}
           >
@@ -186,7 +186,7 @@ export default function CommunityFilters({
               onClick={() => update({ profileType: option.value })}
               className={`min-h-11 rounded-14 px-4 text-sm font-bold transition-colors duration-200 ${
                 filters.profileType === option.value
-                  ? "bg-mint-100 text-primary-dark"
+                  ? "bg-brand-dark text-white"
                   : "bg-surface text-muted hover:bg-surface/70"
               }`}
             >

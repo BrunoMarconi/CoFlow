@@ -36,7 +36,7 @@ export default function ExplorerFilterToggle({
       {...motionProps}
       className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full transition-colors duration-200 ${
         active
-          ? "bg-mint-100 text-primary-dark"
+          ? "bg-brand-dark text-white"
           : "bg-surface-soft text-secondary hover:bg-surface-soft/70"
       }`}
     >
