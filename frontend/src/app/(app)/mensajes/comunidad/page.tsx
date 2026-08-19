@@ -86,7 +86,7 @@ export default function MensajesComunidadPage() {
           aria-label="Ajustes del chat"
           className="flex min-w-0 flex-1 items-center gap-3 text-left"
         >
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary-dark">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-flat text-primary-dark">
             <HomeIcon className="h-5 w-5" />
           </div>
 
@@ -115,7 +115,7 @@ export default function MensajesComunidadPage() {
         onClose={() => setSettingsOpen(false)}
         threadKey="community"
         avatar={
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-soft text-primary-dark">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-flat text-primary-dark">
             <HomeIcon className="h-7 w-7" />
           </div>
         }

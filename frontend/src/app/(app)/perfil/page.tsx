@@ -178,7 +178,7 @@ export default function PerfilPage() {
                 <Link
                   key={item.key}
                   href={item.href}
-                  className="inline-flex items-center gap-1 rounded-full bg-surface-soft px-2.5 py-1 text-xs font-bold text-primary-dark"
+                  className="inline-flex items-center gap-1 rounded-full bg-flat px-2.5 py-1 text-xs font-bold text-primary-dark"
                 >
                   + {item.label}
                 </Link>
@@ -245,7 +245,7 @@ export default function PerfilPage() {
 
       <Link
         href={ownerHref}
-        className="grid min-h-32 grid-cols-[42%_1fr_auto] items-center overflow-hidden rounded-24 bg-surface-soft transition hover:bg-surface-soft/70 lg:min-h-40 lg:grid-cols-[280px_1fr_auto]"
+        className="grid min-h-32 grid-cols-[42%_1fr_auto] items-center overflow-hidden rounded-24 bg-flat transition hover:bg-flat-strong lg:min-h-40 lg:grid-cols-[280px_1fr_auto]"
       >
         <div className="relative h-full min-h-32 bg-surface-soft/30 lg:min-h-40">
           <Image
@@ -273,7 +273,7 @@ export default function PerfilPage() {
 
       <section className="space-y-2">
         <h2 className="px-1 text-sm font-bold text-primary-dark">Mi CoFlow</h2>
-        <div className="divide-y divide-border rounded-18 bg-surface-soft">
+        <div className="divide-y divide-border rounded-18 bg-flat">
           <ProfileMenuRow href="/perfil/editar" icon={<UserIcon />} label="Editar mi perfil" />
           <ProfileMenuRow
             href={SOLVENCY_PASSPORT_ENABLED ? "/pasaporte" : undefined}
@@ -288,7 +288,7 @@ export default function PerfilPage() {
 
       <section className="space-y-2">
         <h2 className="px-1 text-sm font-bold text-primary-dark">Cuenta</h2>
-        <div className="divide-y divide-border rounded-18 bg-surface-soft">
+        <div className="divide-y divide-border rounded-18 bg-flat">
           <ProfileMenuRow href="/notificaciones" icon={<BellIcon />} label="Notificaciones" />
           <ProfileMenuRow href="/invitaciones" icon={<InvitationIcon />} label="Invitaciones" />
           <ProfileMenuRow href="/ajustes/privacidad" icon={<LockIcon />} label="Privacidad y seguridad" />
@@ -341,7 +341,7 @@ function IllustratedCard({
   return (
     <Link
       href={href}
-      className="overflow-hidden rounded-24 bg-surface-soft text-center transition hover:-translate-y-0.5 hover:bg-surface-soft/70"
+      className="overflow-hidden rounded-24 bg-flat text-center transition hover:-translate-y-0.5 hover:bg-flat-strong"
     >
       <div className="relative h-32 bg-surface-soft/30 sm:h-44 lg:h-48">
         <Image

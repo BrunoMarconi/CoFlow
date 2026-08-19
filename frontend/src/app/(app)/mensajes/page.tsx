@@ -469,9 +469,9 @@ export default function MensajesPage() {
 
         <Link
           href="/usuarios"
-          className="flex items-center gap-3.5 border-b border-border px-1 py-3.5 transition-colors duration-200 active:bg-surface-soft"
+          className="flex items-center gap-3.5 border-b border-border px-1 py-3.5 transition-colors duration-200 active:bg-flat"
         >
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary">
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-flat text-primary">
             <ComposeIcon />
           </span>
           <span className="min-w-0 flex-1">
@@ -509,8 +509,8 @@ export default function MensajesPage() {
               transition={{ duration: 0.2, ease: "easeOut" }}
               className={`flex items-center gap-3 border-b border-border/60 px-4 py-3.5 text-left transition-colors duration-150 ${
                 communitySelected
-                  ? "bg-surface-soft"
-                  : "hover:bg-surface-soft/60"
+                  ? "bg-flat"
+                  : "hover:bg-flat"
               }`}
             >
               <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
@@ -578,8 +578,8 @@ export default function MensajesPage() {
                   whileTap={{ scale: 0.99 }}
                   className={`flex items-center gap-3 border-b border-border/60 px-4 py-3.5 text-left transition-colors duration-150 ${
                     isSelected
-                      ? "bg-surface-soft"
-                      : "hover:bg-surface-soft/60"
+                      ? "bg-flat"
+                      : "hover:bg-flat"
                   }`}
                 >
                   <ConversationAvatar
@@ -608,7 +608,7 @@ export default function MensajesPage() {
               <button
                 type="button"
                 onClick={() => setChatSettingsOpen(true)}
-                className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4 text-left hover:bg-surface-soft/60"
+                className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4 text-left hover:bg-flat"
               >
                 <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
 
@@ -656,7 +656,7 @@ export default function MensajesPage() {
               <button
                 type="button"
                 onClick={() => setChatSettingsOpen(true)}
-                className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4 text-left hover:bg-surface-soft/60"
+                className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4 text-left hover:bg-flat"
               >
                 <ConversationAvatar
                   initials={initialsOf(
@@ -797,7 +797,7 @@ function InboxSearchAndTabs({
       className="shrink-0 pb-3 sm:border-b sm:border-border/60 sm:px-4 sm:py-3"
       data-layout-prefix={layoutIdPrefix}
     >
-      <div className="flex h-11 items-center gap-2 rounded-full bg-surface-soft px-4 transition-colors duration-200 focus-within:bg-surface focus-within:ring-2 focus-within:ring-primary/20 sm:h-9">
+      <div className="flex h-11 items-center gap-2 rounded-full bg-flat px-4 transition-colors duration-200 focus-within:bg-surface focus-within:ring-2 focus-within:ring-primary/20 sm:h-9">
         <SearchInput
           bare
           value={search}
@@ -817,7 +817,7 @@ function InboxSearchAndTabs({
             className={`relative flex h-9 shrink-0 items-center justify-center overflow-hidden rounded-full px-4 text-xs font-semibold transition-colors duration-200 sm:h-8 sm:min-w-0 sm:px-2 sm:text-[11px] ${
               tab === option.key
                 ? "text-white"
-                : "bg-surface-soft text-foreground hover:bg-surface-soft/70"
+                : "bg-flat text-foreground hover:bg-flat-strong"
             }`}
           >
             {tab === option.key && (
@@ -861,7 +861,7 @@ function ConversationAvatar({
   }
 
   return (
-    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-surface-soft text-sm font-bold text-primary-dark sm:h-11 sm:w-11">
+    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-flat text-sm font-bold text-primary-dark sm:h-11 sm:w-11">
       {initials || "CF"}
     </div>
   );
@@ -891,7 +891,7 @@ function CommunityAvatar({
   }
 
   return (
-    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary sm:h-11 sm:w-11">
+    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-flat text-primary sm:h-11 sm:w-11">
       <HomeIcon className="h-5 w-5" />
     </div>
   );
@@ -899,7 +899,7 @@ function CommunityAvatar({
 
 function CommunityBadge() {
   return (
-    <span className="shrink-0 rounded-full bg-surface-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-dark">
+    <span className="shrink-0 rounded-full bg-flat px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-dark">
       Comunidad
     </span>
   );

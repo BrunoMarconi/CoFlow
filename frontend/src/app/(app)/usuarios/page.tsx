@@ -92,7 +92,7 @@ export default function UsuariosPage() {
           </p>
         </header>
 
-        <div className="mt-5 flex h-13 items-center rounded-14 bg-surface-soft px-4 transition-colors duration-200 focus-within:bg-surface focus-within:ring-2 focus-within:ring-primary/20 sm:h-14">
+        <div className="mt-5 flex h-13 items-center rounded-14 bg-flat px-4 transition-colors duration-200 focus-within:bg-surface focus-within:ring-2 focus-within:ring-primary/20 sm:h-14">
           <SearchInput
             bare
             value={search}
@@ -115,7 +115,7 @@ export default function UsuariosPage() {
                 className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
                   active
                     ? "bg-brand-dark text-white"
-                    : "bg-surface-soft text-foreground hover:bg-surface-soft/70"
+                    : "bg-flat text-foreground hover:bg-flat-strong"
                 }`}
               >
                 {active && <LocationIcon />}
@@ -131,7 +131,7 @@ export default function UsuariosPage() {
             className={`flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
               filtersOpen || filters.maxBudget || filters.communityStatus !== "ALL"
                 ? "bg-brand-dark text-white"
-                : "bg-surface-soft text-foreground hover:bg-surface-soft/70"
+                : "bg-flat text-foreground hover:bg-flat-strong"
             }`}
           >
             <FilterIcon />
@@ -225,7 +225,7 @@ export default function UsuariosPage() {
         {profileIncomplete && (
           <Link
             href="/perfil/editar"
-            className="mt-6 flex items-center gap-3 rounded-18 bg-surface-soft p-4 transition-transform duration-200 active:scale-[0.99]"
+            className="mt-6 flex items-center gap-3 rounded-18 bg-flat p-4 transition-transform duration-200 active:scale-[0.99]"
           >
             <span className="flex h-11 w-11 shrink-0 items-center justify-center text-primary">
               <ProfileIcon />

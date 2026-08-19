@@ -62,7 +62,7 @@ export default function PrivateConversationPage({ connectionId, owner = false }:
         <div className="mb-2 flex shrink-0 items-center gap-3 border-b border-border/70 pb-2 sm:mb-4 sm:border-0 sm:pb-0">
           <Link href={listHref} aria-label="Volver a mensajes" transitionTypes={["nav-back"]} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted transition hover:bg-surface-soft hover:text-brand-dark"><ArrowLeftIcon /></Link>
           <button type="button" onClick={() => setSettingsOpen(true)} aria-label="Ajustes del chat" className="flex min-w-0 flex-1 items-center gap-3 rounded-14 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground">
-            {other.avatar_url && !avatarError ? <Image src={other.avatar_url} alt="" width={44} height={44} unoptimized onError={() => setAvatarError(true)} className="h-11 w-11 shrink-0 rounded-full object-cover" /> : <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-soft text-sm font-bold text-primary-dark">{initials || "CF"}</div>}
+            {other.avatar_url && !avatarError ? <Image src={other.avatar_url} alt="" width={44} height={44} unoptimized onError={() => setAvatarError(true)} className="h-11 w-11 shrink-0 rounded-full object-cover" /> : <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-flat text-sm font-bold text-primary-dark">{initials || "CF"}</div>}
             <div className="min-w-0"><p className="truncate text-base font-bold text-foreground">{fullName || "Persona de CoFlow"}</p><p className="text-xs font-medium text-muted">{owner ? "Conversación sobre tu piso" : "Toca para ver ajustes"}</p></div>
           </button>
         </div>
@@ -71,7 +71,7 @@ export default function PrivateConversationPage({ connectionId, owner = false }:
           open={settingsOpen}
           onClose={() => setSettingsOpen(false)}
           threadKey={`connection:${connection.id}`}
-          avatar={other.avatar_url && !avatarError ? <Image src={other.avatar_url} alt="" width={64} height={64} unoptimized className="h-16 w-16 rounded-full object-cover" /> : <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-soft text-lg font-bold text-primary-dark">{initials || "CF"}</div>}
+          avatar={other.avatar_url && !avatarError ? <Image src={other.avatar_url} alt="" width={64} height={64} unoptimized className="h-16 w-16 rounded-full object-cover" /> : <div className="flex h-16 w-16 items-center justify-center rounded-full bg-flat text-lg font-bold text-primary-dark">{initials || "CF"}</div>}
           title={fullName || "Persona de CoFlow"}
           viewLabel="Ver perfil"
           onView={() => router.push(`/personas/${other.id}`)}

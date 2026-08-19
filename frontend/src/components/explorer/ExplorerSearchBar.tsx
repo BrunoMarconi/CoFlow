@@ -68,7 +68,7 @@ export default function ExplorerSearchBar({
               boxShadow: { duration: MOTION_DURATION.fast },
               scale: { duration: MOTION_SEARCH_LIFT_DURATION },
             }}
-            className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-full bg-surface-soft pl-5 pr-4 text-left"
+            className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-full bg-flat pl-5 pr-4 text-left"
           >
             <motion.span
               layoutId={layoutIdIcon}

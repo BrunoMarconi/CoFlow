@@ -911,7 +911,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
             </>
           )}
 
-          <div className="flex min-h-11 flex-1 items-end rounded-24 border border-border bg-surface-soft px-4 py-2 transition-colors duration-200 focus-within:border-primary/40">
+          <div className="flex min-h-11 flex-1 items-end rounded-24 border border-border bg-flat px-4 py-2 transition-colors duration-200 focus-within:border-primary/40">
             <textarea
               ref={textareaRef}
               value={content}
@@ -951,7 +951,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
       {menuMessage && (
         <BottomSheet onClose={() => setMenuMessage(null)} ariaLabel="Acciones del mensaje" className="sm:max-w-xs">
           <div className="p-4">
-            <p className="truncate rounded-14 bg-surface-soft px-3 py-2 text-xs text-secondary">
+            <p className="truncate rounded-14 bg-flat px-3 py-2 text-xs text-secondary">
               {menuMessage.content}
             </p>
 

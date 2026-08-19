@@ -58,13 +58,13 @@ function PassportCard({
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-        className="rounded-18 bg-surface-soft p-4 opacity-70"
+        className="rounded-18 bg-flat p-4 opacity-70"
       >
         <div className="flex items-start justify-between gap-2">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-surface text-primary">
             <PassportIcon />
           </span>
-          <span className="rounded-full bg-surface-soft px-2.5 py-1 text-[11px] font-bold text-muted">
+          <span className="rounded-full bg-flat px-2.5 py-1 text-[11px] font-bold text-muted">
             Próximamente
           </span>
         </div>
@@ -85,7 +85,7 @@ function PassportCard({
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-      className="rounded-18 bg-surface-soft p-4"
+      className="rounded-18 bg-flat p-4"
     >
       <div className="flex items-start justify-between gap-2">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-surface text-primary">
@@ -97,7 +97,7 @@ function PassportCard({
             className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
               verified
                 ? "bg-primary text-white"
-                : "bg-surface-soft text-muted"
+                : "bg-flat text-muted"
             }`}
           >
             {verified ? "Activo" : "Sin emitir"}
@@ -133,7 +133,7 @@ function EmailCard({ verified, email }: { verified: boolean; email: string }) {
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-      className="h-full rounded-18 bg-surface-soft p-4 transition-colors duration-180 hover:bg-surface-soft/70"
+      className="h-full rounded-18 bg-flat p-4 transition-colors duration-180 hover:bg-flat-strong"
     >
       <div className="flex items-start justify-between gap-2">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-surface text-primary">
@@ -144,7 +144,7 @@ function EmailCard({ verified, email }: { verified: boolean; email: string }) {
           className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
             verified
               ? "bg-primary text-white"
-              : "bg-surface-soft text-muted"
+              : "bg-flat text-muted"
           }`}
         >
           {verified ? "Verificado" : "Pendiente"}

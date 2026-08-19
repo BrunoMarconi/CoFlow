@@ -37,7 +37,7 @@ export default function RoommateSearchCard({
   }
 
   return (
-    <section className="rounded-18 bg-surface-soft p-5 sm:p-6">
+    <section className="rounded-18 bg-flat p-5 sm:p-6">
       <p className="text-xs font-bold uppercase tracking-[0.15em] text-primary">
         Búsqueda de compañeros
       </p>

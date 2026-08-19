@@ -80,7 +80,7 @@ export default function UserFilters({
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="rounded-24 bg-surface-soft p-4 sm:p-5"
+      className="rounded-24 bg-flat p-4 sm:p-5"
     >
       <motion.div variants={blockVariants} className="grid gap-4 sm:grid-cols-2">
         <div>

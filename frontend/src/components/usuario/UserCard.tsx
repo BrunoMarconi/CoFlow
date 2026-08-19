@@ -164,7 +164,7 @@ export default function UserCard({
                   {habitChips.slice(0, 2).map((chip) => (
                     <span
                       key={chip}
-                      className="max-w-full truncate rounded-full bg-surface-soft px-2 py-1 text-[9px] font-bold text-primary-dark"
+                      className="max-w-full truncate rounded-full bg-flat px-2 py-1 text-[9px] font-bold text-primary-dark"
                     >
                       {chip}
                     </span>
@@ -189,7 +189,7 @@ export default function UserCard({
             </div>
           </div>
         ) : (
-          <div className="flex min-h-24 items-center gap-3 rounded-18 bg-surface-soft p-3">
+          <div className="flex min-h-24 items-center gap-3 rounded-18 bg-flat p-3">
             <div className="relative shrink-0">
               <UserAvatar
                 firstName={user.first_name}
@@ -222,7 +222,7 @@ export default function UserCard({
             <div className="hidden shrink-0 flex-col items-end gap-1.5 min-[380px]:flex">
               {user.match_score !== null && <MatchScoreBadge score={user.match_score} size="sm" />}
               {habitChips.length > 0 && (
-                <span className="max-w-24 truncate rounded-full bg-surface-soft px-2 py-1 text-[9px] font-bold text-primary-dark">
+                <span className="max-w-24 truncate rounded-full bg-flat px-2 py-1 text-[9px] font-bold text-primary-dark">
                   {habitChips[0]}
                 </span>
               )}
@@ -292,7 +292,7 @@ export default function UserCard({
               )}
             </div>
             {statusLabel && (
-              <span className="shrink-0 rounded-full bg-surface-soft px-2 py-1 text-[10px] font-bold text-primary-dark">
+              <span className="shrink-0 rounded-full bg-flat px-2 py-1 text-[10px] font-bold text-primary-dark">
                 {statusLabel}
               </span>
             )}
@@ -301,7 +301,7 @@ export default function UserCard({
           {habitChips.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1.5">
               {habitChips.slice(0, 4).map((chip) => (
-                <span key={chip} className="rounded-full bg-surface-soft px-2.5 py-1 text-[11px] font-bold text-primary-dark">
+                <span key={chip} className="rounded-full bg-flat px-2.5 py-1 text-[11px] font-bold text-primary-dark">
                   {chip}
                 </span>
               ))}

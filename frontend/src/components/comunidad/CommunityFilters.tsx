@@ -67,7 +67,7 @@ export default function CommunityFilters({
   }
 
   return (
-    <div className="rounded-24 bg-surface-soft p-4 sm:p-5">
+    <div className="rounded-24 bg-flat p-4 sm:p-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label

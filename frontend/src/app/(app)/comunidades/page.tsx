@@ -271,7 +271,7 @@ export default function ComunidadesPage() {
                 className={`flex h-10 shrink-0 items-center rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
                   active
                     ? "bg-brand-dark text-white"
-                    : "bg-surface-soft text-foreground hover:bg-surface-soft/70"
+                    : "bg-flat text-foreground hover:bg-flat-strong"
                 }`}
               >
                 {city}
