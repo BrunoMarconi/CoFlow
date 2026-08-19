@@ -21,8 +21,8 @@ import { getConnectionOverview } from "@/services/connections";
 import { CONNECTION_OVERVIEW_QUERY_KEY } from "@/lib/connectionQueryState";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import { SOLVENCY_PASSPORT_ENABLED } from "@/lib/featureFlags";
+import { computeProfileCompletion, getProfileCompletionChecklist } from "@/lib/profileCompletion";
 import type { OnboardingAnswers } from "@/types/onboarding";
-import type { User } from "@/types/auth";
 
 export default function PerfilPage() {
   const { user, loading, ownerProfile, community, logout, refresh } = useAuth();
@@ -88,6 +88,9 @@ export default function PerfilPage() {
   }
 
   const completion = computeProfileCompletion(user);
+  const missingItems = getProfileCompletionChecklist(user).filter(
+    (item) => !item.done
+  );
   const connectionsCount = connectionOverview?.accepted.length ?? 0;
   const pendingReceivedCount = connectionOverview?.received.length ?? 0;
   const locationLine = [community?.city, user.age ? `${user.age} años` : null]
@@ -168,6 +171,20 @@ export default function PerfilPage() {
               />
             </div>
           </div>
+
+          {missingItems.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {missingItems.map((item) => (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  className="inline-flex items-center gap-1 rounded-full bg-primary/8 px-2.5 py-1 text-xs font-bold text-primary-dark"
+                >
+                  + {item.label}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
 
         <Link
@@ -306,21 +323,6 @@ export default function PerfilPage() {
       <OwnerModeToggle />
     </motion.div>
   );
-}
-
-function computeProfileCompletion(user: User) {
-  const checks = [
-    Boolean(user.avatar_url),
-    Boolean(user.bio),
-    Boolean(user.phone),
-    user.age !== null,
-    Boolean(user.occupation),
-    user.rental_budget !== null,
-    user.is_email_verified,
-    user.onboarding_completed,
-    user.photos.length > 0,
-  ];
-  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
 }
 
 function IllustratedCard({
