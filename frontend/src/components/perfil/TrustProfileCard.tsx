@@ -58,10 +58,10 @@ function PassportCard({
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-        className="rounded-18 border border-border bg-surface p-4 opacity-70"
+        className="rounded-18 bg-surface-soft p-4 opacity-70"
       >
         <div className="flex items-start justify-between gap-2">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-surface text-primary shadow-soft">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-surface text-primary">
             <PassportIcon />
           </span>
           <span className="rounded-full bg-surface-soft px-2.5 py-1 text-[11px] font-bold text-muted">
@@ -85,14 +85,12 @@ function PassportCard({
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-      className={`rounded-18 border p-4 ${
-        verified
-          ? "border-primary/25 bg-surface shadow-soft"
-          : "border-border bg-surface shadow-soft"
+      className={`rounded-18 p-4 ${
+        verified ? "bg-mint-50" : "bg-surface-soft"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-surface text-primary shadow-soft">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-surface text-primary">
           <PassportIcon />
         </span>
 
@@ -137,14 +135,12 @@ function EmailCard({ verified, email }: { verified: boolean; email: string }) {
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-      className={`h-full rounded-18 border p-4 transition-colors duration-180 ${
-        verified
-          ? "border-primary/25 bg-surface shadow-soft"
-          : "border-border bg-surface shadow-soft hover:bg-surface-soft"
+      className={`h-full rounded-18 p-4 transition-colors duration-180 ${
+        verified ? "bg-mint-50" : "bg-surface-soft hover:bg-surface-soft/70"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-surface text-primary shadow-soft">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-surface text-primary">
           <MailIcon />
         </span>
 

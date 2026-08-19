@@ -58,7 +58,7 @@ export default function CompatibilityRadar({
       .join(" ");
 
   return (
-    <section className={cn("mx-auto w-full max-w-2xl rounded-24 border border-border bg-surface p-5 shadow-soft sm:p-6", className)}>
+    <section className={cn("mx-auto w-full max-w-2xl rounded-24 bg-surface-soft p-5 sm:p-6", className)}>
       {(title || subtitle || icon) && (
         <div className="flex items-center gap-3">
           {icon && (
