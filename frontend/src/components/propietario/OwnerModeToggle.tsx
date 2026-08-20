@@ -3,11 +3,13 @@
 import { motion } from "framer-motion";
 import { Building2 } from "lucide-react";
 import { useOwnerMode } from "@/hooks/useOwnerMode";
+import { useAuth } from "@/hooks/useAuth";
 import ViewportPortal from "@/components/ui/ViewportPortal";
 
 export default function OwnerModeToggle() {
-  const { hasPublishedProperties, propertiesLoading, requestModeSwitch } = useOwnerMode();
-  if (propertiesLoading || !hasPublishedProperties) return null;
+  const { ownerProfile, ownerProfileLoading } = useAuth();
+  const { isOwnerMode, requestModeSwitch } = useOwnerMode();
+  if (ownerProfileLoading || !ownerProfile || isOwnerMode) return null;
 
   return (
     <ViewportPortal><motion.button

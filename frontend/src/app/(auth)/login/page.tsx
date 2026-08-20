@@ -32,7 +32,7 @@ export default function LoginPage() {
 
       if (currentUser?.role === "OWNER") {
         const ownerProfile = await refreshOwnerProfile();
-        router.replace(ownerProfile ? "/comunidades" : "/propietarios/perfil");
+        router.replace(ownerProfile ? "/propietarios/pisos" : "/propietarios/perfil");
         return;
       }
 

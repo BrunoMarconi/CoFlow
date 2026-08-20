@@ -15,11 +15,13 @@ import {
 } from "@/services/owners";
 import { updateProfile } from "@/services/users";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
+import { useOwnerMode } from "@/hooks/useOwnerMode";
 
 type View = "summary" | "edit" | "ask-intent";
 
 export default function OwnerProfilePage() {
   const router = useRouter();
+  const { activateOwnerMode } = useOwnerMode();
   const {
     user,
     ownerProfile,
@@ -93,7 +95,8 @@ export default function OwnerProfilePage() {
       // Si falla, el usuario puede ajustarlo después desde Mi perfil.
     } finally {
       setSubmitting(false);
-      router.push("/propietarios/pisos");
+      activateOwnerMode();
+      router.replace("/propietarios/pisos");
     }
   }
 

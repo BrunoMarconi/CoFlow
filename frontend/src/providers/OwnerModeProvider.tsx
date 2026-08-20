@@ -81,21 +81,21 @@ export default function OwnerModeProvider({ children }: { children: ReactNode })
 
   const isOwnerRoute = pathname.startsWith("/propietarios");
   const isOwnerMode =
-    hasPublishedProperties &&
+    Boolean(ownerProfile) &&
     (ownerModeUserId === (user?.id ?? null) || isOwnerRoute);
 
   const requestModeSwitch = useCallback(
     (target: CoFlowMode) => {
       if (
         target === (isOwnerMode ? "owner" : "member") ||
-        (target === "owner" && !hasPublishedProperties)
+        (target === "owner" && !ownerProfile)
       ) {
         return;
       }
 
       setTransitionTarget(target);
     },
-    [hasPublishedProperties, isOwnerMode]
+    [isOwnerMode, ownerProfile]
   );
 
   const activateOwnerMode = useCallback(() => {

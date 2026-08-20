@@ -23,6 +23,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 import { NAV_TRANSITION } from "@/lib/navTransition";
 import OwnerModeTransition from "@/components/layout/OwnerModeTransition";
+import OwnerModeToggle from "@/components/propietario/OwnerModeToggle";
 import {
   MOTION_EASE,
   MOTION_EXPLORER_NAV_DISTANCE_DESKTOP,
@@ -267,6 +268,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       {!isImmersiveOwnerFlow && <BottomNavigation />}
+      {!isImmersiveOwnerFlow && <OwnerModeToggle />}
       <Toaster />
       {transitionTarget && (
         <OwnerModeTransition
