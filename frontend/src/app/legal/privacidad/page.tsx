@@ -169,24 +169,10 @@ export default function PrivacidadPage() {
         <p>CoFlow podrá utilizar tokens de autenticación para identificar sesiones y autorizar peticiones a la API.</p>
       </Section>
 
-      <Section title="10. Pagos y facturación de propiedades">
-        <p>Para publicar propiedades en CoFlow se requiere registrar un método de pago válido.</p>
-        <p>Los datos sensibles de pago son procesados directamente por Stripe. CoFlow no almacena el número completo de tarjeta ni el código CVC.</p>
-        <p>Cada propiedad publicada dispone de un periodo gratuito inicial de 30 días. Finalizado dicho periodo, si la publicación continúa activa y no se ha cancelado su renovación, se cobrará automáticamente una tarifa de 23,99 € al mes por cada propiedad publicada.</p>
-        <p>CoFlow puede almacenar identificadores y datos no sensibles relacionados con Stripe, incluyendo:</p>
-        <Ul
-          items={[
-            "Stripe Customer ID",
-            "Payment Method ID",
-            "Subscription ID",
-            "Marca de la tarjeta",
-            "Últimos cuatro dígitos",
-            "Fecha de caducidad",
-            "Estado de la suscripción",
-            "Fechas de prueba y facturación",
-          ]}
-        />
-        <p>Proveedor de pagos: Stripe.</p>
+      <Section title="10. Publicación gratuita de propiedades">
+        <p>Durante la fase actual de lanzamiento no se requiere un método de pago para publicar propiedades.</p>
+        <p>CoFlow no realiza cobros ni activa renovaciones automáticas por estas publicaciones.</p>
+        <p>Si se incorporan servicios de pago posteriormente, esta Política y las condiciones aplicables se actualizarán antes de solicitar datos de pago.</p>
       </Section>
 
       <Section title="11. Analítica">

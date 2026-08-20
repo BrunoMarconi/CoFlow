@@ -32,8 +32,6 @@ export default function AjustesPage() {
 
       <PasswordSection />
 
-      <BillingSection />
-
       <DangerSection onLogout={logout} />
     </div>
   );

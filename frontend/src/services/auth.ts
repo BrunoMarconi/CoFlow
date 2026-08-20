@@ -37,6 +37,13 @@ export async function login(
   return response.data;
 }
 
+export async function loginWithGoogle(
+  idToken: string
+): Promise<LoginResponse> {
+  const response = await api.post("/auth/google", { id_token: idToken });
+  return response.data;
+}
+
 export async function me(
   token: string
 ): Promise<User> {

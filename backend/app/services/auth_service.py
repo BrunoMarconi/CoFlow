@@ -1,4 +1,6 @@
 from fastapi import BackgroundTasks, HTTPException
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token as google_id_token
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -11,6 +13,7 @@ from app.core.config import (
     ENVIRONMENT,
     EMAIL_VERIFICATION_ENABLED,
     EMAIL_VERIFICATION_TEST_MODE,
+    GOOGLE_CLIENT_ID,
 )
 from app.core.jwt import create_access_token
 from app.core.security import hash_password, verify_password
@@ -18,6 +21,7 @@ from app.database.models.user import User
 from app.schemas.auth import (
     ChangePasswordRequest,
     DeleteAccountRequest,
+    GoogleLoginRequest,
     LoginRequest,
     RegisterRequest,
 )
@@ -143,6 +147,97 @@ class AuthService:
                 status_code=401,
                 detail="Invalid credentials"
             )
+
+        token = create_access_token(str(user.id))
+
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "is_email_verified": user.is_email_verified,
+            "email_verification_enabled": EMAIL_VERIFICATION_ENABLED,
+            "user": _build_user_response(user),
+        }
+
+    def login_with_google(self, data: GoogleLoginRequest, db: Session):
+        if not GOOGLE_CLIENT_ID:
+            raise HTTPException(
+                status_code=503,
+                detail="El inicio de sesión con Google no está configurado.",
+            )
+
+        try:
+            claims = google_id_token.verify_oauth2_token(
+                data.id_token, google_requests.Request(), GOOGLE_CLIENT_ID
+            )
+        except ValueError:
+            # Firma inválida, token caducado, o aud/iss que no coincide
+            # con nuestro Client ID — nunca detallamos cuál al cliente.
+            raise HTTPException(
+                status_code=401,
+                detail="No hemos podido verificar tu cuenta de Google.",
+            )
+
+        google_user_id = claims["sub"]
+        email = claims.get("email")
+        email_verified_by_google = claims.get("email_verified", False)
+
+        if not email or not email_verified_by_google:
+            raise HTTPException(
+                status_code=400,
+                detail="Tu cuenta de Google necesita un correo verificado.",
+            )
+
+        normalized_email = email.strip().lower()
+
+        user = (
+            db.query(User).filter(User.google_id == google_user_id).first()
+        )
+
+        if user is None:
+            # Cuenta ya existente registrada con email/contraseña que
+            # ahora también inicia sesión con Google la primera vez —
+            # se enlaza en vez de crear un duplicado con el mismo email
+            # (que la constraint UNIQUE de todas formas rechazaría).
+            user = (
+                db.query(User)
+                .filter(func.lower(User.email) == normalized_email)
+                .first()
+            )
+
+            if user is not None:
+                user.google_id = google_user_id
+                if not user.is_email_verified:
+                    user.is_email_verified = True
+                    user.email_verified_at = datetime.now(timezone.utc)
+                db.commit()
+                db.refresh(user)
+            else:
+                now = datetime.now(timezone.utc)
+                user = User(
+                    first_name=(claims.get("given_name") or "").strip() or "Usuario",
+                    last_name=(claims.get("family_name") or "").strip(),
+                    email=normalized_email,
+                    password_hash=None,
+                    google_id=google_user_id,
+                    is_email_verified=True,
+                    email_verified_at=now,
+                    role="USER",
+                    terms_version=CURRENT_TERMS_VERSION,
+                    terms_accepted_at=now,
+                    privacy_version=CURRENT_PRIVACY_VERSION,
+                )
+                db.add(user)
+                try:
+                    db.commit()
+                except IntegrityError:
+                    # Condición de carrera: otra petición con el mismo
+                    # email/google_id ganó el commit primero.
+                    db.rollback()
+                    raise HTTPException(
+                        status_code=409,
+                        detail="Ya existe una cuenta con este correo.",
+                    )
+                db.refresh(user)
 
         token = create_access_token(str(user.id))
 

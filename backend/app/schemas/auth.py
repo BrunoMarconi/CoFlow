@@ -45,6 +45,13 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class GoogleLoginRequest(BaseModel):
+    # El JWT que devuelve el botón de Google (Google Identity
+    # Services) en el navegador — se verifica contra Google en
+    # auth_service.login_with_google, nunca se confía en él tal cual.
+    id_token: str = Field(min_length=1)
+
+
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str = Field(min_length=8, max_length=128)

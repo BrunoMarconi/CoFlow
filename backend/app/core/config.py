@@ -18,6 +18,11 @@ CURRENT_OWNER_TERMS_VERSION = "1.0"
 # Edad mínima para registrarse en CoFlow (Política de Privacidad, Términos).
 MINIMUM_REGISTRATION_AGE = 14
 
+# Client ID de Google Cloud (OAuth "Web application") usado para
+# verificar el id_token que manda el botón de "Iniciar sesión con
+# Google" del frontend — ver app/services/auth_service.py::login_with_google.
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+
 PROPERTY_MARKETPLACE_ENABLED = (
     os.getenv("PROPERTY_MARKETPLACE_ENABLED", "false").lower() == "true"
 )

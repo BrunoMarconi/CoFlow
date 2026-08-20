@@ -15,6 +15,7 @@ from app.schemas.auth import (
     ChangePasswordRequest,
     DeleteAccountRequest,
     GenericMessageResponse,
+    GoogleLoginRequest,
     LoginRequest,
     LoginResponse,
     RegisterRequest,
@@ -100,6 +101,13 @@ def login(
     db: Session = Depends(get_db)
 ):
     return auth_service.login(data, db)
+
+@router.post("/google", response_model=LoginResponse)
+def login_with_google(
+    data: GoogleLoginRequest,
+    db: Session = Depends(get_db)
+):
+    return auth_service.login_with_google(data, db)
 
 @router.get(
     "/me",

@@ -22,7 +22,8 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("role") === "owner") {
-      setRole("OWNER");
+      const timeout = window.setTimeout(() => setRole("OWNER"), 0);
+      return () => window.clearTimeout(timeout);
     }
   }, []);
   const [firstName, setFirstName] = useState("");
@@ -82,8 +83,14 @@ export default function RegisterPage() {
         <AuthBrand />
 
         <div className="mt-8 text-center">
-          <h1 className="text-3xl font-bold tracking-[-0.03em] text-brand-dark">Crea tu cuenta</h1>
-          <p className="mt-2 text-sm leading-6 text-secondary">Encuentra compañero de piso y únete a su comunidad.</p>
+          <h1 className="text-3xl font-bold tracking-[-0.03em] text-brand-dark">
+            {role === "OWNER" ? "Publica gratis en Málaga" : "Crea tu cuenta"}
+          </h1>
+          <p className="mt-2 text-sm leading-6 text-secondary">
+            {role === "OWNER"
+              ? "Sin tarjeta, sin permanencia y con control total sobre tu anuncio."
+              : "Encuentra compañero de piso y únete a su comunidad."}
+          </p>
         </div>
 
         <div className="mt-7 grid grid-cols-2 gap-2 rounded-14 border border-border bg-surface-soft p-1">
@@ -108,7 +115,7 @@ export default function RegisterPage() {
 
           {role === "OWNER" && (
             <p className="rounded-14 bg-primary/5 px-4 py-3 text-xs leading-5 text-secondary">
-              Como propietario/a accedes directamente a tu panel para publicar viviendas, sin el test de convivencia. Podrás activarlo más adelante si también quieres buscar compañero de piso.
+              Irás directamente a publicar tu piso o habitación. Los candidatos indican antes su presupuesto y hábitos de convivencia para que recibas solicitudes con más contexto.
             </p>
           )}
 
@@ -150,7 +157,7 @@ export default function RegisterPage() {
           {error && <p role="alert" className="rounded-14 border border-red-200 bg-surface px-4 py-3 text-sm font-semibold text-red-600">{error}</p>}
 
           <Button type="submit" disabled={loading} className="flex w-full items-center justify-center gap-2">
-            {loading ? "Creando cuenta..." : "Continuar"}
+            {loading ? "Creando cuenta..." : role === "OWNER" ? "Crear cuenta y publicar" : "Continuar"}
             <ArrowRight className="h-5 w-5" />
           </Button>
         </form>

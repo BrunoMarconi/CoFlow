@@ -35,9 +35,22 @@ class User(Base):
         unique=True,
         nullable=False
     )
-    password_hash: Mapped[str] = mapped_column(
+    # Nullable: una cuenta creada por "Iniciar sesión con Google" no
+    # tiene contraseña propia — ver auth_service.login_with_google. Si
+    # más tarde ese usuario quiere poder entrar también con contraseña,
+    # change_password ya la rellena sin más cambios.
+    password_hash: Mapped[str | None] = mapped_column(
         Text,
-        nullable=False
+        nullable=True
+    )
+    # Identificador estable de Google (claim "sub" del id_token) —
+    # nunca el email, que en teoría podría cambiar de titular. Único
+    # por cuenta de Google, nulo para quien nunca inició sesión así.
+    google_id: Mapped[str | None] = mapped_column(
+        String(255),
+        unique=True,
+        nullable=True,
+        index=True,
     )
     phone: Mapped[str] = mapped_column(
         String(30),
