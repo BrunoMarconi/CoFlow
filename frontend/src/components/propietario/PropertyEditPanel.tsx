@@ -79,7 +79,7 @@ export default function PropertyEditPanel({ initialProperty }: { initialProperty
   return (
     <div className="mx-auto w-full max-w-3xl pb-8">
       <header className="flex items-center gap-4">
-        <Link href={`/propietarios/pisos/${property.id}`} transitionTypes={["nav-back"]} aria-label="Volver" className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd] bg-white"><ChevronLeft className="h-6 w-6" /></Link>
+        <button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd] bg-white"><ChevronLeft className="h-6 w-6" /></button>
         <div><p className="text-xs font-medium text-[#717171]">{property.title}</p><h1 className="mt-0.5 text-3xl font-semibold tracking-[-0.04em] text-[#191919] sm:text-4xl">¿Qué quieres editar?</h1></div>
       </header>
 

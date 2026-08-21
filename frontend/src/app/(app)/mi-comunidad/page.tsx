@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { MOTION_SPRING } from "@/lib/motionTokens";
@@ -166,6 +166,7 @@ function CommunityDashboard({
   onUpdated: () => Promise<unknown> | void;
   onOpenPanel: (panel: Panel) => void;
 }) {
+  const router = useRouter();
   const [expanded, setExpanded] = useState<ExpandedSection>(null);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [shareLabel, setShareLabel] = useState("Compartir comunidad");
@@ -221,13 +222,14 @@ function CommunityDashboard({
         className="relative mt-4 overflow-hidden rounded-24 border border-primary/20 bg-mint-50 shadow-soft"
       >
         <div className="flex h-14 items-center justify-between border-b border-primary/15 px-4 sm:px-6">
-          <Link
-            href="/comunidades"
-            aria-label="Volver a comunidades"
+          <button
+            type="button"
+            onClick={() => router.back()}
+            aria-label="Volver"
             className="flex h-11 w-11 items-center justify-start text-brand-dark"
           >
             <ArrowLeftIcon />
-          </Link>
+          </button>
 
           <div className="text-center">
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary-dark/60">

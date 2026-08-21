@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bath, BedDouble, ChevronLeft, MapPin, Pencil, Share2, Users, WalletCards } from "lucide-react";
 import Spinner from "@/components/ui/Spinner";
@@ -17,6 +17,7 @@ import type { Property } from "@/types/property";
 const TYPE_LABELS: Record<string, string> = { APARTMENT: "Piso", HOUSE: "Casa", STUDIO: "Estudio", SHARED_APARTMENT: "Piso compartido", OTHER: "Vivienda" };
 
 export default function PropertyDetailPage() {
+  const router = useRouter();
   const params = useParams<{ id: string }>();
   const propertyId = Number(params.id);
   const queryClient = useQueryClient();
@@ -53,7 +54,7 @@ export default function PropertyDetailPage() {
       <PhotoDetailShell
         transitionName={detailTransitionName("property", property.id)}
         media={<PhotoGallery images={orderedImages.map((image, index) => ({ id: image.id, src: image.image_url, alt: `${property.title}, foto ${index + 1}` }))} priority empty={<div className="flex h-full items-center justify-center px-6 text-center text-sm font-medium text-[#717171]">Añade una foto de portada</div>} />}
-        actions={<><Link href="/propietarios/pisos" transitionTypes={["nav-back"]} aria-label="Volver" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur"><ChevronLeft className="h-6 w-6" /></Link><div className="flex gap-2"><button type="button" onClick={() => navigator.share?.({ title: property.title, url: window.location.href })} className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur" aria-label="Compartir"><Share2 className="h-5 w-5" /></button><Link href={`/propietarios/pisos/${property.id}/editar`} transitionTypes={["nav-forward"]} className="inline-flex h-11 items-center gap-2 rounded-full bg-black px-5 text-sm font-semibold text-white shadow-[0_3px_14px_rgba(0,0,0,0.18)]"><Pencil className="h-4 w-4" />Editar</Link></div></>}
+        actions={<><button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur"><ChevronLeft className="h-6 w-6" /></button><div className="flex gap-2"><button type="button" onClick={() => navigator.share?.({ title: property.title, url: window.location.href })} className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur" aria-label="Compartir"><Share2 className="h-5 w-5" /></button><Link href={`/propietarios/pisos/${property.id}/editar`} transitionTypes={["nav-forward"]} className="inline-flex h-11 items-center gap-2 rounded-full bg-black px-5 text-sm font-semibold text-white shadow-[0_3px_14px_rgba(0,0,0,0.18)]"><Pencil className="h-4 w-4" />Editar</Link></div></>}
       >
         <div className="flex flex-wrap items-center gap-2"><PropertyStatusBadge status={property.status} /><span className="text-xs font-medium text-[#717171]">{TYPE_LABELS[property.property_type]}</span></div>
         <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[#191919] sm:text-5xl">{property.title}</h1>

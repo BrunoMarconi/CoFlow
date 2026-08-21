@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
   ArrowLeft,
@@ -38,6 +38,7 @@ const faqs = [
 ];
 
 export default function HelpPage() {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const normalizedQuery = query.trim().toLocaleLowerCase("es");
   const filteredFaqs = useMemo(
@@ -49,9 +50,9 @@ export default function HelpPage() {
     <div className="mx-auto w-full max-w-5xl pb-6 sm:pb-10">
       <header>
         <div className="flex items-center gap-3 md:block">
-          <Link href="/perfil" aria-label="Volver al perfil" className="flex h-10 w-10 shrink-0 items-center justify-start text-brand-dark md:hidden">
+          <button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-10 w-10 shrink-0 items-center justify-start text-brand-dark md:hidden">
             <ArrowLeft className="h-6 w-6" />
-          </Link>
+          </button>
           <h1 className="text-2xl font-extrabold tracking-[-0.025em] text-foreground sm:text-3xl">Centro de ayuda</h1>
         </div>
         <p className="mt-1 text-sm leading-6 text-secondary sm:mt-2 sm:text-base">

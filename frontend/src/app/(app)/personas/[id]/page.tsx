@@ -79,7 +79,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
   return (
     <div className="mx-auto w-full max-w-4xl pb-5">
       <header className="relative hidden h-11 items-center justify-between sm:flex">
-        <Link href="/usuarios" aria-label="Volver a personas" className="flex h-10 w-10 items-center justify-start text-brand-dark"><ArrowLeftIcon /></Link>
+        <button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-10 w-10 items-center justify-start text-brand-dark"><ArrowLeftIcon /></button>
         <h1 className="absolute inset-x-12 text-center text-lg font-extrabold text-foreground">Perfil público</h1>
         <button type="button" onClick={() => setSafetyOpen(true)} aria-label="Más opciones" className="flex h-10 w-10 items-center justify-end text-brand-dark"><MoreIcon /></button>
       </header>

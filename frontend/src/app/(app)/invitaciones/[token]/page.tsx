@@ -89,7 +89,7 @@ export default function InvitationPage() {
 
   return (
     <main className="mx-auto w-full max-w-2xl pb-8">
-      <Link href="/invitaciones" aria-label="Volver a invitaciones" className="flex h-11 w-11 items-center justify-start"><ArrowLeft className="h-6 w-6" /></Link>
+      <button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-11 w-11 items-center justify-start"><ArrowLeft className="h-6 w-6" /></button>
 
       <section className="mt-5 overflow-hidden rounded-3xl border border-[#dddddd] bg-white">
         <div className="flex min-h-48 flex-col justify-end bg-[linear-gradient(135deg,#f7f7f7_0%,#ececec_100%)] p-6 sm:min-h-56 sm:p-8">

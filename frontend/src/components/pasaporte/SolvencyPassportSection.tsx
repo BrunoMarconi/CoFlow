@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import axios from "axios";
-import { formatEuros } from "@/lib/money";
 import {
   downloadSolvencyPassportPdf,
   issueSolvencyPassport,
@@ -10,23 +9,14 @@ import {
   revokeSolvencyPassport,
 } from "@/services/solvencyPassports";
 import type { SolvencyPassport } from "@/types/solvencyPassport";
+import { useAuth } from "@/hooks/useAuth";
+import PassportCard from "@/components/pasaporte/PassportCard";
 
 const STATUS_LABELS: Record<string, string> = {
   ISSUED: "Vigente",
   EXPIRED: "Caducado",
   REVOKED: "Revocado",
 };
-
-function formatDate(value: string | null) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("es-ES", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
-}
 
 function extractErrorMessage(error: unknown, fallback: string) {
   if (axios.isAxiosError(error)) {
@@ -45,6 +35,7 @@ export default function SolvencyPassportSection({
   onChange: (passport: SolvencyPassport) => void;
   canIssue: boolean;
 }) {
+  const { user } = useAuth();
   const [issuing, setIssuing] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [revoking, setRevoking] = useState(false);
@@ -191,10 +182,10 @@ export default function SolvencyPassportSection({
           </button>
         </div>
       ) : (
-        <div className="rounded-18 border border-line bg-surface p-6">
+        <div className="rounded-24 border border-line bg-surface p-4 sm:p-6">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-bold text-foreground">
-              Pasaporte de Solvencia
+              Tu Pasaporte de Solvencia
             </h2>
             <span
               className={`rounded-full px-3 py-1 text-xs font-bold ${
@@ -207,34 +198,21 @@ export default function SolvencyPassportSection({
             </span>
           </div>
 
-          <dl className="mt-4 space-y-2 text-sm">
-            <div className="flex justify-between gap-4">
-              <dt className="font-semibold text-muted">Capacidad orientativa</dt>
-              <dd className="font-bold text-foreground">
-                {passport.recommended_rent_capacity !== null
-                  ? `Hasta ${formatEuros(passport.recommended_rent_capacity)}/mes`
-                  : "Sin estimación"}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="font-semibold text-muted">Emitido</dt>
-              <dd className="font-bold text-foreground">
-                {formatDate(passport.issued_at)}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="font-semibold text-muted">Caduca</dt>
-              <dd className="font-bold text-foreground">
-                {formatDate(passport.expires_at)}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="font-semibold text-muted">Algoritmo</dt>
-              <dd className="font-bold text-foreground">
-                v{passport.algorithm_version}
-              </dd>
-            </div>
-          </dl>
+          <p className="mt-1 text-sm leading-6 text-muted">
+            Toca la tarjeta para consultar los datos verificados que puedes
+            compartir con un propietario.
+          </p>
+
+          <div className="mt-6">
+            <PassportCard
+              passport={passport}
+              holderName={
+                user
+                  ? `${user.first_name} ${user.last_name.slice(0, 1)}.`
+                  : "Mi pasaporte"
+              }
+            />
+          </div>
 
           {passport.status !== "ISSUED" && (
             <p className="mt-4 rounded-14 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-700">
@@ -243,7 +221,7 @@ export default function SolvencyPassportSection({
             </p>
           )}
 
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <button
               type="button"
               onClick={handleDownloadPdf}

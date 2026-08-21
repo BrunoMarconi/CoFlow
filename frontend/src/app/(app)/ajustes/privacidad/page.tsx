@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Check, ChevronLeft, Globe2, ShieldCheck, UserRoundCheck } from "lucide-react";
 import Spinner from "@/components/ui/Spinner";
@@ -29,6 +29,7 @@ const OPTIONS: Array<{
 ];
 
 export default function PrivacyPage() {
+  const router = useRouter();
   const [value, setValue] = useState<ProfileVisibility>("PUBLIC");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -63,7 +64,7 @@ export default function PrivacyPage() {
   return (
     <main className="mx-auto w-full max-w-2xl pb-10">
       <header className="flex items-center gap-3">
-        <Link href="/perfil" aria-label="Volver al perfil" className="flex h-11 w-11 items-center justify-start"><ChevronLeft className="h-6 w-6" /></Link>
+        <button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-11 w-11 items-center justify-start"><ChevronLeft className="h-6 w-6" /></button>
         <div><h1 className="text-3xl font-semibold tracking-[-0.04em] text-[#191919]">Privacidad y seguridad</h1><p className="mt-1 text-sm text-[#717171]">Tú decides quién puede conocerte.</p></div>
       </header>
 

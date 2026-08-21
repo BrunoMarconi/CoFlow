@@ -71,14 +71,14 @@ export default function MensajesComunidadPage() {
     <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
     <div className="mx-auto flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] w-full max-w-4xl flex-col sm:h-auto sm:block">
       <div className="mb-2 flex shrink-0 items-center gap-3 border-b border-border/70 pb-2 sm:mb-4 sm:border-0 sm:pb-0">
-        <Link
-          href="/mensajes"
-          aria-label="Volver a mensajes"
-          transitionTypes={["nav-back"]}
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="Volver"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted transition hover:bg-surface-soft hover:text-brand-dark"
         >
           <ArrowLeftIcon />
-        </Link>
+        </button>
 
         <button
           type="button"

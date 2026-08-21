@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { ArrowLeft, ChevronRight, Inbox, MapPin, Send, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +18,7 @@ import type { CommunityInvitationInboxItem } from "@/types/invitation";
 type Tab = "RECEIVED" | "SENT";
 
 export default function InvitationsPage() {
+  const router = useRouter();
   const { user, community, loading, communityLoading } = useAuth();
   const [tab, setTab] = useState<Tab>("RECEIVED");
 
@@ -30,9 +32,9 @@ export default function InvitationsPage() {
     <main className="mx-auto w-full max-w-4xl pb-8 sm:pb-12">
       <header>
         <div className="flex items-center gap-3">
-          <Link href="/perfil" aria-label="Volver al perfil" className="flex h-11 w-11 shrink-0 items-center justify-start md:hidden">
+          <button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-11 w-11 shrink-0 items-center justify-start md:hidden">
             <ArrowLeft className="h-6 w-6" />
-          </Link>
+          </button>
           <div>
             <h1 className="text-3xl font-semibold tracking-[-0.04em] text-[#222222] sm:text-4xl">Invitaciones</h1>
             <p className="mt-1 max-w-xl text-sm leading-6 text-[#717171] sm:text-base">Decide con calma quién entra en vuestra comunidad.</p>

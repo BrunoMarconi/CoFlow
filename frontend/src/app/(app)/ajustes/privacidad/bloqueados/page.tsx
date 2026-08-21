@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import EmptyState from "@/components/ui/EmptyState";
 import Spinner from "@/components/ui/Spinner";
@@ -13,6 +13,7 @@ import type { BlockedUser } from "@/types/userSafety";
 const QUERY_KEY = ["blocked-users"];
 
 export default function BlockedUsersPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [actioningId, setActioningId] = useState<string | null>(null);
   const { data = [], isLoading, isError } = useQuery({
@@ -39,9 +40,9 @@ export default function BlockedUsersPage() {
   return (
     <div className="mx-auto w-full max-w-3xl pb-8">
       <header className="flex items-center gap-3">
-        <Link href="/ajustes/privacidad" aria-label="Volver a privacidad" className="flex h-11 w-11 items-center justify-center rounded-full text-foreground transition hover:bg-surface-soft">
+        <button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-11 w-11 items-center justify-center rounded-full text-foreground transition hover:bg-surface-soft">
           <ArrowLeftIcon />
-        </Link>
+        </button>
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">Personas bloqueadas</h1>
           <p className="mt-1 text-sm text-secondary">Puedes desbloquearlas cuando quieras.</p>

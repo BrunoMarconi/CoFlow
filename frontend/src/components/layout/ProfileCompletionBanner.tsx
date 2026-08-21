@@ -8,7 +8,7 @@ import {
   getProfileCompletionChecklist,
 } from "@/lib/profileCompletion";
 
-const EXCLUDED_PATHS = ["/perfil", "/perfil/editar", "/usuarios"];
+const EXCLUDED_PATHS = ["/perfil", "/perfil/editar", "/usuarios", "/pasaporte"];
 const MAX_LISTED = 3;
 
 export default function ProfileCompletionBanner() {

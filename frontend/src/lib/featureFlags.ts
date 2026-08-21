@@ -5,5 +5,7 @@
 // muestran atenuados con un badge "Próximamente" en vez de enlazar a la
 // función real; el backend y las páginas siguen existiendo por si se
 // reactiva más adelante, solo se oculta el acceso desde la UI.
-export const SOLVENCY_PASSPORT_ENABLED =
-  process.env.NEXT_PUBLIC_SOLVENCY_PASSPORT_ENABLED === "true";
+// Activado directamente durante el desarrollo local del pasaporte.
+// Cuando la función vaya a desplegarse, volveremos a conectarlo a una
+// variable de entorno para controlar su publicación.
+export const SOLVENCY_PASSPORT_ENABLED = true;
