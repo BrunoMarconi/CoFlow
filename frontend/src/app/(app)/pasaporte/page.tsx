@@ -32,7 +32,7 @@ export default function PasaportePage() {
   const { user } = useAuth();
 
   return (
-    <main className="relative flex min-h-dvh w-full justify-center overflow-hidden bg-[#cbd5d1] px-4 pt-16 sm:px-8 sm:pt-20">
+    <main className="relative flex min-h-dvh w-full justify-center overflow-hidden bg-[#cbd5d1] px-1.5 pt-16 sm:px-8 sm:pt-20">
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_4%,rgba(255,255,255,0.58),transparent_42%),linear-gradient(135deg,rgba(255,255,255,0.12),transparent_58%)]"
         aria-hidden="true"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Check } from "lucide-react";
 import Image from "next/image";
 import { formatEuros } from "@/lib/money";
@@ -81,7 +81,7 @@ function PassportFront() {
   return (
     <div className="absolute inset-0 overflow-hidden rounded-[clamp(18px,4vw,30px)] shadow-[0_18px_42px_rgba(24,53,43,0.1)]">
       <Image
-        src="/images/coflow-passport-front-card-v2.png"
+        src="/images/coflow-passport-front-card-v3.png"
         alt="Portada de CoFlow Passport"
         fill
         priority
@@ -215,7 +215,7 @@ export default function PassportCard({
         aria-pressed={flipped}
         className="group block w-full rounded-[clamp(18px,4vw,30px)] text-left shadow-[0_14px_30px_rgba(31,58,49,0.16),0_3px_10px_rgba(31,58,49,0.1)] outline-none transition-[transform,box-shadow] duration-200 ease-out active:scale-[0.995] motion-reduce:transition-none sm:hover:shadow-[0_20px_42px_rgba(31,58,49,0.2),0_5px_14px_rgba(31,58,49,0.12)] focus-visible:ring-4 focus-visible:ring-primary/25"
       >
-        <div className="relative aspect-[1.916/1] w-full overflow-hidden rounded-[clamp(18px,4vw,30px)] [container-type:inline-size]">
+        <div className="relative aspect-[1.936/1] w-full rounded-[clamp(18px,4vw,30px)] [container-type:inline-size] [perspective:1400px]">
           {reducedMotion ? (
             flipped ? (
               <PassportBack passport={passport} holderName={holderName} comparisonRent={comparisonRent} />
@@ -223,23 +223,42 @@ export default function PassportCard({
               <PassportFront />
             )
           ) : (
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={flipped ? "back" : "front"}
-                className="absolute inset-0"
-                initial={{ opacity: 0, rotateY: flipped ? -72 : 72, scale: 0.985 }}
-                animate={{ opacity: 1, rotateY: 0, scale: 1 }}
-                exit={{ opacity: 0, rotateY: flipped ? 72 : -72, scale: 0.985 }}
-                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                style={{ transformPerspective: 1400, transformOrigin: "center" }}
+            <motion.div
+              className="absolute inset-0"
+              initial={false}
+              animate={{ rotateY: flipped ? 180 : 0 }}
+              transition={{ duration: 0.62, ease: [0.22, 0.72, 0.2, 1] }}
+              style={{
+                transformOrigin: "center",
+                transformStyle: "preserve-3d",
+                willChange: "transform",
+              }}
+            >
+              <div
+                className="absolute inset-0 overflow-hidden rounded-[clamp(18px,4vw,30px)]"
+                style={{
+                  backfaceVisibility: "hidden",
+                  WebkitBackfaceVisibility: "hidden",
+                  transform: "rotateY(0deg)",
+                }}
               >
-                {flipped ? (
-                  <PassportBack passport={passport} holderName={holderName} comparisonRent={comparisonRent} />
-                ) : (
-                  <PassportFront />
-                )}
-              </motion.div>
-            </AnimatePresence>
+                <PassportFront />
+              </div>
+              <div
+                className="absolute inset-0 overflow-hidden rounded-[clamp(18px,4vw,30px)]"
+                style={{
+                  backfaceVisibility: "hidden",
+                  WebkitBackfaceVisibility: "hidden",
+                  transform: "rotateY(180deg)",
+                }}
+              >
+                <PassportBack
+                  passport={passport}
+                  holderName={holderName}
+                  comparisonRent={comparisonRent}
+                />
+              </div>
+            </motion.div>
           )}
         </div>
       </button>
