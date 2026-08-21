@@ -268,7 +268,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       {!isImmersiveOwnerFlow && <BottomNavigation />}
-      {!isImmersiveOwnerFlow && <OwnerModeToggle />}
+      {!isImmersiveOwnerFlow && pathname === "/perfil" && <OwnerModeToggle />}
       <Toaster />
       {transitionTarget && (
         <OwnerModeTransition
