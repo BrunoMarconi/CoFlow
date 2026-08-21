@@ -84,9 +84,10 @@ export default function MiComunidadPage() {
   }, []);
 
   useEffect(() => {
-    if (community && !hasSeenCommunityWelcome(community.id)) {
-      setShowWelcome(true);
-    }
+    if (!community || hasSeenCommunityWelcome(community.id)) return;
+
+    const frame = window.requestAnimationFrame(() => setShowWelcome(true));
+    return () => window.cancelAnimationFrame(frame);
   }, [community]);
 
   function dismissWelcome() {
@@ -213,86 +214,114 @@ function CommunityDashboard({
 
   return (
     <div className="mx-auto w-full max-w-7xl pb-4">
-      <header className="relative flex h-11 items-center justify-between">
-        <Link
-          href="/comunidades"
-          aria-label="Volver a comunidades"
-          className="flex h-10 w-10 items-center justify-start text-brand-dark"
-        >
-          <ArrowLeftIcon />
-        </Link>
-
-        <h1 className="absolute inset-x-12 text-center text-lg font-extrabold text-brand-dark">
-          Mi comunidad
-        </h1>
-
-        <Link
-          href={`/comunidades/${community.id}`}
-          aria-label="Ver perfil público"
-          title="Ver perfil público"
-          className="flex h-10 w-10 items-center justify-end text-brand-dark"
-        >
-          <MoreIcon />
-        </Link>
-      </header>
-
       <motion.section
         initial="hidden"
         animate="show"
         variants={sectionVariants}
-        className="mt-5 grid gap-5 sm:grid-cols-[220px_1fr] sm:items-center lg:grid-cols-[280px_1fr]"
+        className="relative mt-4 overflow-hidden rounded-24 border border-primary/20 bg-mint-50 shadow-soft"
       >
-        <CommunityCover
-          name={community.name}
-          coverColor={community.cover_color}
-          coverImageUrl={community.cover_image_url}
-          members={coverMembers}
-          memberCount={community.member_count}
-          className="h-48 w-full rounded-24 border border-border shadow-soft sm:h-56 lg:h-64"
-        />
+        <div className="flex h-14 items-center justify-between border-b border-primary/15 px-4 sm:px-6">
+          <Link
+            href="/comunidades"
+            aria-label="Volver a comunidades"
+            className="flex h-11 w-11 items-center justify-start text-brand-dark"
+          >
+            <ArrowLeftIcon />
+          </Link>
 
-        <div className="min-w-0">
-          <h2 className="truncate font-rounded text-3xl font-semibold tracking-[-0.03em] text-brand-dark lg:text-4xl">
-            {community.name}
-          </h2>
+          <div className="text-center">
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary-dark/60">
+              Tu espacio compartido
+            </p>
+            <h1 className="text-sm font-extrabold text-brand-dark">Mi comunidad</h1>
+          </div>
 
-          <p className="mt-1.5 flex items-center gap-1.5 text-sm text-secondary">
-            <LocationIcon />
-            {community.city}
-          </p>
+          <Link
+            href={`/comunidades/${community.id}`}
+            aria-label="Ver perfil público"
+            title="Ver perfil público"
+            className="flex h-11 w-11 items-center justify-end text-brand-dark"
+          >
+            <MoreIcon />
+          </Link>
+        </div>
 
-          <span className="mt-2 inline-flex rounded-full bg-primary/8 px-3 py-1 text-xs font-semibold text-primary-dark">
-            {isOwner ? "Administrador" : "Miembro"}
-          </span>
+        <div className="grid gap-6 p-5 sm:grid-cols-[240px_1fr] sm:items-center sm:p-6 lg:grid-cols-[320px_1fr] lg:gap-9 lg:p-8">
+          <CommunityCover
+            name={community.name}
+            coverColor={community.cover_color}
+            coverImageUrl={community.cover_image_url}
+            members={coverMembers}
+            memberCount={community.member_count}
+            className="h-52 w-full rounded-24 border border-white/70 shadow-soft sm:h-60 lg:h-72"
+          />
 
-          <p className="mt-2 text-sm font-semibold text-secondary">
-            {community.member_count} de {community.max_members} miembros
-          </p>
+          <div className="min-w-0">
+            <span className="inline-flex rounded-full border border-primary/15 bg-white/75 px-3 py-1 text-xs font-bold text-primary-dark">
+              {isOwner ? "Administrador" : "Miembro"}
+            </span>
+            <h2 className="mt-3 truncate font-rounded text-3xl font-semibold tracking-[-0.03em] text-brand-dark lg:text-5xl">
+              {community.name}
+            </h2>
 
-          <div className="mt-3 flex items-center -space-x-2">
-            {community.members.slice(0, 5).map((member) => (
-              <UserAvatar
-                key={member.id}
-                firstName={member.user.first_name}
-                lastName={member.user.last_name}
-                userId={member.user.id}
-                imageUrl={member.user.avatar_url}
-                size="md"
-                className="border-2 border-white"
+            <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-secondary">
+              <LocationIcon />
+              {community.city}
+            </p>
+
+            <div className="mt-5 grid grid-cols-3 gap-2">
+              <HeroStat value={String(community.member_count)} label="miembros" />
+              <HeroStat value={String(availablePlaces)} label="plazas libres" />
+              <HeroStat
+                value={community.monthly_rent !== null ? `${community.monthly_rent.toLocaleString("es-ES")} €` : "—"}
+                label="por persona"
               />
-            ))}
+            </div>
 
-            {availablePlaces > 0 && isOwner && (
-              <motion.button
+            <div className="mt-5 flex items-center -space-x-2">
+              {community.members.slice(0, 5).map((member) => (
+                <UserAvatar
+                  key={member.id}
+                  firstName={member.user.first_name}
+                  lastName={member.user.last_name}
+                  userId={member.user.id}
+                  imageUrl={member.user.avatar_url}
+                  size="md"
+                  className="border-2 border-white"
+                />
+              ))}
+
+              {availablePlaces > 0 && isOwner && (
+                <motion.button
+                  type="button"
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => toggle("invitations")}
+                  aria-label="Invitar personas"
+                  className="ml-2 flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-primary/40 bg-surface text-xl text-primary transition hover:border-primary hover:bg-primary/5"
+                >
+                  +
+                </motion.button>
+              )}
+            </div>
+
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+              <button
                 type="button"
-                whileTap={{ scale: 0.92 }}
-                onClick={() => toggle("invitations")}
-                aria-label="Invitar personas"
-                className="ml-2 flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-primary/40 bg-surface text-xl text-primary transition hover:border-primary hover:bg-primary/5"
+                onClick={() => onOpenPanel("chat")}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-14 bg-brand-dark px-5 text-sm font-bold text-white shadow-button transition hover:bg-primary-dark"
               >
-                +
-              </motion.button>
-            )}
+                <MessageIcon className="h-4 w-4" />
+                Mensajes de la comunidad
+              </button>
+              <button
+                type="button"
+                onClick={() => onOpenPanel("members")}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-14 border border-primary/25 bg-white/75 px-5 text-sm font-bold text-primary-dark transition hover:bg-white"
+              >
+                <MembersIcon className="h-4 w-4" />
+                Ver miembros
+              </button>
+            </div>
           </div>
         </div>
       </motion.section>
@@ -595,6 +624,19 @@ function NoCommunity() {
         </div>
       </motion.div>
     </MotionConfig>
+  );
+}
+
+function HeroStat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="rounded-14 border border-white/70 bg-white/65 px-3 py-3 backdrop-blur-sm">
+      <p className="truncate font-rounded text-lg font-semibold text-brand-dark sm:text-xl">
+        {value}
+      </p>
+      <p className="mt-0.5 truncate text-[11px] font-semibold text-secondary">
+        {label}
+      </p>
+    </div>
   );
 }
 
