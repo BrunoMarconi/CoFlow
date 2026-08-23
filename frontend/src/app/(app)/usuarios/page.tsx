@@ -81,7 +81,7 @@ export default function UsuariosPage() {
     ? computeProfileCompletion(currentUser)
     : 0;
   const featuredCity =
-    seoCities.find((city) => city.name === filters.city) ?? seoCities[1];
+    seoCities.find((city) => city.name === filters.city) ?? seoCities[0];
 
   function selectCity(city: string) {
     setFilters((current) => ({
