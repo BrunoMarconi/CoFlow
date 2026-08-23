@@ -42,13 +42,13 @@ export default function Hero() {
             <ArrowRightIcon />
           </Link>
 
-          <a
-            href="#personas"
+          <Link
+            href="/usuarios"
             className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-white/40 bg-white/10 px-7 text-sm font-bold text-white backdrop-blur transition active:scale-[0.98] sm:hover:-translate-y-1"
           >
             Explorar personas
             <SearchIcon />
-          </a>
+          </Link>
         </div>
 
         <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-white/80 sm:mt-7 sm:text-sm">
