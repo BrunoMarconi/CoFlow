@@ -24,7 +24,7 @@ import {
 } from "@/lib/profileCompletion";
 import { seoCities } from "@/lib/seoCities";
 
-const CITY_OPTIONS = ["Málaga", "Madrid", "Valencia"];
+const CITY_OPTIONS = ["Málaga"];
 
 export default function UsuariosPage() {
   const router = useRouter();

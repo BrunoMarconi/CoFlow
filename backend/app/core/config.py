@@ -27,6 +27,16 @@ PROPERTY_MARKETPLACE_ENABLED = (
     os.getenv("PROPERTY_MARKETPLACE_ENABLED", "false").lower() == "true"
 )
 
+# Bloqueos de lanzamiento: las conexiones bancarias y la facturación de
+# propietarios permanecen fuera de la API hasta contar con cobertura
+# regulatoria/operativa y hasta que se reabra la monetización.
+BANKING_FEATURE_ENABLED = (
+    os.getenv("BANKING_FEATURE_ENABLED", "false").lower() == "true"
+)
+OWNER_BILLING_ENABLED = (
+    os.getenv("OWNER_BILLING_ENABLED", "false").lower() == "true"
+)
+
 # Origen público desde el que el backend sirve /media (y cualquier otro
 # archivo estático). Necesario para construir URLs absolutas: el
 # frontend corre en otro origen (Next.js), así que una URL relativa
@@ -107,16 +117,6 @@ BANK_TOKEN_ENCRYPTION_KEY = os.getenv("BANK_TOKEN_ENCRYPTION_KEY", "")
 ENABLE_FINANCIAL_DEBUG = (
     os.getenv("ENABLE_FINANCIAL_DEBUG", "false").lower() == "true"
 )
-
-# Secreto usado para derivar (HMAC-SHA256) el token público de los
-# enlaces verificables del Pasaporte de Solvencia. El token NUNCA se
-# guarda (ni en claro, ni cifrado, ni como hash): se recalcula bajo
-# demanda a partir de esta clave + share_nonce + share_token_version
-# (ver app/core/passport_tokens.py). Distinta de BANK_TOKEN_ENCRYPTION_KEY
-# y de SECRET_KEY — no reutilizar. Genera un valor con:
-#   python -c "import secrets; print(secrets.token_hex(32))"
-# Se valida (RuntimeError) al usarse.
-PASSPORT_SHARE_SECRET = os.getenv("PASSPORT_SHARE_SECRET", "")
 
 # --- Verificación de email (Resend) -----------------------------------
 # Interruptor temporal de toda la funcionalidad de verificación de

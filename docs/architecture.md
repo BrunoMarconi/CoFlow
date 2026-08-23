@@ -1,9 +1,9 @@
                            Users
                              │
-          ┌──────────────────┼─────────────────────┐
-          │                  │                     │
-          ▼                  ▼                     ▼
-    UserAnswers      SolvencyPassports     Notifications
+          ┌──────────────────┴─────────────────┐
+          │                                     │
+          ▼                                     ▼
+    UserAnswers                          Notifications
           ▲                                      │
           │                                      ▼
       Questions                             AuditLogs

@@ -20,7 +20,7 @@ export default function Hero() {
       <div className="relative mx-auto flex min-h-130 max-w-7xl flex-col justify-end px-5 pb-9 pt-24 sm:min-h-[38rem] sm:px-8 sm:pb-16 lg:min-h-[44rem] lg:pb-20">
         <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
           <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-green-300" />
-          Disponible en toda España
+          Lanzamiento en Málaga
         </div>
 
         <h1 className="mt-4 max-w-xs text-4xl font-black leading-[1.05] tracking-[-0.035em] text-white min-[375px]:text-[2.6rem] min-[375px]:leading-[1.05] sm:max-w-2xl sm:text-6xl lg:text-7xl">

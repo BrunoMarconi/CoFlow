@@ -11,9 +11,9 @@ export default function Cities() {
     >
       <div className="mx-auto max-w-7xl">
         <SectionHeader
-          eyebrow="Disponible en toda España"
-          title="La convivencia que buscas puede estar en tu ciudad"
-          description="Descubre personas y comunidades que buscan una forma más compatible de compartir hogar, en cualquier ciudad del país."
+          eyebrow="Lanzamiento en Málaga"
+          title="Empezamos donde podemos crear una comunidad de verdad"
+          description="Concentramos las primeras personas, comunidades y viviendas en Málaga capital."
         />
 
         <div className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3">
@@ -61,8 +61,7 @@ export default function Cities() {
         </div>
 
         <p className="mx-auto mt-8 max-w-2xl text-center text-sm leading-6 text-muted">
-          Estas son solo algunas ciudades de ejemplo — puedes crear o unirte a
-          una comunidad en cualquier punto de España.
+          Durante esta fase, CoFlow está disponible exclusivamente en Málaga.
         </p>
       </div>
     </section>

@@ -6,16 +6,16 @@ import Footer from "@/components/landing/Footer";
 import { seoCities } from "@/lib/seoCities";
 
 export const metadata: Metadata = {
-  title: "Compañeros de piso en España",
+  title: "Compañeros de piso en Málaga",
   description:
-    "Encuentra compañeros de piso compatibles en toda España. Compara hábitos, presupuesto y forma de convivir antes de decidir. Elige tu ciudad y regístrate gratis en CoFlow.",
+    "Encuentra compañeros de piso compatibles en Málaga. Compara hábitos, presupuesto y forma de convivir antes de decidir. Regístrate gratis en CoFlow.",
   alternates: {
     canonical: "/companeros-de-piso",
   },
   openGraph: {
-    title: "Compañeros de piso en España | CoFlow",
+    title: "Compañeros de piso en Málaga | CoFlow",
     description:
-      "Encuentra compañeros de piso compatibles en toda España. Elige tu ciudad y regístrate gratis.",
+      "Encuentra compañeros de piso compatibles en Málaga y regístrate gratis.",
     type: "website",
     locale: "es_ES",
     siteName: "CoFlow",
@@ -32,21 +32,21 @@ export default function CompanerosDePisoPage() {
         <div className="mx-auto max-w-4xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-brand/25 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.13em] text-brand-dark shadow-sm">
             <span className="h-2 w-2 shrink-0 rounded-full bg-brand" />
-            Disponible en toda España
+            Lanzamiento en Málaga
           </div>
 
           <h1 className="mt-6 text-4xl font-black leading-[1.05] tracking-[-0.04em] text-brand-dark sm:text-5xl">
-            Compañeros de piso en España
+            Compañeros de piso en Málaga
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted">
             CoFlow te ayuda a encontrar compañeros de piso compatibles según hábitos, presupuesto y forma de convivir —
-            no solo por disponibilidad. Elige tu ciudad para ver cómo funciona donde vives.
+            no solo por disponibilidad. Empezamos en Málaga para concentrar personas, comunidades y viviendas reales.
           </p>
         </div>
 
         <div className="mx-auto mt-12 grid max-w-6xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {seoCities.map((city) => (
+          {seoCities.map((city, index) => (
             <Link
               key={city.slug}
               href={`/companeros-de-piso/${city.slug}`}
@@ -56,7 +56,7 @@ export default function CompanerosDePisoPage() {
                 src={city.image}
                 alt={`Vista de ${city.name}`}
                 fill
-                loading="lazy"
+                priority={index === 0}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="object-cover transition duration-300 group-hover:scale-105"
               />
@@ -74,11 +74,11 @@ export default function CompanerosDePisoPage() {
         </div>
 
         <p className="mx-auto mt-10 max-w-2xl text-center text-sm leading-7 text-muted">
-          ¿No ves tu ciudad? CoFlow funciona en toda España — puedes{" "}
+          CoFlow está concentrando esta primera fase en Málaga. Puedes{" "}
           <Link href="/register" className="font-bold text-primary-dark underline underline-offset-2">
             crear tu perfil gratis
           </Link>{" "}
-          igualmente y explorar personas y comunidades compatibles allí donde estés.
+          y participar en las primeras comunidades de la ciudad.
         </p>
       </section>
 

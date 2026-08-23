@@ -9,6 +9,8 @@ import CookieBanner from "@/components/layout/CookieBanner";
 
 import "./globals.css";
 
+const PUBLIC_SITE_URL = "https://coflowapp.es";
+
 // Autohospedadas (next/font/local) en vez de next/font/google: la
 // versión Google descarga los .woff2 desde fonts.gstatic.com durante
 // el build, y si esa red no está disponible en la máquina de build
@@ -39,13 +41,13 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "CoFlow | Encuentra personas compatibles para compartir hogar",
+    default: "CoFlow Málaga | Encuentra personas compatibles para compartir hogar",
     template: "%s | CoFlow",
   },
   description:
-    "Encuentra personas y comunidades compatibles para compartir vivienda según vuestros hábitos y preferencias de convivencia.",
+    "Encuentra personas, comunidades y viviendas en Málaga según vuestros hábitos y preferencias de convivencia.",
   keywords: [
-    "compartir piso",
+    "compartir piso Málaga",
     "compañeros de piso",
     "buscar habitación",
     "comunidades",
@@ -61,16 +63,14 @@ export const metadata: Metadata = {
   ],
   creator: "CoFlow",
   applicationName: "CoFlow",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
-  ),
+  metadataBase: new URL(PUBLIC_SITE_URL),
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "CoFlow | Encuentra dónde encajar",
+    title: "CoFlow Málaga | Encuentra dónde encajar",
     description:
-      "Descubre personas y comunidades compatibles para compartir vivienda.",
+      "Descubre personas, comunidades y viviendas compatibles en Málaga.",
     type: "website",
     locale: "es_ES",
     siteName: "CoFlow",
@@ -79,9 +79,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "CoFlow | Encuentra dónde encajar",
+    title: "CoFlow Málaga | Encuentra dónde encajar",
     description:
-      "Descubre personas y comunidades compatibles para compartir vivienda.",
+      "Descubre personas, comunidades y viviendas compatibles en Málaga.",
     images: ["/logo-coflow.png"],
   },
 };
@@ -94,8 +94,8 @@ const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "CoFlow",
-  url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-  logo: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/logo-coflow.png`,
+  url: PUBLIC_SITE_URL,
+  logo: `${PUBLIC_SITE_URL}/logo-coflow.png`,
 };
 
 export const viewport: Viewport = {
@@ -121,7 +121,6 @@ export default function RootLayout({
       <body className="min-h-full bg-background font-sans text-brand-dark">
         <script
           type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
         <QueryProvider>

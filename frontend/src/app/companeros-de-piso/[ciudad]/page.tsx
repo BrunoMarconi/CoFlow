@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import CityLandingPage from "@/components/seo/CityLandingPage";
 import { getSeoCity, seoCities } from "@/lib/seoCities";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const APP_URL = "https://coflowapp.es";
 
 /* Genera en build solo las ciudades de seoCities (SSG) — cualquier
  * otro slug (ej. /companeros-de-piso/no-existe) sirve un 404 real vía

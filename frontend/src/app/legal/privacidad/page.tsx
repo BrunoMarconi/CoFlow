@@ -181,7 +181,7 @@ export default function PrivacidadPage() {
       </Section>
 
       <Section title="12. Open Banking y solvencia">
-        <p>Actualmente CoFlow no accede a cuentas bancarias ni ofrece funcionalidades de Open Banking o pasaporte de solvencia.</p>
+        <p>Actualmente CoFlow no accede a cuentas bancarias ni ofrece funcionalidades de Open Banking.</p>
         <p>Antes de activar estas funciones se realizará el análisis correspondiente y se informará a los usuarios de qué información se procesa, para qué se utiliza, durante cuánto tiempo y con qué proveedores.</p>
       </Section>
 

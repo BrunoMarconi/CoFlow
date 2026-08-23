@@ -38,56 +38,6 @@ export const seoCities: SeoCity[] = [
     metaDescription:
       "Encuentra compañeros de piso compatibles en Málaga. Compara hábitos, presupuesto y forma de convivir antes de decidir. Regístrate gratis en CoFlow.",
   },
-  {
-    slug: "madrid",
-    name: "Madrid",
-    region: "Comunidad de Madrid",
-    image: "/images/cities/madrid.webp",
-    intro:
-      "Madrid tiene un mercado de piso compartido grande y muy variado entre barrios, lo que hace fácil encontrar candidatos pero difícil saber con quién encajarás de verdad. CoFlow te ayuda a comparar hábitos y presupuesto antes de mudarte, no después.",
-    metaDescription:
-      "Busca compañero de piso en Madrid con CoFlow. Descubre personas y comunidades compatibles por hábitos y presupuesto antes de decidir. Gratis.",
-  },
-  {
-    slug: "barcelona",
-    name: "Barcelona",
-    region: "Cataluña",
-    image: "/images/cities/barcelona.webp",
-    intro:
-      "Compartir piso en Barcelona suele significar convivir con gente de perfiles muy distintos. Ver de antemano cómo organiza la limpieza, las visitas o los gastos cada persona ayuda a evitar sorpresas una vez ya has firmado el contrato.",
-    metaDescription:
-      "Compartir piso en Barcelona nunca fue tan claro. Conoce hábitos, presupuesto y preferencias de convivencia antes de decidir con CoFlow.",
-  },
-  {
-    slug: "valencia",
-    name: "Valencia",
-    region: "Comunidad Valenciana",
-    image: "/images/cities/valencia.webp",
-    intro:
-      "En Valencia buena parte de la demanda de piso compartido viene de estudiantes y jóvenes profesionales cerca de las universidades y las zonas de trabajo. CoFlow te deja ver el perfil de convivencia de cada persona antes de escribirle.",
-    metaDescription:
-      "Encuentra compañeros de piso en Valencia compatibles contigo. Conoce sus hábitos y presupuesto antes de decidir. Crea tu perfil gratis en CoFlow.",
-  },
-  {
-    slug: "sevilla",
-    name: "Sevilla",
-    region: "Andalucía",
-    image: "/images/cities/sevilla.webp",
-    intro:
-      "Sevilla combina zonas muy tranquilas con otras de ambiente animado, y el tipo de convivencia que buscas cambia mucho según cuál elijas. Antes de solicitar una plaza, en CoFlow puedes comprobar si el ritmo de vida de esa comunidad encaja con el tuyo.",
-    metaDescription:
-      "Busca compañero de piso en Sevilla con CoFlow. Compara ambiente, presupuesto y hábitos de convivencia antes de decidir. Regístrate gratis.",
-  },
-  {
-    slug: "granada",
-    name: "Granada",
-    region: "Andalucía",
-    image: "/images/cities/granada.webp",
-    intro:
-      "Granada tiene una población muy joven y una alta rotación de estudiantes buscando piso cada curso. Conocer el estilo de convivencia de una comunidad antes de unirte ahorra malentendidos que, en una ciudad tan universitaria, se repiten cada septiembre.",
-    metaDescription:
-      "Encuentra compañeros de piso en Granada afines a ti. Compara hábitos, presupuesto y forma de convivir antes de decidir con CoFlow. Gratis.",
-  },
 ];
 
 export function getSeoCity(slug: string): SeoCity | undefined {

@@ -5,7 +5,6 @@ Módulo 1 — Registro e identidad
  Questions
  QuestionOptions
  UserAnswers
- SolvencyPassports
 
 
 

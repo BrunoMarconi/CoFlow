@@ -62,8 +62,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   // El asistente de publicación es una experiencia guiada a pantalla completa:
   // no debe competir visualmente con la navegación general de CoFlow.
   const isImmersiveOwnerFlow = pathname === "/propietarios/pisos/nuevo";
-  const isPassportPresentation = pathname === "/pasaporte";
-  const hidesAppChrome = isImmersiveOwnerFlow || isPassportPresentation;
+  const hidesAppChrome = isImmersiveOwnerFlow;
 
   useEffect(() => {
     if (!isOwnerMode) return;

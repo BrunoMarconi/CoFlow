@@ -8,7 +8,7 @@ export default function CityBanner() {
         <div className="relative min-h-70 lg:min-h-95">
           <Image
             src="/images/lifestyle/barcelona-home.webp"
-            alt="Edificios y hogares en Barcelona"
+            alt="Edificios y hogares en Málaga"
             fill
             loading="lazy"
             sizes="(max-width: 1024px) 100vw, 50vw"
@@ -43,4 +43,3 @@ export default function CityBanner() {
     </section>
   );
 }
-

@@ -19,7 +19,6 @@ import { getMyCompatibilityScore, getSavedProfiles } from "@/services/users";
 import { getConnectionOverview } from "@/services/connections";
 import { CONNECTION_OVERVIEW_QUERY_KEY } from "@/lib/connectionQueryState";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
-import { SOLVENCY_PASSPORT_ENABLED } from "@/lib/featureFlags";
 import { computeProfileCompletion, getProfileCompletionChecklist } from "@/lib/profileCompletion";
 import type { OnboardingAnswers } from "@/types/onboarding";
 
@@ -328,12 +327,6 @@ export default function PerfilPage() {
         <h2 className="px-1 text-sm font-bold text-primary-dark">Mi CoFlow</h2>
         <div className="divide-y divide-border rounded-18 border border-border/60 bg-surface">
           <ProfileMenuRow href="/perfil/editar" icon={<UserIcon />} label="Editar mi perfil" />
-          <ProfileMenuRow
-            href={SOLVENCY_PASSPORT_ENABLED ? "/pasaporte" : undefined}
-            icon={<ShieldIcon />}
-            label="Pasaporte de solvencia"
-            badge={SOLVENCY_PASSPORT_ENABLED ? undefined : "Próximamente"}
-          />
           <ProfileMenuRow href="/perfil/preferencias" icon={<HomeIcon />} label="Preferencias de vivienda" />
           <ProfileMenuRow href="/personas/guardadas" icon={<BookmarkIcon />} label={`Perfiles guardados (${savedCount})`} />
         </div>
@@ -509,10 +502,6 @@ function ProfileSparkIcon() {
 
 function UserIcon() {
   return <MenuIcon path={<><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>} />;
-}
-
-function ShieldIcon() {
-  return <MenuIcon path={<path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5Z" />} />;
 }
 
 function HomeIcon() {

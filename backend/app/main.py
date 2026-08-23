@@ -31,11 +31,14 @@ from app.api.routes import (
     owner_properties,
     owners,
     property_amenities,
-    public_solvency_passports,
-    solvency_passports,
     users,
 )
-from app.core.config import CORS_ALLOWED_ORIGINS, FRONTEND_URL
+from app.core.config import (
+    BANKING_FEATURE_ENABLED,
+    CORS_ALLOWED_ORIGINS,
+    FRONTEND_URL,
+    OWNER_BILLING_ENABLED,
+)
 from app.services import storage_service
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -134,31 +137,24 @@ app.include_router(
     prefix="/property-amenities",
     tags=["Property Amenities"],
 )
-app.include_router(
-    bank_connections.router,
-    prefix="/bank-connections",
-    tags=["Bank Connections"],
-)
-app.include_router(
-    financial_analysis.router,
-    prefix="/financial-analysis",
-    tags=["Financial Analysis"],
-)
-app.include_router(
-    solvency_passports.router,
-    prefix="/solvency-passports",
-    tags=["Solvency Passports"],
-)
-app.include_router(
-    public_solvency_passports.router,
-    prefix="/public/solvency-passports",
-    tags=["Solvency Passports (Public)"],
-)
-app.include_router(
-    billing.router,
-    prefix="/billing",
-    tags=["Billing"],
-)
+if BANKING_FEATURE_ENABLED:
+    app.include_router(
+        bank_connections.router,
+        prefix="/bank-connections",
+        tags=["Bank Connections"],
+    )
+    app.include_router(
+        financial_analysis.router,
+        prefix="/financial-analysis",
+        tags=["Financial Analysis"],
+    )
+
+if OWNER_BILLING_ENABLED:
+    app.include_router(
+        billing.router,
+        prefix="/billing",
+        tags=["Billing"],
+    )
 
 # Almacenamiento de imágenes pensado para desarrollo local. Con las 5
 # variables R2_* ya configuradas en Render (ver comentario más arriba),

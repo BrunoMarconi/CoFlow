@@ -5,7 +5,7 @@ import Footer from "@/components/landing/Footer";
 import { CheckIcon } from "@/components/landing/icons";
 import { BlockIcon, ChatIcon, FlagIcon, LockIcon, MailCheckIcon } from "@/components/landing/icons";
 import { compatibilityAxes, howItWorksSteps, safetyPoints } from "@/components/landing/content";
-import { seoCities, type SeoCity } from "@/lib/seoCities";
+import type { SeoCity } from "@/lib/seoCities";
 
 const SAFETY_ICONS = {
   block: BlockIcon,
@@ -19,8 +19,6 @@ const SAFETY_ICONS = {
  * estas páginas existen para indexarse y cargar rápido, no para
  * animarse — la home ya cubre la experiencia interactiva de marca. */
 export default function CityLandingPage({ city }: { city: SeoCity }) {
-  const otherCities = seoCities.filter((item) => item.slug !== city.slug);
-
   return (
     <main className="min-h-dvh overflow-hidden bg-background text-brand-dark">
       <Navbar />
@@ -59,7 +57,7 @@ export default function CityLandingPage({ city }: { city: SeoCity }) {
             </div>
 
             <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-muted">
-              CoFlow está disponible en toda España, no solo en {city.name}.
+              Lanzamiento local: Málaga capital.
             </p>
           </div>
 
@@ -154,31 +152,16 @@ export default function CityLandingPage({ city }: { city: SeoCity }) {
         </div>
       </section>
 
-      {/* Otras ciudades + enlaces internos */}
+      {/* Alcance local del lanzamiento */}
       <section className="px-5 py-14 sm:px-8 sm:py-20">
         <div className="mx-auto max-w-7xl">
-          <p className="text-sm font-bold uppercase tracking-[0.18em] text-brand">Toda España</p>
+          <p className="text-sm font-bold uppercase tracking-[0.18em] text-brand">Málaga capital</p>
           <h2 className="mt-3 text-2xl font-black tracking-[-0.03em] text-brand-dark sm:text-3xl">
-            CoFlow también está en otras ciudades
+            Una comunidad local con más posibilidades de encajar
           </h2>
-
-          <div className="mt-6 flex flex-wrap gap-2.5">
-            {otherCities.map((item) => (
-              <Link
-                key={item.slug}
-                href={`/companeros-de-piso/${item.slug}`}
-                className="rounded-full border border-line bg-white px-4 py-2.5 text-sm font-bold text-brand-dark shadow-sm transition hover:-translate-y-0.5 hover:border-brand/30"
-              >
-                Compañeros de piso en {item.name}
-              </Link>
-            ))}
-            <Link
-              href="/companeros-de-piso"
-              className="rounded-full border border-line bg-surface-soft px-4 py-2.5 text-sm font-bold text-secondary transition hover:-translate-y-0.5 hover:border-brand/30"
-            >
-              Ver todas las ciudades
-            </Link>
-          </div>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-muted">
+            La primera fase se concentra en Teatinos, El Ejido, Cruz de Humilladero, Carretera de Cádiz y el centro para reunir suficiente oferta y demanda en una sola ciudad.
+          </p>
 
           <p className="mt-6 text-sm leading-7 text-muted">
             ¿Tienes dudas sobre cómo funciona CoFlow? Consulta las{" "}

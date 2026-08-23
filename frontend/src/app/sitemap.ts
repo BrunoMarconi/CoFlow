@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { seoCities } from "@/lib/seoCities";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const APP_URL = "https://coflowapp.es";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

@@ -52,45 +52,13 @@ export const peopleExamples = [
   },
 ] as const;
 
-// Ciudades destacadas como ejemplo/punto de entrada en la home — CoFlow
-// está disponible en toda España, esta lista no es exhaustiva ni implica
-// que otras ciudades estén restringidas (ver componente Cities.tsx).
+// Durante el lanzamiento solo se comunica y se sirve Málaga.
 export const cities = [
   {
     name: "Málaga",
     region: "Andalucía",
     image: "/images/cities/malaga.webp",
     description: "Comunidades en Teatinos, el centro y otras zonas de Málaga.",
-  },
-  {
-    name: "Madrid",
-    region: "Comunidad de Madrid",
-    image: "/images/cities/madrid.webp",
-    description: "Personas y comunidades compatibles en distintos barrios.",
-  },
-  {
-    name: "Barcelona",
-    region: "Cataluña",
-    image: "/images/cities/barcelona.webp",
-    description: "Conecta con personas que buscan compartir hogar.",
-  },
-  {
-    name: "Valencia",
-    region: "Comunidad Valenciana",
-    image: "/images/cities/valencia.webp",
-    description: "Comunidades cerca de universidades y zonas de trabajo.",
-  },
-  {
-    name: "Sevilla",
-    region: "Andalucía",
-    image: "/images/cities/sevilla.webp",
-    description: "Una convivencia compatible en una ciudad llena de vida.",
-  },
-  {
-    name: "Granada",
-    region: "Andalucía",
-    image: "/images/cities/granada.webp",
-    description: "Conecta con estudiantes, trabajadores y nuevas comunidades.",
   },
 ] as const;
 

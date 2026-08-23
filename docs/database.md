@@ -130,28 +130,6 @@ No guarda el texto de la respuesta, sino la opción elegida (QuestionOption), pe
 | updated_at  | TIMESTAMP | Última modificación de la respuesta. |
 
 
-## SolvencyPassports
-
-Representa el Pasaporte de Solvencia de un usuario o de una comunidad, certificando que cumple los requisitos económicos para acceder a determinados inmuebles.
-
-El pasaporte no almacena datos bancarios. Únicamente guarda el resultado de la evaluación financiera.
-
-### Columnas
-
-| Columna    | Tipo      | Descripción                                         |
-| ---------- | --------- | --------------------------------------------------- |
-| id         | UUID      | Identificador único del pasaporte.                  |
-| user_id    | UUID      | Usuario propietario del pasaporte.                  |
-| type       | ENUM      | Tipo de pasaporte (`BASIC`, `PREMIUM`).             |
-| status     | ENUM      | Estado (`PENDING`, `ACTIVE`, `EXPIRED`, `REVOKED`). |
-| score      | INTEGER   | Puntuación de solvencia calculada por el sistema.   |
-| issued_at  | TIMESTAMP | Fecha de emisión.                                   |
-| expires_at | TIMESTAMP | Fecha de expiración.                                |
-| created_at | TIMESTAMP | Fecha de creación.                                  |
-| updated_at | TIMESTAMP | Última modificación.                                |
-
-
-
 ## 5. Módulo 2 - Comunidades
     - Communities
     - CommunityMembers

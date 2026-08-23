@@ -5,7 +5,6 @@ import Compatibility from "@/components/landing/Compatibility";
 import People from "@/components/landing/People";
 import Trust from "@/components/landing/Trust";
 import Owners from "@/components/landing/Owners";
-import SolvencyPassport from "@/components/landing/SolvencyPassport";
 import Faq from "@/components/landing/Faq";
 import FinalCta from "@/components/landing/FinalCta";
 import Footer from "@/components/landing/Footer";
@@ -25,7 +24,6 @@ export default function Home() {
       <People />
       <Trust />
       <Owners />
-      <SolvencyPassport />
       <Faq />
       <FinalCta />
       <Footer />

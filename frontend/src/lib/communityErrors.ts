@@ -153,8 +153,8 @@ function describeValidationField(loc: unknown): string | null {
   return FIELD_LABELS[key] ?? null;
 }
 
-/** Algunas rutas sensibles (crear comunidad, conectar banco, emitir
- * pasaporte...) devuelven un detail estructurado `{code, message}` en
+/** Algunas rutas sensibles (crear comunidad, conectar banco...)
+ * devuelven un detail estructurado `{code, message}` en
  * vez de un string plano — ver `require_verified_email` en el backend.
  * Se comprueba explícitamente en vez de asumir que todo detail es
  * string o array. */

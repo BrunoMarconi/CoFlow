@@ -61,7 +61,7 @@ def require_verified_email(
 ) -> User:
     """Igual que get_current_user, pero además exige email verificado.
     Úsala en acciones sensibles (crear comunidad, conectar banco,
-    ejecutar análisis financiero, emitir pasaporte, etc.) — nunca en
+    ejecutar análisis financiero, etc.) — nunca en
     login/logout/ver perfil propio/reenviar verificación/confirmar
     correo. Si EMAIL_VERIFICATION_ENABLED está desactivado (feature flag
     temporal), deja pasar a todo el mundo sin comprobar nada."""
