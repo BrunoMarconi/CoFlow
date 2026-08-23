@@ -335,6 +335,9 @@ export default function PerfilPage() {
       <section className="space-y-2">
         <h2 className="px-1 text-sm font-bold text-primary-dark">Cuenta</h2>
         <div className="divide-y divide-border rounded-18 border border-border/60 bg-surface">
+          {user.role === "ADMIN" ? (
+            <ProfileMenuRow href="/equipo/alta-asistida" icon={<HomeIcon />} label="Alta asistida de viviendas" />
+          ) : null}
           <ProfileMenuRow href="/notificaciones" icon={<BellIcon />} label="Notificaciones" />
           <ProfileMenuRow href="/invitaciones" icon={<InvitationIcon />} label="Invitaciones" />
           <ProfileMenuRow href="/ajustes/privacidad" icon={<LockIcon />} label="Privacidad y seguridad" />

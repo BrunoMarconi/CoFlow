@@ -7,6 +7,7 @@ const PROTECTED_PREFIXES = [
   "/perfil",
   "/crear",
   "/ajustes",
+  "/equipo",
 ];
 
 const AUTH_ONLY_ROUTES = ["/login", "/register"];

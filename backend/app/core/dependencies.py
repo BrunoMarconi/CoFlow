@@ -78,3 +78,10 @@ def require_verified_email(
         )
 
     return current_user
+
+
+def require_admin(current_user: User = Depends(get_current_user)) -> User:
+    """Restringe herramientas internas a cuentas del equipo."""
+    if current_user.role != "ADMIN":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user

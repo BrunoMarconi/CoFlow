@@ -19,6 +19,7 @@ mimetypes.add_type("image/webp", ".webp")
 from app.api.auth import router as auth_router
 from app.api.routes import (
     applications,
+    assisted_listings,
     bank_connections,
     billing,
     communities,
@@ -131,6 +132,11 @@ app.include_router(
     owner_properties.router,
     prefix="/owner/properties",
     tags=["Owner Properties"],
+)
+app.include_router(
+    assisted_listings.router,
+    prefix="/assisted-listings",
+    tags=["Assisted Listings"],
 )
 app.include_router(
     property_amenities.router,
