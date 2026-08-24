@@ -185,13 +185,13 @@ function PropertyPublishFlowInner({ resumeProperty }: { resumeProperty?: Propert
   const [latitude, setLatitude] = useState(resumeProperty?.latitude ?? 36.7213);
   const [longitude, setLongitude] = useState(resumeProperty?.longitude ?? -4.4214);
   const [propertyKind, setPropertyKind] = useState(
-    resumeProperty ? propertyKindFromApiType(resumeProperty.property_type) : "apartment"
+    resumeProperty ? propertyKindFromApiType(resumeProperty.property_type) : ""
   );
-  const [listingType, setListingType] = useState<(typeof LISTING_TYPES)[number]["value"]>("private");
-  const [bedrooms, setBedrooms] = useState(resumeProperty?.bedrooms ?? 3);
-  const [bathrooms, setBathrooms] = useState(resumeProperty?.bathrooms ?? 1);
-  const [maxTenants, setMaxTenants] = useState(resumeProperty?.max_tenants ?? 4);
-  const [availableRooms, setAvailableRooms] = useState(1);
+  const [listingType, setListingType] = useState<(typeof LISTING_TYPES)[number]["value"] | "">("");
+  const [bedrooms, setBedrooms] = useState(resumeProperty?.bedrooms ?? 0);
+  const [bathrooms, setBathrooms] = useState(resumeProperty?.bathrooms ?? 0);
+  const [maxTenants, setMaxTenants] = useState(resumeProperty?.max_tenants ?? 0);
+  const [availableRooms, setAvailableRooms] = useState(0);
   const [amenities, setAmenities] = useState<Amenity[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(
     resumeProperty?.amenities.map((item) => item.label) ?? []
@@ -206,7 +206,7 @@ function PropertyPublishFlowInner({ resumeProperty }: { resumeProperty?: Propert
   const [deposit, setDeposit] = useState(resumeProperty?.deposit?.toString() ?? "");
   const [utilitiesIncluded, setUtilitiesIncluded] = useState(resumeProperty?.utilities_included ?? false);
   const [minimumStayMonths, setMinimumStayMonths] = useState(
-    resumeProperty?.minimum_stay_months?.toString() ?? "6"
+    resumeProperty?.minimum_stay_months?.toString() ?? ""
   );
   const [error, setError] = useState("");
   const [publishing, setPublishing] = useState(false);
@@ -298,6 +298,9 @@ function PropertyPublishFlowInner({ resumeProperty }: { resumeProperty?: Propert
   function validate(next: Screen) {
     if (screen === "address" && !addressLine) return "Selecciona una dirección para continuar.";
     if (screen === "map" && !postalCode) return "No hemos podido obtener el código postal de esta dirección. Vuelve a buscarla e inténtalo de nuevo.";
+    if (screen === "property-type" && !propertyKind) return "Selecciona el tipo de vivienda.";
+    if (screen === "listing-type" && !listingType) return "Selecciona qué vas a publicar.";
+    if (screen === "basics" && (bedrooms < 1 || bathrooms < 1 || maxTenants < 1 || availableRooms < 1)) return "Completa habitaciones, baños, plazas y habitaciones disponibles.";
     if (screen === "photos" && photos.length < MIN_PHOTOS && existingImageCount < 1) return `Añade al menos ${MIN_PHOTOS} fotos.`;
     if (screen === "title" && title.trim().length < 5) return "El título necesita al menos 5 caracteres.";
     if (screen === "vibe" && vibes.length === 0) return "Selecciona al menos una opción.";
