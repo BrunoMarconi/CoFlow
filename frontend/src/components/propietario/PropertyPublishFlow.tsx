@@ -298,7 +298,6 @@ function PropertyPublishFlowInner({ resumeProperty }: { resumeProperty?: Propert
   function validate(next: Screen) {
     if (screen === "address" && !addressLine) return "Selecciona una dirección para continuar.";
     if (screen === "map" && !postalCode) return "No hemos podido obtener el código postal de esta dirección. Vuelve a buscarla e inténtalo de nuevo.";
-    if (screen === "map" && city.trim().toLocaleLowerCase("es") !== "málaga" && city.trim().toLocaleLowerCase("es") !== "malaga") return "Durante el lanzamiento solo puedes publicar viviendas en Málaga capital.";
     if (screen === "photos" && photos.length < MIN_PHOTOS && existingImageCount < 1) return `Añade al menos ${MIN_PHOTOS} fotos.`;
     if (screen === "title" && title.trim().length < 5) return "El título necesita al menos 5 caracteres.";
     if (screen === "vibe" && vibes.length === 0) return "Selecciona al menos una opción.";

@@ -40,7 +40,9 @@ export default function OwnerProfileSummary({ ownerProfile, onEdit }: { ownerPro
         {ownerProfile.tax_id ? <ProfileRow icon={<ShieldCheck />} label="Identificación fiscal" value={maskTaxId(ownerProfile.tax_id)} /> : null}
       </section>
 
-      <ViewportPortal><button type="button" onClick={() => requestModeSwitch("member")} className="fixed bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+0.75rem)] left-5 right-5 z-50 mx-auto flex h-14 max-w-lg items-center justify-center gap-2 rounded-full bg-black px-6 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(0,0,0,0.24)] transition hover:bg-[#282828] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-black sm:bottom-7 sm:left-auto sm:right-8 md:right-10"><Repeat2 className="h-5 w-5" />Volver a buscar hogar</button></ViewportPortal>
+      {user?.is_looking_for_roommates ? (
+        <ViewportPortal><button type="button" onClick={() => requestModeSwitch("member")} className="fixed bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+0.75rem)] left-5 right-5 z-50 mx-auto flex h-14 max-w-lg items-center justify-center gap-2 rounded-full bg-black px-6 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(0,0,0,0.24)] transition hover:bg-[#282828] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-black sm:bottom-7 sm:left-auto sm:right-8 md:right-10"><Repeat2 className="h-5 w-5" />Volver a buscar hogar</button></ViewportPortal>
+      ) : null}
     </div>
   );
 }

@@ -252,7 +252,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
             {!isChatActive && !hidesAppChrome && (
               <>
                 <EmailVerificationBanner />
-                <ProfileCompletionBanner />
+                {!isOwnerMode && <ProfileCompletionBanner />}
               </>
             )}
             <motion.div
