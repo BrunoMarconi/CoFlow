@@ -264,14 +264,27 @@ class PropertyService:
     def check_ready(self, property_obj: Property) -> list[str]:
         return self._missing_ready_fields(property_obj)
 
-    def mark_ready(
+    def get_property_by_id(
         self,
         db: Session,
-        current_user: User,
         property_id: int,
     ) -> Property:
-        property_obj = self._get_own_property(db, current_user, property_id)
+        # Sin filtro de ownership: para uso exclusivo de rutas ya
+        # protegidas por otro medio (p. ej. require_admin), donde el
+        # propietario no es quien está operando la propiedad.
+        property_obj = (
+            db.query(Property)
+            .options(*self._load_options())
+            .filter(Property.id == property_id)
+            .first()
+        )
 
+        if property_obj is None:
+            raise HTTPException(status_code=404, detail="Property not found")
+
+        return self._enrich(property_obj)
+
+    def _finalize_ready(self, db: Session, property_obj: Property) -> Property:
         if property_obj.status not in (
             PropertyStatus.DRAFT,
             PropertyStatus.PAUSED,
@@ -304,7 +317,26 @@ class PropertyService:
             db.rollback()
             raise
 
+        return property_obj
+
+    def mark_ready(
+        self,
+        db: Session,
+        current_user: User,
+        property_id: int,
+    ) -> Property:
+        property_obj = self._get_own_property(db, current_user, property_id)
+        self._finalize_ready(db, property_obj)
         return self.get_my_property(db, current_user, property_obj.id)
+
+    def mark_ready_admin(
+        self,
+        db: Session,
+        property_id: int,
+    ) -> Property:
+        property_obj = self.get_property_by_id(db, property_id)
+        self._finalize_ready(db, property_obj)
+        return self.get_property_by_id(db, property_obj.id)
 
     def pause(
         self,

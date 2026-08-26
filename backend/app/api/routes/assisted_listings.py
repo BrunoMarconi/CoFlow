@@ -1,12 +1,11 @@
 import hashlib
-import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.core.config import CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION, FRONTEND_URL, MINIMUM_REGISTRATION_AGE
+from app.core.config import CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION, MINIMUM_REGISTRATION_AGE
 from app.core.dependencies import require_admin
 from app.core.security import hash_password
 from app.database.models.owner_claim_token import OwnerClaimToken
@@ -15,11 +14,13 @@ from app.database.models.property import Property, PropertyStatus
 from app.database.models.user import User
 from app.database.session import get_db
 from app.schemas.assisted_listing import AssistedListingCreate, AssistedListingResponse, OwnerClaimPreview, OwnerClaimRequest
-from app.services.assisted_listing_email_service import send_owner_claim_email
+from app.schemas.property import PropertyResponse
+from app.services.property_image_service import PropertyImageService
 from app.services.property_service import PropertyService
 
 router = APIRouter()
 property_service = PropertyService()
+property_image_service = PropertyImageService()
 
 
 def _hash_token(raw_token: str) -> str:
@@ -35,7 +36,7 @@ def _active_claim(db: Session, raw_token: str) -> OwnerClaimToken:
 
 
 @router.post("", response_model=AssistedListingResponse)
-def create_assisted_listing(data: AssistedListingCreate, background_tasks: BackgroundTasks, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+def create_assisted_listing(data: AssistedListingCreate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     email = data.owner.email.lower().strip()
     if db.query(User).filter(func.lower(User.email) == email).first():
         raise HTTPException(status_code=409, detail="Ya existe una cuenta con este correo. El propietario debe entrar en su cuenta.")
@@ -43,8 +44,6 @@ def create_assisted_listing(data: AssistedListingCreate, background_tasks: Backg
     if data.property.city.strip().casefold() not in {"málaga", "malaga"}:
         raise HTTPException(status_code=422, detail="El lanzamiento asistido está limitado a Málaga.")
 
-    raw_token = secrets.token_urlsafe(32)
-    expires_at = datetime.now(timezone.utc) + timedelta(days=7)
     try:
         owner = User(first_name=data.owner.first_name.strip(), last_name=data.owner.last_name.strip(), email=email, phone=data.owner.phone.strip(), password_hash=None, role="OWNER", is_email_verified=False, onboarding_completed=False, is_looking_for_roommates=False)
         db.add(owner)
@@ -57,15 +56,22 @@ def create_assisted_listing(data: AssistedListingCreate, background_tasks: Backg
         db.add(property_obj)
         db.flush()
         property_service._set_amenities(db, property_obj, prop_data.amenity_ids)
-        db.add(OwnerClaimToken(user_id=owner.id, property_id=property_obj.id, created_by_id=admin.id, token_hash=_hash_token(raw_token), expires_at=expires_at, owner_consent_recorded_at=datetime.now(timezone.utc)))
         db.commit()
     except Exception:
         db.rollback()
         raise
 
-    claim_url = f"{FRONTEND_URL or 'http://localhost:3000'}/activar-propietario/{raw_token}"
-    background_tasks.add_task(send_owner_claim_email, to_email=email, first_name=owner.first_name, claim_url=claim_url, property_title=property_obj.title)
-    return AssistedListingResponse(property_id=property_obj.id, owner_email=email, claim_url=claim_url, expires_at=expires_at)
+    return AssistedListingResponse(property_id=property_obj.id, owner_email=email)
+
+
+@router.post("/{property_id}/images", response_model=PropertyResponse)
+async def upload_assisted_listing_images(property_id: int, files: list[UploadFile] = File(...), admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    return await property_image_service.upload_images_admin(db=db, property_id=property_id, files=files)
+
+
+@router.post("/{property_id}/ready", response_model=PropertyResponse)
+def mark_assisted_listing_ready(property_id: int, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    return property_service.mark_ready_admin(db=db, property_id=property_id)
 
 
 @router.get("/claim/{token}", response_model=OwnerClaimPreview)

@@ -1,11 +1,11 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import { useAuth } from "@/hooks/useAuth";
-import { createAssistedListing, type AssistedListingResult } from "@/services/assistedListings";
+import { createAssistedListing, markAssistedListingReady, uploadAssistedListingImages, type AssistedListingResult } from "@/services/assistedListings";
 
 export default function AssistedListingPage() {
   const router = useRouter();
@@ -13,6 +13,10 @@ export default function AssistedListingPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<AssistedListingResult | null>(null);
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [publishing, setPublishing] = useState(false);
+  const [published, setPublished] = useState(false);
+  const [publishError, setPublishError] = useState("");
 
   if (loading) return <main className="mx-auto max-w-4xl p-6">Comprobando acceso…</main>;
   if (!user) { router.replace("/login"); return null; }
@@ -38,6 +42,9 @@ export default function AssistedListingPage() {
         owner_consent: form.get("owner_consent") === "on",
       });
       setResult(created);
+      setPhotos([]);
+      setPublished(false);
+      setPublishError("");
       event.currentTarget.reset();
     } catch (reason: unknown) {
       const detail = (reason as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
@@ -45,24 +52,50 @@ export default function AssistedListingPage() {
     } finally { setSaving(false); }
   }
 
+  function onPhotosSelected(event: ChangeEvent<HTMLInputElement>) {
+    setPhotos(Array.from(event.target.files ?? []));
+  }
+
+  async function publish() {
+    if (!result) return;
+    setPublishing(true); setPublishError("");
+    try {
+      if (photos.length > 0) await uploadAssistedListingImages(result.property_id, photos);
+      await markAssistedListingReady(result.property_id);
+      setPublished(true);
+    } catch (reason: unknown) {
+      const detail = (reason as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
+      const missing = detail && typeof detail === "object" && "missing_fields" in (detail as Record<string, unknown>)
+        ? (detail as { missing_fields?: string[] }).missing_fields
+        : undefined;
+      setPublishError(missing?.length ? `Faltan datos: ${missing.join(", ")}` : "No se pudo publicar el piso.");
+    } finally { setPublishing(false); }
+  }
+
   return <main className="mx-auto max-w-4xl px-5 py-10 sm:px-8">
     <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand">Herramienta del equipo</p>
     <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Alta asistida durante una llamada</h1>
-    <p className="mt-3 max-w-2xl leading-7 text-muted">Completa lo esencial. El anuncio quedará en borrador y el propietario recibirá un enlace para crear su acceso, revisar y publicar.</p>
+    <p className="mt-3 max-w-2xl leading-7 text-muted">Completa lo esencial con el consentimiento verbal del propietario durante la llamada. Sube las fotos y publica el piso tú mismo, sin que el propietario tenga que hacer nada más.</p>
 
     {result ? <section className="mt-8 rounded-2xl border border-green-200 bg-green-50 p-5" aria-live="polite">
-      <h2 className="font-bold text-green-900">Borrador creado y correo enviado</h2>
-      <p className="mt-1 text-sm text-green-800">Enviado a {result.owner_email}. También puedes copiar el enlace y mandarlo por WhatsApp.</p>
-      <div className="mt-4 flex flex-wrap gap-3"><button type="button" onClick={() => navigator.clipboard.writeText(result.claim_url)} className="min-h-11 rounded-xl bg-brand px-5 text-sm font-bold text-white">Copiar enlace</button><a href={result.claim_url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center rounded-xl border border-green-300 px-5 text-sm font-bold text-green-900">Abrir revisión</a></div>
+      <h2 className="font-bold text-green-900">Borrador creado</h2>
+      <p className="mt-1 text-sm text-green-800">Propietario: {result.owner_email}. Añade fotos y publica cuando esté listo.</p>
+
+      {published ? <p className="mt-4 font-bold text-green-900">Piso publicado ✓</p> : <div className="mt-4 space-y-3">
+        <label className="block text-sm font-semibold">Fotos<input type="file" accept="image/*" multiple onChange={onPhotosSelected} className="mt-2 block w-full text-sm" /></label>
+        {photos.length > 0 ? <p className="text-xs text-green-800">{photos.length} foto(s) seleccionada(s)</p> : null}
+        {publishError ? <p role="alert" className="text-sm font-semibold text-red-700">{publishError}</p> : null}
+        <button type="button" disabled={publishing} onClick={publish} className="min-h-11 rounded-xl bg-brand px-5 text-sm font-bold text-white disabled:opacity-50">{publishing ? "Publicando…" : "Publicar piso"}</button>
+      </div>}
     </section> : null}
 
     <form onSubmit={submit} className="mt-8 space-y-8">
       <FormSection title="1. Propietario"><div className="grid gap-5 sm:grid-cols-2"><Input name="first_name" label="Nombre" required /><Input name="last_name" label="Apellidos" required /><Input name="email" type="email" label="Correo" required /><Input name="phone" type="tel" label="Teléfono" required /></div></FormSection>
       <FormSection title="2. Vivienda"><div className="space-y-5"><Input name="title" label="Título del anuncio" placeholder="Habitación luminosa en Teatinos" minLength={5} required /><Textarea name="description" label="Descripción" minLength={30} required /><div className="grid gap-5 sm:grid-cols-2"><label className="text-sm font-semibold">Tipo<select name="property_type" className="mt-2 h-11.5 w-full rounded-14 border border-border bg-white px-4"><option value="SHARED_APARTMENT">Habitación / piso compartido</option><option value="APARTMENT">Piso completo</option><option value="STUDIO">Estudio</option><option value="HOUSE">Casa</option></select></label><Input name="neighborhood" label="Barrio o zona" /><Input name="address_line" label="Dirección" required /><Input name="postal_code" label="Código postal" required /></div></div></FormSection>
       <FormSection title="3. Precio y capacidad"><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"><Input name="rent" type="number" min={0} label="Alquiler mensual (€)" required /><Input name="deposit" type="number" min={0} label="Fianza (€)" required /><Input name="available_from" type="date" label="Disponible desde" required /><Input name="bedrooms" type="number" min={0} defaultValue={1} label="Habitaciones" required /><Input name="bathrooms" type="number" min={1} defaultValue={1} label="Baños" required /><Input name="max_tenants" type="number" min={1} defaultValue={1} label="Máximo de inquilinos" required /></div><div className="mt-5 flex flex-wrap gap-5"><Check name="furnished" label="Amueblado" /><Check name="has_elevator" label="Tiene ascensor" /><Check name="utilities_included" label="Gastos incluidos" /></div></FormSection>
-      <label className="flex items-start gap-3 rounded-2xl border border-line p-5 text-sm leading-6"><input name="owner_consent" type="checkbox" required className="mt-1 h-5 w-5 accent-[var(--brand)]" /><span><strong>El propietario autoriza esta alta asistida.</strong><br /><span className="text-muted">Le he explicado que recibirá un borrador, que deberá revisar y que nada se publicará sin su confirmación.</span></span></label>
+      <label className="flex items-start gap-3 rounded-2xl border border-line p-5 text-sm leading-6"><input name="owner_consent" type="checkbox" required className="mt-1 h-5 w-5 accent-[var(--brand)]" /><span><strong>El propietario ha dado su consentimiento verbal durante la llamada.</strong><br /><span className="text-muted">Le he explicado que voy a publicar su piso en CoFlow con estos datos. Si alquilamos la habitación, le llamaremos directamente.</span></span></label>
       {error ? <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm font-semibold text-red-700">{error}</p> : null}
-      <button disabled={saving} className="min-h-14 w-full rounded-xl bg-brand px-6 font-bold text-white disabled:opacity-50">{saving ? "Creando borrador…" : "Crear borrador y enviar enlace"}</button>
+      <button disabled={saving} className="min-h-14 w-full rounded-xl bg-brand px-6 font-bold text-white disabled:opacity-50">{saving ? "Creando borrador…" : "Crear borrador"}</button>
     </form>
   </main>;
 }

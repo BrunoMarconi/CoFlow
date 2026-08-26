@@ -51,7 +51,35 @@ class PropertyImageService:
         files: list[UploadFile],
     ) -> Property:
         property_obj = self._get_owned_property(db, current_user, property_id)
+        await self._upload_images_to(db, property_obj, files)
+        return property_service.get_my_property(db, current_user, property_obj.id)
 
+    async def upload_images_admin(
+        self,
+        db: Session,
+        property_id: int,
+        files: list[UploadFile],
+    ) -> Property:
+        # Igual que upload_images pero sin exigir que current_user sea el
+        # propietario: pensado para rutas ya protegidas por require_admin
+        # (alta asistida), donde quien sube las fotos es el equipo.
+        property_obj = property_service.get_property_by_id(db, property_id)
+
+        if property_obj.status not in EDITABLE_STATUSES:
+            raise HTTPException(
+                status_code=409,
+                detail="This property's photos cannot be edited in its current status",
+            )
+
+        await self._upload_images_to(db, property_obj, files)
+        return property_service.get_property_by_id(db, property_obj.id)
+
+    async def _upload_images_to(
+        self,
+        db: Session,
+        property_obj: Property,
+        files: list[UploadFile],
+    ) -> None:
         current_count = (
             db.query(PropertyImage)
             .filter(PropertyImage.property_id == property_obj.id)
@@ -122,10 +150,6 @@ class PropertyImageService:
                 )
 
             raise
-
-        return property_service.get_my_property(
-            db, current_user, property_obj.id,
-        )
 
     def delete_image(
         self,
