@@ -70,7 +70,7 @@ def create_assisted_listing(data: AssistedListingCreate, admin: User = Depends(r
         )
         db.add(owner)
         db.flush()
-        profile = OwnerProfile(user_id=owner.id, owner_type=OwnerType.INDIVIDUAL, display_name=f"{owner.first_name} {owner.last_name}".strip(), phone=owner.phone, contact_email=raw_email or None)
+        profile = OwnerProfile(user_id=owner.id, owner_type=OwnerType.INDIVIDUAL, display_name=f"{owner.first_name} {owner.last_name}".strip(), phone=owner.phone or "", contact_email=email)
         db.add(profile)
         db.flush()
         prop_data = data.property
