@@ -1,4 +1,5 @@
 import hashlib
+import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
@@ -10,7 +11,7 @@ from app.core.dependencies import require_admin
 from app.core.security import hash_password
 from app.database.models.owner_claim_token import OwnerClaimToken
 from app.database.models.owner_profile import OwnerProfile, OwnerType
-from app.database.models.property import Property, PropertyStatus
+from app.database.models.property import Property, PropertyStatus, PropertyType
 from app.database.models.user import User
 from app.database.session import get_db
 from app.schemas.assisted_listing import AssistedListingCreate, AssistedListingResponse, OwnerClaimPreview, OwnerClaimRequest
@@ -37,22 +38,74 @@ def _active_claim(db: Session, raw_token: str) -> OwnerClaimToken:
 
 @router.post("", response_model=AssistedListingResponse)
 def create_assisted_listing(data: AssistedListingCreate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
-    email = data.owner.email.lower().strip()
-    if db.query(User).filter(func.lower(User.email) == email).first():
-        raise HTTPException(status_code=409, detail="Ya existe una cuenta con este correo. El propietario debe entrar en su cuenta.")
+    # Alta asistida: nada es obligatorio en el formulario, el admin
+    # rellena lo que le ha dado tiempo a anotar en la llamada. Lo que la
+    # base de datos exige de verdad (email único, nombre, ciudad,
+    # tipo...) se completa aquí con valores por defecto; el resto se
+    # termina de rellenar antes de publicar (ver mark_ready_admin).
+    raw_email = (data.owner.email or "").strip().lower()
 
-    if data.property.city.strip().casefold() not in {"málaga", "malaga"}:
+    if raw_email:
+        if db.query(User).filter(func.lower(User.email) == raw_email).first():
+            raise HTTPException(status_code=409, detail="Ya existe una cuenta con este correo. El propietario debe entrar en su cuenta.")
+        email = raw_email
+    else:
+        email = f"sin-email-{uuid.uuid4().hex}@coflow.pending"
+
+    city = (data.property.city or "Málaga").strip()
+    if city.casefold() not in {"málaga", "malaga"}:
         raise HTTPException(status_code=422, detail="El lanzamiento asistido está limitado a Málaga.")
 
     try:
-        owner = User(first_name=data.owner.first_name.strip(), last_name=data.owner.last_name.strip(), email=email, phone=data.owner.phone.strip(), password_hash=None, role="OWNER", is_email_verified=False, onboarding_completed=False, is_looking_for_roommates=False)
+        owner = User(
+            first_name=(data.owner.first_name or "Propietario").strip(),
+            last_name=(data.owner.last_name or "").strip(),
+            email=email,
+            phone=(data.owner.phone or "").strip() or None,
+            password_hash=None,
+            role="OWNER",
+            is_email_verified=False,
+            onboarding_completed=False,
+            is_looking_for_roommates=False,
+        )
         db.add(owner)
         db.flush()
-        profile = OwnerProfile(user_id=owner.id, owner_type=OwnerType.INDIVIDUAL, display_name=f"{owner.first_name} {owner.last_name}", phone=owner.phone, contact_email=email)
+        profile = OwnerProfile(user_id=owner.id, owner_type=OwnerType.INDIVIDUAL, display_name=f"{owner.first_name} {owner.last_name}".strip(), phone=owner.phone, contact_email=raw_email or None)
         db.add(profile)
         db.flush()
         prop_data = data.property
-        property_obj = Property(owner_profile_id=profile.id, title=prop_data.title.strip(), description=prop_data.description.strip(), property_type=prop_data.property_type, status=PropertyStatus.DRAFT, address_line=prop_data.address_line.strip(), city=prop_data.city.strip(), province=prop_data.province.strip(), postal_code=prop_data.postal_code.strip(), neighborhood=prop_data.neighborhood.strip() if prop_data.neighborhood else None, latitude=prop_data.latitude, longitude=prop_data.longitude, surface_m2=prop_data.surface_m2, bedrooms=prop_data.bedrooms, bathrooms=prop_data.bathrooms, floor=prop_data.floor, has_elevator=prop_data.has_elevator, furnished=prop_data.furnished, max_tenants=prop_data.max_tenants, total_monthly_rent=prop_data.total_monthly_rent, deposit=prop_data.deposit, utilities_included=prop_data.utilities_included, available_from=prop_data.available_from, minimum_stay_months=prop_data.minimum_stay_months, pets_allowed=prop_data.pets_allowed, smoking_allowed=prop_data.smoking_allowed, couples_allowed=prop_data.couples_allowed, students_allowed=prop_data.students_allowed, registration_allowed=prop_data.registration_allowed, additional_requirements=prop_data.additional_requirements)
+        property_obj = Property(
+            owner_profile_id=profile.id,
+            title=(prop_data.title or "").strip(),
+            description=(prop_data.description or "").strip(),
+            property_type=prop_data.property_type or PropertyType.OTHER,
+            status=PropertyStatus.DRAFT,
+            address_line=(prop_data.address_line or "").strip(),
+            city=city,
+            province=(prop_data.province or "Málaga").strip(),
+            postal_code=(prop_data.postal_code or "").strip(),
+            neighborhood=prop_data.neighborhood.strip() if prop_data.neighborhood else None,
+            latitude=prop_data.latitude,
+            longitude=prop_data.longitude,
+            surface_m2=prop_data.surface_m2,
+            bedrooms=prop_data.bedrooms if prop_data.bedrooms is not None else 0,
+            bathrooms=prop_data.bathrooms if prop_data.bathrooms is not None else 1,
+            floor=prop_data.floor,
+            has_elevator=prop_data.has_elevator,
+            furnished=prop_data.furnished,
+            max_tenants=prop_data.max_tenants if prop_data.max_tenants is not None else 1,
+            total_monthly_rent=prop_data.total_monthly_rent,
+            deposit=prop_data.deposit,
+            utilities_included=prop_data.utilities_included,
+            available_from=prop_data.available_from,
+            minimum_stay_months=prop_data.minimum_stay_months,
+            pets_allowed=prop_data.pets_allowed,
+            smoking_allowed=prop_data.smoking_allowed,
+            couples_allowed=prop_data.couples_allowed,
+            students_allowed=prop_data.students_allowed,
+            registration_allowed=prop_data.registration_allowed,
+            additional_requirements=prop_data.additional_requirements,
+        )
         db.add(property_obj)
         db.flush()
         property_service._set_amenities(db, property_obj, prop_data.amenity_ids)
@@ -61,7 +114,7 @@ def create_assisted_listing(data: AssistedListingCreate, admin: User = Depends(r
         db.rollback()
         raise
 
-    return AssistedListingResponse(property_id=property_obj.id, owner_email=email)
+    return AssistedListingResponse(property_id=property_obj.id, owner_email=raw_email or "(sin email)")
 
 
 @router.post("/{property_id}/images", response_model=PropertyResponse)

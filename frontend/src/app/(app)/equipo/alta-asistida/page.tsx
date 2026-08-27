@@ -27,16 +27,16 @@ export default function AssistedListingPage() {
     setSaving(true); setError(""); setResult(null);
     const form = new FormData(event.currentTarget);
     const text = (name: string) => String(form.get(name) ?? "").trim();
-    const number = (name: string) => Number(text(name));
+    const numberOrNull = (name: string) => { const raw = text(name); return raw === "" ? null : Number(raw); };
     try {
       const created = await createAssistedListing({
-        owner: { first_name: text("first_name"), last_name: text("last_name"), email: text("email"), phone: text("phone") },
+        owner: { first_name: text("first_name") || null, last_name: text("last_name") || null, email: text("email") || null, phone: text("phone") || null },
         property: {
-          title: text("title"), description: text("description"), property_type: text("property_type"),
-          address_line: text("address_line"), city: "Málaga", province: "Málaga", postal_code: text("postal_code"), neighborhood: text("neighborhood") || null,
-          bedrooms: number("bedrooms"), bathrooms: number("bathrooms"), max_tenants: number("max_tenants"),
+          title: text("title") || null, description: text("description") || null, property_type: text("property_type"),
+          address_line: text("address_line") || null, city: "Málaga", province: "Málaga", postal_code: text("postal_code") || null, neighborhood: text("neighborhood") || null,
+          bedrooms: numberOrNull("bedrooms"), bathrooms: numberOrNull("bathrooms"), max_tenants: numberOrNull("max_tenants"),
           has_elevator: form.get("has_elevator") === "on", furnished: form.get("furnished") === "on",
-          total_monthly_rent: number("rent"), deposit: number("deposit"), utilities_included: form.get("utilities_included") === "on",
+          total_monthly_rent: numberOrNull("rent"), deposit: numberOrNull("deposit"), utilities_included: form.get("utilities_included") === "on",
           available_from: text("available_from") || null, amenity_ids: [],
         },
         owner_consent: form.get("owner_consent") === "on",
@@ -90,9 +90,9 @@ export default function AssistedListingPage() {
     </section> : null}
 
     <form onSubmit={submit} className="mt-8 space-y-8">
-      <FormSection title="1. Propietario"><div className="grid gap-5 sm:grid-cols-2"><Input name="first_name" label="Nombre" required /><Input name="last_name" label="Apellidos" required /><Input name="email" type="email" label="Correo" required /><Input name="phone" type="tel" label="Teléfono" required /></div></FormSection>
-      <FormSection title="2. Vivienda"><div className="space-y-5"><Input name="title" label="Título del anuncio" placeholder="Habitación luminosa en Teatinos" minLength={5} required /><Textarea name="description" label="Descripción" minLength={30} required /><div className="grid gap-5 sm:grid-cols-2"><label className="text-sm font-semibold">Tipo<select name="property_type" className="mt-2 h-11.5 w-full rounded-14 border border-border bg-white px-4"><option value="SHARED_APARTMENT">Habitación / piso compartido</option><option value="APARTMENT">Piso completo</option><option value="STUDIO">Estudio</option><option value="HOUSE">Casa</option></select></label><Input name="neighborhood" label="Barrio o zona" /><Input name="address_line" label="Dirección" required /><Input name="postal_code" label="Código postal" required /></div></div></FormSection>
-      <FormSection title="3. Precio y capacidad"><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"><Input name="rent" type="number" min={0} label="Alquiler mensual (€)" required /><Input name="deposit" type="number" min={0} label="Fianza (€)" required /><Input name="available_from" type="date" label="Disponible desde" required /><Input name="bedrooms" type="number" min={0} defaultValue={1} label="Habitaciones" required /><Input name="bathrooms" type="number" min={1} defaultValue={1} label="Baños" required /><Input name="max_tenants" type="number" min={1} defaultValue={1} label="Máximo de inquilinos" required /></div><div className="mt-5 flex flex-wrap gap-5"><Check name="furnished" label="Amueblado" /><Check name="has_elevator" label="Tiene ascensor" /><Check name="utilities_included" label="Gastos incluidos" /></div></FormSection>
+      <FormSection title="1. Propietario"><div className="grid gap-5 sm:grid-cols-2"><Input name="first_name" label="Nombre" /><Input name="last_name" label="Apellidos" /><Input name="email" type="email" label="Correo" /><Input name="phone" type="tel" label="Teléfono" /></div></FormSection>
+      <FormSection title="2. Vivienda"><div className="space-y-5"><Input name="title" label="Título del anuncio" placeholder="Habitación luminosa en Teatinos" /><Textarea name="description" label="Descripción" /><div className="grid gap-5 sm:grid-cols-2"><label className="text-sm font-semibold">Tipo<select name="property_type" className="mt-2 h-11.5 w-full rounded-14 border border-border bg-white px-4"><option value="SHARED_APARTMENT">Habitación / piso compartido</option><option value="APARTMENT">Piso completo</option><option value="STUDIO">Estudio</option><option value="HOUSE">Casa</option></select></label><Input name="neighborhood" label="Barrio o zona" /><Input name="address_line" label="Dirección" /><Input name="postal_code" label="Código postal" /></div></div></FormSection>
+      <FormSection title="3. Precio y capacidad"><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"><Input name="rent" type="number" min={0} label="Alquiler mensual (€)" /><Input name="deposit" type="number" min={0} label="Fianza (€)" /><Input name="available_from" type="date" label="Disponible desde" /><Input name="bedrooms" type="number" min={0} defaultValue={1} label="Habitaciones" /><Input name="bathrooms" type="number" min={1} defaultValue={1} label="Baños" /><Input name="max_tenants" type="number" min={1} defaultValue={1} label="Máximo de inquilinos" /></div><div className="mt-5 flex flex-wrap gap-5"><Check name="furnished" label="Amueblado" /><Check name="has_elevator" label="Tiene ascensor" /><Check name="utilities_included" label="Gastos incluidos" /></div></FormSection>
       <label className="flex items-start gap-3 rounded-2xl border border-line p-5 text-sm leading-6"><input name="owner_consent" type="checkbox" required className="mt-1 h-5 w-5 accent-[var(--brand)]" /><span><strong>El propietario ha dado su consentimiento verbal durante la llamada.</strong><br /><span className="text-muted">Le he explicado que voy a publicar su piso en CoFlow con estos datos. Si alquilamos la habitación, le llamaremos directamente.</span></span></label>
       {error ? <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm font-semibold text-red-700">{error}</p> : null}
       <button disabled={saving} className="min-h-14 w-full rounded-xl bg-brand px-6 font-bold text-white disabled:opacity-50">{saving ? "Creando borrador…" : "Crear borrador"}</button>
