@@ -6,29 +6,27 @@ import { Logo } from "./shared";
 import { CloseIcon, MenuIcon } from "./icons";
 
 const NAV_LINKS = [
-  { href: "#como-funciona", label: "Cómo funciona" },
-  { href: "#personas", label: "Personas" },
-  { href: "#preguntas", label: "Preguntas" },
+  { href: "/para-propietarios", label: "Propietarios" },
 ] as const;
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky inset-x-0 top-0 z-50 px-4 pt-3 sm:px-8 sm:pt-4">
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between rounded-2xl border border-white/70 bg-white/90 px-4 shadow-[0_12px_40px_rgba(22,59,46,0.08)] backdrop-blur-xl sm:px-6">
+    <header className="sticky inset-x-0 top-0 z-50 border-b border-black/5 bg-white/75 px-4 backdrop-blur-2xl sm:px-8">
+      <nav className="mx-auto flex h-14 max-w-xl items-center justify-between px-1">
         <Link
           href="/"
           className="flex items-center gap-3"
           aria-label="CoFlow, página principal"
         >
           <Logo />
-          <span className="text-xl font-black tracking-tight text-brand-dark">
+          <span className="text-base font-bold tracking-[-0.025em] text-brand-dark sm:text-lg">
             CoFlow
           </span>
         </Link>
 
-        <div className="hidden items-center gap-7 md:flex">
+        <div className="hidden items-center gap-5 sm:flex">
           {NAV_LINKS.map((link) => (
             <a
               key={link.href}
@@ -42,17 +40,10 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2">
           <Link
-            href="/login"
-            className="hidden h-11 items-center justify-center rounded-xl px-4 text-sm font-bold text-brand-dark transition hover:bg-brand/10 sm:inline-flex"
-          >
-            Iniciar sesión
-          </Link>
-
-          <Link
             href="/register"
-            className="hidden h-11 items-center justify-center rounded-xl bg-brand px-4 text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:-translate-y-0.5 hover:bg-brand-dark sm:inline-flex sm:px-5"
+            className="inline-flex h-8 items-center justify-center rounded-full bg-brand px-4 text-[11px] font-semibold text-white shadow-sm transition hover:bg-brand-dark"
           >
-            Crear cuenta
+            Entrar
           </Link>
 
           <button
@@ -60,7 +51,7 @@ export default function Navbar() {
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
             aria-label={open ? "Cerrar menú" : "Abrir menú"}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-brand-dark transition hover:bg-brand/10 md:hidden"
+            className="hidden h-9 w-9 items-center justify-center rounded-full text-brand-dark transition hover:bg-brand/10"
           >
             {open ? <CloseIcon /> : <MenuIcon />}
           </button>
@@ -68,7 +59,7 @@ export default function Navbar() {
       </nav>
 
       {open ? (
-        <div className="mx-auto mt-2 max-w-7xl rounded-2xl border border-white/70 bg-white/95 p-4 shadow-[0_12px_40px_rgba(22,59,46,0.08)] backdrop-blur-xl md:hidden">
+        <div className="mx-auto mb-3 mt-1 max-w-6xl rounded-[1.5rem] border border-black/5 bg-white/95 p-4 shadow-[0_18px_50px_rgba(22,59,46,0.1)] backdrop-blur-xl md:hidden">
           <div className="flex flex-col gap-1">
             {NAV_LINKS.map((link) => (
               <a

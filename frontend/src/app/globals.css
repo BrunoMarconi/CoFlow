@@ -161,6 +161,28 @@ body {
   font-family: var(--font-jakarta), Arial, Helvetica, sans-serif;
 }
 
+/* Landing: una lectura más serena y táctil inspirada en iOS. La app mantiene
+   sus tokens funcionales; estos acabados solo se activan en la portada. */
+.landing-shell {
+  --landing-card: rgba(255, 255, 255, 0.92);
+  --landing-line: rgba(18, 49, 38, 0.09);
+  background: #f3f3f7;
+}
+
+.landing-card {
+  border: 1px solid var(--landing-line);
+  background: var(--landing-card);
+  box-shadow: 0 1px 2px rgba(18, 49, 38, 0.04), 0 20px 55px rgba(18, 49, 38, 0.06);
+  backdrop-filter: blur(18px);
+}
+
+.landing-shell h1,
+.landing-shell h2,
+.landing-shell h3,
+.landing-shell p {
+  text-wrap: pretty;
+}
+
 img,
 svg {
   max-width: 100%;
@@ -172,6 +194,29 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+.ios-secondary,
+.ios-muted {
+  display: inline-flex;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.ios-secondary {
+  border: 1px solid rgb(0 0 0 / 0.05);
+  background: #fff;
+  color: var(--brand-dark);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+}
+
+.ios-muted {
+  background: rgb(0 0 0 / 0.04);
+  color: var(--secondary);
 }
 
 button,

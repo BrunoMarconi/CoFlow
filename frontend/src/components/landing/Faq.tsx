@@ -5,15 +5,15 @@ export default function Faq() {
   return (
     <section
       id="preguntas"
-      className="scroll-mt-24 bg-white px-5 py-12 sm:px-8 sm:py-24 lg:py-28"
+      className="scroll-mt-24 px-4 py-8 sm:py-10"
     >
-      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-12">
+      <div className="mx-auto grid max-w-xl gap-6">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.18em] text-brand">
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand">
             Preguntas frecuentes
           </p>
 
-          <h2 className="mt-4 text-3xl font-black tracking-[-0.03em] text-brand-dark sm:text-4xl lg:text-5xl">
+          <h2 className="mt-3 text-[2rem] font-bold tracking-[-0.045em] text-brand-dark sm:text-4xl">
             Antes de empezar
           </h2>
 
@@ -23,13 +23,13 @@ export default function Faq() {
           </p>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {faqItems.map((item) => (
             <details
               key={item.question}
-              className="group overflow-hidden rounded-2xl border border-line bg-background"
+              className="group overflow-hidden rounded-[1.2rem] bg-white ring-1 ring-black/[0.035]"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-5 px-5 py-5 text-base font-bold text-brand-dark sm:px-6">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 text-[12px] font-semibold text-brand-dark">
                 {item.question}
 
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-brand shadow-sm transition group-open:rotate-45">
@@ -37,7 +37,7 @@ export default function Faq() {
                 </span>
               </summary>
 
-              <p className="border-t border-line bg-white px-5 py-5 text-sm leading-7 text-muted sm:px-6">
+              <p className="border-t border-black/5 bg-white/55 px-5 py-5 text-sm leading-7 text-muted sm:px-6">
                 {item.answer}
               </p>
             </details>

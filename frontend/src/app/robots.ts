@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/login", "/register", "/verificacion-pendiente", "/verificar-email"],
+      disallow: ["/login", "/register", "/verificacion-pendiente", "/verificar-email", "/mensajes", "/notificaciones", "/perfil", "/onboarding", "/propietarios/"],
     },
     sitemap: `${APP_URL}/sitemap.xml`,
   };

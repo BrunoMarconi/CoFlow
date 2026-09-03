@@ -19,32 +19,28 @@ const legalLinks = [
 
 export default function Trust() {
   return (
-    <section className="px-5 py-12 sm:px-8 sm:py-24 lg:py-28">
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] bg-brand-dark px-6 py-12 text-white sm:px-12 sm:py-16">
+    <section className="px-4 py-8 sm:py-10">
+      <div className="mx-auto max-w-xl overflow-hidden rounded-[1.65rem] bg-brand-dark px-5 py-7 text-white shadow-[0_18px_45px_rgba(17,49,37,0.15)]">
         <SectionHeader
           eyebrow="Seguridad y confianza"
           title="Tú decides con quién compartes piso."
           description="Herramientas reales para que mantengas el control en cada paso, no promesas vacías."
           tone="dark"
+          align="left"
         />
 
-        <div className="mt-8 grid gap-3 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid gap-2">
           {safetyPoints.map((point) => {
             const Icon = ICONS[point.icon];
             return (
               <div
                 key={point.title}
-                className="rounded-[1.5rem] border border-white/10 bg-white/4 p-5 transition hover:bg-white/7"
+                className="flex gap-3 rounded-[1.15rem] border border-white/10 bg-white/6 p-3.5"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-green-400/15 text-green-300">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-green-300">
                   <Icon />
                 </span>
-                <p className="mt-4 text-base font-bold text-white">
-                  {point.title}
-                </p>
-                <p className="mt-1.5 text-sm leading-6 text-green-50/70">
-                  {point.description}
-                </p>
+                <div><p className="text-[12px] font-semibold text-white">{point.title}</p><p className="mt-1 text-[10px] leading-4 text-green-50/65">{point.description}</p></div>
               </div>
             );
           })}

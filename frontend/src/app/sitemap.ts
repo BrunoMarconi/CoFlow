@@ -17,6 +17,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    {
+      url: `${APP_URL}/para-propietarios`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     ...seoCities.map((city) => ({
       url: `${APP_URL}/companeros-de-piso/${city.slug}`,
       lastModified: new Date(),

@@ -5,44 +5,33 @@ export default function HowItWorks() {
   return (
     <section
       id="como-funciona"
-      className="scroll-mt-24 px-5 py-12 sm:px-8 sm:py-24 lg:py-28"
+      className="scroll-mt-24 px-4 py-8 sm:py-10"
     >
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-xl">
         <SectionHeader
           eyebrow="Cómo funciona"
           title="De desconocidos a compañeros compatibles"
           description="Un proceso sencillo para entender qué busca cada persona antes de compartir vivienda."
+          align="left"
         />
 
-        <div className="relative mt-10 sm:mt-14">
-          {/* Vertical connector (mobile/tablet) */}
-          <div
-            aria-hidden="true"
-            className="absolute left-6 top-6 bottom-6 w-px bg-brand/20 lg:hidden"
-          />
-
-          {/* Horizontal connector (desktop) */}
-          <div
-            aria-hidden="true"
-            className="absolute left-[16.666%] right-[16.666%] top-6 hidden h-px bg-brand/20 lg:block"
-          />
-
-          <div className="flex flex-col gap-10 lg:flex-row lg:gap-6">
+        <div className="mt-8 sm:mt-12">
+          <div className="grid gap-2.5">
             {howItWorksSteps.map((step, index) => (
               <div
                 key={step.number}
-                className="relative flex gap-5 lg:flex-1 lg:flex-col lg:items-center lg:gap-0 lg:text-center"
+                className="relative flex gap-3 rounded-[1.35rem] bg-white p-4 ring-1 ring-black/[0.035]"
               >
-                <span className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-dark text-sm font-bold text-white">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#eef2ef] text-[10px] font-bold text-brand">
                   {index + 1}
                 </span>
 
-                <div className="lg:mt-6">
-                  <h3 className="text-xl font-bold text-brand-dark sm:text-2xl">
+                <div>
+                  <h3 className="text-base font-semibold text-brand-dark sm:text-lg">
                     {step.title}
                   </h3>
 
-                  <p className="mt-2 text-base leading-7 text-muted lg:mx-auto lg:max-w-60">
+                  <p className="mt-1.5 text-sm leading-6 text-muted">
                     {step.description}
                   </p>
                 </div>

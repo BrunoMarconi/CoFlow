@@ -41,11 +41,11 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "CoFlow Málaga | Encuentra personas compatibles para compartir hogar",
+    default: "Compañeros de piso en Málaga compatibles | CoFlow",
     template: "%s | CoFlow",
   },
   description:
-    "Encuentra personas, comunidades y viviendas en Málaga según vuestros hábitos y preferencias de convivencia.",
+    "Encuentra compañeros de piso y comunidades en Málaga según presupuesto, hábitos y preferencias de convivencia. Crea tu perfil gratis en CoFlow.",
   keywords: [
     "compartir piso Málaga",
     "compañeros de piso",
@@ -90,12 +90,26 @@ export const metadata: Metadata = {
 // logo de CoFlow a los resultados de búsqueda — sin esto, un
 // favicon/OG image por sí solos no son suficiente señal para el logo
 // que Google muestra junto al nombre del sitio.
-const organizationJsonLd = {
+const siteJsonLd = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "CoFlow",
-  url: PUBLIC_SITE_URL,
-  logo: `${PUBLIC_SITE_URL}/logo-coflow.png`,
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${PUBLIC_SITE_URL}/#organization`,
+      name: "CoFlow",
+      url: PUBLIC_SITE_URL,
+      logo: `${PUBLIC_SITE_URL}/logo-coflow.png`,
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${PUBLIC_SITE_URL}/#website`,
+      name: "CoFlow",
+      alternateName: "CoFlow Málaga",
+      url: PUBLIC_SITE_URL,
+      inLanguage: "es-ES",
+      publisher: { "@id": `${PUBLIC_SITE_URL}/#organization` },
+    },
+  ],
 };
 
 export const viewport: Viewport = {
@@ -121,7 +135,7 @@ export default function RootLayout({
       <body className="min-h-full bg-background font-sans text-brand-dark">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
         />
         <QueryProvider>
           <AuthProvider>

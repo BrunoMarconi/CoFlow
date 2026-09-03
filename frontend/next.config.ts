@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
       { protocol: "http", hostname: "localhost", port: "8000" },
       { protocol: "https", hostname: "*.onrender.com" },
       { protocol: "https", hostname: "*.r2.dev" },
+      { protocol: "https", hostname: "images.unsplash.com" },
       ...(r2CustomHostname
         ? [{ protocol: "https" as const, hostname: r2CustomHostname }]
         : []),

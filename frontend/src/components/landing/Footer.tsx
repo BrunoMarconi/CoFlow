@@ -31,9 +31,9 @@ const supportLinks = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-line bg-white px-5 py-12 sm:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
+    <footer className="border-t border-black/5 bg-[#ececf1] px-5 py-10">
+      <div className="mx-auto max-w-xl">
+        <div className="grid grid-cols-2 gap-8">
           <div>
             <Link href="/" className="inline-flex items-center gap-3">
               <Logo />

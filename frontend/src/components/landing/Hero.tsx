@@ -1,72 +1,43 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRightIcon, CheckIcon, SearchIcon } from "./icons";
+import { ArrowRightIcon, CheckIcon } from "./icons";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-130 overflow-hidden sm:min-h-152 lg:min-h-176">
-      <Image
-        src="/images/hero/city-night.webp"
-        alt="Vista panorámica de una ciudad de noche"
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover object-center"
-      />
-
-      <div className="absolute inset-0 bg-linear-to-t from-brand-dark via-brand-dark/75 to-brand-dark/25" />
-      <div className="absolute inset-0 bg-linear-to-b from-black/35 via-transparent to-transparent" />
-
-      <div className="relative mx-auto flex min-h-130 max-w-7xl flex-col justify-end px-5 pb-9 pt-24 sm:min-h-[38rem] sm:px-8 sm:pb-16 lg:min-h-[44rem] lg:pb-20">
-        <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
-          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-green-300" />
+    <section className="px-4 pb-8 pt-5 sm:pt-8">
+      <div className="mx-auto max-w-xl">
+        <div className="inline-flex items-center gap-2 rounded-full bg-black/[0.035] px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-secondary">
+          <span className="h-1.5 w-1.5 rounded-full bg-brand" />
           Lanzamiento en Málaga
         </div>
-
-        <h1 className="mt-4 max-w-xs text-4xl font-black leading-[1.05] tracking-[-0.035em] text-white min-[375px]:text-[2.6rem] min-[375px]:leading-[1.05] sm:max-w-2xl sm:text-6xl lg:text-7xl">
-          Encuentra compañeros de piso{" "}
-          <span className="text-green-300">compatibles</span>
-        </h1>
-
-        <p className="mt-4 max-w-xs text-base leading-7 text-white/85 sm:mt-5 sm:max-w-xl sm:text-xl sm:leading-8">
-          Conoce hábitos, presupuesto y forma de convivir antes de decidir
-          compartir piso.
-        </p>
-
-        <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row">
-          <Link
-            href="/register"
-            className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-brand px-7 text-sm font-bold text-white shadow-[0_16px_35px_rgba(0,0,0,0.25)] transition active:scale-[0.98] sm:hover:-translate-y-1 sm:hover:bg-brand-dark"
-          >
-            Crear mi perfil gratis
-            <ArrowRightIcon />
-          </Link>
-
-          <Link
-            href="/usuarios"
-            className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-white/40 bg-white/10 px-7 text-sm font-bold text-white backdrop-blur transition active:scale-[0.98] sm:hover:-translate-y-1"
-          >
-            Explorar personas
-            <SearchIcon />
-          </Link>
+        <h1 className="mt-4 text-[2.55rem] font-semibold leading-[0.98] tracking-[-0.06em] text-brand-dark sm:text-[3.5rem]">Encuentra compañeros de piso compatibles.</h1>
+        <p className="mt-4 max-w-lg text-[15px] leading-6 text-secondary">Conoce hábitos, presupuesto y forma de convivir antes de decidir compartir piso.</p>
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          <Link href="/register" className="inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-xs font-semibold text-brand-dark shadow-sm ring-1 ring-black/5">Crear mi perfil</Link>
+          <Link href="/para-propietarios" className="inline-flex h-10 items-center justify-center rounded-full bg-black/[0.045] px-4 text-xs font-semibold text-secondary">Soy propietario</Link>
         </div>
-
-        <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-white/80 sm:mt-7 sm:text-sm">
-          <HeroCheckItem text="Perfil gratis" />
-          <HeroCheckItem text="Sin compromiso" />
-        </div>
+        <article className="mt-6 overflow-hidden rounded-[1.65rem] bg-white p-2 shadow-[0_14px_40px_rgba(18,49,38,0.08)] ring-1 ring-black/[0.045]">
+          <div className="relative aspect-[16/10] overflow-hidden rounded-[1.25rem]">
+            <Image src="/images/lifestyle/barcelona-home.webp" alt="Interior luminoso de una vivienda compartida" fill priority sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/45 via-transparent to-black/10" />
+            <span className="absolute left-3 top-3 rounded-full bg-brand-dark/80 px-3 py-1.5 text-[10px] font-medium text-white backdrop-blur-lg">Comunidad</span>
+            <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-medium text-brand-dark backdrop-blur-lg"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Málaga</span>
+            <span className="absolute bottom-3 right-3 rounded-full bg-black/45 px-3 py-1.5 text-[10px] text-white backdrop-blur-lg">Plazas disponibles</span>
+          </div>
+          <div className="px-2 pb-2 pt-3">
+            <div className="flex items-start justify-between gap-3">
+              <div><h2 className="text-[15px] font-semibold tracking-[-0.025em] text-brand-dark">Comunidades en Málaga</h2><p className="mt-1 text-[11px] leading-4 text-muted">Conoce las preferencias de convivencia y las condiciones de cada plaza antes de decidir.</p></div>
+              <span className="shrink-0 rounded-full bg-black/[0.035] px-2.5 py-1 text-[9px] text-secondary">Málaga</span>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-1.5 text-[9px] font-medium text-brand-dark"><span className="rounded-full bg-[#f1f4ef] px-2.5 py-1.5">Preferencias</span><span className="rounded-full bg-[#f1f4ef] px-2.5 py-1.5">Presupuesto</span><span className="rounded-full bg-[#f1f4ef] px-2.5 py-1.5">Plazas abiertas</span></div>
+            <div className="mt-4 flex items-center justify-between border-t border-black/5 pt-3">
+              <span className="text-[10px] font-medium text-secondary">Explora antes de decidir</span>
+              <Link href="/comunidades" className="inline-flex h-9 items-center gap-1.5 rounded-full bg-brand px-4 text-[10px] font-semibold text-white">Ver comunidades <ArrowRightIcon /></Link>
+            </div>
+          </div>
+        </article>
+        <div className="mt-4 flex justify-center gap-4 text-[10px] font-medium text-secondary"><span className="flex items-center gap-1"><CheckIcon /> Perfil gratis</span><span className="flex items-center gap-1"><CheckIcon /> Sin compromiso</span></div>
       </div>
     </section>
-  );
-}
-
-function HeroCheckItem({ text }: { text: string }) {
-  return (
-    <span className="flex items-center gap-1.5">
-      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-white/20 text-white">
-        <CheckIcon />
-      </span>
-      {text}
-    </span>
   );
 }
