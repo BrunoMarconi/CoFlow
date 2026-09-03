@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Check, ChevronDown, Home, MessageCircle, ShieldCheck, Sparkles, Users } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import AppleInteractions from "@/components/landing/AppleInteractions";
+import DesktopOwnersLanding from "@/components/landing/DesktopOwnersLanding";
 
 export const metadata: Metadata = {
   title: "Publicar vivienda en Málaga para compartir piso",
@@ -53,14 +54,16 @@ export default function OwnersPage() {
     <main className="motion-landing min-h-dvh bg-[#f4f4f7] text-[#18251f]">
       <AppleInteractions />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd) }} />
+      <DesktopOwnersLanding />
+      <div className="lg:hidden">
       <header className="sticky top-0 z-50 border-b border-black/[0.055] bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-[760px] items-center justify-between px-4">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-5 lg:px-8">
           <Link href="/" className="flex items-center gap-2"><Logo /><span className="text-[16px] font-semibold">CoFlow</span><span className="rounded-full bg-[#edf1ef] px-2 py-1 text-[11px] uppercase tracking-wider text-[#5c6962]">Propietarios</span></Link>
-          <Link href="/register?role=owner" className="rounded-full bg-[#315f4b] px-3.5 py-2 text-[13px] font-semibold text-white">Publicar gratis</Link>
+          <div className="flex items-center gap-2"><Link href="/" className="rounded-full bg-[#edf2ef] px-3.5 py-2 text-[12px] font-semibold text-[#315f4b]">Para inquilinos</Link><Link href="/register?role=owner" className="rounded-full bg-[#315f4b] px-3.5 py-2 text-[13px] font-semibold text-white">Publicar gratis</Link></div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-[760px] px-4">
+      <div className="owner-desktop mx-auto max-w-[760px] px-4 lg:max-w-7xl lg:px-8">
         <section className="pb-7 pt-5">
           <div className="grid grid-cols-2 gap-2"><Link href="/companeros-de-piso" className="ios-muted">Buscar comunidad</Link><Link href="/para-propietarios" className="ios-secondary">Soy propietario</Link></div>
           <div className="mt-4 text-center"><OwnerPill>CoFlow para propietarios</OwnerPill><h1 className="mt-3 text-[clamp(40px,7vw,56px)] font-semibold leading-[0.98] tracking-[-0.055em]">Tu vivienda en calma.<br /><span className="font-normal italic text-[#65716b]">Alquilar con serenidad.</span></h1><p className="mx-auto mt-4 max-w-[580px] text-[15px] leading-[1.55] text-[#727975]">Conoce a las personas interesadas, consulta su presupuesto y preferencias de convivencia y mantén el control antes de responder.</p><Link href="/register?role=owner" className="mx-auto mt-5 flex h-11 max-w-[620px] items-center justify-center rounded-full bg-[#315f4b] text-[14px] font-semibold text-white"><Home className="mr-1.5" size={12} />Publicar vivienda gratis</Link><a href="#como-funciona" className="mx-auto mt-2 flex h-10 max-w-[620px] items-center justify-center rounded-full bg-white text-[13px] font-semibold ring-1 ring-black/5">Cómo funciona <ChevronDown className="ml-1" size={11} /></a><div className="mt-3 flex justify-center gap-4 text-[12px] text-[#7b827e]"><span className="flex items-center gap-1"><Check size={9} />Sin permanencia</span><span className="flex items-center gap-1"><Check size={9} />Sin tarjeta</span></div></div>
@@ -83,6 +86,7 @@ export default function OwnersPage() {
       </div>
 
       <footer className="mt-5 border-t border-black/5 bg-[#e9efeb] px-4 py-14"><div className="mx-auto max-w-[760px]"><Link href="/" className="inline-flex items-center gap-2"><Logo /><span className="text-[15px] font-semibold">CoFlow</span></Link><p className="mt-2 text-[12px] text-[#7f8782]">Convivir en armonía. Alquilar con serenidad.</p><div className="mt-6 grid grid-cols-2 gap-6"><FooterLinks title="Para inquilinos" links={[["Compañeros de piso en Málaga","/companeros-de-piso"],["Explorar comunidades","/comunidades"],["Crear perfil","/register"]]} /><FooterLinks title="Para propietarios" links={[["Publicar vivienda","/register?role=owner"],["Cómo funciona","#como-funciona"],["Contacto directo","mailto:soporte@coflowapp.es"]]} /></div><div className="mt-6 rounded-full bg-white/75 px-3 py-2 text-center text-[12px] text-[#68716c]">Basado en el respeto mutuo, la afinidad real y la convivencia transparente.</div><p className="mt-6 text-center text-[12px] text-[#929894]">© {new Date().getFullYear()} CoFlow</p></div></footer>
+      </div>
     </main>
   );
 }

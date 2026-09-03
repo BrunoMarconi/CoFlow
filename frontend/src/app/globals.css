@@ -364,6 +364,490 @@ select {
   100% { transform: scale(1); }
 }
 
+/* Composición de escritorio: conserva el flujo móvil de la referencia, pero
+   usa el ancho disponible como una página editorial de producto. */
+@media (min-width: 1024px) {
+  .resident-desktop > section,
+  .owner-desktop > section {
+    padding-block: 6rem;
+  }
+
+  .resident-desktop > section:first-child {
+    display: grid;
+    min-height: calc(100vh - 4rem);
+    grid-template-columns: minmax(0, 0.82fr) minmax(500px, 1.18fr);
+    grid-template-rows: repeat(4, max-content);
+    align-content: center;
+    column-gap: 5rem;
+  }
+
+  .resident-desktop > section:first-child > :not(article) {
+    grid-column: 1;
+  }
+
+  .resident-desktop > section:first-child > article {
+    grid-column: 2;
+    grid-row: 1 / span 5;
+    align-self: center;
+    margin-top: 0;
+  }
+
+  .resident-desktop > section:nth-child(2) > div:last-child,
+  .resident-desktop > section:nth-child(3) > div:last-child,
+  .owner-desktop > section:nth-child(2) > div:last-child,
+  .owner-desktop > section:nth-child(3) > div:last-child {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .resident-desktop > section:nth-child(4),
+  .resident-desktop > section:nth-child(5) {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.72fr) minmax(540px, 1.28fr);
+    grid-template-rows: repeat(3, max-content);
+    align-items: center;
+    column-gap: 5rem;
+  }
+
+  .resident-desktop > section:nth-child(4) > :last-child,
+  .resident-desktop > section:nth-child(5) > :last-child {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    margin-top: 0;
+  }
+
+  .resident-desktop > section:nth-child(4) > :not(:last-child),
+  .resident-desktop > section:nth-child(5) > :not(:last-child) {
+    grid-column: 1;
+  }
+
+  .resident-desktop > section:nth-child(4) [role="tablist"] {
+    padding: 0.4rem;
+  }
+
+  .resident-desktop > section:nth-child(4) [role="tab"] {
+    min-height: 3rem;
+  }
+
+  .resident-desktop > section:last-child {
+    max-width: 920px;
+    margin-inline: auto;
+  }
+
+  .owner-desktop > section:first-child {
+    display: grid;
+    min-height: calc(100vh - 4rem);
+    grid-template-columns: minmax(0, 0.88fr) minmax(520px, 1.12fr);
+    grid-template-rows: max-content 1fr;
+    align-items: center;
+    column-gap: 5rem;
+  }
+
+  .owner-desktop > section:first-child > :first-child,
+  .owner-desktop > section:first-child > :nth-child(2) {
+    grid-column: 1;
+  }
+
+  .owner-desktop > section:first-child > :nth-child(2) {
+    text-align: left;
+  }
+
+  .owner-desktop > section:first-child > :nth-child(2) > p,
+  .owner-desktop > section:first-child > :nth-child(2) > a {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .owner-desktop > section:first-child > article {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin-top: 0;
+  }
+
+  .owner-desktop > section:nth-child(4),
+  .owner-desktop > section:nth-child(5) {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.72fr) minmax(560px, 1.28fr);
+    align-items: start;
+    gap: 5rem;
+    text-align: left;
+  }
+
+  .owner-desktop > section:nth-child(4) > :last-child,
+  .owner-desktop > section:nth-child(5) > :last-child {
+    margin-top: 0;
+  }
+
+  .owner-desktop > section:nth-child(5) > :first-child {
+    position: sticky;
+    top: 7rem;
+  }
+
+  .owner-desktop > section:nth-child(5) > :not(:last-child) {
+    grid-column: 1;
+    position: static;
+  }
+
+  .owner-desktop > section:nth-child(5) > :last-child {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+  }
+
+  .owner-desktop > section:nth-child(6) {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+
+  .owner-desktop > section:nth-child(6) > div {
+    margin-top: 0;
+  }
+
+  .motion-landing footer > div {
+    max-width: 80rem;
+  }
+}
+
+/* Desktop v3 — retícula bento densa. Cada bloque tiene una función clara y
+   comparte fila con contenido relacionado para evitar pasillos verticales. */
+@media (min-width: 1024px) {
+  .resident-desktop,
+  .owner-desktop {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1.5rem;
+    padding-top: 1.5rem;
+    padding-bottom: 3rem;
+  }
+
+  .resident-desktop > section,
+  .owner-desktop > section {
+    display: block !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 2.75rem !important;
+    border: 1px solid rgb(25 45 36 / 0.055);
+    border-radius: 2.25rem !important;
+    background: white;
+    box-shadow: 0 14px 45px rgb(25 45 36 / 0.045);
+    text-align: left !important;
+  }
+
+  .resident-desktop > section:first-child,
+  .owner-desktop > section:first-child {
+    display: grid !important;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 0.88fr) minmax(500px, 1.12fr);
+    grid-template-rows: repeat(4, max-content);
+    align-items: center;
+    gap: 0 3.5rem;
+    padding: 3.5rem !important;
+    overflow: hidden;
+    border: 0;
+    background: linear-gradient(145deg, #17382c 0%, #28523f 100%);
+    color: white;
+    box-shadow: 0 24px 70px rgb(20 55 42 / 0.18);
+  }
+
+  .resident-desktop > section:first-child > :not(article),
+  .owner-desktop > section:first-child > :not(article) {
+    grid-column: 1;
+    width: 100%;
+    max-width: 620px;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .resident-desktop > section:first-child > h1,
+  .owner-desktop > section:first-child h1 {
+    font-size: clamp(3.7rem, 5vw, 5.6rem);
+    color: white;
+  }
+
+  .resident-desktop > section:first-child > h1 span,
+  .owner-desktop > section:first-child h1 span {
+    color: rgb(255 255 255 / 0.62);
+  }
+
+  .resident-desktop > section:first-child > p,
+  .owner-desktop > section:first-child > div:nth-child(2) > p {
+    margin-top: 1.5rem;
+    color: rgb(255 255 255 / 0.68);
+  }
+
+  .resident-desktop > section:first-child > article,
+  .owner-desktop > section:first-child > article {
+    grid-column: 2;
+    grid-row: 1 / span 5;
+    width: 100%;
+    margin: 0;
+    padding: 0.65rem;
+    align-self: center;
+    color: #18251f;
+    box-shadow: 0 24px 65px rgb(0 0 0 / 0.22);
+  }
+
+  .resident-desktop > section:first-child > article > div:first-child,
+  .owner-desktop > section:first-child > article > div:first-child {
+    min-height: 350px;
+  }
+
+  .resident-desktop > section:first-child > div:first-child,
+  .owner-desktop > section:first-child > div:first-child {
+    background: rgb(255 255 255 / 0.1);
+    color: rgb(255 255 255 / 0.78);
+  }
+
+  .owner-desktop > section:first-child > div:nth-child(2) {
+    text-align: left;
+  }
+
+  .owner-desktop > section:first-child > div:nth-child(2) > p,
+  .owner-desktop > section:first-child > div:nth-child(2) > a {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .resident-desktop > section:nth-child(2),
+  .owner-desktop > section:nth-child(2) {
+    grid-column: 1 / -1;
+    padding: 3rem !important;
+    text-align: center !important;
+  }
+
+  .resident-desktop > section:nth-child(2) > p,
+  .owner-desktop > section:nth-child(2) > p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .resident-desktop > section:nth-child(2) > div:last-child,
+  .owner-desktop > section:nth-child(2) > div:last-child {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+    text-align: left;
+  }
+
+  .resident-desktop > section:nth-child(2) > div:last-child > div,
+  .owner-desktop > section:nth-child(2) > div:last-child > div {
+    min-height: 0;
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+    background: #f4f6f5;
+  }
+
+  .resident-desktop > section:nth-child(3) {
+    grid-column: span 5;
+  }
+
+  .resident-desktop > section:nth-child(3) > div:last-child {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    text-align: left;
+  }
+
+  .resident-desktop > section:nth-child(3) > div:last-child > div {
+    min-height: 0;
+    padding: 1.25rem;
+    background: #f4f6f5;
+  }
+
+  .resident-desktop .compatibility-metric {
+    display: grid !important;
+    grid-column: span 7;
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 0.72fr);
+    align-items: center;
+    gap: 2rem;
+    padding: 2.75rem !important;
+    background: #203e32;
+  }
+
+  .resident-desktop .compatibility-metric .metric-preview {
+    margin-top: 0;
+    padding: 0.75rem;
+  }
+
+  .resident-desktop .compatibility-metric .metric-preview img {
+    max-width: 260px;
+  }
+
+  .resident-desktop .balance-section {
+    grid-column: span 5;
+    background: #e8eeeb;
+  }
+
+  .resident-desktop .resident-owner-section {
+    grid-column: span 7;
+  }
+
+  .resident-desktop .balance-section,
+  .resident-desktop .resident-owner-section {
+    display: block !important;
+    padding: 2.75rem !important;
+  }
+
+  .resident-desktop .balance-section > :last-child,
+  .resident-desktop .resident-owner-section > :last-child {
+    margin-top: 1.75rem;
+  }
+
+  .resident-desktop > section:last-child {
+    grid-column: 1 / -1;
+    padding: 3.5rem !important;
+    text-align: center !important;
+  }
+
+  .owner-desktop > section:nth-child(3),
+  .owner-desktop > section:nth-child(6) {
+    grid-column: span 5;
+  }
+
+  .owner-desktop > section:nth-child(4),
+  .owner-desktop > section:nth-child(5) {
+    grid-column: span 7;
+  }
+
+  .owner-desktop > section:nth-child(n+3) {
+    padding: 2.75rem !important;
+  }
+
+  .owner-desktop > section:nth-child(3) > div:last-child,
+  .owner-desktop > section:nth-child(5) > div:last-child {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .owner-desktop > section:nth-child(4) > div:last-child,
+  .owner-desktop > section:nth-child(5) > div:last-child {
+    width: 100%;
+    margin-top: 1.5rem;
+  }
+
+  .owner-desktop > section:nth-child(6) {
+    display: block !important;
+  }
+
+  .owner-desktop > section:nth-child(6) > div {
+    padding: 2rem;
+    border-radius: 1.75rem;
+  }
+}
+
+/* Ajuste de densidad y módulo de compatibilidad. */
+@media (min-width: 1024px) {
+  .resident-desktop > section,
+  .owner-desktop > section {
+    margin-block: 0.85rem;
+    padding-block: 3.75rem;
+  }
+
+  .resident-desktop > section:first-child,
+  .owner-desktop > section:first-child {
+    padding-top: 4.25rem;
+    padding-bottom: 3.75rem;
+  }
+
+  .resident-desktop > section:first-child > article,
+  .owner-desktop > section:first-child > article {
+    margin-top: 2.5rem;
+  }
+
+  .resident-desktop > section:first-child > article > div:first-child,
+  .owner-desktop > section:first-child > article > div:first-child {
+    min-height: 420px;
+  }
+
+  .resident-desktop > section:nth-child(2) > div:last-child > div,
+  .resident-desktop > section:nth-child(3) > div:last-child > div,
+  .owner-desktop > section:nth-child(2) > div:last-child > div,
+  .owner-desktop > section:nth-child(3) > div:last-child > div {
+    min-height: 150px;
+  }
+
+  .resident-desktop .compatibility-metric {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.72fr);
+    grid-template-rows: none;
+    align-items: center;
+    gap: 4.5rem;
+    padding: 4.5rem;
+    border-radius: 2.75rem;
+    background: #203e32;
+    color: white;
+  }
+
+  .resident-desktop .compatibility-metric > div {
+    grid-column: auto;
+    grid-row: auto;
+    margin-top: 0;
+  }
+
+  .resident-desktop .compatibility-metric h2,
+  .resident-desktop .compatibility-metric p {
+    color: white;
+  }
+
+  .resident-desktop .compatibility-metric p {
+    opacity: 0.72;
+  }
+
+  .resident-desktop .compatibility-metric > div:first-child > div span {
+    background: rgb(255 255 255 / 0.09);
+    color: white;
+    box-shadow: none;
+  }
+
+  .resident-desktop .compatibility-metric .metric-preview {
+    background: rgb(255 255 255 / 0.08);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08), 0 28px 70px rgb(0 0 0 / 0.2);
+  }
+
+  .resident-desktop .balance-section,
+  .resident-desktop .resident-owner-section {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.72fr) minmax(540px, 1.28fr);
+    grid-template-rows: repeat(3, max-content);
+    align-items: center;
+    gap: 0 4.5rem;
+    padding: 4.5rem;
+    border-radius: 2.75rem;
+  }
+
+  .resident-desktop .balance-section {
+    background: #e8eeeb;
+  }
+
+  .resident-desktop .resident-owner-section {
+    border: 1px solid rgb(25 45 36 / 0.06);
+    background: white;
+  }
+
+  .resident-desktop .balance-section > :last-child,
+  .resident-desktop .resident-owner-section > :last-child {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    margin-top: 0;
+    box-shadow: 0 22px 55px rgb(25 45 36 / 0.09);
+  }
+
+  .resident-desktop .balance-section > :not(:last-child),
+  .resident-desktop .resident-owner-section > :not(:last-child) {
+    grid-column: 1;
+  }
+
+  .owner-desktop > section:nth-child(6) {
+    padding-block: 2.5rem;
+  }
+}
+
 button,
 a {
   -webkit-tap-highlight-color: transparent;
@@ -595,5 +1079,228 @@ summary::-webkit-details-marker {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Desktop v2: dirección editorial compacta. Sustituye la primera propuesta
+   dividida, que dejaba demasiado aire y debilitaba la jerarquía visual. */
+@media (min-width: 1024px) {
+  .resident-desktop,
+  .owner-desktop {
+    padding-bottom: 5rem;
+  }
+
+  .resident-desktop > section,
+  .owner-desktop > section {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    margin-block: 2rem;
+    padding: 5rem 4.5rem;
+  }
+
+  .resident-desktop > section:first-child,
+  .owner-desktop > section:first-child {
+    display: block;
+    min-height: auto;
+    padding-top: 6rem;
+    text-align: center;
+  }
+
+  .resident-desktop > section:first-child > :not(article),
+  .owner-desktop > section:first-child > :not(article) {
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .resident-desktop > section:first-child > h1,
+  .owner-desktop > section:first-child h1 {
+    max-width: 900px;
+    font-size: clamp(4.25rem, 6vw, 6.5rem);
+    line-height: 0.94;
+    letter-spacing: -0.065em;
+  }
+
+  .resident-desktop > section:first-child > p,
+  .owner-desktop > section:first-child > div:nth-child(2) > p {
+    max-width: 650px;
+    margin-top: 1.75rem;
+    font-size: 1.2rem;
+    line-height: 1.65;
+  }
+
+  .resident-desktop > section:first-child > div:nth-of-type(2) {
+    max-width: 620px;
+    margin-top: 2rem;
+  }
+
+  .resident-desktop > section:first-child > article,
+  .owner-desktop > section:first-child > article {
+    width: min(100%, 1080px);
+    margin: 3.5rem auto 0;
+    border-radius: 2.25rem;
+    padding: 0.75rem;
+    box-shadow: 0 30px 80px rgb(25 45 36 / 0.12);
+  }
+
+  .resident-desktop > section:first-child > article > div:first-child,
+  .owner-desktop > section:first-child > article > div:first-child {
+    min-height: 500px;
+    border-radius: 1.75rem;
+  }
+
+  .resident-desktop > section:nth-child(2),
+  .owner-desktop > section:nth-child(2) {
+    border: 1px solid rgb(25 45 36 / 0.06);
+    border-radius: 2.75rem;
+    background: rgb(255 255 255 / 0.86);
+    box-shadow: 0 24px 70px rgb(25 45 36 / 0.055);
+  }
+
+  .resident-desktop > section:nth-child(2),
+  .resident-desktop > section:nth-child(3),
+  .owner-desktop > section:nth-child(2),
+  .owner-desktop > section:nth-child(3) {
+    text-align: center;
+  }
+
+  .resident-desktop > section:nth-child(2) > p,
+  .resident-desktop > section:nth-child(3) > p,
+  .owner-desktop > section:nth-child(2) > p,
+  .owner-desktop > section:nth-child(3) > p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .resident-desktop > section:nth-child(2) > div:last-child,
+  .resident-desktop > section:nth-child(3) > div:last-child,
+  .owner-desktop > section:nth-child(2) > div:last-child,
+  .owner-desktop > section:nth-child(3) > div:last-child {
+    margin-top: 2.5rem;
+    gap: 1.25rem;
+    text-align: left;
+  }
+
+  .resident-desktop > section:nth-child(2) > div:last-child > div,
+  .resident-desktop > section:nth-child(3) > div:last-child > div,
+  .owner-desktop > section:nth-child(2) > div:last-child > div,
+  .owner-desktop > section:nth-child(3) > div:last-child > div {
+    min-height: 180px;
+    padding: 1.75rem;
+    border: 1px solid rgb(25 45 36 / 0.055);
+    border-radius: 1.75rem;
+  }
+
+  .resident-desktop > section:nth-child(4),
+  .resident-desktop > section:nth-child(5) {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.78fr) minmax(520px, 1.22fr);
+    grid-template-rows: repeat(3, max-content);
+    gap: 0 5rem;
+    align-items: center;
+    border-radius: 2.75rem;
+    background: #e8eeeb;
+  }
+
+  .resident-desktop > section:nth-child(5) {
+    background: #fff;
+    border: 1px solid rgb(25 45 36 / 0.06);
+  }
+
+  .resident-desktop > section:nth-child(4) > :last-child,
+  .resident-desktop > section:nth-child(5) > :last-child {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    margin-top: 0;
+    box-shadow: 0 24px 60px rgb(25 45 36 / 0.09);
+  }
+
+  .resident-desktop > section:nth-child(4) > :not(:last-child),
+  .resident-desktop > section:nth-child(5) > :not(:last-child) {
+    grid-column: 1;
+  }
+
+  .resident-desktop > section:last-child {
+    max-width: none;
+    border-radius: 2.75rem;
+    background: #203e32;
+    color: white;
+  }
+
+  .resident-desktop > section:last-child h2,
+  .resident-desktop > section:last-child p {
+    color: white;
+  }
+
+  .resident-desktop > section:last-child p {
+    opacity: 0.68;
+  }
+
+  .resident-desktop > section:last-child > a {
+    max-width: 360px;
+    background: white;
+    color: #203e32;
+  }
+
+  .owner-desktop > section:first-child > div:first-child {
+    max-width: 620px;
+  }
+
+  .owner-desktop > section:first-child > div:nth-child(2) {
+    text-align: center;
+  }
+
+  .owner-desktop > section:first-child > div:nth-child(2) > p,
+  .owner-desktop > section:first-child > div:nth-child(2) > a {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .owner-desktop > section:nth-child(4) {
+    display: block;
+    border-radius: 2.75rem;
+    background: #e8eeeb;
+    text-align: center;
+  }
+
+  .owner-desktop > section:nth-child(4) > div:last-child {
+    width: min(100%, 900px);
+    margin: 2.5rem auto 0;
+    padding: 1rem;
+  }
+
+  .owner-desktop > section:nth-child(5) {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.7fr) minmax(560px, 1.3fr);
+    grid-template-rows: repeat(3, max-content);
+    gap: 0 5rem;
+    align-items: start;
+    border-radius: 2.75rem;
+    background: white;
+    text-align: left;
+  }
+
+  .owner-desktop > section:nth-child(5) > :not(:last-child) {
+    grid-column: 1;
+  }
+
+  .owner-desktop > section:nth-child(5) > :last-child {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    margin-top: 0;
+  }
+
+  .owner-desktop > section:nth-child(6) {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.6fr);
+    gap: 1.5rem;
+    padding-inline: 0;
+  }
+
+  .owner-desktop > section:nth-child(6) > div {
+    margin-top: 0;
+    border-radius: 2.5rem;
+    padding: 4rem;
   }
 }

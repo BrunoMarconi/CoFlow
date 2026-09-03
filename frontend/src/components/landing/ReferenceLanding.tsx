@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import AppleInteractions from "./AppleInteractions";
+import DesktopLanding from "./DesktopLanding";
 
 const values = [
   { icon: HeartHandshake, title: "Afinidad humana real", text: "Conoce hábitos y preferencias antes de compartir hogar." },
@@ -31,6 +32,8 @@ const steps = [
   { title: "Conoce perfiles y comunidades", text: "Consulta presupuesto, ciudad, preferencias y plazas abiertas antes de hablar." },
   { title: "Entra con acuerdos claros", text: "Habla en privado y solicita una plaza solo cuando tenga sentido para ti." },
 ] as const;
+
+const compatibilityAxes = ["Limpieza", "Energía social", "Horario", "Economía", "Conflictos", "Tolerancia"] as const;
 
 const filterGroups = {
   Personas: [
@@ -59,14 +62,16 @@ export default function ReferenceLanding() {
   return (
     <main className="motion-landing min-h-dvh bg-[#f4f4f7] text-[#18251f]">
       <AppleInteractions />
+      <DesktopLanding />
+      <div className="lg:hidden">
       <header className="sticky top-0 z-50 border-b border-black/[0.055] bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-[760px] items-center justify-between px-4">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
           <Link href="/" className="flex items-center gap-2" aria-label="CoFlow, inicio"><Logo /><span className="text-[16px] font-semibold">CoFlow</span></Link>
           <div className="flex items-center gap-4"><Link href="/para-propietarios" className="text-[14px] text-[#5f6763]">Propietarios</Link><Link href="/login" className="rounded-full bg-[#315f4b] px-3.5 py-2 text-[14px] font-semibold text-white">Entrar</Link></div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-[760px] px-4">
+      <div className="resident-desktop mx-auto max-w-[760px] px-4 lg:max-w-7xl lg:px-8">
         <section className="pb-7 pt-5">
           <Pill>El nuevo hábitat compartido</Pill>
           <h1 className="mt-4 text-[clamp(40px,7vw,58px)] font-semibold leading-[0.98] tracking-[-0.055em]">Convivir en armonía.<br /><span className="font-normal text-[#66706b]">Alquilar con serenidad.</span></h1>
@@ -100,7 +105,22 @@ export default function ReferenceLanding() {
           <div className="mt-5 space-y-2.5">{steps.map((step, index) => <div key={step.title} className="flex gap-3 rounded-[20px] bg-white p-4"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#edf1ef] text-[13px] font-semibold text-[#315f4b]">{index + 1}</span><div><h3 className="text-[15px] font-semibold">{step.title}</h3><p className="mt-1 text-[13px] leading-6 text-[#7a817d]">{step.text}</p></div></div>)}</div>
         </section>
 
-        <section className="py-12">
+        <section className="compatibility-metric py-12">
+          <div>
+            <Pill>Métrica de convivencia</Pill>
+            <Title>Tu forma de convivir, en un vistazo</Title>
+            <Copy>Al completar el test, tus respuestas se organizan en seis ejes para que otras personas entiendan mejor cómo prefieres compartir hogar.</Copy>
+            <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {compatibilityAxes.map((axis) => <span key={axis} className="flex items-center gap-2 rounded-full bg-white px-3 py-2 text-[13px] font-medium text-[#315f4b] shadow-sm"><Check size={13} />{axis}</span>)}
+            </div>
+            <p className="mt-5 text-[13px] font-semibold text-[#315f4b]">CoFlow no decide por ti. Te ayuda a decidir con más información.</p>
+          </div>
+          <div className="metric-preview mt-6 overflow-hidden rounded-[28px] bg-[#193e31] p-5 shadow-[0_24px_60px_rgba(25,45,36,0.18)]">
+            <Image src="/images/landing-compatibility-radar.png" alt="Ejemplo del perfil de convivencia de CoFlow con seis ejes" width={1144} height={1962} sizes="(max-width: 768px) 80vw, 360px" className="mx-auto h-auto w-full max-w-[330px] rounded-[22px]" />
+          </div>
+        </section>
+
+        <section className="balance-section py-12">
           <Pill>Afinidad estructurada</Pill><Title>Encuentra tu equilibrio diario</Title><Copy>Elige por bloques esenciales sin sobrecargar tu búsqueda.</Copy>
           <div className="mt-4 rounded-[28px] bg-white p-3 shadow-[0_10px_28px_rgba(25,45,36,0.055)]">
             <div role="tablist" aria-label="Tipo de filtro" className="grid grid-cols-3 rounded-[13px] bg-[#f1f2f3] p-1 text-center text-[12px]">{(Object.keys(filterGroups) as FilterGroup[]).map((group) => <button key={group} type="button" role="tab" aria-selected={activeGroup === group} onClick={() => { setActiveGroup(group); setSelectedFilter(0); }} className={`rounded-[10px] px-2 py-2 transition ${activeGroup === group ? "bg-white text-[#18251f] shadow-sm" : "text-[#747b77] hover:text-[#315f4b]"}`}>{group}</button>)}</div>
@@ -109,7 +129,7 @@ export default function ReferenceLanding() {
           </div>
         </section>
 
-        <section id="propietarios" className="py-12">
+        <section id="propietarios" className="resident-owner-section py-12">
           <Pill>Para propietarios · CoFlow es gratuito</Pill><Title>Tu patrimonio en manos cuidadosas</Title><Copy>Publica tu vivienda y conoce las preferencias de convivencia antes de responder.</Copy>
           <div className="mt-4 rounded-[28px] bg-white p-3 shadow-[0_10px_28px_rgba(25,45,36,0.055)]">
             <div className="relative aspect-[1.75] overflow-hidden rounded-[20px]"><Image src="https://images.unsplash.com/photo-1612972806701-9cffb7470ed2?auto=format&fit=crop&q=85&w=1400" alt="Vista panorámica de Málaga desde Gibralfaro" fill sizes="(max-width: 768px) 100vw, 760px" className="object-cover" /><span className="absolute left-2.5 top-2.5 rounded-full bg-white/90 px-2.5 py-1 text-[12px] backdrop-blur">Málaga</span></div>
@@ -124,6 +144,7 @@ export default function ReferenceLanding() {
       </div>
 
       <footer className="mt-5 border-t border-black/5 bg-[#eeeff2] px-4 py-9"><div className="mx-auto max-w-[760px] text-center"><Link href="/" className="inline-flex items-center gap-2"><Logo /><span className="text-[15px] font-semibold">CoFlow</span></Link><p className="mt-3 text-[12px] text-[#8b918e]">Convivir en armonía. Alquilar con serenidad.</p><div className="mt-7 grid grid-cols-2 gap-6 text-left"><FooterColumn title="Para particulares" links={[["Compañeros de piso en Málaga","/companeros-de-piso"],["Explorar comunidades","/comunidades"],["Crear perfil","/register"]]} /><FooterColumn title="Para propietarios" links={[["Publicar vivienda en Málaga","/para-propietarios"],["Cómo funciona para propietarios","/para-propietarios#como-funciona"],["Contacto directo","mailto:soporte@coflowapp.es"]]} /></div><div className="mt-7 rounded-full bg-white px-3 py-2 text-[12px] text-[#68716c]"><ShieldCheck className="mr-1 inline" size={10} />Basado en el respeto mutuo, la afinidad real y la convivencia transparente.</div><div className="mt-7 flex flex-wrap justify-center gap-x-3 gap-y-1 text-[12px] text-[#8b918e]"><Link href="/legal/privacidad">Privacidad</Link><Link href="/legal/terminos">Términos</Link><a href="mailto:soporte@coflowapp.es">Contacto</a></div><p className="mt-3 text-[12px] text-[#9a9f9c]">© {new Date().getFullYear()} CoFlow</p></div></footer>
+      </div>
     </main>
   );
 }
