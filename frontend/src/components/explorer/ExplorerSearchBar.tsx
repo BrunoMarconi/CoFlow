@@ -32,6 +32,8 @@ export default function ExplorerSearchBar({
   collapsedPlaceholder,
   placeholder,
   rightSlot,
+  collapsedRightSlot,
+  compact = false,
 }: {
   layoutIdBar: string;
   layoutIdIcon: string;
@@ -44,6 +46,8 @@ export default function ExplorerSearchBar({
   collapsedPlaceholder: string;
   placeholder: string;
   rightSlot?: ReactNode;
+  collapsedRightSlot?: ReactNode;
+  compact?: boolean;
 }) {
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -68,7 +72,7 @@ export default function ExplorerSearchBar({
               boxShadow: { duration: MOTION_DURATION.fast },
               scale: { duration: MOTION_SEARCH_LIFT_DURATION },
             }}
-            className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-full bg-flat pl-5 pr-4 text-left"
+            className={`flex min-w-0 flex-1 items-center rounded-full bg-flat text-left ${compact ? "h-10 gap-2.5 pl-3.5 pr-3" : "h-14 gap-3 pl-5 pr-4"}`}
           >
             <motion.span
               layoutId={layoutIdIcon}
@@ -80,13 +84,14 @@ export default function ExplorerSearchBar({
             </motion.span>
 
             <span
-              className={`truncate text-[15px] ${
+              className={`truncate ${compact ? "text-xs" : "text-[15px]"} ${
                 value ? "text-foreground" : "text-muted"
               }`}
             >
               {value || collapsedPlaceholder}
             </span>
           </motion.button>
+          {collapsedRightSlot}
         </motion.div>
       ) : (
         <motion.div
@@ -117,7 +122,7 @@ export default function ExplorerSearchBar({
               layout: MOTION_SPRING.gentle,
               boxShadow: { duration: MOTION_DURATION.normal },
             }}
-            className="flex h-14 min-w-0 flex-1 items-center gap-2 rounded-full border border-primary/25 bg-surface pl-5 pr-2"
+            className={`flex min-w-0 flex-1 items-center gap-2 rounded-full border border-primary/25 bg-surface pr-2 ${compact ? "h-10 pl-3.5" : "h-14 pl-5"}`}
           >
             <motion.span
               layoutId={layoutIdIcon}

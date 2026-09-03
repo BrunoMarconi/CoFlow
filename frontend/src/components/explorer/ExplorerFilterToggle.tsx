@@ -11,10 +11,12 @@ export default function ExplorerFilterToggle({
   active,
   onClick,
   animateEntrance = false,
+  compact = false,
 }: {
   active: boolean;
   onClick: () => void;
   animateEntrance?: boolean;
+  compact?: boolean;
 }) {
   const motionProps = animateEntrance
     ? {
@@ -34,7 +36,7 @@ export default function ExplorerFilterToggle({
       whileTap={{ scale: 0.92 }}
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
       {...motionProps}
-      className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full transition-colors duration-200 ${
+      className={`flex shrink-0 items-center justify-center rounded-full transition-colors duration-200 ${compact ? "h-10 w-10" : "h-14 w-14"} ${
         active
           ? "bg-brand-dark text-white"
           : "bg-flat text-secondary hover:bg-flat-strong"

@@ -56,18 +56,51 @@ export default function CommunityFilters({
   onChange,
   onClear,
   resultCount,
+  sheet = false,
 }: {
   filters: CommunityFilterState;
   onChange: (filters: CommunityFilterState) => void;
   onClear: () => void;
   resultCount: number;
+  sheet?: boolean;
 }) {
   function update(patch: Partial<CommunityFilterState>) {
     onChange({ ...filters, ...patch });
   }
 
+  if (sheet) {
+    return (
+      <div className="space-y-7 px-6 py-5 pb-8">
+        <FilterSection label="Rango de alquiler" value={filters.maxBudget ? `Hasta ${filters.maxBudget} €/mes` : "Sin límite"}>
+          <input type="range" min="0" max="1500" step="50" value={filters.maxBudget || "0"} onChange={(event) => update({ maxBudget: event.target.value === "0" ? "" : event.target.value })} className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#dde4e3] accent-[#627d70]" aria-label="Presupuesto máximo" />
+          <div className="mt-2 flex justify-between text-[11px] font-medium text-[#727974]"><span>Sin límite</span><span>750 €</span><span>1.500 €</span></div>
+        </FilterSection>
+
+        <FilterSection label="Entrada antes de">
+          <input type="date" value={filters.moveInBefore} onChange={(event) => update({ moveInBefore: event.target.value })} className="h-12 w-full rounded-2xl border border-[#DDE5E2] bg-white px-4 text-[13px] font-medium text-[#161d1d] outline-none transition focus:border-[#627d70] focus:ring-4 focus:ring-[#627d70]/10" />
+        </FilterSection>
+
+        <FilterSection label="Tipo de acceso">
+          <div className="grid grid-cols-2 gap-2.5">{JOIN_TYPE_OPTIONS.filter(option => option.value !== "ALL").map((option) => <ChoiceCard key={option.value} active={filters.joinType === option.value} title={option.label} description={option.value === "OPEN" ? "Entrada disponible" : "La comunidad decide"} icon={option.value === "OPEN" ? <DoorIcon /> : <MessageIcon />} onClick={() => update({ joinType: filters.joinType === option.value ? "ALL" : option.value })} />)}</div>
+        </FilterSection>
+
+        <FilterSection label="Urgencia de entrada">
+          <div className="grid grid-cols-4 gap-1 rounded-2xl bg-[#eef1f1] p-1">{URGENCY_OPTIONS.map(option => <button key={option.value} type="button" onClick={() => update({ urgency: option.value })} className={`rounded-xl px-1 py-2.5 text-[11px] font-semibold transition ${filters.urgency === option.value ? "bg-[#627d70] text-white shadow-sm" : "text-[#5a5f60] hover:bg-white/70"}`}>{option.label}</button>)}</div>
+        </FilterSection>
+
+        <FilterSection label="Perfil de la comunidad">
+          <div className="flex flex-wrap gap-2"><button type="button" onClick={() => update({ profileType: "ALL" })} className={`rounded-full border px-3.5 py-2 text-xs font-semibold transition ${filters.profileType === "ALL" ? "border-[#627d70] bg-[#627d70] text-white" : "border-[#DDE5E2] bg-white text-[#424844]"}`}>Todos</button>{COMMUNITY_PROFILE_TYPE_OPTIONS.map(option => <button key={option.value} type="button" onClick={() => update({ profileType: option.value })} className={`rounded-full border px-3.5 py-2 text-xs font-semibold transition ${filters.profileType === option.value ? "border-[#627d70] bg-[#627d70] text-white" : "border-[#DDE5E2] bg-white text-[#424844]"}`}>{option.label}</button>)}</div>
+        </FilterSection>
+
+        <FilterSection label="Disponibilidad">
+          <div className="flex items-center justify-between rounded-2xl border border-[#DDE5E2] bg-white p-3.5"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f4fbfa] text-[#4e675b]"><PeopleIcon /></span><div><p className="text-[13px] font-semibold text-[#161d1d]">Incluir comunidades completas</p><p className="mt-0.5 text-[11px] text-[#727974]">Muestra también comunidades sin plazas</p></div></div><button type="button" role="switch" aria-checked={filters.showNoSpots} onClick={() => update({ showNoSpots: !filters.showNoSpots })} className={`relative h-7 w-12 shrink-0 rounded-full transition ${filters.showNoSpots ? "bg-[#627d70]" : "bg-[#d4dbdb]"}`}><span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow-sm transition ${filters.showNoSpots ? "left-[22px]" : "left-0.5"}`} /></button></div>
+        </FilterSection>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-24 bg-flat p-4 sm:p-5">
+    <div className={sheet ? "px-5 py-6" : "rounded-24 bg-flat p-4 sm:p-5"}>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label
@@ -208,7 +241,7 @@ export default function CommunityFilters({
         Mostrar comunidades sin plazas abiertas
       </label>
 
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+      {!sheet && <div className="mt-5 flex flex-col gap-3 sm:flex-row">
         <button
           type="button"
           onClick={onClear}
@@ -223,7 +256,14 @@ export default function CommunityFilters({
             ? "comunidad encontrada"
             : "comunidades encontradas"}
         </p>
-      </div>
+      </div>}
     </div>
   );
 }
+
+function FilterSection({ label, value, children }: { label: string; value?: string; children: React.ReactNode }) { return <section><div className="mb-3 flex items-baseline justify-between gap-4"><h3 className="text-xs font-bold uppercase tracking-[.12em] text-[#727974]">{label}</h3>{value && <span className="rounded-full border border-[#cce6e0] bg-[#f4fbfa] px-2.5 py-1 text-xs font-semibold text-[#4e675b]">{value}</span>}</div>{children}</section>; }
+function ChoiceCard({ active, title, description, icon, onClick }: { active: boolean; title: string; description: string; icon: React.ReactNode; onClick: () => void }) { return <button type="button" onClick={onClick} aria-pressed={active} className={`relative flex min-h-28 flex-col justify-between rounded-2xl border-2 p-3.5 text-left transition active:scale-[.98] ${active ? "border-[#627d70] bg-[#f4fbfa]" : "border-[#DDE5E2] bg-white"}`}><span className={active ? "text-[#4e675b]" : "text-[#727974]"}>{icon}</span>{active && <span className="absolute right-3.5 top-3.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#627d70] text-white"><CheckIcon /></span>}<span><strong className="block text-[13px] text-[#161d1d]">{title}</strong><span className="mt-0.5 block text-[11px] text-[#727974]">{description}</span></span></button>; }
+function DoorIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden="true"><path d="M4 21h16M6 21V4h11v17M13 12h.01" /></svg>; }
+function MessageIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden="true"><path d="M20 15a4 4 0 0 1-4 4H8l-4 3V7a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4Z" /></svg>; }
+function PeopleIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>; }
+function CheckIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="h-2.5 w-2.5" aria-hidden="true"><path d="m6 12 4 4 8-9" /></svg>; }
