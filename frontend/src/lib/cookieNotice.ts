@@ -1,16 +1,19 @@
-// Aviso informativo de cookies (solo se usan cookies estrictamente
-// necesarias — sesión/autenticación — exentas de consentimiento bajo
-// RGPD/LSSI-CE; ver frontend/src/app/legal/cookies/page.tsx). No es un
-// banner de consentimiento con aceptar/rechazar, solo se recuerda que
-// ya se mostró para no repetirlo en cada visita.
-const COOKIE_NOTICE_SEEN_KEY = "coflow:cookie-notice-seen";
+export type CookieConsent = { version: 1; necessary: true; analytics: boolean; preferences: boolean; decidedAt: string };
 
-export function hasSeenCookieNotice(): boolean {
-  if (typeof window === "undefined") return true;
-  return window.localStorage.getItem(COOKIE_NOTICE_SEEN_KEY) === "1";
+const KEY = "coflow:cookie-consent";
+const MAX_AGE = 180 * 24 * 60 * 60 * 1000;
+
+export function getCookieConsent(): CookieConsent | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const value = JSON.parse(localStorage.getItem(KEY) ?? "null") as CookieConsent | null;
+    if (!value || value.version !== 1 || Date.now() - new Date(value.decidedAt).getTime() > MAX_AGE) return null;
+    return value;
+  } catch { return null; }
 }
 
-export function markCookieNoticeSeen(): void {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(COOKIE_NOTICE_SEEN_KEY, "1");
+export function saveCookieConsent(options: Pick<CookieConsent, "analytics" | "preferences">) {
+  const value: CookieConsent = { version: 1, necessary: true, ...options, decidedAt: new Date().toISOString() };
+  localStorage.setItem(KEY, JSON.stringify(value));
+  window.dispatchEvent(new CustomEvent("coflow:cookie-consent-changed", { detail: value }));
 }

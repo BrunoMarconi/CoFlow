@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "Política de cookies" };
 
 export default function CookiesPage() {
   return (
-    <LegalLayout title="Política de cookies" updated="15 de agosto de 2026">
+    <LegalLayout title="Política de cookies" updated="3 de septiembre de 2026">
       <Section title="1. Qué son las cookies">
         <p>
           Las cookies y tecnologías similares permiten almacenar o recuperar determinada información en el dispositivo
@@ -57,7 +57,8 @@ export default function CookiesPage() {
       </Section>
 
       <Section title="8. Modificar el consentimiento">
-        <p>Cuando existan cookies opcionales, los usuarios podrán modificar posteriormente su elección mediante la opción: Gestionar cookies</p>
+        <p>La opción permanente «Cookies», situada en la parte inferior de la web, permite revisar o modificar la elección en cualquier momento.</p>
+        <p>La elección se conserva durante un máximo de seis meses. Transcurrido ese plazo, se vuelve a mostrar el aviso.</p>
       </Section>
 
       <Section title="9. Actualizaciones">
