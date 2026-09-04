@@ -10,7 +10,7 @@ import { useOwnerMode } from "@/hooks/useOwnerMode";
 export default function Navbar() {
   const { user } = useAuth();
   const { isOwnerMode } = useOwnerMode();
-  const homeHref = isOwnerMode ? "/propietarios/pisos" : "/comunidades";
+  const homeHref = isOwnerMode ? "/propietarios/pisos" : "/explorar";
 
   return (
     <header className="sticky top-0 z-(--z-sticky-header) bg-background/85 pt-(--safe-top) backdrop-blur-xl">

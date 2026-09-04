@@ -26,20 +26,21 @@ type NavigationLink = {
 
 const MEMBER_LINKS: NavigationLink[] = [
   {
-    href: "/comunidades",
+    href: "/explorar",
     label: "Explorar",
     icon: CompassIcon,
     isActive: (pathname) =>
-      pathname.startsWith("/comunidades") || pathname.startsWith("/mi-comunidad"),
+      pathname.startsWith("/explorar") ||
+      pathname.startsWith("/usuarios") ||
+      pathname.startsWith("/personas") ||
+      pathname.startsWith("/comunidades"),
   },
   {
-    href: "/usuarios",
-    label: "Personas",
+    href: "/mi-comunidad",
+    label: "Comunidad",
     icon: UsersIcon,
     isActive: (pathname) =>
-      pathname.startsWith("/usuarios") ||
-      (pathname.startsWith("/personas") &&
-        !pathname.startsWith("/personas/guardadas")),
+      pathname.startsWith("/mi-comunidad") || pathname.startsWith("/crear/comunidad"),
   },
   {
     href: "/mensajes",

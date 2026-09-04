@@ -25,6 +25,7 @@ from app.schemas.user_public import (
 from app.services.compatibility_score_service import (
     compute_category_scores,
     compute_match_score,
+    compute_match_breakdown,
 )
 
 MAX_LIMIT = 100
@@ -164,6 +165,7 @@ class UserService:
         )
 
         match_score = None
+        match_breakdown = None
         if viewer is not None and viewer.id != user.id and preferences is not None:
             resolved_viewer_preferences = viewer_preferences
             if resolved_viewer_preferences is _UNSET:
@@ -175,6 +177,11 @@ class UserService:
             if resolved_viewer_preferences is not None:
                 match_score = compute_match_score(
                     resolved_viewer_preferences, preferences
+                )
+                match_breakdown = CompatibilityScoreResponse(
+                    categories=compute_match_breakdown(
+                        resolved_viewer_preferences, preferences
+                    )
                 )
 
         return PublicUserProfileResponse(
@@ -201,6 +208,7 @@ class UserService:
                 else None
             ),
             match_score=match_score,
+            match_breakdown=match_breakdown,
             community=(
                 PublicUserCommunityResponse.model_validate(community)
                 if community is not None

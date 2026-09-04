@@ -15,6 +15,8 @@ def _register_request(email: str) -> RegisterRequest:
         last_name="Test",
         email=email,
         password="testpassword123",
+        birth_date="1990-01-01",
+        terms_accepted=True,
     )
 
 
@@ -58,7 +60,9 @@ def test_register_creates_verified_user_when_flag_disabled(db_session):
             background_tasks,
         )
 
-    assert response == {"message": "Cuenta creada correctamente."}
+    assert response["message"] == "Cuenta creada correctamente."
+    assert response["access_token"]
+    assert response["user"].email == "flagoff@example.com"
 
     user = (
         db_session.query(User)

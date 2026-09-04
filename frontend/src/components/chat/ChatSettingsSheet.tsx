@@ -49,11 +49,15 @@ export default function ChatSettingsSheet({
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (open) setMuted(isChatMuted(threadKey));
-    else {
-      setStep("menu");
-      setImages(null);
-    }
+    const timerId = window.setTimeout(() => {
+      if (open) setMuted(isChatMuted(threadKey));
+      else {
+        setStep("menu");
+        setImages(null);
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timerId);
   }, [open, threadKey]);
 
   function toggleMuted() {

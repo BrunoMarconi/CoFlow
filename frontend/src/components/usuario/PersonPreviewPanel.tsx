@@ -11,6 +11,7 @@ import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { useUserConnection } from "@/hooks/useUserConnection";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import type { PublicUserPreferences, UserPublicProfile } from "@/types/userPublic";
+import CompatibilityExplanation from "@/components/usuario/CompatibilityExplanation";
 
 const PREVIEW_PREFERENCES: Array<{
   key: keyof PublicUserPreferences;
@@ -200,6 +201,16 @@ function PreviewContent({ profile, onClose }: { profile: UserPublicProfile; onCl
             <PreviewFact label="Presupuesto" value={budget} />
             <PreviewFact label="Comunidad" value={profile.community?.name ?? "Sin comunidad"} />
           </div>
+
+          {profile.match_score !== null && profile.match_breakdown && (
+            <div className="mt-4">
+              <CompatibilityExplanation
+                score={profile.match_score}
+                breakdown={profile.match_breakdown}
+                compact
+              />
+            </div>
+          )}
 
           {traits.length > 0 && (
             <div className="mt-4">

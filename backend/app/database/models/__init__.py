@@ -28,3 +28,4 @@ from app.database.models.financial_monthly_summary import FinancialMonthlySummar
 from app.database.models.email_verification_token import EmailVerificationToken
 from app.database.models.owner_claim_token import OwnerClaimToken
 from app.database.models.legal_report import LegalReport
+from app.database.models.product_event import ProductEvent

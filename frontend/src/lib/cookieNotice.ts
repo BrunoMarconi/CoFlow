@@ -15,5 +15,6 @@ export function getCookieConsent(): CookieConsent | null {
 export function saveCookieConsent(options: Pick<CookieConsent, "analytics" | "preferences">) {
   const value: CookieConsent = { version: 1, necessary: true, ...options, decidedAt: new Date().toISOString() };
   localStorage.setItem(KEY, JSON.stringify(value));
+  if (!options.analytics) localStorage.removeItem("coflow:analytics-session");
   window.dispatchEvent(new CustomEvent("coflow:cookie-consent-changed", { detail: value }));
 }

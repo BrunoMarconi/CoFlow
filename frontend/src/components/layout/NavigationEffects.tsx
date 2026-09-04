@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { trackProductEvent } from "@/lib/analytics";
 
 /**
  * Normaliza el punto de entrada de cada pantalla nueva (empieza arriba
@@ -17,6 +18,13 @@ import { usePathname } from "next/navigation";
 export default function NavigationEffects() {
   const pathname = usePathname();
   const isPopNavigationRef = useRef(false);
+
+  useEffect(() => {
+    trackProductEvent("page_view", pathname);
+    if (/^\/(personas|usuarios)\/[^/]+$/.test(pathname)) {
+      trackProductEvent("profile_viewed", pathname);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     function handlePopState() {

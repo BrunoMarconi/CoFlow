@@ -145,7 +145,13 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   const [typingNames, setTypingNames] = useState<string[]>([]);
   const [readUpTo, setReadUpTo] = useState<number | null>(null);
   const [sendingImage, setSendingImage] = useState(false);
-  const [myLastReadId, setMyLastReadId] = useState<number | null | undefined>(undefined);
+  const [lastReadState, setLastReadState] = useState<{
+    threadKey: number | string;
+    value: number | null;
+  } | null>(null);
+  const myLastReadId = lastReadState?.threadKey === threadKey
+    ? lastReadState.value
+    : undefined;
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -335,15 +341,14 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   }, [threadKey]);
 
   useEffect(() => {
-    setMyLastReadId(undefined);
     if (!fetchMyLastReadId) return;
     let active = true;
     fetchMyLastReadId()
       .then((value) => {
-        if (active) setMyLastReadId(value);
+        if (active) setLastReadState({ threadKey, value });
       })
       .catch(() => {
-        if (active) setMyLastReadId(null);
+        if (active) setLastReadState({ threadKey, value: null });
       });
     return () => {
       active = false;

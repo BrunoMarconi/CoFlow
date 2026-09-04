@@ -11,6 +11,7 @@ import PhotoGallery from "@/components/ui/PhotoGallery";
 import UserAvatar from "@/components/ui/UserAvatar";
 import UserSafetyActions from "@/components/usuario/UserSafetyActions";
 import CompatibilityRadar, { CompatibilityRadarIcon } from "@/components/convivencia/CompatibilityRadar";
+import CompatibilityExplanation from "@/components/usuario/CompatibilityExplanation";
 import { detailTransitionName } from "@/lib/detailTransitions";
 import type { PublicUserPreferences, UserPublicProfile } from "@/types/userPublic";
 
@@ -192,13 +193,22 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
         </div>
       </div>
 
+      {profile.match_score !== null && profile.match_breakdown && (
+        <div className="mt-4">
+          <CompatibilityExplanation
+            score={profile.match_score}
+            breakdown={profile.match_breakdown}
+          />
+        </div>
+      )}
+
       {profile.compatibility && profile.compatibility.categories.length > 0 && (
         <CompatibilityRadar
           className="mt-4"
           categories={profile.compatibility.categories}
           icon={<CompatibilityRadarIcon />}
-          title="Perfil de convivencia"
-          subtitle={`Así convive ${profile.first_name || "esta persona"}`}
+          title={`Cómo convive ${profile.first_name || "esta persona"}`}
+          subtitle="Estos valores describen su estilo personal, no la comparación"
         />
       )}
 

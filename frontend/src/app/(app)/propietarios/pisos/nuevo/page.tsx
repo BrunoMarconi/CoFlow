@@ -14,26 +14,26 @@ export default function NuevoPisoPage() {
   const searchParams = useSearchParams();
   const draftId = searchParams.get("draft");
 
-  const [draft, setDraft] = useState<Property | null>(null);
-  const [draftLoading, setDraftLoading] = useState(Boolean(draftId));
-  const [draftError, setDraftError] = useState(false);
+  const [draftRequest, setDraftRequest] = useState<{
+    id: string;
+    property: Property | null;
+    error: boolean;
+  } | null>(null);
+
+  const draftLoading = Boolean(draftId) && draftRequest?.id !== draftId;
+  const draftError = draftRequest?.id === draftId && draftRequest.error;
+  const draft = draftRequest?.id === draftId ? draftRequest.property : null;
 
   useEffect(() => {
     if (!draftId) return;
 
     let active = true;
-    setDraftLoading(true);
-    setDraftError(false);
-
     getMyProperty(Number(draftId))
       .then((property) => {
-        if (active) setDraft(property);
+        if (active) setDraftRequest({ id: draftId, property, error: false });
       })
       .catch(() => {
-        if (active) setDraftError(true);
-      })
-      .finally(() => {
-        if (active) setDraftLoading(false);
+        if (active) setDraftRequest({ id: draftId, property: null, error: true });
       });
 
     return () => {

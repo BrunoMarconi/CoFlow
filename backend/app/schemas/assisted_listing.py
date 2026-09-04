@@ -74,6 +74,7 @@ class AssistedListingCreate(BaseModel):
 class AssistedListingResponse(BaseModel):
     property_id: int
     owner_email: str
+    claim_url: str
 
 
 class OwnerClaimPreview(BaseModel):

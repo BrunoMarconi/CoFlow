@@ -179,6 +179,42 @@ def compute_match_score(
     return round(sum(similarities) / len(similarities))
 
 
+def compute_match_breakdown(
+    viewer_profile: CompatibilityProfile,
+    other_profile: CompatibilityProfile,
+) -> list[CompatibilityCategoryScore]:
+    """Coincidencia por eje entre dos perfiles, con el mismo peso que el total."""
+    viewer_scores = {
+        category.key: category.score
+        for category in compute_category_scores(viewer_profile)
+    }
+    other_scores = {
+        category.key: category.score
+        for category in compute_category_scores(other_profile)
+    }
+
+    categories = []
+    for key in CATEGORY_QUESTIONS:
+        score = 100 - abs(viewer_scores[key] - other_scores[key])
+        if score >= 85:
+            description = "Coincidencia muy alta"
+        elif score >= 70:
+            description = "Buena coincidencia"
+        elif score >= 50:
+            description = "Conviene hablarlo"
+        else:
+            description = "Diferencia importante"
+        categories.append(
+            CompatibilityCategoryScore(
+                key=key,
+                label=CATEGORY_LABELS[key],
+                score=score,
+                description=description,
+            )
+        )
+    return categories
+
+
 def average_category_scores(
     all_scores: list[list[CompatibilityCategoryScore]],
 ) -> list[CompatibilityCategoryScore]:

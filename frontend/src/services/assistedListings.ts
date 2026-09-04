@@ -3,6 +3,7 @@ import { api } from "./api";
 export interface AssistedListingResult {
   property_id: number;
   owner_email: string;
+  claim_url: string;
 }
 
 export async function createAssistedListing(payload: Record<string, unknown>) {

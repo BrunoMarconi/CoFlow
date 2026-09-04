@@ -1,12 +1,13 @@
 import hashlib
+import secrets
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.core.config import CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION, MINIMUM_REGISTRATION_AGE
+from app.core.config import CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION, FRONTEND_URL, MINIMUM_REGISTRATION_AGE
 from app.core.dependencies import require_admin
 from app.core.security import hash_password
 from app.database.models.owner_claim_token import OwnerClaimToken
@@ -18,6 +19,7 @@ from app.schemas.assisted_listing import AssistedListingCreate, AssistedListingR
 from app.schemas.property import PropertyResponse
 from app.services.property_image_service import PropertyImageService
 from app.services.property_service import PropertyService
+from app.services.assisted_listing_email_service import send_owner_claim_email
 
 router = APIRouter()
 property_service = PropertyService()
@@ -37,7 +39,7 @@ def _active_claim(db: Session, raw_token: str) -> OwnerClaimToken:
 
 
 @router.post("", response_model=AssistedListingResponse)
-def create_assisted_listing(data: AssistedListingCreate, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+def create_assisted_listing(data: AssistedListingCreate, background_tasks: BackgroundTasks, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     # Alta asistida: nada es obligatorio en el formulario, el admin
     # rellena lo que le ha dado tiempo a anotar en la llamada. Lo que la
     # base de datos exige de verdad (email único, nombre, ciudad,
@@ -109,12 +111,36 @@ def create_assisted_listing(data: AssistedListingCreate, admin: User = Depends(r
         db.add(property_obj)
         db.flush()
         property_service._set_amenities(db, property_obj, prop_data.amenity_ids)
+        raw_token = secrets.token_urlsafe(32)
+        db.add(
+            OwnerClaimToken(
+                user_id=owner.id,
+                property_id=property_obj.id,
+                created_by_id=admin.id,
+                token_hash=_hash_token(raw_token),
+                expires_at=datetime.now(timezone.utc) + timedelta(days=7),
+            )
+        )
         db.commit()
     except Exception:
         db.rollback()
         raise
 
-    return AssistedListingResponse(property_id=property_obj.id, owner_email=raw_email or "(sin email)")
+    frontend_url = FRONTEND_URL.rstrip("/") or "http://localhost:3000"
+    claim_url = f"{frontend_url}/activar-propietario/{raw_token}"
+    if raw_email:
+        background_tasks.add_task(
+            send_owner_claim_email,
+            to_email=raw_email,
+            first_name=owner.first_name,
+            claim_url=claim_url,
+            property_title=property_obj.title,
+        )
+    return AssistedListingResponse(
+        property_id=property_obj.id,
+        owner_email=raw_email or "(sin email)",
+        claim_url=claim_url,
+    )
 
 
 @router.post("/{property_id}/images", response_model=PropertyResponse)

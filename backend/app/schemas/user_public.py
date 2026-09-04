@@ -62,6 +62,9 @@ class PublicUserProfileResponse(StorageBackedAvatarResponse):
     # si cualquiera de los dos no ha completado el test de convivencia,
     # o si se consulta el propio perfil.
     match_score: int | None = None
+    # Desglose de esa similitud por los seis ejes. A diferencia de
+    # `compatibility`, describe la relación entre ambos perfiles.
+    match_breakdown: CompatibilityScoreResponse | None = None
     community: PublicUserCommunityResponse | None = None
     is_saved: bool = False
     connection_status: str = "NONE"

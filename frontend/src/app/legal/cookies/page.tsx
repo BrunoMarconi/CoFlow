@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "Política de cookies" };
 
 export default function CookiesPage() {
   return (
-    <LegalLayout title="Política de cookies" updated="3 de septiembre de 2026">
+    <LegalLayout title="Política de cookies" updated="4 de septiembre de 2026">
       <Section title="1. Qué son las cookies">
         <p>
           Las cookies y tecnologías similares permiten almacenar o recuperar determinada información en el dispositivo
@@ -36,8 +36,9 @@ export default function CookiesPage() {
       </Section>
 
       <Section title="4. Analítica">
-        <p>Actualmente no utilizada.</p>
-        <p>Si en el futuro CoFlow incorpora una herramienta de analítica que requiera consentimiento, esta permanecerá desactivada hasta que el usuario la acepte.</p>
+        <p>Con tu consentimiento, CoFlow registra eventos propios y minimizados para entender si recorridos como el registro, onboarding, exploración y contacto se completan correctamente.</p>
+        <p>No se guarda el contenido de mensajes, búsquedas, datos financieros ni identificadores de perfiles visitados. Las rutas se normalizan antes de almacenarse y no se comparten con plataformas publicitarias.</p>
+        <p>Esta analítica permanece desactivada hasta que la aceptes y puedes retirarla en cualquier momento.</p>
       </Section>
 
       <Section title="5. Publicidad">

@@ -20,12 +20,14 @@ def _clear_dependency_overrides():
 
 # Payload con exactamente la forma que envía
 # frontend/src/app/(auth)/register/page.tsx vía
-# frontend/src/services/auth.ts (first_name, last_name, email, password).
+# frontend/src/services/auth.ts.
 FRONTEND_REGISTER_PAYLOAD = {
     "first_name": "Ada",
     "last_name": "Lovelace",
     "email": "ada.http.test@example.com",
     "password": "password123",
+    "birth_date": "1990-01-01",
+    "terms_accepted": True,
 }
 
 
@@ -41,10 +43,12 @@ def test_register_with_real_frontend_payload_succeeds(db_session):
         response = client.post("/auth/register", json=FRONTEND_REGISTER_PAYLOAD)
 
     assert response.status_code == 200
-    assert response.json() == {
-        "message": "Cuenta creada correctamente.",
-        "debug_token": None,
-    }
+    body = response.json()
+    assert body["message"] == "Cuenta creada correctamente."
+    assert body["token_type"] == "bearer"
+    assert body["access_token"]
+    assert body["user"]["email"] == FRONTEND_REGISTER_PAYLOAD["email"]
+    assert body["debug_token"] is None
 
 
 def test_register_duplicate_email_returns_409(db_session):
@@ -181,6 +185,7 @@ def test_login_full_response_body_matches_login_response_schema(db_session):
         "token_type",
         "is_email_verified",
         "email_verification_enabled",
+        "user",
     }
     assert isinstance(body["access_token"], str) and len(body["access_token"]) > 0
     assert body["token_type"] == "bearer"

@@ -10,12 +10,10 @@ import { useOwnerMode } from "@/hooks/useOwnerMode";
 import Avatar from "@/components/ui/Avatar";
 import Logo from "@/components/ui/Logo";
 import {
-  BookmarkIcon,
   CompassIcon,
   KeyIcon,
   LogoutIcon,
   MessageIcon,
-  PlusIcon,
   ProfileIcon,
   SettingsIcon,
   UsersIcon,
@@ -36,30 +34,18 @@ export default function Sidebar() {
   const { isOwnerMode } = useOwnerMode();
 
   const memberLinks: NavLink[] = [
-    ...(community
-      ? [{ href: "/mi-comunidad", label: "Tu comunidad", icon: HomeIcon }]
-      : []),
     {
-      href: "/comunidades",
-      label: community ? "Explorar" : "Explorar comunidades",
+      href: "/explorar",
+      label: "Explorar",
       icon: CompassIcon,
     },
-    { href: "/usuarios", label: "Personas", icon: UsersIcon },
     { href: "/mensajes", label: "Mensajes", icon: MessageIcon },
     {
-      href: "/personas/guardadas",
-      label: "Guardados",
-      icon: BookmarkIcon,
+      href: "/mi-comunidad",
+      label: community ? "Mi comunidad" : "Crear comunidad",
+      icon: HomeIcon,
     },
-    ...(!community
-      ? [
-          {
-            href: "/crear/comunidad",
-            label: "Crear comunidad",
-            icon: PlusIcon,
-          },
-        ]
-      : []),
+    { href: "/perfil", label: "Perfil", icon: ProfileIcon },
   ];
 
   const ownerLinks: NavLink[] = [
@@ -75,7 +61,6 @@ export default function Sidebar() {
     ...(isOwnerMode
       ? []
       : [
-          { href: "/perfil", label: "Mi perfil", icon: ProfileIcon },
           ...(!ownerProfile
             ? [
                 {
@@ -90,7 +75,18 @@ export default function Sidebar() {
   ];
 
   function isActive(href: string) {
-    if (href === "/mi-comunidad") return pathname.startsWith("/mi-comunidad");
+    if (href === "/mi-comunidad") {
+      return pathname.startsWith("/mi-comunidad") || pathname.startsWith("/crear/comunidad");
+    }
+
+    if (href === "/explorar") {
+      return (
+        pathname.startsWith("/explorar") ||
+        pathname.startsWith("/usuarios") ||
+        pathname.startsWith("/personas") ||
+        pathname.startsWith("/comunidades")
+      );
+    }
 
     if (href === "/propietarios") return pathname === "/propietarios";
 
@@ -135,7 +131,7 @@ export default function Sidebar() {
       </Link>
 
       <Link
-        href={isOwnerMode ? "/propietarios/pisos" : "/comunidades"}
+        href={isOwnerMode ? "/propietarios/pisos" : "/explorar"}
         className="mb-6 flex items-center gap-2.5 px-4"
         aria-label="CoFlow"
       >

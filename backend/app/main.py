@@ -19,6 +19,7 @@ mimetypes.add_type("image/webp", ".webp")
 from app.api.auth import router as auth_router
 from app.api.routes import (
     applications,
+    analytics,
     assisted_listings,
     bank_connections,
     billing,
@@ -83,6 +84,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
 app.include_router(
     onboarding.router,
     prefix="/onboarding",

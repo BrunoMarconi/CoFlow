@@ -45,6 +45,8 @@ export interface UserPublicProfile {
   /** Similitud 0-100 entre tu perfil de convivencia y el de esta
    * persona. Null si tú o ella no habéis completado el test todavía. */
   match_score: number | null;
+  /** Coincidencia relativa por eje; `compatibility` describe solo a la otra persona. */
+  match_breakdown: CompatibilityScore | null;
   community: PublicUserCommunity | null;
   is_saved: boolean;
   connection_status: UserConnectionStatusLabel;

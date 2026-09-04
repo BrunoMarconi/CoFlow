@@ -3,6 +3,7 @@ from app.services.compatibility_score_service import (
     QUESTION_DIRECTION,
     QUESTION_OPTIONS,
     compute_match_score,
+    compute_match_breakdown,
 )
 
 
@@ -52,3 +53,15 @@ def test_partial_overlap_gives_intermediate_score():
     profile_b = _profile(2)
     score = compute_match_score(profile_a, profile_b)
     assert 0 < score < 100
+
+
+def test_match_breakdown_explains_the_same_total_score():
+    profile_a = _profile(1)
+    profile_b = _profile(2)
+    breakdown = compute_match_breakdown(profile_a, profile_b)
+
+    assert len(breakdown) == 6
+    assert round(sum(item.score for item in breakdown) / len(breakdown)) == compute_match_score(
+        profile_a, profile_b
+    )
+    assert all(item.description for item in breakdown)
