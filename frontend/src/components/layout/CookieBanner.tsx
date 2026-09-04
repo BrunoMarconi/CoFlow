@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Settings2, X } from "lucide-react";
 import { getCookieConsent, saveCookieConsent } from "@/lib/cookieNotice";
 
 export default function CookieBanner() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [panel, setPanel] = useState(false);
   const [analytics, setAnalytics] = useState(false);
@@ -31,6 +33,9 @@ export default function CookieBanner() {
     setAnalytics(saved?.analytics ?? false); setPreferences(saved?.preferences ?? false);
     setPanel(true); setVisible(true);
   }
+
+  const showOnPublicSite = pathname === "/" || pathname.startsWith("/para-propietarios") || pathname.startsWith("/companeros-de-piso") || pathname.startsWith("/legal/");
+  if (!showOnPublicSite) return null;
 
   return <>
     {!visible && <button type="button" onClick={reopen} className="fixed bottom-[calc(1rem+var(--safe-bottom))] left-4 z-(--z-modal) flex items-center gap-2 rounded-full border border-black/10 bg-white/95 px-3.5 py-2.5 text-xs font-bold text-[#294a3b] shadow-lg backdrop-blur transition hover:-translate-y-0.5" aria-label="Gestionar preferencias de cookies"><Settings2 size={14} />Cookies</button>}

@@ -44,7 +44,7 @@ export default function CommunityGrid({
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(310px,1fr))] xl:grid-cols-2"
+      className="grid grid-cols-1 gap-4 md:grid-cols-[repeat(auto-fill,minmax(310px,1fr))] xl:grid-cols-2"
     >
       {communities.map((community) => (
         <motion.div key={community.id} variants={itemVariants} className="h-full">

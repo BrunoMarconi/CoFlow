@@ -254,7 +254,7 @@ export default function ComunidadesPage() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="community-discovery-page -mx-2 sm:mx-0">
+    <div className="community-discovery-page -mx-2 min-h-dvh bg-[#f4fbfa] px-2 sm:-mx-8 sm:px-8 md:mx-0 md:min-h-0 md:bg-transparent md:px-0">
       {!searchOpen && (
         <header className="mb-4 mt-2 flex items-end justify-between gap-4 sm:mt-0">
           <div>
@@ -262,8 +262,8 @@ export default function ComunidadesPage() {
             <h1 className="mt-2 font-rounded text-[28px] font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">Comunidades</h1>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-muted">{resultsCounter}</span>
-            {!loadingMyCommunity && !myCommunity && <PrimaryButton href="/crear/comunidad" className="hidden shrink-0 sm:inline-flex"><PlusIcon />Crear comunidad</PrimaryButton>}
+            <span className="max-w-24 text-right text-xs font-semibold leading-4 text-muted">{resultCount} {resultCount === 1 ? "comunidad activa" : "comunidades activas"}</span>
+            {!loadingMyCommunity && !myCommunity && <PrimaryButton href="/crear/comunidad" className="hidden shrink-0 md:inline-flex"><PlusIcon />Crear comunidad</PrimaryButton>}
           </div>
         </header>
       )}
