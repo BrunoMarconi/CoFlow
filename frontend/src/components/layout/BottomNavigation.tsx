@@ -8,6 +8,8 @@ import { useKeyboardVisible } from "@/hooks/useKeyboardVisible";
 import { useAuth } from "@/hooks/useAuth";
 import { useOwnerMode } from "@/hooks/useOwnerMode";
 import { getTabTransitionTypes } from "@/lib/navTransition";
+import { computeProfileCompletion } from "@/lib/profileCompletion";
+import ProfileCompletionRing from "@/components/ui/ProfileCompletionRing";
 import {
   CompassIcon,
   UsersIcon,
@@ -88,10 +90,11 @@ const OWNER_LINKS: NavigationLink[] = [
 export default function BottomNavigation() {
   const pathname = usePathname();
   const { isChatActive } = useMobileChrome();
-  const { hasUnreadMessages } = useAuth();
+  const { user, hasUnreadMessages } = useAuth();
   const { isOwnerMode } = useOwnerMode();
   const isKeyboardVisible = useKeyboardVisible();
   const links = isOwnerMode ? OWNER_LINKS : MEMBER_LINKS;
+  const profileCompletion = user ? computeProfileCompletion(user) : 100;
 
   // Nunca debe competir con el compositor de un chat activo ni con el
   // teclado virtual abierto en cualquier formulario.
@@ -112,6 +115,11 @@ export default function BottomNavigation() {
             showUnreadDot={
               link.label === "Mensajes" && !isOwnerMode && hasUnreadMessages
             }
+            profileCompletion={
+              link.label === "Perfil" && !isOwnerMode && profileCompletion < 100
+                ? profileCompletion
+                : null
+            }
           />
         ))}
       </div>
@@ -124,11 +132,13 @@ function BottomNavLink({
   active,
   transitionTypes,
   showUnreadDot,
+  profileCompletion,
 }: {
   link: NavigationLink;
   active: boolean;
   transitionTypes?: string[];
   showUnreadDot: boolean;
+  profileCompletion: number | null;
 }) {
   const Icon = link.icon;
 
@@ -136,10 +146,21 @@ function BottomNavLink({
     <Link
       href={link.href}
       aria-current={active ? "page" : undefined}
+      aria-label={
+        profileCompletion !== null
+          ? `${link.label}, perfil completado al ${profileCompletion}%`
+          : undefined
+      }
       transitionTypes={transitionTypes}
       className="relative flex flex-1 flex-col items-center justify-center gap-1 px-2 transition active:scale-95 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
     >
       <span className="relative">
+        {profileCompletion !== null && (
+          <ProfileCompletionRing
+            completion={profileCompletion}
+            className="absolute -inset-1 h-9 w-9"
+          />
+        )}
         <Icon
           className={cn(
             "h-7 w-7 shrink-0",

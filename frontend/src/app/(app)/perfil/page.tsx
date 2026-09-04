@@ -106,20 +106,28 @@ export default function PerfilPage() {
       initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 5 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-      className="mx-auto w-full max-w-7xl space-y-5 pb-4 sm:space-y-7"
+      className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] space-y-4 px-6 py-6 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-7xl sm:rounded-[32px] sm:p-7 lg:p-8"
     >
-      <section className="relative overflow-hidden rounded-24 border border-primary/20 bg-mint-50 shadow-soft">
-        <div className="flex items-center justify-between gap-3 border-b border-primary/15 px-4 py-3 sm:block sm:px-7 sm:py-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-primary-dark/60 sm:text-[11px] sm:tracking-[0.14em]">
-            Tu identidad en CoFlow
-          </p>
-          <h1 className="font-rounded text-base font-semibold text-brand-dark sm:mt-0.5 sm:text-lg">
-            Mi perfil
-          </h1>
+      <section className="relative overflow-hidden rounded-[28px] bg-surface p-4 shadow-sm sm:p-7 lg:p-8">
+        <div className="mb-5 flex items-end justify-between gap-4 sm:mb-7">
+          <div>
+            <p className="text-xs font-semibold text-muted">Tu identidad en CoFlow</p>
+            <h1 className="mt-0.5 font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">
+              Mi perfil
+            </h1>
+          </div>
+          <Link
+            href={`/personas/${user.id}`}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-surface-soft px-4 text-xs font-bold text-primary-dark transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:text-sm"
+          >
+            <EyeIcon />
+            <span className="hidden sm:inline">Ver perfil público</span>
+            <span className="sm:hidden">Vista pública</span>
+          </Link>
         </div>
 
-        <div className="grid gap-4 p-4 sm:gap-7 sm:p-7 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-center lg:gap-10 lg:p-8">
-          <div className="min-w-0">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-stretch lg:gap-5">
+          <div className="min-w-0 rounded-24 bg-surface-soft/65 p-4 sm:p-5">
             <div className="flex items-center gap-3 sm:gap-6">
               <div className="relative shrink-0 rounded-full border-4 border-white shadow-soft">
               <Avatar
@@ -166,46 +174,37 @@ export default function PerfilPage() {
               </p>
             )}
 
-            <div className="mt-4 grid grid-cols-2 gap-2 sm:mt-6 sm:flex sm:flex-row">
+            <div className="mt-4 sm:mt-6">
               <Link
                 href="/perfil/editar"
-                className="inline-flex min-h-11 items-center justify-center rounded-14 bg-brand-dark px-3 text-xs font-bold text-white shadow-button transition hover:bg-primary-dark sm:px-5 sm:text-sm"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-14 bg-brand-dark px-5 text-sm font-bold text-white shadow-button transition-colors duration-180 hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-auto"
               >
-                <span className="sm:hidden">Editar</span>
-                <span className="hidden sm:inline">Editar mi perfil</span>
-              </Link>
-              <Link
-                href={`/personas/${user.id}`}
-                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-14 border border-primary/25 bg-white/75 px-3 text-xs font-bold text-primary-dark transition hover:bg-white sm:gap-2 sm:px-5 sm:text-sm"
-              >
-                <span className="[&>svg]:h-4 [&>svg]:w-4"><EyeIcon /></span>
-                <span className="sm:hidden">Ver público</span>
-                <span className="hidden sm:inline">Ver perfil público</span>
+                Editar mi perfil
               </Link>
             </div>
           </div>
 
-          <div className="rounded-18 border border-white/80 bg-white/70 p-4 backdrop-blur-sm sm:p-5">
+          <div className="rounded-24 bg-brand-dark p-5 text-white sm:p-6">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">
                   Perfil completado
                 </p>
-                <p className="mt-0.5 font-rounded text-2xl font-semibold text-brand-dark sm:mt-1 sm:text-3xl">
+                <p className="mt-0.5 font-rounded text-3xl font-semibold text-white sm:mt-1 sm:text-4xl">
                   {completion}%
                 </p>
               </div>
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary sm:h-12 sm:w-12">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white sm:h-12 sm:w-12">
                 <ProfileSparkIcon />
               </span>
             </div>
 
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-primary/10 sm:mt-4">
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/15">
               <motion.div
                 initial={{ width: prefersReducedMotion ? `${completion}%` : 0 }}
                 animate={{ width: `${completion}%` }}
                 transition={{ duration: MOTION_DURATION.slow, ease: MOTION_EASE.out }}
-                className="h-full rounded-full bg-primary"
+                className="h-full rounded-full bg-mint-100"
               />
             </div>
 
@@ -216,7 +215,7 @@ export default function PerfilPage() {
                     <Link
                       key={item.key}
                       href={item.href}
-                      className="inline-flex min-h-8 items-center rounded-full bg-mint-50 px-3 py-1 text-[11px] font-bold text-primary-dark"
+                      className="inline-flex min-h-8 items-center rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold text-white"
                     >
                       + {item.label}
                     </Link>
@@ -224,7 +223,7 @@ export default function PerfilPage() {
                   {missingItems.length > 2 && (
                     <Link
                       href="/perfil/editar"
-                      className="inline-flex min-h-8 items-center rounded-full border border-primary/15 px-3 py-1 text-[11px] font-bold text-primary-dark"
+                      className="inline-flex min-h-8 items-center rounded-full border border-white/15 px-3 py-1 text-[11px] font-bold text-white"
                     >
                       +{missingItems.length - 2} pendientes
                     </Link>
@@ -235,7 +234,7 @@ export default function PerfilPage() {
                     <Link
                       key={item.key}
                       href={item.href}
-                      className="inline-flex min-h-8 items-center gap-1 rounded-full bg-mint-50 px-3 py-1 text-xs font-bold text-primary-dark transition hover:bg-mint-100"
+                      className="inline-flex min-h-8 items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white transition-colors duration-180 hover:bg-white/15"
                     >
                       + {item.label}
                     </Link>
@@ -243,7 +242,7 @@ export default function PerfilPage() {
                 </div>
               </div>
             ) : (
-              <p className="mt-4 text-sm font-semibold text-primary-dark">
+              <p className="mt-4 text-sm font-semibold text-white/80">
                 Tu perfil está listo para compartir.
               </p>
             )}
@@ -278,76 +277,83 @@ export default function PerfilPage() {
         </Link>
       )}
 
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
-        <IllustratedCard
-          href={communityHref}
-          image="/images/profile-community-3d.webp"
-          imageAlt="Salón compartido"
-          title="Mi comunidad"
-          subtitle={community?.name ?? "Encuentra tu comunidad"}
-        />
-        <IllustratedCard
-          href="/conexiones"
-          image="/images/profile-connections-3d.webp"
-          imageAlt="Burbujas de conversación"
-          title="Conexiones"
-          subtitle={`${connectionsCount} conexiones${pendingReceivedCount > 0 ? ` · ${pendingReceivedCount} pendientes` : ""}`}
-        />
-      </section>
-
-      <Link
-        href={ownerHref}
-        className="grid min-h-32 grid-cols-[42%_1fr_auto] items-center overflow-hidden rounded-24 border border-border/60 bg-surface transition hover:border-primary/25 lg:min-h-40 lg:grid-cols-[280px_1fr_auto]"
-      >
-        <div className="relative h-full min-h-32 bg-surface-soft/30 lg:min-h-40">
-          <Image
-            src="/images/profile-owner-house-3d.webp"
-            alt="Casa ilustrada"
-            fill
-            sizes="(max-width: 640px) 42vw, 300px"
-            className="object-contain object-center p-2 lg:p-5"
+      <section className="rounded-[28px] bg-surface p-4 shadow-sm sm:p-6">
+        <h2 className="mb-4 px-1 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">
+          Tu espacio
+        </h2>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <IllustratedCard
+            href={communityHref}
+            image="/images/profile-community-3d.webp"
+            imageAlt="Salón compartido"
+            title="Mi comunidad"
+            subtitle={community?.name ?? "Encuentra tu comunidad"}
+          />
+          <IllustratedCard
+            href="/conexiones"
+            image="/images/profile-connections-3d.webp"
+            imageAlt="Burbujas de conversación"
+            title="Conexiones"
+            subtitle={`${connectionsCount} conexiones${pendingReceivedCount > 0 ? ` · ${pendingReceivedCount} pendientes` : ""}`}
           />
         </div>
-        <div className="py-4 pr-2">
-          <p className="text-base font-bold text-brand-dark">
-            {ownerProfile ? "Tu espacio de propietario" : "¿Tienes una vivienda?"}
-          </p>
-          <p className="mt-1 text-xs leading-5 text-secondary sm:text-sm">
-            {ownerProfile
-              ? "Gestiona tus viviendas publicadas en CoFlow."
-              : "Crea tu perfil de propietario y gestiona tus viviendas."}
-          </p>
-        </div>
-        <span className="pr-4 text-muted">
-          <ChevronIcon />
-        </span>
-      </Link>
 
-      <section className="space-y-2">
-        <h2 className="px-1 text-sm font-bold text-primary-dark">Mi CoFlow</h2>
-        <div className="divide-y divide-border rounded-18 border border-border/60 bg-surface">
-          <ProfileMenuRow href="/perfil/editar" icon={<UserIcon />} label="Editar mi perfil" />
-          <ProfileMenuRow href="/perfil/preferencias" icon={<HomeIcon />} label="Preferencias de vivienda" />
-          <ProfileMenuRow href="/personas/guardadas" icon={<BookmarkIcon />} label={`Perfiles guardados (${savedCount})`} />
-        </div>
+        <Link
+          href={ownerHref}
+          className="mt-3 grid min-h-28 grid-cols-[7rem_1fr_auto] items-center overflow-hidden rounded-20 bg-surface-soft/70 transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:mt-4 sm:grid-cols-[9rem_1fr_auto]"
+        >
+          <div className="relative h-full min-h-28">
+            <Image
+              src="/images/profile-owner-house-3d.webp"
+              alt="Casa ilustrada"
+              fill
+              sizes="(max-width: 640px) 112px, 144px"
+              className="object-contain object-center p-2"
+            />
+          </div>
+          <div className="py-4 pr-2">
+            <p className="text-sm font-bold text-brand-dark sm:text-base">
+              {ownerProfile ? "Tu espacio de propietario" : "¿Tienes una vivienda?"}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-secondary sm:text-sm">
+              {ownerProfile
+                ? "Gestiona tus viviendas publicadas en CoFlow."
+                : "Crea tu perfil de propietario y gestiona tus viviendas."}
+            </p>
+          </div>
+          <span className="pr-3 text-muted sm:pr-4">
+            <ChevronIcon />
+          </span>
+        </Link>
       </section>
 
-      <section className="space-y-2">
-        <h2 className="px-1 text-sm font-bold text-primary-dark">Cuenta</h2>
-        <div className="divide-y divide-border rounded-18 border border-border/60 bg-surface">
-          {user.role === "ADMIN" ? (
-            <ProfileMenuRow href="/equipo/alta-asistida" icon={<HomeIcon />} label="Alta asistida de viviendas" />
-          ) : null}
-          <ProfileMenuRow href="/notificaciones" icon={<BellIcon />} label="Notificaciones" />
-          <ProfileMenuRow href="/invitaciones" icon={<InvitationIcon />} label="Invitaciones" />
-          <ProfileMenuRow href="/ajustes/privacidad" icon={<LockIcon />} label="Privacidad y seguridad" />
-          <ProfileMenuRow href="/ajustes" icon={<SettingsIcon />} label="Ajustes" />
-          <ProfileMenuRow href="/ayuda" icon={<HelpIcon />} label="Centro de ayuda" />
-        </div>
-      </section>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section className="space-y-2 rounded-[28px] bg-surface p-4 shadow-sm sm:p-5">
+          <h2 className="px-2 font-rounded text-lg font-semibold text-brand-dark">Mi CoFlow</h2>
+          <div className="divide-y divide-border">
+            <ProfileMenuRow href="/perfil/editar" icon={<UserIcon />} label="Editar mi perfil" />
+            <ProfileMenuRow href="/perfil/preferencias" icon={<HomeIcon />} label="Preferencias de vivienda" />
+            <ProfileMenuRow href="/personas/guardadas" icon={<BookmarkIcon />} label={`Perfiles guardados (${savedCount})`} />
+          </div>
+        </section>
 
-      <section className="space-y-3">
-        <h2 className="text-base font-bold text-brand-dark">Completa tu perfil</h2>
+        <section className="space-y-2 rounded-[28px] bg-surface p-4 shadow-sm sm:p-5">
+          <h2 className="px-2 font-rounded text-lg font-semibold text-brand-dark">Cuenta</h2>
+          <div className="divide-y divide-border">
+            {user.role === "ADMIN" ? (
+              <ProfileMenuRow href="/equipo/alta-asistida" icon={<HomeIcon />} label="Alta asistida de viviendas" />
+            ) : null}
+            <ProfileMenuRow href="/notificaciones" icon={<BellIcon />} label="Notificaciones" />
+            <ProfileMenuRow href="/invitaciones" icon={<InvitationIcon />} label="Invitaciones" />
+            <ProfileMenuRow href="/ajustes/privacidad" icon={<LockIcon />} label="Privacidad y seguridad" />
+            <ProfileMenuRow href="/ajustes" icon={<SettingsIcon />} label="Ajustes" />
+            <ProfileMenuRow href="/ayuda" icon={<HelpIcon />} label="Centro de ayuda" />
+          </div>
+        </section>
+      </div>
+
+      <section className="space-y-3 rounded-[28px] bg-surface p-4 shadow-sm sm:p-6">
+        <h2 className="font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Detalles del perfil</h2>
 
         <YourProfileSection
           user={user}
@@ -363,8 +369,8 @@ export default function PerfilPage() {
         />
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-base font-bold text-brand-dark">Confianza</h2>
+      <section className="space-y-3 rounded-[28px] bg-surface p-4 shadow-sm sm:p-6">
+        <h2 className="font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Confianza</h2>
         <TrustSection user={user} />
       </section>
 
@@ -389,9 +395,9 @@ function IllustratedCard({
   return (
     <Link
       href={href}
-      className="overflow-hidden rounded-24 border border-border/60 bg-surface text-center transition hover:-translate-y-0.5 hover:border-primary/25"
+      className="overflow-hidden rounded-20 bg-surface-soft/70 text-left transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
-      <div className="relative h-32 bg-surface-soft/30 sm:h-44 lg:h-48">
+      <div className="relative h-28 sm:h-36">
         <Image
           src={image}
           alt={imageAlt}
@@ -400,8 +406,8 @@ function IllustratedCard({
           className="object-contain p-3 sm:p-4 lg:p-6"
         />
       </div>
-      <div className="px-3 pb-4">
-        <h3 className="text-base font-bold text-brand-dark sm:text-lg">
+      <div className="px-4 pb-4">
+        <h3 className="text-sm font-bold text-brand-dark sm:text-base">
           {title}
         </h3>
         <p className="mt-1 truncate text-xs text-muted sm:text-sm">
@@ -450,7 +456,7 @@ function ProfileMenuRow({
   return (
     <Link
       href={href}
-      className="flex min-h-13 items-center gap-2 px-3 transition hover:bg-surface-soft"
+      className="flex min-h-13 items-center gap-2 rounded-12 px-3 transition-colors duration-180 hover:bg-surface-soft focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
     >
       {content}
     </Link>

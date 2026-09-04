@@ -161,6 +161,18 @@ body {
   font-family: var(--font-jakarta), Arial, Helvetica, sans-serif;
 }
 
+/* Explorar: superficies agrupadas y neutras inspiradas en iOS. El fondo
+   separa niveles de información sin añadir bordes o decoración innecesaria. */
+.explore-shell {
+  --explore-background: #f3f3f6;
+  --explore-card: #f7f7f9;
+  background: var(--explore-background);
+}
+
+.explore-card {
+  background: var(--explore-card);
+}
+
 /* Landing: una lectura más serena y táctil inspirada en iOS. La app mantiene
    sus tokens funcionales; estos acabados solo se activan en la portada. */
 .landing-shell {

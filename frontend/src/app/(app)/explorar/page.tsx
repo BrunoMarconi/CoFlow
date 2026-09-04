@@ -11,6 +11,7 @@ import { useCommunities } from "@/hooks/useCommunities";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import ExplorerSearchBar from "@/components/explorer/ExplorerSearchBar";
 import UserAvatar from "@/components/ui/UserAvatar";
+import MatchScoreBadge from "@/components/usuario/MatchScoreBadge";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import EmptyState from "@/components/ui/EmptyState";
 import Spinner from "@/components/ui/Spinner";
@@ -31,15 +32,6 @@ type Segment = "all" | "people" | "communities";
 
 const PREVIEW_COUNT_MIXED = 8;
 const PREVIEW_COUNT_FOCUSED = 12;
-
-/* Ligero desfase en abanico para los avatares del hero — puramente
- * decorativo, cubre hasta 3 posiciones. Pequeño a propósito: es un
- * detalle discreto, nunca debe competir con el texto del hero. */
-const HERO_AVATAR_OFFSETS = [
-  "left-0 top-1 rotate-[-6deg]",
-  "left-5 top-0 rotate-[4deg]",
-  "left-10 top-1 rotate-[-3deg]",
-];
 
 export default function ExplorarPage() {
   const router = useRouter();
@@ -89,86 +81,65 @@ export default function ExplorarPage() {
   const heroPeople = users.slice(0, 3);
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6">
-      <ExplorerSearchBar
-        layoutIdBar="explorar-search-bar"
-        layoutIdIcon="explorar-search-icon"
-        searchOpen={false}
-        onOpen={handleSearchOpen}
-        onBack={() => {}}
-        value=""
-        onChange={() => {}}
-        onClear={() => {}}
-        collapsedPlaceholder="Buscar personas o comunidades"
-        placeholder=""
-      />
+    <div className="explore-shell -mx-5 -mt-3 min-h-[calc(100dvh-var(--mobile-header-height))] px-5 pb-8 pt-3 sm:-mx-6 sm:px-6 md:mx-auto md:-mt-2 md:max-w-6xl md:rounded-[32px] md:px-8 md:pb-10 md:pt-7">
+      <header className="flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold text-secondary">Hola, {user.first_name}</p>
+          <h1 className="mt-0.5 font-rounded text-[32px] font-semibold leading-none tracking-[-0.04em] text-brand-dark sm:text-4xl">
+            Explorar
+          </h1>
+        </div>
+        <span className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-white px-3 text-xs font-bold text-primary-dark shadow-[0_1px_2px_rgb(0_0_0/0.05)]">
+          <LocationPinIcon /> Málaga
+        </span>
+      </header>
 
-      <div
-        role="tablist"
-        aria-label="Tipo de contenido a explorar"
-        className="flex gap-2"
-      >
-        <SegmentPill active={segment === "all"} onClick={() => setSegment("all")}>
-          Todo
-        </SegmentPill>
-
-        <SegmentPill
-          active={segment === "people"}
-          onClick={() => setSegment("people")}
-        >
-          Personas
-        </SegmentPill>
-
-        <SegmentPill
-          active={segment === "communities"}
-          onClick={() => setSegment("communities")}
-        >
-          Comunidades
-        </SegmentPill>
+      <div className="mt-5">
+        <ExplorerSearchBar
+          layoutIdBar="explorar-search-bar"
+          layoutIdIcon="explorar-search-icon"
+          searchOpen={false}
+          onOpen={handleSearchOpen}
+          onBack={() => {}}
+          value=""
+          onChange={() => {}}
+          onClear={() => {}}
+          collapsedPlaceholder="Personas, comunidades, barrios…"
+          placeholder=""
+        />
       </div>
 
-      <section className="rounded-24 border border-border bg-surface p-5 sm:flex sm:items-center sm:justify-between sm:gap-6">
-        <div className="min-w-0">
-          <p className="font-rounded text-[24px] font-semibold leading-tight text-brand-dark">
-            Encuentra a tu gente
-          </p>
+      <div role="tablist" aria-label="Tipo de contenido a explorar" className="mt-3 grid grid-cols-3 rounded-14 bg-black/[0.055] p-0.5">
+        <SegmentPill active={segment === "all"} onClick={() => setSegment("all")}>Para ti</SegmentPill>
+        <SegmentPill active={segment === "people"} onClick={() => setSegment("people")}>Personas</SegmentPill>
+        <SegmentPill active={segment === "communities"} onClick={() => setSegment("communities")}>Comunidades</SegmentPill>
+      </div>
 
-          <p className="mt-1 max-w-[32ch] text-[13px] leading-[18px] text-secondary">
-            Descubre personas y comunidades con las que compartir tu
-            próxima etapa.
-          </p>
-
-          <Link
-            href="/usuarios"
-            className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-primary-dark transition hover:text-brand-dark"
-          >
-            Explorar personas
-            <ChevronIcon className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-
-        {heroPeople.length > 0 && (
-          <div className="relative mt-3 ml-auto h-8 w-20 sm:mt-0 sm:h-11 sm:w-24 sm:shrink-0">
-            {heroPeople.map((person, index) => (
-              <div
-                key={person.id}
-                style={{ zIndex: heroPeople.length - index }}
-                className={cn(
-                  "absolute overflow-hidden rounded-full border-2 border-surface shadow-soft",
-                  HERO_AVATAR_OFFSETS[index]
-                )}
-              >
-                <UserAvatar
-                  firstName={person.first_name}
-                  lastName={person.last_name}
-                  userId={person.id}
-                  imageUrl={person.avatar_url}
-                  size={isDesktop ? "md" : "sm"}
-                />
-              </div>
-            ))}
+      <section className="mt-5 grid gap-3 sm:grid-cols-[1.35fr_0.65fr]">
+        <Link href="/usuarios" className="group relative min-h-44 overflow-hidden rounded-24 bg-brand-dark p-5 text-white shadow-[0_16px_40px_-26px_rgb(10_45_33/0.75)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+          <div className="relative z-10 max-w-[24rem]">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/60">Selección para ti</p>
+            <h2 className="mt-2 font-rounded text-2xl font-semibold leading-tight tracking-[-0.03em]">Encuentra personas con las que encajar de verdad.</h2>
+            <p className="mt-2 text-sm leading-5 text-white/70">Compara hábitos, presupuesto y forma de convivir antes de escribir.</p>
           </div>
-        )}
+          <div className="relative z-10 mt-5 flex items-center justify-between">
+            <span className="inline-flex items-center gap-1 text-sm font-bold">Ver personas <ChevronIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /></span>
+            {heroPeople.length > 0 && <AvatarStack people={heroPeople} />}
+          </div>
+          <span aria-hidden="true" className="absolute -right-12 -top-16 h-48 w-48 rounded-full border border-white/10" />
+          <span aria-hidden="true" className="absolute -bottom-20 right-12 h-40 w-40 rounded-full bg-white/[0.035]" />
+        </Link>
+
+        <Link href={ctaHref} className="group flex min-h-36 flex-col justify-between rounded-24 border border-black/[0.04] bg-white p-5 shadow-[0_10px_30px_-24px_rgb(0_0_0/0.35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:min-h-44">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/[0.045] text-primary"><SparkleIcon /></span>
+          <div className="mt-5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted">Siguiente paso</p>
+            <div className="mt-1 flex items-end justify-between gap-3">
+              <div><h2 className="font-rounded text-lg font-semibold text-brand-dark">{ctaTitle}</h2><p className="mt-0.5 text-xs leading-5 text-secondary">{ctaDescription}</p></div>
+              <ChevronIcon className="mb-1 h-4 w-4 shrink-0 text-muted transition-transform group-hover:translate-x-0.5" />
+            </div>
+          </div>
+        </Link>
       </section>
 
       <AnimatePresence mode="wait" initial={false}>
@@ -178,7 +149,7 @@ export default function ExplorarPage() {
           animate={{ opacity: 1, y: 0 }}
           exit={contentExit}
           transition={{ duration, ease: MOTION_EASE.out }}
-          className="space-y-7"
+          className="mt-6 space-y-4"
         >
           {segment !== "communities" && (
             <DiscoveryRow
@@ -228,26 +199,6 @@ export default function ExplorarPage() {
         </motion.div>
       </AnimatePresence>
 
-      <Link
-        href={ctaHref}
-        className="block rounded-14 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-      >
-        <motion.div
-          whileTap={{ scale: 0.985 }}
-          className="flex items-center gap-3 rounded-14 border border-border bg-surface p-3 transition-colors duration-180 hover:bg-surface-soft"
-        >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center text-primary">
-            <SparkleIcon />
-          </span>
-
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-brand-dark">{ctaTitle}</p>
-            <p className="truncate text-xs text-muted">{ctaDescription}</p>
-          </div>
-
-          <ChevronIcon className="h-4 w-4 shrink-0 text-muted" />
-        </motion.div>
-      </Link>
     </div>
   );
 }
@@ -267,14 +218,10 @@ function SegmentPill({
       role="tab"
       aria-selected={active}
       onClick={onClick}
-      className={cn(
-        "h-10 shrink-0 rounded-full border px-3.5 text-sm font-bold transition-colors duration-150",
-        active
-          ? "border-primary/25 bg-mint-50 text-primary-dark"
-          : "border-border bg-surface text-secondary hover:bg-surface-soft"
-      )}
+      className={cn("relative min-h-9 rounded-[10px] px-2 text-xs font-bold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-brand", active ? "text-brand-dark" : "text-secondary")}
     >
-      {children}
+      {active && <motion.span layoutId="explore-segment" className="absolute inset-0 rounded-[10px] bg-white shadow-[0_1px_3px_rgb(0_0_0/0.1)]" transition={{ type: "spring", stiffness: 450, damping: 36 }} />}
+      <span className="relative z-10">{children}</span>
     </button>
   );
 }
@@ -299,22 +246,22 @@ function DiscoveryRow({
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h2 className="whitespace-nowrap font-rounded text-xl font-semibold text-brand-dark">
+    <section className="overflow-hidden rounded-24 border border-black/[0.04] bg-white py-4 shadow-[0_10px_30px_-26px_rgb(0_0_0/0.3)] sm:py-5">
+      <div className="mb-3 flex items-center justify-between gap-3 px-4 sm:px-5">
+        <h2 className="whitespace-nowrap font-rounded text-[19px] font-semibold tracking-[-0.025em] text-brand-dark">
           {title}
         </h2>
 
         <Link
           href={viewAllHref}
-          className="shrink-0 text-sm font-bold text-primary-dark transition hover:text-brand-dark"
+          className="inline-flex min-h-9 shrink-0 items-center rounded-full px-2 text-xs font-bold text-primary transition hover:bg-black/[0.035]"
         >
           Ver todas
         </Link>
       </div>
 
       {loading ? (
-        <div className="flex gap-3 overflow-x-auto pb-1">
+        <div className="flex gap-3 overflow-x-auto px-4 pb-1 sm:px-5">
           {Array.from({ length: 3 }).map((_, index) => (
             <div key={index} className={cn(skeletonWidth, "shrink-0")}>
               <SkeletonCard
@@ -326,14 +273,17 @@ function DiscoveryRow({
           ))}
         </div>
       ) : isEmpty ? (
-        <EmptyState title={emptyMessage} />
+        <div className="px-4 sm:px-5"><EmptyState title={emptyMessage} /></div>
       ) : (
-        <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:px-0">
+        <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 sm:px-5">
           {children}
-          <div aria-hidden="true" className="w-1 shrink-0" />
+          <Link href={viewAllHref} className="flex min-h-40 w-28 shrink-0 snap-start flex-col items-center justify-center gap-2 rounded-18 bg-black/[0.035] text-center text-xs font-bold text-primary-dark focus-visible:outline-2 focus-visible:outline-brand">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-soft"><ChevronIcon className="h-4 w-4" /></span>
+            Ver todas
+          </Link>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
@@ -365,15 +315,15 @@ function PersonPhotoCard({ person }: { person: UserPublicProfile }) {
     <Link
       href={`/personas/${person.id}`}
       transitionTypes={["nav-forward"]}
-      className="block w-56 shrink-0 rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      className="block w-48 shrink-0 snap-start rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-52"
     >
       <ViewTransition name={detailTransitionName("person", person.id)} share="coflow-detail-morph">
       <motion.div
         whileTap={{ scale: 0.97 }}
         transition={{ duration: MOTION_DURATION.fast }}
-        className="overflow-hidden rounded-18 border border-border bg-surface"
+        className="explore-card overflow-hidden rounded-18"
       >
-        <div className="relative h-52 bg-surface-muted">
+        <div className="relative h-48 bg-surface-muted sm:h-52">
           <Image
             src={person.avatar_url!}
             alt=""
@@ -388,9 +338,12 @@ function PersonPhotoCard({ person }: { person: UserPublicProfile }) {
               <VerifiedIcon className="h-3.5 w-3.5" />
             </span>
           )}
+          {person.match_score !== null && (
+            <MatchScoreBadge score={person.match_score} size="sm" className="absolute bottom-2 left-2 border-0 bg-white/95" />
+          )}
         </div>
 
-        <div className="p-2.5">
+        <div className="p-3">
           <p className="truncate text-sm font-bold text-brand-dark">
             {fullName || "Persona de CoFlow"}
             {person.age !== null && (
@@ -418,13 +371,13 @@ function PersonNoPhotoCard({ person }: { person: UserPublicProfile }) {
     <Link
       href={`/personas/${person.id}`}
       transitionTypes={["nav-forward"]}
-      className="block w-52 shrink-0 rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      className="block w-44 shrink-0 snap-start rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-48"
     >
       <ViewTransition name={detailTransitionName("person", person.id)} share="coflow-detail-morph">
       <motion.div
         whileTap={{ scale: 0.97 }}
         transition={{ duration: MOTION_DURATION.fast }}
-        className="relative flex h-45 flex-col items-center justify-center gap-2 rounded-18 border border-border bg-surface p-4 text-center shadow-soft"
+        className="explore-card relative flex h-52 flex-col items-center justify-center gap-2 overflow-hidden rounded-18 p-4 text-center"
       >
         <ChevronIcon className="absolute right-3 top-3 h-4 w-4 text-border" />
 
@@ -434,6 +387,7 @@ function PersonNoPhotoCard({ person }: { person: UserPublicProfile }) {
           userId={person.id}
           size="lg"
         />
+        {person.match_score !== null && <MatchScoreBadge score={person.match_score} size="sm" />}
 
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-brand-dark">
@@ -469,15 +423,15 @@ function ExploreCommunityCard({
     <Link
       href={`/comunidades/${item.id}`}
       transitionTypes={["nav-forward"]}
-      className="block w-68 shrink-0 rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      className="block w-60 shrink-0 snap-start rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-64"
     >
       <ViewTransition name={detailTransitionName("community", item.id)} share="coflow-detail-morph">
       <motion.div
         whileTap={{ scale: 0.97 }}
         transition={{ duration: MOTION_DURATION.fast }}
-        className="overflow-hidden rounded-18 border border-border bg-surface"
+        className="explore-card overflow-hidden rounded-18"
       >
-        <div className="relative h-28 bg-surface-muted">
+        <div className="relative h-32 bg-surface-muted">
           {item.cover_image_url ? (
             <Image
               src={item.cover_image_url}
@@ -556,6 +510,33 @@ function SparkleIcon() {
     >
       <path d="m12 3 1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6Z" />
       <path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8Z" />
+    </svg>
+  );
+}
+
+function AvatarStack({ people }: { people: UserPublicProfile[] }) {
+  return (
+    <span className="flex -space-x-2" aria-label={`${people.length} personas disponibles`}>
+      {people.map((person) => (
+        <UserAvatar
+          key={person.id}
+          firstName={person.first_name}
+          lastName={person.last_name}
+          userId={person.id}
+          imageUrl={person.avatar_url}
+          size="sm"
+          className="border-2 border-brand-dark"
+        />
+      ))}
+    </span>
+  );
+}
+
+function LocationPinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true">
+      <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+      <circle cx="12" cy="10" r="2.5" />
     </svg>
   );
 }

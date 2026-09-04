@@ -337,12 +337,12 @@ export default function MensajesPage() {
 
   if (loading) {
     return (
-      <div className="-mx-5 -my-4 flex flex-col border-t border-border sm:-mx-6 sm:-my-6 lg:-mx-8">
+      <div className="explore-shell -mx-6 -mt-4 flex min-h-[70vh] flex-col px-6 py-5 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-7xl sm:rounded-[32px] sm:p-7">
         <InboxHeader />
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             key={index}
-            className="flex animate-pulse items-center gap-3.5 border-b border-border px-4 py-3.5"
+            className="mt-2 flex animate-pulse items-center gap-3.5 rounded-18 bg-surface px-4 py-3.5"
           >
             <div className="h-14 w-14 shrink-0 rounded-full bg-surface-soft sm:h-11 sm:w-11" />
             <div className="min-w-0 flex-1 space-y-2">
@@ -359,11 +359,11 @@ export default function MensajesPage() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="mx-auto flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top)-1rem)] w-full max-w-7xl flex-col sm:-mx-6 sm:-my-6 sm:h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] sm:w-auto lg:-mx-8">
+    <div className="explore-shell -mx-6 -mt-4 flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] w-[calc(100%+3rem)] flex-col px-6 pt-4 sm:mx-auto sm:mt-0 sm:h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top)-3rem)] sm:w-full sm:max-w-7xl sm:rounded-[32px] sm:p-4 lg:p-5">
       {/* Móvil: solo lista, cada fila navega al hilo a pantalla completa ya existente. */}
       <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto sm:hidden">
-        <div className="sticky top-0 z-20 bg-background/95 pb-1 backdrop-blur-xl">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto pb-4 sm:hidden">
+        <div className="sticky top-0 z-20 bg-[var(--explore-background)]/95 pb-2 backdrop-blur-xl">
           <InboxHeader />
           <InboxSearchAndTabs
             search={search}
@@ -383,7 +383,7 @@ export default function MensajesPage() {
             animate="show"
             whileTap={{ scale: 0.985 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="flex min-h-20 items-center gap-3.5 border-b border-border px-1 py-3.5 transition-colors duration-200 active:bg-surface-soft"
+            className="mb-2 flex min-h-20 items-center gap-3.5 rounded-20 bg-surface px-3 py-3.5 shadow-sm transition-colors duration-200 active:bg-mint-50"
           >
             <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
             <ConversationPreview
@@ -417,6 +417,7 @@ export default function MensajesPage() {
                   ? "Vuelve más tarde o revisa todas tus conversaciones."
                   : "Conecta con personas o comunidades para empezar a hablar."
               }
+              action={<InboxEmptyAction tab={tab} onShowAll={() => setTab("all")} />}
             />
           </div>
         ) : (
@@ -446,7 +447,7 @@ export default function MensajesPage() {
                   delay: Math.min(index, 8) * 0.02,
                 }}
                 whileTap={{ scale: 0.985 }}
-                className="flex min-h-20 items-center gap-3.5 border-b border-border px-1 py-3.5 transition-colors duration-200 active:bg-surface-soft"
+                className="mb-2 flex min-h-20 items-center gap-3.5 rounded-20 bg-surface px-3 py-3.5 shadow-sm transition-colors duration-200 active:bg-mint-50"
               >
                 <ConversationAvatar
                   initials={initialsOf(other.first_name, other.last_name)}
@@ -469,16 +470,16 @@ export default function MensajesPage() {
 
         <Link
           href="/usuarios"
-          className="flex items-center gap-3.5 border-b border-border px-1 py-3.5 transition-colors duration-200 active:bg-flat"
+          className="mt-1 flex min-h-20 items-center gap-3.5 rounded-20 bg-brand-dark px-3 py-3.5 text-white shadow-sm transition-colors duration-200 active:bg-primary-dark"
         >
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-flat text-primary">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-white">
             <ComposeIcon />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-base font-extrabold text-foreground">
+            <span className="block text-base font-bold text-white">
               Inicia una nueva conversación
             </span>
-            <span className="mt-1 block truncate text-sm text-secondary">
+            <span className="mt-1 block truncate text-sm text-white/65">
               Conoce a más personas o encuentra tu comunidad ideal.
             </span>
           </span>
@@ -487,8 +488,8 @@ export default function MensajesPage() {
       </ViewTransition>
 
       {/* Escritorio/tablet: bandeja de dos columnas, selección en el sitio. */}
-      <div className="hidden min-h-0 flex-1 border-t border-border sm:grid sm:grid-cols-[340px_1fr]">
-        <div className="flex min-h-0 flex-col overflow-y-auto border-r border-border">
+      <div className="hidden min-h-0 flex-1 overflow-hidden rounded-[26px] bg-surface shadow-sm sm:grid sm:grid-cols-[340px_1fr] lg:grid-cols-[370px_1fr]">
+        <div className="flex min-h-0 flex-col overflow-y-auto border-r border-border/60 p-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <InboxHeader />
           <InboxSearchAndTabs
             search={search}
@@ -507,10 +508,10 @@ export default function MensajesPage() {
               animate="show"
               whileTap={{ scale: 0.99 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className={`flex items-center gap-3 border-b border-border/60 px-4 py-3.5 text-left transition-colors duration-150 ${
+              className={`mb-1 flex min-h-16 items-center gap-3 rounded-18 px-3 py-3 text-left transition-colors duration-180 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand ${
                 communitySelected
-                  ? "bg-flat"
-                  : "hover:bg-flat"
+                  ? "bg-mint-50"
+                  : "hover:bg-surface-soft"
               }`}
             >
               <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
@@ -545,6 +546,7 @@ export default function MensajesPage() {
                     ? "Vuelve más tarde o revisa todas tus conversaciones."
                     : "Conecta con personas o comunidades para empezar a hablar."
                 }
+                action={<InboxEmptyAction tab={tab} onShowAll={() => setTab("all")} />}
               />
             </div>
           ) : (
@@ -576,10 +578,10 @@ export default function MensajesPage() {
                     delay: Math.min(index, 8) * 0.02,
                   }}
                   whileTap={{ scale: 0.99 }}
-                  className={`flex items-center gap-3 border-b border-border/60 px-4 py-3.5 text-left transition-colors duration-150 ${
+                  className={`mb-1 flex min-h-16 items-center gap-3 rounded-18 px-3 py-3 text-left transition-colors duration-180 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand ${
                     isSelected
-                      ? "bg-flat"
-                      : "hover:bg-flat"
+                      ? "bg-mint-50"
+                      : "hover:bg-surface-soft"
                   }`}
                 >
                   <ConversationAvatar
@@ -602,13 +604,13 @@ export default function MensajesPage() {
           )}
         </div>
 
-        <div className="flex min-h-0 flex-col">
+        <div className="flex min-h-0 flex-col bg-surface-soft/45">
           {communitySelected && community && user ? (
             <>
               <button
                 type="button"
                 onClick={() => setChatSettingsOpen(true)}
-                className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4 text-left hover:bg-flat"
+                className="m-3 mb-0 flex min-h-16 shrink-0 items-center gap-3 rounded-18 bg-surface px-4 py-3 text-left shadow-sm transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
 
@@ -627,7 +629,7 @@ export default function MensajesPage() {
                 </div>
               </button>
 
-              <div className="min-h-0 flex-1 p-4">
+              <div className="min-h-0 flex-1 p-3">
                 <CommunityChat
                   communityId={community.id}
                   currentUserId={user.id}
@@ -648,15 +650,28 @@ export default function MensajesPage() {
               />
             </>
           ) : !selectedConnection || !selectedOther || !user ? (
-            <div className="flex flex-1 items-center justify-center p-6 text-center text-sm font-medium text-muted">
-              Selecciona una conversación para empezar.
+            <div className="flex flex-1 items-center justify-center p-6">
+              <EmptyState
+                flat
+                variant="messages"
+                title="Un espacio para conectar"
+                description="Tus conversaciones aparecerán aquí. Explora personas compatibles para empezar a hablar."
+                action={
+                  <Link
+                    href="/usuarios"
+                    className="inline-flex min-h-11 items-center justify-center rounded-full bg-brand-dark px-5 text-sm font-bold text-white transition-colors duration-180 hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                  >
+                    Conocer personas
+                  </Link>
+                }
+              />
             </div>
           ) : (
             <>
               <button
                 type="button"
                 onClick={() => setChatSettingsOpen(true)}
-                className="flex shrink-0 items-center gap-3 border-b border-border/60 px-5 py-4 text-left hover:bg-flat"
+                className="m-3 mb-0 flex min-h-16 shrink-0 items-center gap-3 rounded-18 bg-surface px-4 py-3 text-left shadow-sm transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 <ConversationAvatar
                   initials={initialsOf(
@@ -679,7 +694,7 @@ export default function MensajesPage() {
                 </div>
               </button>
 
-              <div className="min-h-0 flex-1 p-4">
+              <div className="min-h-0 flex-1 p-3">
                 <PrivateChat
                   connectionId={selectedConnection.id}
                   currentUserId={user.id}
@@ -738,10 +753,35 @@ export default function MensajesPage() {
   );
 }
 
+function InboxEmptyAction({
+  tab,
+  onShowAll,
+}: {
+  tab: InboxTab;
+  onShowAll: () => void;
+}) {
+  const className =
+    "inline-flex min-h-11 items-center justify-center rounded-full bg-brand-dark px-5 text-sm font-bold text-white transition-colors duration-180 hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
+
+  if (tab === "unread") {
+    return (
+      <button type="button" onClick={onShowAll} className={className}>
+        Ver todos los mensajes
+      </button>
+    );
+  }
+
+  return (
+    <Link href="/usuarios" className={className}>
+      Explorar personas
+    </Link>
+  );
+}
+
 function InboxHeader() {
   return (
-    <div className="flex shrink-0 items-center justify-between pb-3 pt-2 sm:border-b sm:border-border/60 sm:px-4 sm:py-3">
-      <h1 className="text-2xl font-extrabold tracking-[-0.02em] text-foreground sm:text-base sm:tracking-normal">
+    <div className="flex shrink-0 items-center justify-between pb-3 pt-2 sm:px-2 sm:pb-4 sm:pt-1">
+      <h1 className="font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-2xl">
         Mensajes
       </h1>
 
@@ -751,7 +791,7 @@ function InboxHeader() {
             href="/conexiones"
             aria-label="Gestionar conexiones"
             title="Gestionar conexiones"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors duration-200 hover:bg-surface-soft hover:text-foreground"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors duration-180 hover:bg-surface-soft hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <FilterIcon />
           </Link>
@@ -762,7 +802,7 @@ function InboxHeader() {
             href="/usuarios"
             aria-label="Nueva conversación"
             title="Nueva conversación"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors duration-200 hover:bg-surface-soft hover:text-primary"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-dark text-white transition-colors duration-180 hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <ComposeIcon />
           </Link>
@@ -774,7 +814,7 @@ function InboxHeader() {
 
 const TAB_OPTIONS: { key: InboxTab; label: string }[] = [
   { key: "all", label: "Todos" },
-  { key: "groups", label: "Comunidades" },
+  { key: "groups", label: "Grupos" },
   { key: "people", label: "Personas" },
   { key: "unread", label: "Sin leer" },
 ];
@@ -794,10 +834,10 @@ function InboxSearchAndTabs({
 }) {
   return (
     <div
-      className="shrink-0 pb-3 sm:border-b sm:border-border/60 sm:px-4 sm:py-3"
+      className="shrink-0 pb-3 sm:pb-4"
       data-layout-prefix={layoutIdPrefix}
     >
-      <div className="flex h-11 items-center gap-2 rounded-full bg-flat px-4 transition-colors duration-200 focus-within:bg-surface focus-within:ring-2 focus-within:ring-primary/20 sm:h-9">
+      <div className="flex h-11 items-center gap-2 rounded-full bg-surface px-4 shadow-sm transition-colors duration-180 focus-within:ring-2 focus-within:ring-primary/20 sm:bg-surface-soft sm:shadow-none">
         <SearchInput
           bare
           value={search}
@@ -807,24 +847,24 @@ function InboxSearchAndTabs({
         />
       </div>
 
-      <div className="mt-3 flex min-w-0 gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:overflow-visible">
+      <div className="mt-3 grid min-w-0 grid-cols-4 rounded-12 bg-surface-soft p-0.5 sm:rounded-10">
         {TAB_OPTIONS.map((option) => (
           <button
             key={option.key}
             type="button"
             onClick={() => onTabChange(option.key)}
             aria-pressed={tab === option.key}
-            className={`relative flex h-9 shrink-0 items-center justify-center overflow-hidden rounded-full px-4 text-xs font-semibold transition-colors duration-200 sm:h-8 sm:min-w-0 sm:px-2 sm:text-[11px] ${
+            className={`relative flex h-9 min-w-0 items-center justify-center overflow-hidden rounded-10 px-1 text-[11px] font-semibold transition-colors duration-180 sm:h-8 ${
               tab === option.key
-                ? "text-white"
-                : "bg-flat text-foreground hover:bg-flat-strong"
+                ? "text-brand-dark"
+                : "text-muted hover:text-foreground"
             }`}
           >
             {tab === option.key && (
               <motion.span
                 layoutId={`${layoutIdPrefix}-tab-indicator`}
                 transition={MOTION_SPRING.snappy}
-                className="absolute inset-0 rounded-full bg-primary"
+                className="absolute inset-0 rounded-9 bg-surface shadow-sm"
               />
             )}
             <span className="relative block min-w-0 whitespace-nowrap">

@@ -17,8 +17,9 @@ function patchHistoryOnce(onNavigationStart: () => void) {
 
   const originalPushState = window.history.pushState.bind(window.history);
   window.history.pushState = (...args: Parameters<typeof originalPushState>) => {
-    onNavigationStart();
-    return originalPushState(...args);
+    const result = originalPushState(...args);
+    window.requestAnimationFrame(onNavigationStart);
+    return result;
   };
 
   const originalReplaceState = window.history.replaceState.bind(
@@ -27,8 +28,9 @@ function patchHistoryOnce(onNavigationStart: () => void) {
   window.history.replaceState = (
     ...args: Parameters<typeof originalReplaceState>
   ) => {
-    onNavigationStart();
-    return originalReplaceState(...args);
+    const result = originalReplaceState(...args);
+    window.requestAnimationFrame(onNavigationStart);
+    return result;
   };
 }
 

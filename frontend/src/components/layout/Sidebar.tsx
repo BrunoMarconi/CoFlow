@@ -9,6 +9,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerMode } from "@/hooks/useOwnerMode";
 import Avatar from "@/components/ui/Avatar";
 import Logo from "@/components/ui/Logo";
+import ProfileCompletionRing from "@/components/ui/ProfileCompletionRing";
+import { computeProfileCompletion } from "@/lib/profileCompletion";
 import {
   CompassIcon,
   KeyIcon,
@@ -56,6 +58,8 @@ export default function Sidebar() {
   ];
 
   const principalLinks = isOwnerMode ? ownerLinks : memberLinks;
+  const profileCompletion = user ? computeProfileCompletion(user) : 100;
+  const showProfileProgress = !isOwnerMode && profileCompletion < 100;
 
   const accountLinks: NavLink[] = [
     ...(isOwnerMode
@@ -168,20 +172,40 @@ export default function Sidebar() {
       </nav>
 
       {user && (
-        <div className="mt-4 flex items-center gap-2.5 rounded-14 bg-mint-50 p-2.5">
-          <Link href={isOwnerMode ? "/propietarios/perfil" : "/perfil"} className="flex min-w-0 flex-1 items-center gap-2.5">
-            <Avatar
-              name={`${user.first_name} ${user.last_name}`}
-              imageUrl={user.avatar_url}
-              size={34}
-            />
+        <div className="mt-4 flex items-center gap-2 rounded-14 bg-surface-soft/70 p-2">
+          <Link
+            href={isOwnerMode ? "/propietarios/perfil" : "/perfil"}
+            aria-label={
+              showProfileProgress
+                ? `Abrir perfil, completado al ${profileCompletion}%`
+                : "Abrir perfil"
+            }
+            className="flex min-h-11 min-w-0 flex-1 items-center gap-2.5 rounded-10 px-1 transition-colors duration-180 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          >
+            <span className="relative flex h-10 w-10 shrink-0 items-center justify-center">
+              {showProfileProgress && (
+                <ProfileCompletionRing
+                  completion={profileCompletion}
+                  className="absolute inset-0 h-10 w-10"
+                />
+              )}
+              <Avatar
+                name={`${user.first_name} ${user.last_name}`}
+                imageUrl={user.avatar_url}
+                size={showProfileProgress ? 32 : 34}
+              />
+            </span>
 
             <div className="min-w-0">
               <p className="truncate text-sm font-bold text-foreground">
                 {user.first_name} {user.last_name}
               </p>
-              <p className="truncate text-xs text-muted">
-                {isOwnerMode ? "Modo propietario" : user.email}
+              <p className="truncate text-xs font-medium text-muted">
+                {isOwnerMode
+                  ? "Modo propietario"
+                  : showProfileProgress
+                    ? `${profileCompletion}% · Completar perfil`
+                    : user.email}
               </p>
             </div>
           </Link>

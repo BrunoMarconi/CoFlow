@@ -13,7 +13,6 @@ import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 import EmailVerificationBanner from "@/components/layout/EmailVerificationBanner";
-import ProfileCompletionBanner from "@/components/layout/ProfileCompletionBanner";
 import SwipeNavigation from "@/components/layout/SwipeNavigation";
 import Toaster from "@/components/ui/Toast";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
@@ -250,10 +249,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
             )}
           >
             {!isChatActive && !hidesAppChrome && (
-              <>
-                <EmailVerificationBanner />
-                {!isOwnerMode && !isExplorerRoute(pathname) && <ProfileCompletionBanner />}
-              </>
+              <EmailVerificationBanner />
             )}
             <motion.div
               animate={contentControls}
