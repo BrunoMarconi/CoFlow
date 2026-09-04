@@ -107,7 +107,7 @@ export default function UsuariosPage() {
             <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold text-white/90 backdrop-blur-sm">
               Personas CoFlow
             </span>
-            <h1 className="mt-4 max-w-xl font-rounded text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-4xl">
+            <h1 className="mt-4 max-w-xl font-rounded text-3xl font-extrabold leading-tight tracking-[-0.03em] sm:text-4xl">
               Encuentra a alguien con quien compartir mucho más que piso
             </h1>
             <p className="mt-3 max-w-lg text-sm font-medium leading-6 text-white/78 sm:text-base">

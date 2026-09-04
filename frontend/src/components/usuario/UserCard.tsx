@@ -48,9 +48,13 @@ export default function UserCard({
   const statusLabel = CONNECTION_LABELS[connectionStatus];
   const locationLabel = user.community?.city || (user.is_owner ? "Propietario" : "Busca comunidad");
   const metaLine = [user.occupation, locationLabel].filter(Boolean).join(" · ");
-  const profilePhoto =
-    [...user.photos].sort((a, b) => a.position - b.position)[0]?.image_url ||
-    user.avatar_url;
+  const uploadedPhoto = [...user.photos].sort((a, b) => a.position - b.position)[0]?.image_url;
+  // La portada grande solo usa fotos añadidas expresamente a la galería.
+  // `avatar_url` puede contener tanto una foto como el avatar genérico de
+  // CoFlow y su URL de almacenamiento no permite distinguirlos de forma
+  // fiable. El avatar se mantiene para elementos pequeños; sin galería,
+  // mostramos la portada de identidad personalizada.
+  const profilePhoto = uploadedPhoto;
   const [profilePhotoFailed, setProfilePhotoFailed] = useState(false);
   const hasProfilePhoto = Boolean(profilePhoto) && !profilePhotoFailed;
 
@@ -118,14 +122,7 @@ export default function UserCard({
                   onError={() => setProfilePhotoFailed(true)}
                 />
               ) : (
-                <div className="flex h-full items-center justify-center bg-surface">
-                  <UserAvatar
-                    firstName={user.first_name}
-                    lastName={user.last_name}
-                    userId={user.id}
-                    size="xl"
-                  />
-                </div>
+                <ProfileIdentityCover user={user} habitChips={habitChips} compact />
               )}
 
               {user.match_score !== null && (
@@ -195,7 +192,7 @@ export default function UserCard({
                 firstName={user.first_name}
                 lastName={user.last_name}
                 userId={user.id}
-                imageUrl={user.avatar_url}
+                imageUrl={isGenericCoflowAvatar(user.avatar_url) ? null : user.avatar_url}
                 size="lg"
               />
               {user.is_online && (
@@ -246,16 +243,7 @@ export default function UserCard({
               onError={() => setProfilePhotoFailed(true)}
             />
           ) : (
-            <div className="flex h-full items-center justify-center">
-              <UserAvatar
-                firstName={user.first_name}
-                lastName={user.last_name}
-                userId={user.id}
-                imageUrl={null}
-                size="xl"
-                className="border-4 border-white shadow-soft"
-              />
-            </div>
+            <ProfileIdentityCover user={user} habitChips={habitChips} />
           )}
 
           {user.match_score !== null && (
@@ -336,6 +324,38 @@ export default function UserCard({
       </div>
     </>;
   }
+}
+
+const IDENTITY_PALETTES = [
+  { background: "#dce9e3", ink: "#29473a", accent: "#b7cec2" },
+  { background: "#e7e3d8", ink: "#4d493c", accent: "#cec6b2" },
+  { background: "#dfe6eb", ink: "#334854", accent: "#bdccd5" },
+  { background: "#e8dedc", ink: "#563e3a", accent: "#d3beba" },
+] as const;
+
+function ProfileIdentityCover({ user, habitChips, compact = false }: { user: UserPublicProfile; habitChips: string[]; compact?: boolean }) {
+  const initials = [user.first_name, user.last_name].filter(Boolean).map((part) => part[0]).join("").slice(0, 2).toUpperCase() || "CF";
+  const hash = [...user.id].reduce((value, character) => (value * 31 + character.charCodeAt(0)) >>> 0, 0);
+  const palette = IDENTITY_PALETTES[hash % IDENTITY_PALETTES.length];
+  const traits = habitChips.length > 0 ? habitChips.slice(0, compact ? 2 : 3) : [user.occupation].filter((value): value is string => Boolean(value));
+
+  return (
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden px-4 text-center" style={{ backgroundColor: palette.background, color: palette.ink }} aria-label={`Portada de perfil de ${user.first_name}`}>
+      <span className="absolute -left-8 -top-10 h-28 w-28 rounded-full border-[18px] opacity-45" style={{ borderColor: palette.accent }} />
+      <span className="absolute -bottom-12 -right-8 h-32 w-32 rotate-12 rounded-[32px] opacity-50" style={{ backgroundColor: palette.accent }} />
+      <span className="absolute right-[18%] top-[18%] h-2 w-2 rounded-full opacity-50" style={{ backgroundColor: palette.ink }} />
+      <div className={`relative flex items-center justify-center rounded-full border border-white/60 bg-white/55 font-bold tracking-[-.05em] shadow-[0_10px_30px_rgba(41,71,58,.1)] backdrop-blur ${compact ? "h-16 w-16 text-2xl" : "h-20 w-20 text-3xl"}`}>{initials}</div>
+      <p className={`relative mt-2 font-semibold tracking-[-.025em] ${compact ? "text-xs" : "text-sm"}`}>{user.first_name}{user.age !== null ? `, ${user.age}` : ""}</p>
+      {traits.length > 0 && <div className="relative mt-2 flex max-w-full flex-wrap justify-center gap-1">{traits.map((trait) => <span key={trait} className="max-w-full truncate rounded-full border border-white/50 bg-white/45 px-2 py-1 text-[8px] font-semibold backdrop-blur">{trait}</span>)}</div>}
+      <span className="absolute bottom-2.5 left-3 text-[8px] font-semibold uppercase tracking-[.13em] opacity-60">Perfil CoFlow</span>
+    </div>
+  );
+}
+
+function isGenericCoflowAvatar(url: string | null): boolean {
+  if (!url) return false;
+  const normalized = url.toLowerCase();
+  return normalized.includes("logo-coflow") || normalized.includes("default-avatar") || normalized.includes("coflow-avatar");
 }
 
 function LocationIcon() {
