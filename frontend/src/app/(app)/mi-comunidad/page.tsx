@@ -214,51 +214,51 @@ function CommunityDashboard({
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl pb-4">
+    <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] space-y-4 px-6 py-6 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-7xl sm:rounded-[32px] sm:p-7 lg:p-8">
       <motion.section
         initial="hidden"
         animate="show"
         variants={sectionVariants}
-        className="relative mt-4 overflow-hidden rounded-24 border border-primary/20 bg-mint-50 shadow-soft"
+        className="relative overflow-hidden rounded-[28px] bg-surface p-4 shadow-sm sm:p-6 lg:p-7"
       >
-        <div className="flex h-14 items-center justify-between border-b border-primary/15 px-4 sm:px-6">
+        <div className="mb-5 flex min-h-12 items-end justify-between gap-3 px-1 sm:mb-6">
           <button
             type="button"
             onClick={() => router.back()}
             aria-label="Volver"
-            className="flex h-11 w-11 items-center justify-start text-brand-dark"
+            className="flex h-11 w-11 items-center justify-start rounded-full text-brand-dark transition-colors duration-180 hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <ArrowLeftIcon />
           </button>
 
-          <div className="text-center">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary-dark/60">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold text-muted">
               Tu espacio compartido
             </p>
-            <h1 className="text-sm font-extrabold text-brand-dark">Mi comunidad</h1>
+            <h1 className="mt-0.5 font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">Mi comunidad</h1>
           </div>
 
           <Link
             href={`/comunidades/${community.id}`}
             aria-label="Ver perfil público"
             title="Ver perfil público"
-            className="flex h-11 w-11 items-center justify-end text-brand-dark"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-soft text-brand-dark transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <MoreIcon />
           </Link>
         </div>
 
-        <div className="grid gap-6 p-5 sm:grid-cols-[240px_1fr] sm:items-center sm:p-6 lg:grid-cols-[320px_1fr] lg:gap-9 lg:p-8">
+        <div className="grid gap-4 sm:grid-cols-[240px_1fr] sm:items-stretch lg:grid-cols-[320px_1fr] lg:gap-5">
           <CommunityCover
             name={community.name}
             coverColor={community.cover_color}
             coverImageUrl={community.cover_image_url}
             members={coverMembers}
             memberCount={community.member_count}
-            className="h-52 w-full rounded-24 border border-white/70 shadow-soft sm:h-60 lg:h-72"
+            className="h-52 w-full rounded-24 shadow-sm sm:h-full sm:min-h-72"
           />
 
-          <div className="min-w-0">
+          <div className="min-w-0 rounded-24 bg-surface-soft/70 p-4 sm:p-5 lg:p-6">
             <span className="inline-flex rounded-full border border-primary/15 bg-white/75 px-3 py-1 text-xs font-bold text-primary-dark">
               {isOwner ? "Administrador" : "Miembro"}
             </span>
@@ -310,7 +310,7 @@ function CommunityDashboard({
               <button
                 type="button"
                 onClick={() => onOpenPanel("chat")}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-14 bg-brand-dark px-5 text-sm font-bold text-white shadow-button transition hover:bg-primary-dark"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-14 bg-brand-dark px-5 text-sm font-bold text-white shadow-button transition-colors duration-180 hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 <MessageIcon className="h-4 w-4" />
                 Mensajes de la comunidad
@@ -318,7 +318,7 @@ function CommunityDashboard({
               <button
                 type="button"
                 onClick={() => onOpenPanel("members")}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-14 border border-primary/25 bg-white/75 px-5 text-sm font-bold text-primary-dark transition hover:bg-white"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-14 bg-surface px-5 text-sm font-bold text-primary-dark transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 <MembersIcon className="h-4 w-4" />
                 Ver miembros
@@ -328,11 +328,11 @@ function CommunityDashboard({
         </div>
       </motion.section>
 
-      <motion.section initial="hidden" animate="show" variants={sectionVariants} className="mt-7">
-        <h2 className="mb-3 text-lg font-extrabold text-foreground">Vuestra comunidad</h2>
+      <motion.section initial="hidden" animate="show" variants={sectionVariants} className="rounded-[28px] bg-surface p-4 shadow-sm sm:p-6">
+        <h2 className="mb-4 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Personas y plazas</h2>
 
         <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
-          <div className="divide-y divide-border overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
+          <div className="divide-y divide-border overflow-hidden rounded-20 bg-surface-soft/65">
             {owner && (
               <Link
                 href={`/personas/${owner.user_id}`}
@@ -371,19 +371,19 @@ function CommunityDashboard({
 
           <Link
             href="/usuarios"
-            className="flex items-center gap-3 rounded-2xl border border-primary/15 bg-linear-to-br from-primary/6 to-transparent p-4 transition hover:border-primary/30 hover:shadow-soft"
+            className="flex items-center gap-3 rounded-20 bg-brand-dark p-4 text-white transition-colors duration-180 hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-surface text-primary shadow-soft">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-white">
               <PeopleIcon />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-base font-extrabold text-foreground">
+              <span className="block text-base font-bold text-white">
                 {availablePlaces} {availablePlaces === 1 ? "plaza disponible" : "plazas disponibles"}
               </span>
-              <span className="mt-1 block text-xs leading-5 text-secondary">
+              <span className="mt-1 block text-xs leading-5 text-white/65">
                 Encuentra personas que encajen con vuestro estilo de convivencia.
               </span>
-              <span className="mt-2 flex items-center gap-2 text-sm font-semibold text-primary-dark">
+              <span className="mt-2 flex items-center gap-2 text-sm font-semibold text-white">
                 Buscar personas <ArrowRightIcon />
               </span>
             </span>
@@ -392,7 +392,7 @@ function CommunityDashboard({
       </motion.section>
 
       {community.average_compatibility && community.average_compatibility.categories.length > 0 && (
-        <motion.section initial="hidden" animate="show" variants={sectionVariants} className="mt-7">
+        <motion.section initial="hidden" animate="show" variants={sectionVariants}>
           <CompatibilityRadar
             categories={community.average_compatibility.categories}
             icon={<CompatibilityRadarIcon />}
@@ -417,11 +417,11 @@ function CommunityDashboard({
         initial="hidden"
         animate="show"
         variants={sectionVariants}
-        className="mt-8 grid gap-5 md:grid-cols-2"
+        className="grid gap-5 rounded-[28px] bg-surface p-4 shadow-sm sm:p-6 md:grid-cols-2"
       >
         <section>
-          <h2 className="mb-3 text-lg font-extrabold text-foreground">Cómo queréis vivir</h2>
-          <div className="overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
+          <h2 className="mb-3 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Cómo queréis vivir</h2>
+          <div className="overflow-hidden rounded-20 bg-surface-soft/65">
             <div className="grid grid-cols-2 gap-px bg-border">
               <Fact icon={<MoneyIcon />} label={community.monthly_rent !== null ? `${community.monthly_rent.toLocaleString("es-ES")} €/persona` : "Presupuesto por acordar"} />
               <Fact icon={<PeopleIcon />} label={`${community.max_members} personas`} />
@@ -443,8 +443,8 @@ function CommunityDashboard({
         </section>
 
         <section>
-          <h2 className="mb-3 text-lg font-extrabold text-foreground">Sobre {community.name}</h2>
-          <div className="flex min-h-[196px] flex-col rounded-18 border border-border bg-surface p-4 shadow-soft">
+          <h2 className="mb-3 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Sobre {community.name}</h2>
+          <div className="flex min-h-[196px] flex-col rounded-20 bg-surface-soft/65 p-4">
             <p className="whitespace-pre-line text-sm leading-6 text-secondary">
               {visibleDescription}
             </p>
@@ -486,8 +486,8 @@ function CommunityDashboard({
         )}
       </Expandable>
 
-      <motion.section initial="hidden" animate="show" variants={sectionVariants} className="mt-7">
-        <h2 className="mb-3 text-lg font-extrabold text-foreground">Gestionar comunidad</h2>
+      <motion.section initial="hidden" animate="show" variants={sectionVariants} className="rounded-[28px] bg-surface p-4 shadow-sm sm:p-6">
+        <h2 className="mb-3 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Gestionar comunidad</h2>
 
         <SettingsSection label="">
           <SettingsRow icon={MessageIcon} title="Mensajes de la comunidad" onClick={() => onOpenPanel("chat")} />
@@ -611,18 +611,21 @@ function NoCommunity() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="mx-auto flex min-h-[60dvh] max-w-xl flex-col items-center justify-center px-6 text-center"
+        className="explore-shell -mx-6 -mt-4 flex min-h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] w-[calc(100%+3rem)] items-center justify-center px-6 py-10 sm:mx-auto sm:mt-0 sm:min-h-[70dvh] sm:w-full sm:max-w-7xl sm:rounded-[32px]"
       >
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/8 text-primary-dark">
-          <PeopleIcon className="h-7 w-7" />
-        </div>
-        <h1 className="mt-5 text-3xl font-extrabold tracking-tight text-brand-dark">Todavía no tienes comunidad</h1>
-        <p className="mt-3 max-w-md text-sm leading-6 text-secondary">
-          Es el grupo con quien vas a compartir piso. Explora las disponibles o crea la tuya para tener aquí vuestro espacio privado.
-        </p>
-        <div className="mt-6 flex gap-3">
-          <Link href="/comunidades" className="flex h-11 items-center rounded-14 border border-border bg-surface px-5 text-sm font-bold text-foreground shadow-soft transition hover:border-primary/30">Explorar</Link>
-          <Link href="/crear/comunidad" className="flex h-11 items-center rounded-14 bg-primary px-5 text-sm font-bold text-white shadow-button transition hover:bg-primary-hover">Crear comunidad</Link>
+        <div className="w-full max-w-xl rounded-[28px] bg-surface p-7 text-center shadow-sm sm:p-10">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-mint-50 text-primary-dark">
+            <PeopleIcon className="h-7 w-7" />
+          </div>
+          <p className="mt-5 text-xs font-semibold text-muted">Tu espacio compartido</p>
+          <h1 className="mt-1 font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark">Todavía no tienes comunidad</h1>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-secondary">
+            Encuentra personas con quienes compartir piso o crea un espacio propio para empezar a organizaros.
+          </p>
+          <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-center">
+            <Link href="/comunidades" className="flex min-h-11 items-center justify-center rounded-14 bg-surface-soft px-5 text-sm font-bold text-foreground transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">Explorar comunidades</Link>
+            <Link href="/crear/comunidad" className="flex min-h-11 items-center justify-center rounded-14 bg-brand-dark px-5 text-sm font-bold text-white shadow-button transition-colors duration-180 hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">Crear comunidad</Link>
+          </div>
         </div>
       </motion.div>
     </MotionConfig>

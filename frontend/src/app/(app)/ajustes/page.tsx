@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { CreditCard, KeyRound, LoaderCircle, TriangleAlert } from "lucide-react";
+import { Bell, ChevronRight, CircleHelp, CreditCard, KeyRound, LockKeyhole, LoaderCircle, UserRound, TriangleAlert } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { stripePromise } from "@/lib/stripe";
 import { clearToken } from "@/lib/auth";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import SecondaryButton from "@/components/ui/SecondaryButton";
-import Spinner from "@/components/ui/Spinner";
 import StatusBadge from "@/components/ui/StatusBadge";
 import BottomSheet from "@/components/ui/BottomSheet";
 import { changePassword, deleteAccount } from "@/services/auth";
@@ -24,25 +24,95 @@ import { getMyProperties } from "@/services/properties";
 import type { PropertySummary, PropertySubscriptionStatus } from "@/types/property";
 
 export default function AjustesPage() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <h1 className="text-3xl font-bold text-brand-dark">Ajustes</h1>
+    <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] space-y-4 px-6 py-6 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-5xl sm:rounded-[32px] sm:p-7 lg:p-8">
+      <header className="px-1 pb-2">
+        <p className="text-xs font-semibold text-muted">Cuenta y preferencias</p>
+        <h1 className="mt-0.5 font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">
+          Ajustes
+        </h1>
+      </header>
 
-      <PasswordSection />
+      {user && (
+        <section className="rounded-[28px] bg-brand-dark p-5 text-white shadow-sm sm:p-6">
+          <p className="text-xs font-semibold text-white/60">Sesión actual</p>
+          <p className="mt-1 font-rounded text-2xl font-semibold tracking-[-0.02em]">
+            {user.first_name} {user.last_name}
+          </p>
+          <p className="mt-1 truncate text-sm text-white/65">{user.email}</p>
+        </section>
+      )}
 
-      <DangerSection onLogout={logout} />
+      <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="space-y-4">
+          <SettingsGroup title="Cuenta">
+            <SettingsLink href="/perfil/editar" icon={<UserRound />} title="Información personal" subtitle="Nombre, biografía y datos de contacto" />
+            <SettingsLink href="/notificaciones" icon={<Bell />} title="Notificaciones" subtitle="Actividad, mensajes y avisos" />
+            <SettingsLink href="/ajustes/privacidad" icon={<LockKeyhole />} title="Privacidad y seguridad" subtitle="Visibilidad y personas bloqueadas" />
+          </SettingsGroup>
+
+          <SettingsGroup title="Soporte">
+            <SettingsLink href="/ayuda" icon={<CircleHelp />} title="Centro de ayuda" subtitle="Preguntas frecuentes y contacto" />
+          </SettingsGroup>
+        </div>
+
+        <div className="space-y-4">
+          <PasswordSection />
+          <BillingSection />
+          <DangerSection onLogout={logout} />
+        </div>
+      </div>
     </div>
   );
 }
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-18 border border-border bg-surface p-6">
-      <h2 className="text-lg font-bold text-brand-dark">{title}</h2>
+    <section className="rounded-[28px] bg-surface p-5 shadow-sm sm:p-6">
+      <h2 className="font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">{title}</h2>
       <div className="mt-4">{children}</div>
     </section>
+  );
+}
+
+function SettingsGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <h2 className="mb-2 px-2 text-xs font-bold uppercase tracking-[0.12em] text-muted">{title}</h2>
+      <div className="divide-y divide-border/70 overflow-hidden rounded-[24px] bg-surface shadow-sm">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function SettingsLink({
+  href,
+  icon,
+  title,
+  subtitle,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex min-h-18 items-center gap-3 px-4 py-3 transition-colors duration-180 hover:bg-surface-soft focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
+    >
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-12 bg-mint-50 text-primary [&>svg]:h-5 [&>svg]:w-5">
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-bold text-foreground">{title}</span>
+        <span className="mt-0.5 block text-xs leading-5 text-secondary">{subtitle}</span>
+      </span>
+      <ChevronRight className="h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
+    </Link>
   );
 }
 
@@ -163,7 +233,7 @@ function BillingSection() {
         Cada piso publicado tiene su propia cuota de 23,99 €/mes, cobrada por separado.
       </p>
 
-      <div className="mt-4 flex items-center gap-3 rounded-14 border border-border bg-surface-soft p-4">
+      <div className="mt-4 flex items-center gap-3 rounded-18 bg-surface-soft p-4">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface text-primary shadow-soft">
           <CreditCard className="h-5 w-5" />
         </span>
@@ -181,7 +251,7 @@ function BillingSection() {
         <button
           type="button"
           onClick={() => setEditingCard((value) => !value)}
-          className="text-sm font-bold text-primary-dark"
+          className="min-h-11 rounded-full px-3 text-sm font-bold text-primary-dark transition-colors duration-180 hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
           {summary?.has_payment_method ? "Cambiar" : "Añadir"}
         </button>
@@ -208,7 +278,7 @@ function BillingSection() {
           {properties.map((property) => (
             <div
               key={property.id}
-              className="flex items-center justify-between gap-3 rounded-14 border border-border bg-surface px-4 py-3"
+              className="flex items-center justify-between gap-3 rounded-14 bg-surface-soft px-4 py-3"
             >
               <span className="min-w-0 truncate text-sm font-semibold text-foreground">
                 {property.title}
@@ -315,22 +385,22 @@ function DangerSection({ onLogout }: { onLogout: () => void }) {
 
   return (
     <>
-      <section className="rounded-18 border border-red-200 bg-surface p-6">
-        <h2 className="text-lg font-bold text-red-600">Zona de riesgo</h2>
+      <section className="rounded-[28px] bg-surface p-5 shadow-sm sm:p-6">
+        <h2 className="font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Sesión y cuenta</h2>
 
         <button
           type="button"
           onClick={onLogout}
-          className="mt-4 text-sm font-bold text-foreground"
+          className="mt-3 flex min-h-13 w-full items-center rounded-14 px-3 text-left text-sm font-bold text-foreground transition-colors duration-180 hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
           Cerrar sesión
         </button>
 
-        <div className="mt-4 border-t border-border pt-4">
+        <div className="border-t border-border/70">
           <button
             type="button"
             onClick={() => setShowDelete(true)}
-            className="text-sm font-bold text-red-600"
+            className="flex min-h-13 w-full items-center rounded-14 px-3 text-left text-sm font-bold text-red-600 transition-colors duration-180 hover:bg-red-50/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
           >
             Eliminar cuenta
           </button>
