@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { AnimatePresence, motion, MotionConfig } from "framer-motion";
+import { AnimatePresence, motion, MotionConfig, useDragControls } from "framer-motion";
 
 import { useCommunities } from "@/hooks/useCommunities";
 import { useAuth } from "@/hooks/useAuth";
@@ -47,6 +47,7 @@ export default function ComunidadesPage() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [portalReady, setPortalReady] = useState(false);
+  const filterDragControls = useDragControls();
 
   const searchParams = useSearchParams();
   const justLeft = searchParams.get("left") === "1";
@@ -180,9 +181,25 @@ export default function ComunidadesPage() {
 
   useEffect(() => {
     if (!filtersOpen) return;
-    const previousOverflow = document.body.style.overflow;
+
+    const scrollY = window.scrollY;
+    const previousBodyPosition = document.body.style.position;
+    const previousBodyTop = document.body.style.top;
+    const previousBodyWidth = document.body.style.width;
+    const previousBodyOverflow = document.body.style.overflow;
+
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = previousOverflow; };
+
+    return () => {
+      document.body.style.position = previousBodyPosition;
+      document.body.style.top = previousBodyTop;
+      document.body.style.width = previousBodyWidth;
+      document.body.style.overflow = previousBodyOverflow;
+      window.scrollTo(0, scrollY);
+    };
   }, [filtersOpen]);
 
   useEffect(() => {
@@ -412,6 +429,8 @@ export default function ComunidadesPage() {
             exit={{ y: "105%", scale: .98 }}
             transition={{ type: "spring", stiffness: 330, damping: 34, mass: .9 }}
             drag="y"
+            dragListener={false}
+            dragControls={filterDragControls}
             dragConstraints={{ top: 0 }}
             dragElastic={{ top: 0, bottom: .35 }}
             onDragEnd={(_, info) => { if (info.offset.y > 90 || info.velocity.y > 650) setFiltersOpen(false); }}
@@ -421,17 +440,22 @@ export default function ComunidadesPage() {
             aria-labelledby="community-filter-title"
             className="flex h-dvh max-h-none w-full max-w-none flex-col overflow-hidden border-0 bg-white shadow-[0_-18px_60px_rgba(98,125,112,.18)]"
           >
-            <div className="flex justify-center pb-2 pt-[calc(.75rem+var(--safe-top))]"><span className="h-1.5 w-11 rounded-full bg-black/15" /></div>
-            <header className="grid grid-cols-[1fr_auto_1fr] items-center border-b border-[#eef1f1] px-5 pb-4 pt-1">
-              <button type="button" onClick={() => setFilters(defaultCommunityFilters)} className="justify-self-start text-xs font-semibold text-[#727974] transition hover:text-[#161d1d]">Restablecer</button>
-              <div className="text-center"><h2 id="community-filter-title" className="font-rounded text-[18px] font-bold tracking-[-.035em] text-[#161d1d]">Filtros de Convivencia</h2><p className="mt-0.5 flex items-center justify-center gap-1 text-[10px] text-[#476255]"><span className="h-1.5 w-1.5 rounded-full bg-[#476255]" />Algoritmo CoFlow</p></div>
-              <button type="button" onClick={() => setFiltersOpen(false)} className="flex h-9 w-9 items-center justify-center justify-self-end rounded-full bg-[#eef5f4] text-[#424844] transition hover:bg-[#e2eae9]" aria-label="Cerrar filtros"><CloseIcon /></button>
-            </header>
+            <div
+              onPointerDown={(event) => filterDragControls.start(event)}
+              className="cursor-grab touch-none active:cursor-grabbing"
+            >
+              <div className="flex justify-center pb-2 pt-[calc(.75rem+var(--safe-top))]"><span className="h-1.5 w-11 rounded-full bg-black/15" /></div>
+              <header className="grid grid-cols-[1fr_auto_1fr] items-center border-b border-[#eef1f1] px-5 pb-4 pt-1">
+                <button type="button" onClick={() => setFilters(defaultCommunityFilters)} className="justify-self-start text-xs font-semibold text-[#727974] transition hover:text-[#161d1d]">Restablecer</button>
+                <div className="text-center"><h2 id="community-filter-title" className="font-rounded text-[18px] font-bold tracking-[-.035em] text-[#161d1d]">Filtros de Convivencia</h2><p className="mt-0.5 flex items-center justify-center gap-1 text-[10px] text-[#476255]"><span className="h-1.5 w-1.5 rounded-full bg-[#476255]" />Algoritmo CoFlow</p></div>
+                <button type="button" onClick={() => setFiltersOpen(false)} className="flex h-9 w-9 items-center justify-center justify-self-end rounded-full bg-[#eef5f4] text-[#424844] transition hover:bg-[#e2eae9]" aria-label="Cerrar filtros"><CloseIcon /></button>
+              </header>
+            </div>
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#f4fbfa] pb-2">
               <CommunityFilters filters={filters} onChange={setFilters} onClear={() => setFilters(defaultCommunityFilters)} resultCount={resultCount} sheet />
             </div>
             <div className="border-t border-black/5 bg-white p-4 pb-[calc(1rem+var(--safe-bottom))]">
-              <button type="button" onClick={() => setFiltersOpen(false)} className="flex h-14 w-full items-center justify-between rounded-2xl bg-[#627d70] px-5 text-white shadow-[0_12px_40px_rgba(98,125,112,.22)] transition hover:bg-[#4e675b] active:scale-[.985]"><span className="text-[14px] font-bold">Ver {resultCount} {resultCount === 1 ? "comunidad afín" : "comunidades afines"}</span><span className="flex items-center gap-1.5 text-xs font-medium text-[#e6f3f0]">Aplicar filtros <ArrowIcon /></span></button>
+              <button type="button" onClick={() => setFiltersOpen(false)} className="flex h-14 w-full items-center justify-between rounded-2xl bg-[#4e675b] px-5 text-white shadow-[0_12px_40px_rgba(78,103,91,.28)] transition hover:bg-[#3e564b] active:scale-[.985]"><span className="text-[14px] font-bold">Ver {resultCount} {resultCount === 1 ? "comunidad afín" : "comunidades afines"}</span><span className="flex items-center gap-1.5 text-xs font-medium text-[#e6f3f0]">Aplicar filtros <ArrowIcon /></span></button>
             </div>
           </motion.section>
         </motion.div>}
