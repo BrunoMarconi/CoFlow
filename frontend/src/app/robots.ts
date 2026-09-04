@@ -10,5 +10,6 @@ export default function robots(): MetadataRoute.Robots {
       disallow: ["/login", "/register", "/verificacion-pendiente", "/verificar-email", "/mensajes", "/notificaciones", "/perfil", "/onboarding", "/propietarios/"],
     },
     sitemap: `${APP_URL}/sitemap.xml`,
+    host: APP_URL,
   };
 }

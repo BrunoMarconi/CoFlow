@@ -54,15 +54,15 @@ export default function DesktopLanding() {
         </div>
       </header>
 
-      <section className="border-b border-[#e1ebe6]">
-        <div className="mx-auto grid min-h-[600px] max-w-[1440px] grid-cols-[1.02fr_.98fr] items-center gap-16 px-10 py-16 xl:px-14">
+      <section className="relative overflow-hidden border-b border-[#dfe8e3] bg-[radial-gradient(circle_at_82%_18%,rgba(211,229,219,.85),transparent_34%),linear-gradient(180deg,#fbfdfc_0%,#f0f6f3_100%)]">
+        <div className="mx-auto grid min-h-[680px] max-w-[1440px] grid-cols-[.92fr_1.08fr] items-center gap-16 px-10 py-16 xl:px-14">
           <div className="max-w-[690px]">
-            <DesktopEyebrow>El nuevo hábitat compartido</DesktopEyebrow>
-            <h1 className="mt-6 text-[clamp(58px,5.1vw,82px)] font-semibold leading-[.94] tracking-[-.06em]">Convivir en armonía.<br /><span className="font-normal italic text-[#64716b]">Alquilar con serenidad.</span></h1>
-            <p className="mt-7 max-w-[620px] text-[17px] leading-7 text-[#66736d]">Conectamos personas afines para crear hogares armónicos y respetuosos, con hábitos, presupuesto y preferencias visibles antes de decidir.</p>
+            <DesktopEyebrow>Compañeros de piso en Málaga</DesktopEyebrow>
+            <h1 className="mt-6 text-[clamp(60px,5.35vw,86px)] font-semibold leading-[.92] tracking-[-.065em]">Conoce cómo se vive.<br /><span className="font-normal text-[#718078]">Antes de elegir dónde.</span></h1>
+            <p className="mt-7 max-w-[590px] text-[18px] leading-8 text-[#607068]">Encuentra personas y comunidades compatibles por hábitos, presupuesto y forma de convivir. Menos intuición. Más contexto real.</p>
             <div className="mt-7 flex gap-3">
-              <Link className="rounded-full bg-white px-6 py-3.5 text-[14px] font-semibold shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5" href="/companeros-de-piso">Buscar comunidad</Link>
-              <Link className="rounded-full bg-[#e8efeb] px-6 py-3.5 text-[14px] font-semibold transition hover:-translate-y-0.5" href="/para-propietarios">Soy propietario</Link>
+              <Link className="rounded-full bg-[#244638] px-7 py-4 text-[14px] font-semibold text-white shadow-[0_12px_28px_rgba(36,70,56,.22)] transition hover:-translate-y-0.5" href="/register">Crear mi perfil gratis <ArrowRight className="ml-1.5 inline" size={14} /></Link>
+              <Link className="rounded-full bg-white px-7 py-4 text-[14px] font-semibold shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5" href="/comunidades">Explorar comunidades</Link>
             </div>
             <div className="mt-12 flex flex-wrap gap-x-7 gap-y-3 text-[12px] text-[#68766f]">
               <span className="flex items-center gap-2"><CircleCheck size={14} /> Sin permanencia</span>
@@ -71,16 +71,16 @@ export default function DesktopLanding() {
             </div>
           </div>
 
-          <article data-apple-tilt className="apple-tilt ml-auto w-full max-w-[590px] overflow-hidden rounded-[30px] bg-white p-2.5 shadow-[0_28px_70px_rgba(26,58,45,.13)]">
-            <div className="relative aspect-[1.7] overflow-hidden rounded-[23px]">
-              <Image src="https://images.unsplash.com/photo-1641667710644-fb8a6abf2a06?auto=format&fit=crop&q=88&w=1500" alt="Vista urbana de Málaga con su catedral" fill priority sizes="590px" className="object-cover" />
+          <article data-apple-tilt className="apple-tilt ml-auto w-full max-w-[650px] overflow-hidden rounded-[38px] border border-white/80 bg-white/80 p-3 shadow-[0_34px_90px_rgba(26,58,45,.16)] backdrop-blur">
+            <div className="relative aspect-[1.45] overflow-hidden rounded-[29px]">
+              <Image src="/images/create-community-living-room.webp" alt="Salón luminoso de una comunidad CoFlow" fill priority sizes="650px" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/5" />
               <span className="absolute left-4 top-4 rounded-full bg-[#244638]/85 px-3 py-1.5 text-[11px] font-medium text-white backdrop-blur">Comunidad</span>
               <span className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-medium backdrop-blur">Málaga</span>
-              <div className="absolute bottom-4 left-4 text-white"><p className="text-[11px] uppercase tracking-[.14em]">Explora antes de decidir</p><h2 className="mt-1 text-[26px] font-semibold tracking-[-.035em]">Comunidades en Málaga</h2></div>
+              <div className="absolute bottom-5 left-5 text-white"><p className="text-[11px] uppercase tracking-[.14em]">Tu próxima casa empieza por las personas</p><h2 className="mt-1 text-[28px] font-semibold tracking-[-.04em]">Comunidades en Málaga</h2></div>
             </div>
             <div className="p-4">
-              <p className="text-[13px] leading-5 text-[#68736e]">Consulta preferencias de convivencia y condiciones de cada plaza.</p>
+              <p className="text-[13px] leading-5 text-[#68736e]">Descubre el ambiente, las preferencias y las condiciones antes de enviar una solicitud.</p>
               <div className="mt-4 flex items-center justify-between gap-4">
                 <div className="flex flex-wrap gap-2"><Chip>Preferencias</Chip><Chip>Presupuesto</Chip><Chip>Plazas abiertas</Chip></div>
                 <Link className="flex shrink-0 items-center gap-1 rounded-full bg-[#315f4b] px-5 py-3 text-[13px] font-semibold text-white" href="/comunidades">Ver comunidades <ChevronRight size={14} /></Link>
