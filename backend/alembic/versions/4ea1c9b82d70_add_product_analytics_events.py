@@ -1,7 +1,7 @@
 """add privacy-conscious product analytics events
 
 Revision ID: 4ea1c9b82d70
-Revises: a8e4c2d1f730
+Revises: c4d8e1f2a603
 Create Date: 2026-09-04 14:00:00
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 revision: str = "4ea1c9b82d70"
-down_revision: Union[str, Sequence[str], None] = "a8e4c2d1f730"
+down_revision: Union[str, Sequence[str], None] = "c4d8e1f2a603"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
