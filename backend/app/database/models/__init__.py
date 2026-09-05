@@ -26,6 +26,8 @@ from app.database.models.bank_transaction_snapshot import BankTransactionSnapsho
 from app.database.models.financial_analysis import FinancialAnalysis
 from app.database.models.financial_monthly_summary import FinancialMonthlySummary
 from app.database.models.email_verification_token import EmailVerificationToken
+from app.database.models.password_reset_token import PasswordResetToken
+from app.database.models.auth_session import AuthSession
 from app.database.models.owner_claim_token import OwnerClaimToken
 from app.database.models.legal_report import LegalReport
 from app.database.models.product_event import ProductEvent

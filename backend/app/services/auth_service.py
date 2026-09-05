@@ -28,6 +28,7 @@ from app.schemas.auth import (
 from app.schemas.user import UpdateProfileRequest, UserResponse
 from app.services import billing_service
 from app.services.email_verification_service import request_verification_email
+from app.services.auth_session_service import create_session
 
 
 def _build_user_response(user: User) -> UserResponse:
@@ -45,6 +46,7 @@ class AuthService:
         background_tasks: BackgroundTasks,
         *,
         ip_hash: str | None = None,
+        user_agent: str | None = None,
     ):
 
         normalized_email = data.email.strip().lower()
@@ -102,7 +104,8 @@ class AuthService:
         # vez de obligar al frontend a hacer un login aparte justo
         # después de registrarse (un round-trip HTTP + un
         # verify_password de bcrypt menos en el camino crítico).
-        access_token = create_access_token(str(user.id))
+        session = create_session(db, user, user_agent)
+        access_token = create_access_token(str(user.id), user.auth_version, str(session.id))
         user_response = _build_user_response(user)
 
         if not EMAIL_VERIFICATION_ENABLED:
@@ -126,7 +129,7 @@ class AuthService:
 
         return response
 
-    def login(self, data: LoginRequest, db: Session):
+    def login(self, data: LoginRequest, db: Session, *, user_agent: str | None = None):
 
         normalized_email = data.email.strip().lower()
 
@@ -148,7 +151,8 @@ class AuthService:
                 detail="Invalid credentials"
             )
 
-        token = create_access_token(str(user.id))
+        session = create_session(db, user, user_agent)
+        token = create_access_token(str(user.id), user.auth_version, str(session.id))
 
         return {
             "access_token": token,
@@ -158,7 +162,7 @@ class AuthService:
             "user": _build_user_response(user),
         }
 
-    def login_with_google(self, data: GoogleLoginRequest, db: Session):
+    def login_with_google(self, data: GoogleLoginRequest, db: Session, *, user_agent: str | None = None):
         if not GOOGLE_CLIENT_ID:
             raise HTTPException(
                 status_code=503,
@@ -239,7 +243,8 @@ class AuthService:
                     )
                 db.refresh(user)
 
-        token = create_access_token(str(user.id))
+        session = create_session(db, user, user_agent)
+        token = create_access_token(str(user.id), user.auth_version, str(session.id))
 
         return {
             "access_token": token,

@@ -229,6 +229,7 @@ function PropertyPublishFlowInner({ resumeProperty }: { resumeProperty?: Propert
     imagesUploaded: existingImageCount >= 1,
     marked: resumeProperty ? resumeProperty.status !== "DRAFT" : false,
   });
+  const hasStarted = screen !== "welcome";
 
   useEffect(() => {
     getPropertyAmenities().then(setAmenities).catch(() => setAmenities([]));
@@ -248,6 +249,15 @@ function PropertyPublishFlowInner({ resumeProperty }: { resumeProperty?: Propert
     return () => photosRef.current.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
   }, []);
 
+  useEffect(() => {
+    if (!hasStarted || publishing) return;
+    function warnBeforeLeaving(event: BeforeUnloadEvent) {
+      event.preventDefault();
+    }
+    window.addEventListener("beforeunload", warnBeforeLeaving);
+    return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
+  }, [hasStarted, publishing]);
+
   function goTo(next: Screen) {
     setDirection(SCREENS.indexOf(next) >= SCREENS.indexOf(screen) ? 1 : -1);
     setError("");
@@ -259,6 +269,11 @@ function PropertyPublishFlowInner({ resumeProperty }: { resumeProperty?: Propert
     const index = SCREENS.indexOf(screen);
     if (index <= 0) return router.push("/perfil");
     goTo(SCREENS[index - 1]);
+  }
+
+  function closeFlow() {
+    if (hasStarted && !window.confirm("¿Quieres salir de la publicación? Los cambios que aún no se hayan publicado podrían perderse.")) return;
+    router.push("/propietarios/pisos");
   }
 
   function resolveAddress(address: ResolvedAddress) {
@@ -393,8 +408,8 @@ function PropertyPublishFlowInner({ resumeProperty }: { resumeProperty?: Propert
   const progress = SCREENS.indexOf(screen) + 1;
 
   return (
-    <div className="min-h-dvh bg-white text-[#191919]">
-      <FlowHeader onBack={goBack} onClose={() => router.push("/perfil")} first={screen === "welcome"} />
+    <div className="min-h-dvh bg-surface-soft text-brand-dark">
+      <FlowHeader onBack={goBack} onClose={closeFlow} first={screen === "welcome"} resuming={Boolean(resumeProperty)} />
       <main className="mx-auto w-full max-w-4xl px-5 pb-32 sm:px-8 lg:px-10">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
@@ -418,7 +433,7 @@ function PropertyPublishFlowInner({ resumeProperty }: { resumeProperty?: Propert
             {screen === "vibe" ? <VibeScreen selected={vibes} onToggle={(vibe) => setVibes((current) => current.includes(vibe) ? current.filter((item) => item !== vibe) : [...current, vibe])} /> : null}
             {screen === "description" ? <TextScreen title="Cuéntales cómo es tu vivienda" value={description} onChange={setDescription} placeholder="Describe el espacio, la zona y el ambiente que quieres crear…" multiline maxLength={2000} /> : null}
             {screen === "conditions" ? <ConditionsScreen rent={rent} deposit={deposit} utilitiesIncluded={utilitiesIncluded} minimumStayMonths={minimumStayMonths} onOpen={setPriceSheet} onUtilities={setUtilitiesIncluded} /> : null}
-            {screen === "publish" ? <PublishScreen termsAccepted={termsAccepted} onTermsAcceptedChange={setTermsAccepted} /> : null}
+            {screen === "publish" ? <PublishScreen termsAccepted={termsAccepted} onTermsAcceptedChange={setTermsAccepted} title={title} city={city} neighborhood={neighborhood} rent={rent} photoCount={photos.length + existingImageCount} bedrooms={bedrooms} maxTenants={maxTenants} /> : null}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -435,15 +450,13 @@ function nextScreen(screen: Screen): Screen {
   return SCREENS[Math.min(SCREENS.length - 1, index + 1)];
 }
 
-function FlowHeader({ onBack, onClose, first }: { onBack: () => void; onClose: () => void; first: boolean }) {
+function FlowHeader({ onBack, onClose, first, resuming }: { onBack: () => void; onClose: () => void; first: boolean; resuming: boolean }) {
   return (
     <header className="mx-auto flex h-20 w-full max-w-5xl items-center justify-between px-5 sm:h-22 sm:px-8 lg:px-10">
-      <button type="button" onClick={first ? onClose : onBack} aria-label={first ? "Cerrar" : "Atrás"} className="flex h-11 w-11 items-center justify-center rounded-full text-[#191919] transition hover:bg-[#f5f5f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black">
+      <button type="button" onClick={first ? onClose : onBack} aria-label={first ? "Cerrar" : "Atrás"} className="flex h-11 w-11 items-center justify-center rounded-full bg-surface text-brand-dark shadow-soft transition hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
         {first ? <X className="h-7 w-7" /> : <ChevronLeft className="h-7 w-7" />}
       </button>
-      <a href="/propietarios/ayuda" className="inline-flex h-11 items-center gap-2 rounded-full border border-[#dddddd] bg-white px-4 text-sm font-bold text-[#191919] shadow-[0_5px_18px_rgba(0,0,0,0.08)] sm:px-5 sm:text-base">
-        <CircleHelp className="h-5 w-5" /> ¿Tienes alguna duda?
-      </a>
+      <div className="flex items-center gap-2">{resuming && <span role="status" className="hidden rounded-full bg-mint-50 px-3 py-2 text-xs font-bold text-primary-dark sm:inline">Borrador recuperado</span>}<a href="/propietarios/ayuda" className="inline-flex h-11 items-center gap-2 rounded-full bg-surface px-4 text-sm font-bold text-brand-dark shadow-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:px-5"><CircleHelp className="h-4 w-4 text-primary" /> <span className="hidden sm:inline">Ayuda</span></a></div>
     </header>
   );
 }
@@ -500,7 +513,7 @@ function SpaceIntroduction() {
 }
 
 function ScreenTitle({ children }: { children: ReactNode }) {
-  return <h1 className="text-[clamp(2rem,7vw,3.65rem)] font-semibold leading-[1.03] tracking-[-0.05em] text-[#191919]">{children}</h1>;
+  return <><p className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary">Nueva vivienda</p><h1 className="mt-2 font-rounded text-[clamp(2rem,7vw,3.65rem)] font-semibold leading-[1.03] tracking-[-0.05em] text-brand-dark">{children}</h1></>;
 }
 
 function ChoiceGrid({ title, choices, selected, onSelect }: { title: string; choices: Array<{ value: string; label: string; icon: ReactNode }>; selected: string; onSelect: (value: string) => void }) {
@@ -510,7 +523,7 @@ function ChoiceGrid({ title, choices, selected, onSelect }: { title: string; cho
       <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         {choices.map((choice) => {
           const active = selected === choice.value;
-          return <button key={choice.value} type="button" onClick={() => onSelect(choice.value)} className={`relative flex min-h-31 flex-col items-start justify-between rounded-[1.25rem] border bg-white p-4 text-left shadow-[0_5px_16px_rgba(0,0,0,0.055)] transition hover:-translate-y-0.5 ${active ? "border-black ring-1 ring-black" : "border-[#dddddd]"}`}><span className="text-[#222] [&>svg]:h-7 [&>svg]:w-7 [&>svg]:stroke-[1.65]">{choice.icon}</span><span className="text-base font-semibold text-[#191919]">{choice.label}</span>{active ? <span className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-black text-white"><Check className="h-4 w-4" /></span> : null}</button>;
+          return <button key={choice.value} type="button" aria-pressed={active} onClick={() => onSelect(choice.value)} className={`relative flex min-h-31 flex-col items-start justify-between rounded-[20px] border bg-surface p-4 text-left shadow-soft transition ${active ? "border-primary/30 bg-mint-50 ring-2 ring-primary/10" : "border-border hover:bg-surface"}`}><span className={`${active ? "text-primary" : "text-secondary"} [&>svg]:h-7 [&>svg]:w-7 [&>svg]:stroke-[1.65]`}>{choice.icon}</span><span className="text-base font-bold text-brand-dark">{choice.label}</span>{active ? <span className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white"><Check className="h-4 w-4" /></span> : null}</button>;
         })}
       </div>
     </section>
@@ -524,7 +537,7 @@ function ChoiceList({ title, choices, selected, onSelect }: { title: string; cho
       <div className="mt-7 space-y-3">
         {choices.map((choice) => {
           const active = selected === choice.value;
-          return <button key={choice.value} type="button" onClick={() => onSelect(choice.value)} className={`flex min-h-20 w-full items-center gap-4 rounded-[1.25rem] border bg-white px-5 py-4 text-left shadow-[0_5px_16px_rgba(0,0,0,0.055)] transition ${active ? "border-black ring-1 ring-black" : "border-[#dddddd]"}`}><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f5f5f5] text-[#222] [&>svg]:h-6 [&>svg]:w-6 [&>svg]:stroke-[1.65]">{choice.icon}</span><span className="flex-1 text-lg font-semibold text-[#191919]">{choice.label}</span>{active ? <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black text-white"><Check className="h-4 w-4" /></span> : null}</button>;
+          return <button key={choice.value} type="button" aria-pressed={active} onClick={() => onSelect(choice.value)} className={`flex min-h-20 w-full items-center gap-4 rounded-[20px] border bg-surface px-5 py-4 text-left shadow-soft transition ${active ? "border-primary/30 bg-mint-50 ring-2 ring-primary/10" : "border-border"}`}><span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full [&>svg]:h-6 [&>svg]:w-6 [&>svg]:stroke-[1.65] ${active ? "bg-primary text-white" : "bg-surface-soft text-secondary"}`}>{choice.icon}</span><span className="flex-1 text-lg font-bold text-brand-dark">{choice.label}</span>{active ? <Check className="h-5 w-5 text-primary" /> : null}</button>;
         })}
       </div>
     </section>
@@ -535,7 +548,7 @@ function BasicsScreen(props: { bedrooms: number; bathrooms: number; maxTenants: 
   return (
     <section className="mx-auto max-w-2xl pt-4 sm:pt-8">
       <ScreenTitle>Información básica</ScreenTitle>
-      <div className="mt-7 divide-y divide-[#e6e6e6] rounded-[1.5rem] border border-[#dddddd] bg-white px-5 shadow-[0_6px_20px_rgba(0,0,0,0.055)]">
+      <div className="mt-7 divide-y divide-border rounded-[24px] border border-border bg-surface px-5 shadow-soft">
         <Counter label="Habitaciones" value={props.bedrooms} onChange={props.onBedrooms} />
         <Counter label="Baños" value={props.bathrooms} onChange={props.onBathrooms} minimum={1} />
         <Counter label="Plazas totales" value={props.maxTenants} onChange={props.onMaxTenants} minimum={1} />
@@ -546,7 +559,7 @@ function BasicsScreen(props: { bedrooms: number; bathrooms: number; maxTenants: 
 }
 
 function Counter({ label, value, onChange, minimum = 0, maximum = 20 }: { label: string; value: number; onChange: (value: number) => void; minimum?: number; maximum?: number }) {
-  return <div className="flex min-h-18 items-center gap-3 py-3"><span className="min-w-0 flex-1 text-base font-semibold text-[#191919]">{label}</span><button type="button" aria-label={`Restar ${label}`} disabled={value <= minimum} onClick={() => onChange(value - 1)} className="flex h-9 w-9 items-center justify-center rounded-full border border-[#bdbdbd] text-[#222] disabled:opacity-25"><Minus className="h-4 w-4" /></button><span className="w-7 text-center text-lg font-semibold text-[#191919]">{value}</span><button type="button" aria-label={`Sumar ${label}`} disabled={value >= maximum} onClick={() => onChange(value + 1)} className="flex h-9 w-9 items-center justify-center rounded-full border border-[#bdbdbd] text-[#222] disabled:opacity-25"><Plus className="h-4 w-4" /></button></div>;
+  return <div className="flex min-h-18 items-center gap-3 py-3"><span className="min-w-0 flex-1 text-base font-bold text-brand-dark">{label}</span><button type="button" aria-label={`Restar ${label}`} disabled={value <= minimum} onClick={() => onChange(value - 1)} className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-brand-dark transition hover:bg-mint-50 disabled:opacity-25"><Minus className="h-4 w-4" /></button><span className="w-7 text-center text-lg font-bold tabular-nums text-brand-dark">{value}</span><button type="button" aria-label={`Sumar ${label}`} disabled={value >= maximum} onClick={() => onChange(value + 1)} className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-brand-dark transition hover:bg-mint-50 disabled:opacity-25"><Plus className="h-4 w-4" /></button></div>;
 }
 
 function AmenitiesScreen({ selected, onToggle }: { selected: string[]; onToggle: (label: string) => void }) {
@@ -556,7 +569,7 @@ function AmenitiesScreen({ selected, onToggle }: { selected: string[]; onToggle:
       <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {AMENITIES.map(({ label, icon }) => {
           const active = selected.includes(label);
-          return <button key={label} type="button" onClick={() => onToggle(label)} className={`relative flex min-h-20 items-center gap-3 rounded-[1.1rem] border bg-white p-4 text-left shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition ${active ? "border-black ring-1 ring-black" : "border-[#dddddd]"}`}><span className="text-[#222] [&>svg]:h-6 [&>svg]:w-6 [&>svg]:stroke-[1.6]">{icon}</span><span className="pr-5 text-sm font-semibold text-[#191919]">{label}</span>{active ? <span className="absolute right-2.5 top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-black text-white"><Check className="h-3.5 w-3.5" /></span> : null}</button>;
+          return <button key={label} type="button" aria-pressed={active} onClick={() => onToggle(label)} className={`relative flex min-h-20 items-center gap-3 rounded-[18px] border bg-surface p-4 text-left shadow-soft transition ${active ? "border-primary/30 bg-mint-50 ring-2 ring-primary/10" : "border-border"}`}><span className={`${active ? "text-primary" : "text-secondary"} [&>svg]:h-6 [&>svg]:w-6 [&>svg]:stroke-[1.6]`}>{icon}</span><span className="pr-5 text-sm font-bold text-brand-dark">{label}</span>{active ? <span className="absolute right-2.5 top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white"><Check className="h-3.5 w-3.5" /></span> : null}</button>;
         })}
       </div>
     </section>
@@ -616,9 +629,16 @@ function ConditionsScreen({ rent, deposit, utilitiesIncluded, minimumStayMonths,
 type PublishScreenProps = {
   termsAccepted: boolean;
   onTermsAcceptedChange: (value: boolean) => void;
+  title: string;
+  city: string;
+  neighborhood: string | null;
+  rent: string;
+  photoCount: number;
+  bedrooms: number;
+  maxTenants: number;
 };
 
-function PublishScreen({ termsAccepted, onTermsAcceptedChange }: PublishScreenProps) {
+function PublishScreen({ termsAccepted, onTermsAcceptedChange, title, city, neighborhood, rent, photoCount, bedrooms, maxTenants }: PublishScreenProps) {
   return (
     <section className="mx-auto max-w-2xl pt-4 sm:pt-8">
       <ScreenTitle>Todo listo para publicar</ScreenTitle>
@@ -640,6 +660,12 @@ function PublishScreen({ termsAccepted, onTermsAcceptedChange }: PublishScreenPr
             </p>
           </div>
         </div>
+      </div>
+
+      <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-[#dddddd] bg-white shadow-[0_8px_24px_rgba(0,0,0,.055)]">
+        <div className="flex items-center justify-between border-b border-[#eeeeee] px-5 py-4"><div><p className="text-xs font-bold uppercase tracking-[0.12em] text-[#717171]">Vista previa</p><h2 className="mt-1 text-lg font-bold text-[#191919]">{title || "Tu vivienda"}</h2></div><span className="rounded-full bg-[#edf5f0] px-3 py-1.5 text-xs font-bold text-[#17633a]">{rent ? `${rent} €/mes` : "Precio pendiente"}</span></div>
+        <div className="grid grid-cols-3 divide-x divide-[#eeeeee] px-2 py-4 text-center"><div><strong className="block text-base text-[#191919]">{photoCount}</strong><span className="text-[11px] text-[#717171]">Fotos</span></div><div><strong className="block text-base text-[#191919]">{bedrooms}</strong><span className="text-[11px] text-[#717171]">Habitaciones</span></div><div><strong className="block text-base text-[#191919]">{maxTenants}</strong><span className="text-[11px] text-[#717171]">Plazas</span></div></div>
+        <p className="border-t border-[#eeeeee] px-5 py-3 text-xs font-semibold text-[#5f6d65]">{[neighborhood, city].filter(Boolean).join(", ") || "Ubicación pendiente"}</p>
       </div>
 
       <label className="mt-6 flex items-start gap-3 rounded-2xl border border-[#dddddd] p-4">
@@ -673,20 +699,30 @@ function FlowFooter({ screen, progress, publishing, termsAccepted, error, onBack
     : final
       ? "Publicar gratis"
       : screen === "welcome" ? "Empezar" : "Siguiente";
+  const stage = getStage(screen);
 
   return (
-    <footer className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e5e5e5] bg-white/96 px-5 pb-[calc(1rem+var(--safe-bottom))] pt-3 backdrop-blur-xl sm:px-8">
+    <footer className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/96 px-5 pb-[calc(1rem+var(--safe-bottom))] pt-3 backdrop-blur-xl sm:px-8">
       <div className="mx-auto max-w-4xl">
-        <div className="grid grid-cols-13 gap-1.5" aria-label={`Pantalla ${progress} de ${SCREENS.length}`}>{SCREENS.map((item, index) => <span key={item} className={`h-1 rounded-full ${index < progress ? "bg-black" : "bg-[#dddddd]"}`} />)}</div>
+        <div className="flex items-center justify-between gap-4"><p className="text-[11px] font-bold uppercase tracking-[0.11em] text-secondary">{stage}</p><p className="text-[11px] font-semibold tabular-nums text-muted">{progress} de {SCREENS.length}</p></div>
+        <div className="mt-2 h-1 overflow-hidden rounded-full bg-primary/10" role="progressbar" aria-label="Progreso de publicación" aria-valuemin={1} aria-valuemax={SCREENS.length} aria-valuenow={progress}><div className="h-full rounded-full bg-primary transition-[width] duration-300" style={{ width: `${(progress / SCREENS.length) * 100}%` }} /></div>
         {error ? <p role="alert" className="mt-2 truncate text-center text-xs font-semibold text-red-600">{error}</p> : null}
-        {final ? <p className="mt-2 text-center text-xs font-semibold text-[#17633a]">0 € · Sin tarjeta · Sin renovación automática</p> : null}
+        {final ? <p className="mt-2 text-center text-xs font-bold text-primary-dark">Gratis · Sin tarjeta · Sin permanencia</p> : null}
         <div className={`mt-3 grid gap-3 ${screen === "welcome" ? "grid-cols-1" : "grid-cols-[.68fr_1.32fr]"}`}>
-          {screen !== "welcome" ? <button type="button" onClick={onBack} disabled={publishing} className="h-13 rounded-full px-5 text-base font-semibold text-[#191919] underline underline-offset-4 disabled:opacity-50">Atrás</button> : null}
-          <button type="button" onClick={final ? onPublish : onNext} disabled={actionDisabled} className="flex h-13 items-center justify-center rounded-full bg-black px-5 text-base font-semibold text-white shadow-[0_8px_20px_rgba(0,0,0,0.16)] transition hover:bg-[#282828] disabled:opacity-60">{actionLabel}</button>
+          {screen !== "welcome" ? <button type="button" onClick={onBack} disabled={publishing} className="h-13 rounded-full px-5 text-base font-bold text-secondary disabled:opacity-50">Atrás</button> : null}
+          <button type="button" onClick={final ? onPublish : onNext} disabled={actionDisabled} className="flex h-13 items-center justify-center rounded-16 bg-brand-dark px-5 text-base font-bold text-white shadow-button transition disabled:cursor-not-allowed disabled:opacity-50">{actionLabel}</button>
         </div>
       </div>
     </footer>
   );
+}
+
+function getStage(screen: Screen) {
+  const index = SCREENS.indexOf(screen);
+  if (index <= 2) return "Ubicación";
+  if (index <= 7) return "La vivienda";
+  if (index <= 11) return "El anuncio";
+  return "Precio y publicación";
 }
 
 function AddressSheet({ open, value, onChange, onResolved, onClose, inputRef }: { open: boolean; value: string; onChange: (value: string) => void; onResolved: (address: ResolvedAddress) => void; onClose: () => void; inputRef: RefObject<HTMLInputElement | null> }) {

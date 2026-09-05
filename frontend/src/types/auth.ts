@@ -21,6 +21,11 @@ export interface ChangePasswordRequest {
   new_password: string;
 }
 
+export interface ResetPasswordRequest {
+  token: string;
+  new_password: string;
+}
+
 export interface LoginResponse {
   access_token: string;
   token_type: string;
@@ -61,4 +66,13 @@ export interface RegisterResponse {
 export interface GenericMessageResponse {
   message: string;
   debug_token?: string | null;
+}
+
+export interface AuthSession {
+  id: string;
+  device_label: string;
+  browser_label: string;
+  created_at: string;
+  last_active_at: string;
+  is_current: boolean;
 }

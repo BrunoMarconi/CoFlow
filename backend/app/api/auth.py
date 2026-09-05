@@ -13,13 +13,16 @@ from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.schemas.auth import (
     ChangePasswordRequest,
+    AuthSessionResponse,
     DeleteAccountRequest,
     GenericMessageResponse,
     GoogleLoginRequest,
+    ForgotPasswordRequest,
     LoginRequest,
     LoginResponse,
     RegisterRequest,
     RegisterResponse,
+    ResetPasswordRequest,
     ResendVerificationRequest,
     VerifyEmailRequest,
 )
@@ -32,6 +35,16 @@ from app.services.email_verification_service import (
     verify as verify_email_token,
 )
 from app.services.user_photo_service import UserPhotoService
+from app.services.password_reset_service import (
+    GENERIC_REQUEST_MESSAGE,
+    PasswordResetError,
+    request_reset,
+    reset_password,
+)
+from app.services.auth_session_service import list_sessions, revoke_other_sessions, revoke_session
+from app.core.jwt import decode_access_token
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from uuid import UUID
 
 from app.core.config import (
     ENVIRONMENT,
@@ -51,6 +64,7 @@ router = APIRouter(
 
 auth_service = AuthService()
 user_photo_service = UserPhotoService()
+bearer = HTTPBearer()
 
 _VERIFY_ERROR_MESSAGES = {
     "INVALID_TOKEN": "Este enlace de verificación no es válido.",
@@ -58,10 +72,27 @@ _VERIFY_ERROR_MESSAGES = {
     "TOKEN_ALREADY_USED": "Este enlace de verificación ya se usó.",
 }
 
+_RESET_ERROR_MESSAGES = {
+    "INVALID_TOKEN": "Este enlace no es válido.",
+    "TOKEN_EXPIRED": "Este enlace ha caducado.",
+    "TOKEN_ALREADY_USED": "Este enlace ya se ha utilizado.",
+}
+
 
 def _client_ip_hash(request: Request) -> str | None:
     client = request.client
     return hash_ip(client.host if client else None)
+
+
+def _current_session_id(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer),
+) -> UUID | None:
+    payload = decode_access_token(credentials.credentials) or {}
+    value = payload.get("sid")
+    try:
+        return UUID(value) if value else None
+    except (TypeError, ValueError):
+        return None
 
 
 def _require_email_verification_enabled() -> None:
@@ -92,22 +123,24 @@ def register(
     db: Session = Depends(get_db)
 ):
     return auth_service.register(
-        data, db, background_tasks, ip_hash=_client_ip_hash(request)
+        data, db, background_tasks, ip_hash=_client_ip_hash(request), user_agent=request.headers.get("user-agent")
     )
 
 @router.post("/login", response_model=LoginResponse)
 def login(
     data: LoginRequest,
+    request: Request,
     db: Session = Depends(get_db)
 ):
-    return auth_service.login(data, db)
+    return auth_service.login(data, db, user_agent=request.headers.get("user-agent"))
 
 @router.post("/google", response_model=LoginResponse)
 def login_with_google(
     data: GoogleLoginRequest,
+    request: Request,
     db: Session = Depends(get_db)
 ):
-    return auth_service.login_with_google(data, db)
+    return auth_service.login_with_google(data, db, user_agent=request.headers.get("user-agent"))
 
 @router.get(
     "/me",
@@ -149,6 +182,45 @@ def delete_account(
     db: Session = Depends(get_db),
 ):
     return auth_service.delete_account(current_user, data, db)
+
+
+@router.get("/sessions", response_model=list[AuthSessionResponse])
+def get_sessions(
+    current_user: User = Depends(get_current_user),
+    current_session_id: UUID | None = Depends(_current_session_id),
+    db: Session = Depends(get_db),
+):
+    return [
+        AuthSessionResponse(
+            id=item.id,
+            device_label=item.device_label,
+            browser_label=item.browser_label,
+            created_at=item.created_at,
+            last_active_at=item.last_active_at,
+            is_current=item.id == current_session_id,
+        )
+        for item in list_sessions(db, current_user)
+    ]
+
+
+@router.delete("/sessions/others", response_model=GenericMessageResponse)
+def close_other_sessions(
+    current_user: User = Depends(get_current_user),
+    current_session_id: UUID | None = Depends(_current_session_id),
+    db: Session = Depends(get_db),
+):
+    count = revoke_other_sessions(db, current_user, current_session_id)
+    return {"message": f"Se han cerrado {count} sesiones."}
+
+
+@router.delete("/sessions/{session_id}", response_model=GenericMessageResponse)
+def close_session(
+    session_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    revoke_session(db, current_user, session_id)
+    return {"message": "Sesión cerrada."}
 
 
 @router.post("/me/avatar", response_model=UserResponse)
@@ -259,3 +331,40 @@ def resend_verification_email(
         result["debug_token"] = raw_token
 
     return result
+
+
+@router.post("/forgot-password", response_model=GenericMessageResponse)
+def forgot_password(
+    data: ForgotPasswordRequest,
+    background_tasks: BackgroundTasks,
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+):
+    response.headers["Cache-Control"] = "no-store"
+    request_reset(
+        db, data.email, background_tasks, ip_hash=_client_ip_hash(request)
+    )
+    return {"message": GENERIC_REQUEST_MESSAGE}
+
+
+@router.post("/reset-password", response_model=GenericMessageResponse)
+def reset_password_endpoint(
+    data: ResetPasswordRequest,
+    response: Response,
+    db: Session = Depends(get_db),
+):
+    response.headers["Cache-Control"] = "no-store"
+    try:
+        reset_password(db, data.token, data.new_password)
+    except PasswordResetError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": exc.code,
+                "message": _RESET_ERROR_MESSAGES.get(
+                    exc.code, "No se pudo restablecer la contraseña."
+                ),
+            },
+        )
+    return {"message": "Contraseña restablecida correctamente."}

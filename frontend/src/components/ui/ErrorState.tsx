@@ -26,6 +26,7 @@ export default function ErrorState({
   return (
     <div
       role="alert"
+      aria-live="polite"
       className={cn(
         "flex flex-col items-center justify-center rounded-18 border border-border bg-surface p-8 text-center sm:p-12",
         className

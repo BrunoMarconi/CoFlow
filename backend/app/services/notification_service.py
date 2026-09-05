@@ -17,7 +17,12 @@ def create_notification(
     title: str,
     message: str,
     link: str | None = None,
-) -> Notification:
+) -> Notification | None:
+    user = db.query(User).filter(User.id == user_id).first()
+    preferences = (user.notification_preferences or {}) if user else {}
+    category = _notification_category(type)
+    if preferences.get("in_app_enabled") is False or preferences.get(category) is False:
+        return None
     notification = Notification(
         user_id=user_id,
         type=type,
@@ -27,6 +32,16 @@ def create_notification(
     )
     db.add(notification)
     return notification
+
+
+def _notification_category(type: NotificationType) -> str:
+    if type == NotificationType.PRIVATE_MESSAGE_RECEIVED:
+        return "messages"
+    if type in {NotificationType.CONNECTION_REQUEST_RECEIVED, NotificationType.CONNECTION_REQUEST_ACCEPTED}:
+        return "connections"
+    if "APPLICATION" in type.value or "INVITATION" in type.value:
+        return "applications"
+    return "communities"
 
 
 class NotificationService:

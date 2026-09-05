@@ -97,6 +97,7 @@ export default function NotificationsPage() {
             <h1 className="font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">
               Notificaciones
             </h1>
+            {unreadCount > 0 && <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary-dark">{unreadCount} nuevas</span>}
           </div>
           <p className="mt-2 text-sm leading-6 text-secondary">
             Solicitudes, mensajes y cambios importantes, en un solo lugar.
@@ -104,7 +105,7 @@ export default function NotificationsPage() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          {unreadCount > 0 && <button type="button" onClick={() => void markAllNotificationsAsRead().catch(() => setError("No pudimos marcar las notificaciones como leídas."))} className="hidden h-11 items-center rounded-full px-4 text-xs font-bold text-primary-dark transition hover:bg-[#eef2ef] sm:flex">Marcar todas como leídas</button>}
+          {unreadCount > 0 && <button type="button" onClick={() => void markAllNotificationsAsRead().catch(() => setError("No pudimos marcar las notificaciones como leídas."))} className="flex h-11 items-center rounded-full px-3 text-xs font-bold text-primary-dark transition hover:bg-[#eef2ef] sm:px-4"><span className="sm:hidden">Leer todas</span><span className="hidden sm:inline">Marcar todas como leídas</span></button>}
           <Link href="/ajustes" aria-label="Ajustes de notificaciones" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/[0.07] bg-[#fbfcfa] text-brand-dark transition hover:bg-[#eef2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"><SettingsIcon /></Link>
         </div>
       </header>

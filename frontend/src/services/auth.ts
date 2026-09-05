@@ -6,7 +6,9 @@ import {
   RegisterResponse,
   GenericMessageResponse,
   ChangePasswordRequest,
+  ResetPasswordRequest,
   User,
+  AuthSession,
 } from "@/types/auth";
 
 export async function register(
@@ -27,6 +29,20 @@ export async function resendVerification(
   email: string
 ): Promise<GenericMessageResponse> {
   const response = await api.post("/auth/resend-verification", { email });
+  return response.data;
+}
+
+export async function requestPasswordReset(
+  email: string
+): Promise<GenericMessageResponse> {
+  const response = await api.post("/auth/forgot-password", { email });
+  return response.data;
+}
+
+export async function resetPassword(
+  data: ResetPasswordRequest
+): Promise<GenericMessageResponse> {
+  const response = await api.post("/auth/reset-password", data);
   return response.data;
 }
 
@@ -68,4 +84,17 @@ export async function deleteAccount(
 ): Promise<GenericMessageResponse> {
   const response = await api.delete("/auth/me", { data: { password } });
   return response.data;
+}
+
+export async function getAuthSessions(): Promise<AuthSession[]> {
+  const response = await api.get<AuthSession[]>("/auth/sessions");
+  return response.data;
+}
+
+export async function closeAuthSession(sessionId: string): Promise<void> {
+  await api.delete(`/auth/sessions/${sessionId}`);
+}
+
+export async function closeOtherAuthSessions(): Promise<void> {
+  await api.delete("/auth/sessions/others");
 }

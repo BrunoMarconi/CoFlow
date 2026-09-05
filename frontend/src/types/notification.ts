@@ -27,3 +27,16 @@ export interface NotificationSnapshot {
   unread_count: number;
   unread_message_count: number;
 }
+
+export interface NotificationPreferences {
+  in_app_enabled: boolean;
+  email_enabled: boolean;
+  messages: boolean;
+  connections: boolean;
+  communities: boolean;
+  applications: boolean;
+  email_frequency: "immediate" | "daily" | "never";
+  quiet_hours_enabled: boolean;
+  quiet_hours_start: string;
+  quiet_hours_end: string;
+}

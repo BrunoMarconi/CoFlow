@@ -30,6 +30,12 @@ export function useUsers(params?: GetPublicUsersParams) {
   return {
     users: query.data?.pages.flat() ?? [],
     loading: query.isLoading,
+    error: query.isError
+      ? "No pudimos cargar las personas. Inténtalo de nuevo."
+      : "",
+    refetch: () => {
+      query.refetch();
+    },
     hasMore: Boolean(query.hasNextPage),
     loadingMore: query.isFetchingNextPage,
     loadMore: () => {

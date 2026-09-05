@@ -31,6 +31,7 @@ export default function EmptyState({
           : "flex flex-col items-center justify-center rounded-24 border border-border bg-surface p-7 text-center shadow-soft sm:p-10",
         className
       )}
+      aria-live="polite"
     >
       <div className="mb-4 flex h-24 w-32 items-center justify-center text-primary">
         {icon ? (

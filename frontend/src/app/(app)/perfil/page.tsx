@@ -12,7 +12,7 @@ import TrustSection from "@/components/perfil/TrustProfileCard";
 import YourProfileSection from "@/components/perfil/YourProfileSection";
 import RoommateSearchCard from "@/components/perfil/RoommateSearchCard";
 import DangerZoneSection from "@/components/perfil/DangerZoneSection";
-import Spinner from "@/components/ui/Spinner";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 import CompatibilityRadar, { CompatibilityRadarIcon } from "@/components/convivencia/CompatibilityRadar";
 import { getMyOnboarding } from "@/services/onboarding";
 import { getMyCompatibilityScore, getSavedProfiles } from "@/services/users";
@@ -78,11 +78,7 @@ export default function PerfilPage() {
   }, []);
 
   if (loading || !user || loadingAnswers) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Spinner />
-      </div>
-    );
+    return <PageSkeleton variant="profile" />;
   }
 
   const completion = computeProfileCompletion(user);
@@ -352,7 +348,7 @@ export default function PerfilPage() {
         </section>
       </div>
 
-      <section className="space-y-3 rounded-[28px] bg-surface p-4 shadow-sm sm:p-6">
+      <section id="confianza" className="scroll-mt-24 space-y-3 rounded-[28px] bg-surface p-4 shadow-sm sm:p-6">
         <h2 className="font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Detalles del perfil</h2>
 
         <YourProfileSection

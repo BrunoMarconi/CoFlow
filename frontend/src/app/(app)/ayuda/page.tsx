@@ -8,7 +8,6 @@ import {
   ChevronRight,
   CircleHelp,
   Clock3,
-  CreditCard,
   Headphones,
   Home,
   MessageSquare,
@@ -20,14 +19,13 @@ import {
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 
-type HelpTopic = "all" | "start" | "housing" | "messages" | "security" | "payments" | "problems";
+type HelpTopic = "all" | "start" | "housing" | "messages" | "security" | "problems";
 
 const topics: Array<{ key: Exclude<HelpTopic, "all">; title: string; description: string; icon: LucideIcon }> = [
   { key: "start", title: "Empezar en CoFlow", description: "Crea tu perfil, completa tus datos y da tus primeros pasos.", icon: Users },
   { key: "housing", title: "Comunidades y pisos", description: "Cómo funcionan las comunidades, solicitudes y viviendas.", icon: Home },
   { key: "messages", title: "Mensajes e invitaciones", description: "Resuelve dudas sobre mensajes, invitaciones y avisos.", icon: MessageSquare },
   { key: "security", title: "Cuenta y seguridad", description: "Gestiona tu cuenta, privacidad, verificación y seguridad.", icon: ShieldCheck },
-  { key: "payments", title: "Pagos y suscripciones", description: "Información sobre planes, pagos y métodos de cobro.", icon: CreditCard },
   { key: "problems", title: "Solución de problemas", description: "Encuentra soluciones a los problemas más comunes.", icon: Wrench },
 ];
 
@@ -37,7 +35,6 @@ const faqs = [
   { topic: "security", question: "¿Es seguro compartir mis datos en CoFlow?", answer: "Mostramos únicamente la información necesaria para ayudarte a encontrar personas compatibles. Puedes cambiar la visibilidad del perfil desde Privacidad." },
   { topic: "start", question: "¿Cómo puedo cambiar mis preferencias?", answer: "Entra en Perfil y abre Preferencias de vivienda. Desde ahí puedes actualizar ciudad, presupuesto y preferencias de convivencia." },
   { topic: "messages", question: "¿Cómo empiezo una conversación?", answer: "Cuando una conexión sea aceptada podrás escribirle desde Mensajes. Las conversaciones de comunidad aparecen en la misma bandeja." },
-  { topic: "payments", question: "¿Cómo se cobran las publicaciones?", answer: "Cada piso publicado tiene su propia cuota. Los propietarios pueden revisar la tarjeta guardada y el estado de cada suscripción desde Ajustes." },
   { topic: "problems", question: "No puedo enviar un mensaje, ¿qué hago?", answer: "Comprueba tu conexión y vuelve a intentarlo desde el propio mensaje. CoFlow conserva los mensajes que no hayan podido enviarse para que puedas reintentarlos." },
 ];
 

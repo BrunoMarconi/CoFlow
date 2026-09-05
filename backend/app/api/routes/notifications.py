@@ -10,12 +10,29 @@ from app.schemas.notification import (
     NotificationResponse,
     NotificationSnapshotResponse,
     UnreadNotificationCountResponse,
+    NotificationPreferences,
 )
 from app.services.notification_service import NotificationService
 
 router = APIRouter()
 
 notification_service = NotificationService()
+
+
+@router.get("/preferences", response_model=NotificationPreferences)
+def get_preferences(current_user: User = Depends(get_current_user)):
+    return NotificationPreferences.model_validate(current_user.notification_preferences or {})
+
+
+@router.put("/preferences", response_model=NotificationPreferences)
+def update_preferences(
+    data: NotificationPreferences,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    current_user.notification_preferences = data.model_dump()
+    db.commit()
+    return data
 
 
 @router.get(

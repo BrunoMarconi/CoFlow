@@ -149,7 +149,8 @@ function BottomNavLink({
 
         {showUnreadDot && (
           <span
-            aria-hidden="true"
+            aria-label="Hay mensajes sin leer"
+            role="status"
             className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary ring-2 ring-white/80"
           />
         )}

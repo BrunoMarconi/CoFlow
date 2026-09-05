@@ -27,6 +27,7 @@ if not logger.handlers:
     logger.propagate = False
 
 SUBJECT = "Confirma tu correo en CoFlow"
+PASSWORD_RESET_SUBJECT = "Restablece tu contraseña de CoFlow"
 
 
 def _mask_email(email: str) -> str:
@@ -40,6 +41,11 @@ def _mask_email(email: str) -> str:
 def build_verification_url(raw_token: str) -> str:
     base = FRONTEND_URL or "http://localhost:3000"
     return f"{base}/verificar-email?token={raw_token}"
+
+
+def build_password_reset_url(raw_token: str) -> str:
+    base = FRONTEND_URL or "http://localhost:3000"
+    return f"{base}/restablecer-password?token={raw_token}"
 
 
 def _logo_url() -> str:
@@ -151,3 +157,35 @@ def send_verification_email(
             "Fallo al enviar el email de verificación a %s",
             _mask_email(to_email),
         )
+
+
+def send_password_reset_email(
+    *, to_email: str, first_name: str, raw_token: str, expiry_minutes: int
+) -> None:
+    reset_url = build_password_reset_url(raw_token)
+    if EMAIL_DELIVERY_MODE == "console":
+        logger.info("password reset email queued (console mode) for %s", _mask_email(to_email))
+        return
+    if not RESEND_API_KEY:
+        logger.error("RESEND_API_KEY no está configurada para %s", _mask_email(to_email))
+        return
+
+    html = f"""\
+<!DOCTYPE html><html lang="es"><body style="margin:0;padding:0;background:#F5F7F3;font-family:Arial,Helvetica,sans-serif">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px"><tr><td align="center">
+<table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #E4E8E3;border-radius:20px;padding:36px">
+<tr><td align="center" style="padding-bottom:28px"><img src="{_logo_url()}" alt="CoFlow" height="36" /></td></tr>
+<tr><td style="color:#12382C;font-size:24px;font-weight:700;padding-bottom:12px">Crea una nueva contraseña</td></tr>
+<tr><td style="color:#59645F;font-size:15px;line-height:23px;padding-bottom:28px">Hola {first_name}. Usa este enlace para volver a acceder a tu cuenta. Si no lo solicitaste, no necesitas hacer nada.</td></tr>
+<tr><td align="center" style="padding-bottom:24px"><a href="{reset_url}" style="display:inline-block;background:#12382C;color:#fff;text-decoration:none;font-weight:700;padding:14px 28px;border-radius:14px">Restablecer contraseña</a></td></tr>
+<tr><td style="color:#7A847F;font-size:13px;line-height:20px">El enlace caduca en {expiry_minutes} minutos y solo puede utilizarse una vez.</td></tr>
+</table></td></tr></table></body></html>"""
+    text = (
+        f"Hola {first_name},\n\nRestablece tu contraseña de CoFlow:\n{reset_url}\n\n"
+        f"El enlace caduca en {expiry_minutes} minutos y solo puede usarse una vez."
+    )
+    try:
+        resend.api_key = RESEND_API_KEY
+        resend.Emails.send({"from": EMAIL_FROM, "to": [to_email], "subject": PASSWORD_RESET_SUBJECT, "html": html, "text": text})
+    except Exception:
+        logger.exception("Fallo al enviar el email de recuperación a %s", _mask_email(to_email))

@@ -71,7 +71,7 @@ export default function CommunityMembersList({
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2">
                     <span className="truncate text-sm font-semibold text-foreground">{name}{member.user_id === currentUserId ? " (tú)" : ""}</span>
-                    {member.user.is_email_verified ? <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-700" aria-label="Perfil verificado" /> : null}
+                    {member.user.is_email_verified ? <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-700" aria-label="Correo confirmado" /> : null}
                   </span>
                   <span className="mt-1 flex items-center gap-1.5 text-xs text-secondary">
                     {member.role === "OWNER" ? <><Crown className="h-3.5 w-3.5 text-primary" /> Administrador</> : `Miembro desde ${formatJoinedDate(member.joined_at)}`}

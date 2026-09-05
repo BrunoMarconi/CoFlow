@@ -64,7 +64,10 @@ export default function LoginPage() {
           <Input label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="tu@email.com" leftElement={<Mail className="h-5 w-5" />} autoComplete="email" required />
 
           <div>
-            <label htmlFor="login-password" className="mb-2 block text-sm font-semibold text-foreground">Contraseña</label>
+            <div className="mb-2 flex items-center justify-between">
+              <label htmlFor="login-password" className="text-sm font-semibold text-foreground">Contraseña</label>
+              <Link href="/recuperar-password" className="text-xs font-bold text-primary-dark hover:underline">¿La has olvidado?</Link>
+            </div>
             <div className="relative">
               <Input id="login-password" type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Tu contraseña" leftElement={<LockKeyhole className="h-5 w-5" />} autoComplete="current-password" required className="pr-12" />
               <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"} className="absolute right-3 top-0 flex h-11.5 w-10 items-center justify-center text-muted">
@@ -74,10 +77,6 @@ export default function LoginPage() {
           </div>
 
           {error && <p role="alert" className="rounded-14 border border-red-200 bg-surface px-4 py-3 text-sm font-semibold text-red-600">{error}</p>}
-
-          <div className="text-right">
-            <Link href="/ayuda" className="text-sm font-bold text-primary-dark">¿Necesitas ayuda para entrar?</Link>
-          </div>
 
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Iniciando sesión..." : "Iniciar sesión"}

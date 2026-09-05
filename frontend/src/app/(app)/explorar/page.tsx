@@ -14,7 +14,7 @@ import UserAvatar from "@/components/ui/UserAvatar";
 import MatchScoreBadge from "@/components/usuario/MatchScoreBadge";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import EmptyState from "@/components/ui/EmptyState";
-import Spinner from "@/components/ui/Spinner";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 import { cn } from "@/lib/utils";
 import { detailTransitionName } from "@/lib/detailTransitions";
 import {
@@ -41,15 +41,11 @@ export default function ExplorarPage() {
 
   const [segment, setSegment] = useState<Segment>("all");
 
-  const { users, loading: usersLoading } = useUsers();
-  const { communities, loading: communitiesLoading } = useCommunities();
+  const { users, loading: usersLoading, error: usersError, refetch: refetchUsers } = useUsers();
+  const { communities, loading: communitiesLoading, error: communitiesError, refetch: refetchCommunities } = useCommunities();
 
   if (loading || !user) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Spinner />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   const ctaHref = community ? "/perfil" : "/crear/comunidad";
@@ -156,6 +152,8 @@ export default function ExplorarPage() {
               title="Personas para conocer"
               viewAllHref="/usuarios"
               loading={usersLoading}
+              error={usersError}
+              onRetry={refetchUsers}
               isEmpty={users.length === 0}
               emptyMessage="Todavía no hay personas para mostrar."
               skeletonWidth="w-56"
@@ -177,6 +175,8 @@ export default function ExplorarPage() {
               title="Comunidades"
               viewAllHref="/comunidades"
               loading={communitiesLoading}
+              error={communitiesError}
+              onRetry={refetchCommunities}
               isEmpty={communities.length === 0}
               emptyMessage="Todavía no hay comunidades para mostrar."
               skeletonWidth="w-68"
@@ -230,6 +230,8 @@ function DiscoveryRow({
   title,
   viewAllHref,
   loading,
+  error,
+  onRetry,
   isEmpty,
   emptyMessage,
   skeletonWidth,
@@ -239,6 +241,8 @@ function DiscoveryRow({
   title: string;
   viewAllHref: string;
   loading: boolean;
+  error?: string;
+  onRetry?: () => void;
   isEmpty: boolean;
   emptyMessage: string;
   skeletonWidth: string;
@@ -271,6 +275,11 @@ function DiscoveryRow({
               />
             </div>
           ))}
+        </div>
+      ) : error ? (
+        <div className="mx-4 flex min-h-28 items-center justify-between gap-4 rounded-18 bg-[#f5f7f5] px-4 py-3 sm:mx-5">
+          <div><p className="text-sm font-bold text-brand-dark">No se pudo cargar</p><p className="mt-0.5 text-xs leading-5 text-secondary">{error}</p></div>
+          <button type="button" onClick={onRetry} className="min-h-10 shrink-0 rounded-full bg-white px-4 text-xs font-bold text-primary-dark shadow-soft">Reintentar</button>
         </div>
       ) : isEmpty ? (
         <div className="px-4 sm:px-5"><EmptyState title={emptyMessage} /></div>

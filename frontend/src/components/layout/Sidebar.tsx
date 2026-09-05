@@ -127,7 +127,7 @@ export default function Sidebar() {
         href="/"
         aria-label="Volver a la web de CoFlow"
         title="Volver a la web"
-        className="mb-2 flex h-7 w-7 items-center justify-center self-start rounded-8 text-muted/70 transition-colors duration-180 hover:bg-surface-soft hover:text-muted"
+        className="mb-2 flex h-11 w-11 items-center justify-center self-start rounded-12 text-muted/70 transition-colors duration-180 hover:bg-surface-soft hover:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
           <path d="M19 12H5M11 18l-6-6 6-6" />
@@ -215,7 +215,7 @@ export default function Sidebar() {
             onClick={logout}
             aria-label="Cerrar sesión"
             title="Cerrar sesión"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-10 text-muted transition duration-180 hover:bg-white hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-12 text-muted transition duration-180 hover:bg-white hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400"
           >
             <LogoutIcon />
           </button>

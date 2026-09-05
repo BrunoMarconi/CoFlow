@@ -1,5 +1,5 @@
 import { api } from "./api";
-import type { AppNotification, NotificationSnapshot } from "@/types/notification";
+import type { AppNotification, NotificationPreferences, NotificationSnapshot } from "@/types/notification";
 
 export interface GetNotificationsParams {
   skip?: number;
@@ -56,5 +56,15 @@ export async function markNotificationsForLinkRead(link: string) {
     "/notifications/read-by-link",
     { link }
   );
+  return data;
+}
+
+export async function getNotificationPreferences() {
+  const { data } = await api.get<NotificationPreferences>("/notifications/preferences");
+  return data;
+}
+
+export async function updateNotificationPreferences(preferences: NotificationPreferences) {
+  const { data } = await api.put<NotificationPreferences>("/notifications/preferences", preferences);
   return data;
 }

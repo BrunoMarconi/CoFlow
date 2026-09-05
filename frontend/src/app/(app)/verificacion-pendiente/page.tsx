@@ -61,16 +61,16 @@ export default function VerificacionPendientePage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[60vh] w-full max-w-md flex-col items-center justify-center px-4 text-center">
-      <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand">
-        Confirma tu correo
-      </p>
+    <div className="mx-auto flex min-h-[60vh] w-full max-w-lg flex-col items-center justify-center px-4 text-center">
+      <div className="w-full rounded-[28px] border border-black/[0.06] bg-[#fbfcfa] p-6 shadow-[0_18px_50px_rgba(20,42,32,.07)] sm:p-9">
+      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#e5f1ea] text-primary-dark"><MailIcon /></span>
+      <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.16em] text-brand">Confirma tu correo</p>
 
       <h1 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">
         Revisa tu bandeja de entrada
       </h1>
 
-      <p className="mt-4 text-sm leading-6 text-muted">
+      <p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-muted">
         Te hemos enviado un enlace de verificación a{" "}
         <span className="font-semibold text-foreground">
           {maskEmail(user.email)}
@@ -84,11 +84,13 @@ export default function VerificacionPendientePage() {
         </p>
       )}
 
+      <div className="mt-5 grid grid-cols-3 gap-2 text-left"><Step number="1" text="Abre tu correo" /><Step number="2" text="Pulsa el enlace" /><Step number="3" text="Vuelve a CoFlow" /></div>
+
       <button
         type="button"
         onClick={handleResend}
         disabled={sending || cooldown > 0}
-        className="mt-6 flex h-12 w-full items-center justify-center rounded-18 bg-brand text-sm font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-6 flex h-12 w-full items-center justify-center rounded-full bg-brand-dark text-sm font-bold text-white shadow-[0_8px_20px_rgba(20,55,41,.16)] transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
       >
         {cooldown > 0
           ? `Reenviar correo (${cooldown}s)`
@@ -109,6 +111,11 @@ export default function VerificacionPendientePage() {
           Volver al login
         </button>
       </div>
+      <p className="mt-6 border-t border-black/[0.06] pt-4 text-[11px] leading-5 text-muted">Confirmar el correo demuestra que controlas esa dirección. No es una verificación documental de identidad.</p>
+      </div>
     </div>
   );
 }
+
+function Step({ number, text }: { number: string; text: string }) { return <div className="rounded-[14px] bg-white p-3"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#e8eeea] text-[10px] font-bold text-primary-dark">{number}</span><p className="mt-2 text-[10px] font-semibold leading-4 text-secondary">{text}</p></div>; }
+function MailIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>; }

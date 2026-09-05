@@ -39,13 +39,15 @@ export default function Navbar() {
         </div>
 
         {user && (
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center rounded-full border border-black/[0.055] bg-surface/92 p-1 shadow-[0_8px_28px_rgba(20,42,32,.07)] backdrop-blur-xl">
             <NotificationBell />
+
+            <span className="mx-0.5 h-5 w-px bg-black/[0.07]" aria-hidden="true" />
 
             <Link
               href={isOwnerMode ? "/propietarios/perfil" : "/perfil"}
               aria-label={showProfileProgress ? `Abrir perfil, completado al ${profileCompletion}%` : "Abrir perfil"}
-              className="group flex h-11 items-center gap-2 rounded-full bg-surface/90 p-1 pr-1 shadow-soft backdrop-blur-xl"
+              className="group flex h-11 items-center gap-2 rounded-full p-1 transition-colors hover:bg-surface-soft"
             >
               {showProfileProgress && <span className="pl-2 text-[11px] font-semibold tabular-nums text-primary-dark">{profileCompletion}%</span>}
               <span className="relative flex h-10 w-10 shrink-0 items-center justify-center">

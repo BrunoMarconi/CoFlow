@@ -2,99 +2,38 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { Eye, Mail, Phone, ShieldCheck } from "lucide-react";
 import { MOTION_DURATION, MOTION_EASE, MOTION_HOME_TAP_SCALE } from "@/lib/motionTokens";
 import type { User } from "@/types/auth";
 
 export default function TrustSection({ user }: { user: User }) {
-  const emailVerified = user.is_email_verified;
-
   return (
-    <div className="grid grid-cols-1 gap-3">
-      <EmailCard verified={emailVerified} email={user.email} />
+    <div>
+      <div className="grid gap-2 sm:grid-cols-3">
+        <TrustItem href={user.is_email_verified ? undefined : "/verificacion-pendiente"} icon={<Mail />} title="Correo electrónico" value={user.is_email_verified ? "Confirmado" : "Pendiente de confirmar"} tone={user.is_email_verified ? "positive" : "pending"} />
+        <TrustItem href="/perfil/editar" icon={<Phone />} title="Teléfono" value={user.phone ? "Añadido al perfil" : "Sin añadir"} tone={user.phone ? "neutral" : "pending"} />
+        <TrustItem href="/ajustes/privacidad" icon={<Eye />} title="Visibilidad" value={user.profile_visibility === "PUBLIC" ? "Visible en CoFlow" : "Solo conexiones"} tone="neutral" />
+      </div>
+
+      <div className="mt-3 flex items-start gap-3 rounded-[18px] border border-black/[0.06] bg-[#f3f6f4] p-4">
+        <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+        <div>
+          <p className="text-xs font-bold text-brand-dark">Qué significa la verificación actual</p>
+          <p className="mt-1 text-xs leading-5 text-secondary">CoFlow confirma que la persona controla su dirección de correo. No supone una verificación documental de identidad ni garantiza el comportamiento de un usuario.</p>
+          <Link href="/legal/normas-comunidad" className="mt-2 inline-flex text-xs font-bold text-primary-dark underline underline-offset-3">Consulta las normas de seguridad</Link>
+        </div>
+      </div>
     </div>
   );
 }
 
-function EmailCard({ verified, email }: { verified: boolean; email: string }) {
+function TrustItem({ href, icon, title, value, tone }: { href?: string; icon: React.ReactNode; title: string; value: string; tone: "positive" | "pending" | "neutral" }) {
   const content = (
-    <motion.div
-      whileTap={verified ? undefined : { scale: MOTION_HOME_TAP_SCALE }}
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-      className="h-full rounded-18 border border-border/60 bg-surface p-4 transition-colors duration-180 hover:border-primary/25"
-    >
-      <div className="flex items-start justify-between gap-2">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-14 bg-surface text-primary">
-          <MailIcon />
-        </span>
-
-        <span
-          className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
-            verified
-              ? "bg-primary text-white"
-              : "bg-flat text-muted"
-          }`}
-        >
-          {verified ? "Verificado" : "Pendiente"}
-        </span>
-      </div>
-
-      <p className="mt-3 text-sm font-bold text-brand-dark">Email verificado</p>
-      <p className="mt-1 truncate text-xs leading-5 text-muted">{email}</p>
-
-      {!verified && (
-        <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-primary-dark">
-          Verificar ahora
-          <ChevronIcon className="h-3.5 w-3.5" />
-        </span>
-      )}
+    <motion.div whileTap={href ? { scale: MOTION_HOME_TAP_SCALE } : undefined} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }} className="flex min-h-20 items-center gap-3 rounded-[16px] border border-black/[0.06] bg-[#fbfcfa] p-3.5 transition hover:bg-[#f5f7f4]">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e8eeea] text-primary-dark [&>svg]:h-4.5 [&>svg]:w-4.5">{icon}</span>
+      <span className="min-w-0 flex-1"><span className="block text-xs font-bold text-brand-dark">{title}</span><span className={`mt-0.5 block truncate text-[11px] font-semibold ${tone === "positive" ? "text-emerald-700" : tone === "pending" ? "text-amber-700" : "text-secondary"}`}>{value}</span></span>
+      {href && <span className="text-muted" aria-hidden="true">›</span>}
     </motion.div>
   );
-
-  if (verified) return content;
-
-  return (
-    <Link
-      href="/verificacion-pendiente"
-      className="block h-full rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-    >
-      {content}
-    </Link>
-  );
-}
-
-function MailIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4.5 w-4.5"
-      aria-hidden="true"
-    >
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="m3 7 9 6 9-6" />
-    </svg>
-  );
-}
-
-function ChevronIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="m9 6 6 6-6 6" />
-    </svg>
-  );
+  return href ? <Link href={href} className="rounded-[16px]">{content}</Link> : content;
 }

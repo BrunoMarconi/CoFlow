@@ -3,36 +3,29 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { Bell, CheckCircle2, ChevronDown, ChevronRight, CircleHelp, CreditCard, Home, KeyRound, LockKeyhole, LoaderCircle, LogOut, UserRound, TriangleAlert } from "lucide-react";
+import { Bell, CheckCircle2, ChevronDown, ChevronRight, CircleHelp, Home, KeyRound, LockKeyhole, LoaderCircle, LogOut, MonitorSmartphone, ShieldCheck, Smartphone, UserRound, TriangleAlert } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { stripePromise } from "@/lib/stripe";
+import { useOwnerMode } from "@/hooks/useOwnerMode";
 import { clearToken } from "@/lib/auth";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import SecondaryButton from "@/components/ui/SecondaryButton";
-import StatusBadge from "@/components/ui/StatusBadge";
 import BottomSheet from "@/components/ui/BottomSheet";
-import { changePassword, deleteAccount } from "@/services/auth";
-import {
-  confirmPaymentMethod,
-  createSetupIntent,
-  getPaymentMethodSummary,
-  type PaymentMethodSummary,
-} from "@/services/billing";
-import { getMyProperties } from "@/services/properties";
-import type { PropertySummary, PropertySubscriptionStatus } from "@/types/property";
+import { changePassword, closeAuthSession, closeOtherAuthSessions, deleteAccount, getAuthSessions } from "@/services/auth";
+import type { AuthSession } from "@/types/auth";
 
 export default function AjustesPage() {
   const { user, logout } = useAuth();
+  const { isOwnerMode } = useOwnerMode();
 
   return (
     <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] space-y-4 px-6 py-6 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-5xl sm:rounded-[32px] sm:p-7 lg:p-8">
       <header className="px-1 pb-2">
-        <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary">Tu espacio</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary">{isOwnerMode ? "Espacio de propietario" : "Tu espacio"}</p>
         <h1 className="mt-0.5 font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">
-          Ajustes
+          {isOwnerMode ? "Ajustes de propietario" : "Ajustes"}
         </h1>
+        <p className="mt-2 max-w-xl text-sm leading-6 text-secondary">{isOwnerMode ? "Gestiona la identidad, seguridad y operativa de tu actividad en CoFlow." : "Gestiona tu cuenta, privacidad y preferencias."}</p>
       </header>
 
       {user && (
@@ -44,33 +37,130 @@ export default function AjustesPage() {
               <p className="font-rounded text-xl font-semibold tracking-[-0.02em]">{user.first_name} {user.last_name}</p>
               <p className="mt-0.5 truncate text-sm text-white/60">{user.email}</p>
             </div>
-            <span className="hidden items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/80 sm:flex"><CheckCircle2 className="h-3.5 w-3.5" /> Sesión activa</span>
+            <span className="hidden items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/80 sm:flex"><CheckCircle2 className="h-3.5 w-3.5" /> {isOwnerMode ? "Modo propietario" : "Sesión activa"}</span>
           </div>
         </section>
       )}
 
       <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-4">
-          <SettingsGroup title="Cuenta y preferencias">
-            <SettingsLink href="/perfil/editar" icon={<UserRound />} title="Información personal" subtitle="Nombre, biografía y datos de contacto" />
-            <SettingsLink href="/perfil/preferencias" icon={<Home />} title="Preferencias de vivienda" subtitle="Presupuesto, hábitos y convivencia ideal" />
-            <SettingsLink href="/notificaciones" icon={<Bell />} title="Notificaciones" subtitle="Actividad, mensajes y avisos" />
+          <SettingsGroup title={isOwnerMode ? "Actividad de propietario" : "Cuenta y preferencias"}>
+            {isOwnerMode ? (
+              <>
+                <SettingsLink href="/propietarios/perfil" icon={<UserRound />} title="Perfil profesional" subtitle="Identidad, contacto y datos fiscales" />
+                <SettingsLink href="/propietarios/pisos" icon={<Home />} title="Cartera de viviendas" subtitle="Anuncios, estados y disponibilidad" />
+              </>
+            ) : (
+              <>
+                <SettingsLink href="/perfil/editar" icon={<UserRound />} title="Información personal" subtitle="Nombre, biografía y datos de contacto" />
+                <SettingsLink href="/perfil/preferencias" icon={<Home />} title="Preferencias de vivienda" subtitle="Presupuesto, hábitos y convivencia ideal" />
+              </>
+            )}
+            {user && <SettingsLink href={user.is_email_verified ? (isOwnerMode ? "/propietarios/perfil" : "/perfil#confianza") : "/verificacion-pendiente"} icon={<ShieldCheck />} title="Verificación y confianza" subtitle={user.is_email_verified ? "Correo confirmado · revisar señales" : "Confirma tu dirección de correo"} />}
+            <SettingsLink href="/ajustes/notificaciones" icon={<Bell />} title="Notificaciones" subtitle="Categorías, correo y horario silencioso" />
             <SettingsLink href="/ajustes/privacidad" icon={<LockKeyhole />} title="Privacidad" subtitle="Visibilidad del perfil y personas bloqueadas" />
           </SettingsGroup>
 
           <SettingsGroup title="Soporte">
-            <SettingsLink href="/ayuda" icon={<CircleHelp />} title="Centro de ayuda" subtitle="Preguntas frecuentes y contacto" />
+            <SettingsLink href={isOwnerMode ? "/propietarios/ayuda" : "/ayuda"} icon={<CircleHelp />} title={isOwnerMode ? "Ayuda para propietarios" : "Centro de ayuda"} subtitle={isOwnerMode ? "Publicación, gestión y funcionamiento" : "Preguntas frecuentes y contacto"} />
           </SettingsGroup>
         </div>
 
         <div className="space-y-4">
+          <SecuritySessionsSection />
           <PasswordSection />
-          <BillingSection />
+          {isOwnerMode && <FreeServiceCard />}
           <DangerSection onLogout={logout} />
         </div>
       </div>
     </div>
   );
+}
+
+function SecuritySessionsSection() {
+  const [sessions, setSessions] = useState<AuthSession[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [workingId, setWorkingId] = useState<string | null>(null);
+  const [error, setError] = useState("");
+
+  async function load() {
+    setError("");
+    try {
+      setSessions(await getAuthSessions());
+    } catch {
+      setError("No pudimos cargar tus sesiones.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    let active = true;
+    getAuthSessions()
+      .then((items) => { if (active) setSessions(items); })
+      .catch(() => { if (active) setError("No pudimos cargar tus sesiones."); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  async function closeOne(id: string) {
+    setWorkingId(id);
+    setError("");
+    try {
+      await closeAuthSession(id);
+      setSessions((current) => current.filter((item) => item.id !== id));
+    } catch {
+      setError("No pudimos cerrar esa sesión.");
+    } finally {
+      setWorkingId(null);
+    }
+  }
+
+  async function closeOthers() {
+    setWorkingId("others");
+    setError("");
+    try {
+      await closeOtherAuthSessions();
+      setSessions((current) => current.filter((item) => item.is_current));
+    } catch {
+      setError("No pudimos cerrar las demás sesiones.");
+    } finally {
+      setWorkingId(null);
+    }
+  }
+
+  const otherCount = sessions.filter((item) => !item.is_current).length;
+  return (
+    <SectionCard title="Sesiones y dispositivos">
+      <p className="text-sm leading-6 text-secondary">Revisa dónde está abierta tu cuenta y cierra cualquier acceso que no reconozcas.</p>
+      {loading ? (
+        <div className="mt-4 space-y-2" aria-label="Cargando sesiones" aria-busy="true">{[0, 1].map((item) => <div key={item} className="h-16 animate-pulse rounded-16 bg-surface-soft" />)}</div>
+      ) : error && sessions.length === 0 ? (
+        <div className="mt-4 flex items-center justify-between gap-3 rounded-16 bg-surface-soft p-4"><p role="alert" className="text-sm font-semibold text-secondary">{error}</p><button type="button" onClick={() => void load()} className="min-h-11 rounded-full px-3 text-xs font-bold text-primary-dark">Reintentar</button></div>
+      ) : (
+        <div className="mt-4 space-y-2">
+          {sessions.map((session) => (
+            <div key={session.id} className="flex items-center gap-3 rounded-16 bg-surface-soft p-3.5">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface text-primary shadow-soft">{session.device_label === "iPhone" || session.device_label === "Android" ? <Smartphone className="h-5 w-5" /> : <MonitorSmartphone className="h-5 w-5" />}</span>
+              <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="text-sm font-bold text-foreground">{session.device_label}</p>{session.is_current && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary-dark">Este dispositivo</span>}</div><p className="mt-0.5 text-xs text-muted">{session.browser_label} · {formatSessionActivity(session.last_active_at)}</p></div>
+              {!session.is_current && <button type="button" disabled={workingId === session.id} onClick={() => void closeOne(session.id)} className="min-h-11 shrink-0 rounded-full px-3 text-xs font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-50">{workingId === session.id ? "Cerrando…" : "Cerrar"}</button>}
+            </div>
+          ))}
+        </div>
+      )}
+      {error && sessions.length > 0 && <p role="alert" className="mt-3 text-sm font-semibold text-red-600">{error}</p>}
+      {otherCount > 0 && <SecondaryButton onClick={() => void closeOthers()} disabled={workingId !== null} className="mt-4 w-full">{workingId === "others" ? "Cerrando sesiones…" : `Cerrar las demás sesiones (${otherCount})`}</SecondaryButton>}
+    </SectionCard>
+  );
+}
+
+function formatSessionActivity(value: string) {
+  const date = new Date(value);
+  const minutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60_000));
+  if (minutes < 2) return "activa ahora";
+  if (minutes < 60) return `hace ${minutes} min`;
+  if (minutes < 1_440) return `hace ${Math.floor(minutes / 60)} h`;
+  return new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short" }).format(date);
 }
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
@@ -208,161 +298,20 @@ function PasswordSection() {
   );
 }
 
-function BillingSection() {
-  const { ownerProfile, ownerProfileLoading } = useAuth();
-
-  const [summary, setSummary] = useState<PaymentMethodSummary | null>(null);
-  const [properties, setProperties] = useState<PropertySummary[] | null>(null);
-  const [editingCard, setEditingCard] = useState(false);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!ownerProfile) return;
-    getPaymentMethodSummary().then(setSummary).catch(() => setSummary(null));
-    getMyProperties().then(setProperties).catch(() => setProperties([]));
-  }, [ownerProfile]);
-
-  useEffect(() => {
-    if (editingCard && !clientSecret) {
-      createSetupIntent().then((data) => setClientSecret(data.client_secret));
-    }
-  }, [editingCard, clientSecret]);
-
-  if (ownerProfileLoading) return null;
-  if (!ownerProfile) return null;
-
-  async function handleCardSaved() {
-    const updated = await getPaymentMethodSummary();
-    setSummary(updated);
-    setEditingCard(false);
-    setClientSecret(null);
-  }
-
+function FreeServiceCard() {
   return (
-    <SectionCard title="Métodos de pago">
-      <p className="text-sm leading-6 text-muted">
-        Cada piso publicado tiene su propia cuota de 23,99 €/mes, cobrada por separado.
-      </p>
-
-      <div className="mt-4 flex items-center gap-3 rounded-18 bg-surface-soft p-4">
+    <SectionCard title="CoFlow es gratuito">
+      <div className="flex items-start gap-3 rounded-18 bg-mint-50 p-4">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface text-primary shadow-soft">
-          <CreditCard className="h-5 w-5" />
+          <CheckCircle2 className="h-5 w-5" />
         </span>
-        <div className="min-w-0 flex-1">
-          {summary === null ? (
-            <p className="text-sm text-muted">Cargando…</p>
-          ) : summary.has_payment_method ? (
-            <p className="text-sm font-bold text-foreground">
-              {summary.card_brand ? capitalize(summary.card_brand) : "Tarjeta"} terminada en {summary.card_last4}
-            </p>
-          ) : (
-            <p className="text-sm font-bold text-foreground">Sin tarjeta guardada</p>
-          )}
+        <div>
+          <p className="text-sm font-bold text-brand-dark">Publica y gestiona sin coste</p>
+          <p className="mt-1 text-sm leading-6 text-secondary">No necesitas tarjeta, no existen cuotas y no se activa ninguna renovación automática.</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setEditingCard((value) => !value)}
-          className="min-h-11 rounded-full px-3 text-sm font-bold text-primary-dark transition-colors duration-180 hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-        >
-          {summary?.has_payment_method ? "Cambiar" : "Añadir"}
-        </button>
       </div>
-
-      {editingCard && (
-        <div className="mt-4">
-          {clientSecret ? (
-            <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <UpdateCardForm onSaved={handleCardSaved} />
-            </Elements>
-          ) : (
-            <div className="flex items-center gap-3 text-sm text-muted">
-              <LoaderCircle className="h-4 w-4 animate-spin" />
-              Preparando el formulario de pago…
-            </div>
-          )}
-        </div>
-      )}
-
-      {properties && properties.length > 0 && (
-        <div className="mt-5 space-y-2">
-          <h3 className="text-sm font-bold text-secondary">Cuotas por piso</h3>
-          {properties.map((property) => (
-            <div
-              key={property.id}
-              className="flex items-center justify-between gap-3 rounded-14 bg-surface-soft px-4 py-3"
-            >
-              <span className="min-w-0 truncate text-sm font-semibold text-foreground">
-                {property.title}
-              </span>
-              <SubscriptionBadge status={property.subscription_status} />
-            </div>
-          ))}
-        </div>
-      )}
     </SectionCard>
   );
-}
-
-function UpdateCardForm({ onSaved }: { onSaved: () => void | Promise<void> }) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError("");
-
-    if (!stripe || !elements) return;
-
-    setSaving(true);
-    try {
-      const { error: confirmError, setupIntent } = await stripe.confirmSetup({
-        elements,
-        redirect: "if_required",
-      });
-
-      if (confirmError || !setupIntent?.payment_method) {
-        setError(confirmError?.message ?? "No hemos podido guardar la tarjeta.");
-        return;
-      }
-
-      await confirmPaymentMethod(setupIntent.payment_method as string);
-      await onSaved();
-    } catch {
-      setError("No hemos podido guardar la tarjeta. Inténtalo de nuevo.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  return (
-    <form onSubmit={submit} className="space-y-3">
-      <div className="rounded-14 border border-border bg-surface p-4">
-        <PaymentElement />
-      </div>
-      {error && <p role="alert" className="text-sm font-semibold text-red-600">{error}</p>}
-      <Button type="submit" disabled={saving}>
-        {saving ? "Guardando..." : "Guardar tarjeta"}
-      </Button>
-    </form>
-  );
-}
-
-function SubscriptionBadge({ status }: { status: PropertySubscriptionStatus }) {
-  const map: Record<PropertySubscriptionStatus, { label: string; variant: "success" | "warning" | "info" | "neutral" }> = {
-    NONE: { label: "Sin suscripción", variant: "neutral" },
-    TRIALING: { label: "En prueba", variant: "info" },
-    ACTIVE: { label: "Activa", variant: "success" },
-    PAST_DUE: { label: "Pago pendiente", variant: "warning" },
-    CANCELED: { label: "Cancelada", variant: "neutral" },
-  };
-  const { label, variant } = map[status];
-  return <StatusBadge variant={variant}>{label}</StatusBadge>;
-}
-
-function capitalize(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function DangerSection({ onLogout }: { onLogout: () => void }) {

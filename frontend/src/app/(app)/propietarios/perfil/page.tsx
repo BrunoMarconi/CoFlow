@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import Spinner from "@/components/ui/Spinner";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 import OwnerProfileForm, {
   type OwnerProfileFormValues,
 } from "@/components/propietario/OwnerProfileForm";
@@ -101,11 +101,7 @@ export default function OwnerProfilePage() {
   }
 
   if (ownerProfileLoading) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <Spinner />
-      </div>
-    );
+    return <PageSkeleton variant="profile" />;
   }
 
   if (!ownerProfile) {

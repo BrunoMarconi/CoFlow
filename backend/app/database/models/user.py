@@ -43,6 +43,11 @@ class User(Base):
         Text,
         nullable=True
     )
+    auth_version: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
     # Identificador estable de Google (claim "sub" del id_token) —
     # nunca el email, que en teoría podría cambiar de titular. Único
     # por cuenta de Google, nulo para quien nunca inició sesión así.
@@ -152,6 +157,22 @@ class User(Base):
     marketing_consent_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
+    )
+    notification_preferences: Mapped[dict] = mapped_column(
+        JSON,
+        nullable=False,
+        default=lambda: {
+            "in_app_enabled": True,
+            "email_enabled": True,
+            "messages": True,
+            "connections": True,
+            "communities": True,
+            "applications": True,
+            "email_frequency": "immediate",
+            "quiet_hours_enabled": False,
+            "quiet_hours_start": "22:00",
+            "quiet_hours_end": "08:00",
+        },
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

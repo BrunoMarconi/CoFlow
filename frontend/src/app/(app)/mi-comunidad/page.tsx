@@ -7,7 +7,7 @@ import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { MOTION_SPRING } from "@/lib/motionTokens";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
-import Spinner from "@/components/ui/Spinner";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 import CommunityCover from "@/components/ui/CommunityCover";
 import UserAvatar from "@/components/ui/UserAvatar";
 import CommunityChat from "@/components/comunidad/CommunityChat";
@@ -97,11 +97,7 @@ export default function MiComunidadPage() {
   }
 
   if (communityLoading) {
-    return (
-      <div className="flex min-h-[60dvh] items-center justify-center">
-        <Spinner />
-      </div>
-    );
+    return <PageSkeleton variant="community" />;
   }
 
   if (!community || !user) {

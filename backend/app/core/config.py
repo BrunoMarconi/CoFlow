@@ -156,6 +156,12 @@ EMAIL_VERIFICATION_TEST_MODE = (
     os.getenv("EMAIL_VERIFICATION_TEST_MODE", "false").lower() == "true"
 )
 
+_PASSWORD_RESET_EXPIRY_RAW = os.getenv("PASSWORD_RESET_EXPIRY_MINUTES", "30")
+try:
+    PASSWORD_RESET_EXPIRY_MINUTES = int(_PASSWORD_RESET_EXPIRY_RAW)
+except ValueError:
+    PASSWORD_RESET_EXPIRY_MINUTES = 30
+
 # --- Stripe (suscripción de propietarios) ------------------------------
 # Cada piso publicado genera su propia Subscription de Stripe (30 días
 # de prueba gratuita desde que el piso pasa a READY, luego

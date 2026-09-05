@@ -18,15 +18,18 @@ if not SECRET_KEY or not ALGORITHM or not _ACCESS_TOKEN_EXPIRE_MINUTES_RAW:
 ACCESS_TOKEN_EXPIRE_MINUTES = int(_ACCESS_TOKEN_EXPIRE_MINUTES_RAW)
 
 
-def create_access_token(user_id: str):
+def create_access_token(user_id: str, auth_version: int = 0, session_id: str | None = None):
     expire = datetime.now(timezone.utc) + timedelta(
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
     payload = {
         "sub": user_id,
+        "ver": auth_version,
         "exp": expire
     }
+    if session_id:
+        payload["sid"] = session_id
 
     return jwt.encode(
         payload,

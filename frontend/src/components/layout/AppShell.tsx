@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { NAV_TRANSITION } from "@/lib/navTransition";
 import OwnerModeTransition from "@/components/layout/OwnerModeTransition";
 import OwnerModeToggle from "@/components/propietario/OwnerModeToggle";
+import ConnectivityStatus from "@/components/layout/ConnectivityStatus";
 import {
   MOTION_EASE,
   MOTION_EXPLORER_NAV_DISTANCE_DESKTOP,
@@ -219,12 +220,22 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-background">
+      {!hidesAppChrome && (
+        <a
+          href="#main-content"
+          className="fixed left-4 top-3 z-[9999] -translate-y-20 rounded-full bg-brand-dark px-4 py-3 text-sm font-bold text-white shadow-xl transition-transform focus:translate-y-0"
+        >
+          Saltar al contenido
+        </a>
+      )}
       {!hidesAppChrome && <Navbar />}
 
       <div className="flex w-full">
         {!hidesAppChrome && <Sidebar />}
 
         <main
+          id="main-content"
+          tabIndex={-1}
           className={cn(
             // overflow-x-hidden aquí rompería position: sticky en todo
             // lo que cuelgue de esta rama (buscadores, tabs...) — el
@@ -267,6 +278,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       {!hidesAppChrome && <BottomNavigation />}
       {!hidesAppChrome && pathname === "/perfil" && <OwnerModeToggle />}
       <Toaster />
+      <ConnectivityStatus />
       {transitionTarget && (
         <OwnerModeTransition
           target={transitionTarget}

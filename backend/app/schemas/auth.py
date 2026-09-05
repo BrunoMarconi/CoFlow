@@ -1,5 +1,6 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
@@ -98,6 +99,24 @@ class ResendVerificationRequest(BaseModel):
     email: EmailStr
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(min_length=1)
+    new_password: str = Field(min_length=8, max_length=128)
+
+
 class GenericMessageResponse(BaseModel):
     message: str
     debug_token: str | None = None
+
+
+class AuthSessionResponse(BaseModel):
+    id: UUID
+    device_label: str
+    browser_label: str
+    created_at: datetime
+    last_active_at: datetime
+    is_current: bool = False
