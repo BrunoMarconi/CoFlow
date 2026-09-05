@@ -123,14 +123,7 @@ export default function NotificationBell() {
   function handleTap() {
     const willOpen = !open;
     setOpen(willOpen);
-
-    if (willOpen && !isOwnerMode) {
-      setError("");
-      void markAllNotificationsAsRead()
-        .catch(() => {
-          setError("No pudimos actualizar tus notificaciones.");
-        });
-    }
+    if (willOpen) setError("");
 
     if (!prefersReducedMotion) {
       bellControls.start(BELL_SHAKE, {
@@ -228,8 +221,8 @@ export default function NotificationBell() {
             onClick={() => handleOpenNotification(notification)}
             whileTap={{ scale: 0.985 }}
             transition={{ duration: MOTION_DURATION.fast }}
-            className={`flex w-full flex-col items-start gap-1 border-b border-border px-4 py-3 text-left transition-colors duration-300 hover:bg-surface-soft ${
-              notification.is_read ? "bg-transparent" : "bg-[#f7f7f7]"
+            className={`relative flex w-full flex-col items-start gap-1 border-b border-black/[0.055] px-4 py-3.5 pr-8 text-left transition-colors duration-300 hover:bg-[#f3f6f3] ${
+              notification.is_read ? "bg-transparent" : "bg-[#f2f7f4]"
             }`}
           >
             <div className="flex w-full items-start justify-between gap-2">
@@ -248,7 +241,7 @@ export default function NotificationBell() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.5 }}
                     transition={{ duration: MOTION_DURATION.fast }}
-                    className="mt-1 h-2 w-2 shrink-0 rounded-full bg-black"
+                    className="absolute right-4 top-1/2 h-2 w-2 shrink-0 -translate-y-1/2 rounded-full bg-primary"
                   />
                 )}
               </AnimatePresence>
@@ -304,7 +297,7 @@ export default function NotificationBell() {
           willChange: "transform",
           transformOrigin: isDesktop ? "top right" : undefined,
         }}
-        className="fixed inset-x-0 bottom-0 z-(--z-modal) max-h-[75dvh] overflow-hidden rounded-t-24 border border-border bg-surface shadow-2xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-[calc(var(--safe-top)+4.5rem)] sm:w-96 sm:rounded-18 sm:shadow-soft"
+        className="fixed inset-x-0 bottom-0 z-(--z-modal) max-h-[75dvh] overflow-hidden rounded-t-[24px] border border-black/[0.06] bg-[#fbfcfa] shadow-2xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-[calc(var(--safe-top)+4.5rem)] sm:w-96 sm:rounded-[20px] sm:shadow-[0_18px_55px_rgba(20,42,32,.16)]"
       >
         {!isDesktop && (
           <div className="flex shrink-0 justify-center pb-1 pt-2.5">
@@ -373,7 +366,7 @@ export default function NotificationBell() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.7 }}
               transition={MOTION_SPRING.snappy}
-              className="absolute right-1 top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-white ring-2 ring-white"
+              className="absolute right-1 top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white ring-2 ring-white"
             >
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.span

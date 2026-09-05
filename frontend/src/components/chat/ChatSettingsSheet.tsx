@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import Image from "next/image";
 import { AnimatePresence } from "framer-motion";
 import BottomSheet from "@/components/ui/BottomSheet";
 import ImageLightbox from "@/components/chat/ImageLightbox";
@@ -163,9 +164,9 @@ export default function ChatSettingsSheet({
                           key={`${image.url}-${index}`}
                           type="button"
                           onClick={() => setLightboxUrl(image.url)}
-                          className="aspect-square overflow-hidden rounded-10"
+                          className="relative aspect-square overflow-hidden rounded-10 bg-surface-soft"
                         >
-                          <img src={image.url} alt="" className="h-full w-full object-cover" loading="lazy" />
+                          <Image src={image.url} alt="Foto compartida" fill unoptimized sizes="33vw" className="object-cover transition-transform duration-200 hover:scale-[1.03]" />
                         </button>
                       ))}
                     </div>

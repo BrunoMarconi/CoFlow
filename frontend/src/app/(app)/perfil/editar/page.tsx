@@ -1,12 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import EditProfileForm from "@/components/perfil/EditProfileForm";
 import AvatarUploader from "@/components/perfil/AvatarUploader";
 import Avatar from "@/components/ui/Avatar";
 import Spinner from "@/components/ui/Spinner";
 import { updateProfile } from "@/services/users";
+import { computeProfileCompletion } from "@/lib/profileCompletion";
 import type { UpdateProfileRequest } from "@/types/user";
 
 export default function EditarPerfilPage() {
@@ -23,8 +25,8 @@ export default function EditarPerfilPage() {
   const completion = computeProfileCompletion(user);
 
   return (
-    <div className="mx-auto max-w-2xl pb-4">
-      <header className="flex items-center gap-4">
+    <div className="mx-auto max-w-4xl pb-8">
+      <header className="flex items-center gap-4 border-b border-black/[0.07] pb-5">
         <button
           type="button"
           onClick={() => router.back()}
@@ -33,14 +35,14 @@ export default function EditarPerfilPage() {
         >
           <ArrowLeftIcon />
         </button>
-        <h1 className="text-3xl font-bold tracking-tight text-brand-dark">
+        <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6a756f]">Tu identidad</p><h1 className="mt-1 text-[34px] font-semibold tracking-[-0.05em] text-[#17392c]">
           Editar perfil
-        </h1>
+        </h1></div>
       </header>
 
-      <section className="mt-6 rounded-24 border border-border bg-surface p-5 shadow-soft sm:p-6">
+      <section className="mt-6 overflow-hidden rounded-[26px] bg-[#183c2d] p-5 text-white shadow-[0_22px_55px_rgba(24,60,45,.15)] sm:p-7">
         <div className="flex items-center gap-5">
-          <div className="relative shrink-0 rounded-full border-4 border-white shadow-soft">
+          <div className="relative shrink-0 rounded-full border-4 border-white/20 shadow-[0_10px_28px_rgba(0,0,0,.16)]">
             <Avatar
               name={`${user.first_name} ${user.last_name}`}
               imageUrl={user.avatar_url}
@@ -56,35 +58,27 @@ export default function EditarPerfilPage() {
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h2 className="truncate text-2xl font-bold text-brand-dark">
-                {user.first_name}
+              <h2 className="truncate text-2xl font-semibold tracking-[-0.03em] text-white">
+                {user.first_name} {user.last_name}
               </h2>
               {user.is_email_verified && <VerifiedIcon />}
             </div>
-            <p className="mt-4 text-sm font-semibold text-secondary">
-              Perfil completado <span className="text-primary">{completion}%</span>
+            <p className="mt-3 text-xs font-medium text-white/60">
+              Perfil completado <span className="font-semibold text-white">{completion}%</span>
             </p>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-soft">
-              <div className="h-full rounded-full bg-primary" style={{ width: `${completion}%` }} />
+            <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/15">
+              <div className="h-full rounded-full bg-white" style={{ width: `${completion}%` }} />
             </div>
+            <Link href={`/personas/${user.id}`} className="mt-4 inline-flex min-h-10 items-center text-xs font-semibold text-white underline decoration-white/25 underline-offset-4">Ver perfil público</Link>
           </div>
         </div>
       </section>
 
-      <div className="mt-6">
+      <div className="mt-8">
         <EditProfileForm user={user} onSubmit={handleSubmit} />
       </div>
     </div>
   );
-}
-
-function computeProfileCompletion(user: NonNullable<ReturnType<typeof useAuth>["user"]>) {
-  const checks = [
-    Boolean(user.avatar_url), Boolean(user.bio), Boolean(user.phone),
-    user.age !== null, Boolean(user.occupation), user.rental_budget !== null,
-    user.interests.length > 0, user.is_email_verified, user.onboarding_completed, user.photos.length > 0,
-  ];
-  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
 }
 
 function ArrowLeftIcon() {

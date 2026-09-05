@@ -65,20 +65,24 @@ export default function ReferenceLanding() {
       <DesktopLanding />
       <div className="lg:hidden">
       <header className="sticky top-0 z-50 border-b border-black/[0.055] bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-5">
           <Link href="/" className="flex items-center gap-2" aria-label="CoFlow, inicio"><Logo /><span className="text-[16px] font-semibold">CoFlow</span></Link>
-          <div className="flex items-center gap-4"><Link href="/para-propietarios" className="text-[14px] text-[#5f6763]">Propietarios</Link><Link href="/login" className="rounded-full bg-[#315f4b] px-3.5 py-2 text-[14px] font-semibold text-white">Entrar</Link></div>
+          <div className="flex shrink-0 items-center gap-1.5"><Link href="/para-propietarios" className="flex h-10 items-center rounded-full bg-[#edf2ef] px-3 text-[12px] font-semibold text-[#315f4b]">Tengo vivienda</Link><Link href="/register" className="flex h-10 items-center rounded-full bg-[#315f4b] px-3.5 text-[13px] font-semibold text-white">Empezar</Link></div>
         </div>
       </header>
 
       <div className="resident-desktop mx-auto max-w-[760px] px-4 lg:max-w-7xl lg:px-8">
-        <section className="pb-7 pt-5">
-          <Pill>Compañeros de piso en Málaga</Pill>
-          <h1 className="mt-4 text-[clamp(40px,7vw,58px)] font-semibold leading-[0.98] tracking-[-0.055em]">Conoce cómo se vive.<br /><span className="font-normal text-[#66706b]">Antes de elegir dónde.</span></h1>
-          <p className="mt-4 max-w-[580px] text-[16px] leading-[1.55] text-[#727975]">Encuentra personas y comunidades compatibles por hábitos, presupuesto y forma de convivir. Menos intuición. Más contexto real.</p>
-          <div className="mt-5 grid grid-cols-2 gap-2"><Link href="/register" className="ios-secondary">Crear mi perfil</Link><Link href="/comunidades" className="ios-muted">Explorar</Link></div>
+        <section className="pb-9 pt-8">
+          <div className="text-center">
+            <Pill>Compañeros de piso en Málaga</Pill>
+            <h1 className="mx-auto mt-4 max-w-[390px] text-[clamp(39px,10.5vw,52px)] font-semibold leading-[0.98] tracking-[-0.055em]">Conoce cómo se vive. <span className="font-normal text-[#66706b]">Antes de elegir dónde.</span></h1>
+            <p className="mx-auto mt-5 max-w-[355px] text-[15px] leading-6 text-[#727975]">Encuentra personas y comunidades compatibles por hábitos, presupuesto y forma de convivir.</p>
+            <Link href="/register" className="mx-auto mt-6 flex h-12 max-w-[420px] items-center justify-center rounded-full bg-[#315f4b] text-[14px] font-semibold text-white">Crear mi perfil gratis <ArrowRight className="ml-1.5" size={13} /></Link>
+            <Link href="/comunidades" className="mt-4 inline-flex min-h-11 items-center px-4 text-[13px] font-medium text-[#53645b]">Explorar comunidades <ChevronRight className="ml-1" size={12} /></Link>
+            <p className="mt-1 text-[12px] text-[#8a918d]">Gratis · Sin tarjeta · Tú eliges con quién hablar</p>
+          </div>
 
-          <article data-apple-tilt className="apple-tilt mt-5 rounded-[28px] bg-white p-2 shadow-[0_12px_34px_rgba(25,45,36,0.07)]">
+          <article data-apple-tilt className="apple-tilt mt-8 rounded-[28px] bg-white p-2 shadow-[0_12px_34px_rgba(25,45,36,0.07)]">
             <div className="relative aspect-[1.62] overflow-hidden rounded-[20px]">
               <Image src="/images/create-community-living-room.webp" alt="Salón luminoso de una comunidad CoFlow" fill priority sizes="448px" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
@@ -87,9 +91,8 @@ export default function ReferenceLanding() {
               <span className="absolute bottom-2.5 right-2.5 rounded-full bg-black/40 px-2.5 py-1 text-[12px] text-white backdrop-blur">Plazas abiertas</span>
             </div>
             <div className="px-2 pb-2 pt-3">
-              <div className="flex justify-between gap-3"><div><h2 className="text-[18px] font-semibold">Comunidades en Málaga</h2><p className="mt-1 text-[13px] leading-6 text-[#747b77]">Consulta preferencias de convivencia y condiciones de cada plaza.</p></div><span className="h-fit shrink-0 rounded-full bg-[#f1f2f1] px-2 py-1 text-[12px]">Málaga</span></div>
-              <div className="mt-2.5 flex flex-wrap gap-1.5"><Tag>Preferencias</Tag><Tag>Presupuesto</Tag><Tag>Plazas abiertas</Tag></div>
-              <div className="mt-3 flex items-center justify-between border-t border-black/5 pt-3"><span className="text-[12px] uppercase tracking-[0.12em] text-[#8b918e]">Explora antes de decidir</span><Link data-apple-magnetic href="/comunidades" className="apple-magnetic flex items-center gap-1 rounded-full bg-[#315f4b] px-3 py-2 text-[13px] font-semibold text-white">Ver comunidades <ChevronRight size={12} /></Link></div>
+              <div className="flex justify-between gap-3"><div><h2 className="text-[18px] font-semibold">Comunidades en Málaga</h2><p className="mt-1 text-[13px] leading-6 text-[#747b77]">Conoce su ambiente y sus condiciones antes de solicitar una plaza.</p></div><span className="h-fit shrink-0 rounded-full bg-[#f1f2f1] px-2 py-1 text-[12px]">Málaga</span></div>
+              <div className="mt-3 flex items-center justify-between border-t border-black/5 pt-3"><span className="text-[12px] text-[#8b918e]">Hábitos · Presupuesto · Plazas</span><Link data-apple-magnetic href="/comunidades" className="apple-magnetic flex items-center gap-1 rounded-full bg-[#315f4b] px-3 py-2 text-[13px] font-semibold text-white">Ver comunidades <ChevronRight size={12} /></Link></div>
             </div>
           </article>
         </section>
@@ -151,7 +154,6 @@ function Pill({ children }: { children: React.ReactNode }) { return <span classN
 function Eyebrow({ children }: { children: React.ReactNode }) { return <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[#69736e]">{children}</p>; }
 function Title({ children }: { children: React.ReactNode }) { return <h2 className="mt-2 text-[34px] font-semibold leading-[1.04] tracking-[-0.045em]">{children}</h2>; }
 function Copy({ children }: { children: React.ReactNode }) { return <p className="mt-2 max-w-[600px] text-[14px] leading-6 text-[#777e7a]">{children}</p>; }
-function Tag({ children }: { children: React.ReactNode }) { return <span className="rounded-full bg-[#f1f4f1] px-2.5 py-1.5 text-[12px] text-[#4f5d56]">{children}</span>; }
 function InfoRow({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) { return <div className="flex gap-3 rounded-[20px] bg-white p-4"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f0f3f1] text-[#315f4b]">{icon}</span><div><h3 className="text-[15px] font-semibold">{title}</h3><p className="mt-1 text-[13px] leading-6 text-[#7a817d]">{text}</p></div></div>; }
 function CheckLine({ children }: { children: React.ReactNode }) { return <p className="flex items-start gap-1.5"><Check className="mt-0.5 shrink-0 text-emerald-600" size={10} />{children}</p>; }
 function FooterColumn({ title, links }: { title: string; links: readonly (readonly [string, string])[] }) { return <div><h3 className="text-[12px] font-semibold uppercase tracking-[0.12em]">{title}</h3><div className="mt-3 space-y-2">{links.map(([label, href]) => <Link key={label} href={href} className="block text-[13px] text-[#707874]">{label}</Link>)}</div></div>; }

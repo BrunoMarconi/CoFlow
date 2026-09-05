@@ -19,12 +19,12 @@ export default function PhotoDetailShell({
   contentClassName?: string;
 }) {
   return (
-    <div className="-mx-6 sm:mx-auto sm:w-full sm:max-w-5xl">
+    <div className="-mx-6 sm:mx-auto sm:w-full sm:max-w-6xl">
       <div className="relative">
         <ViewTransition name={transitionName} share="coflow-detail-morph">
           <div
             className={cn(
-              "relative h-[48svh] min-h-[21rem] max-h-[36rem] overflow-hidden bg-[#f1f1f1] sm:h-[34rem] sm:rounded-[2rem]",
+              "relative h-[52svh] min-h-[22rem] max-h-[40rem] overflow-hidden bg-[#eceeea] sm:h-[38rem] sm:rounded-[1.75rem]",
               mediaClassName
             )}
           >
@@ -41,7 +41,7 @@ export default function PhotoDetailShell({
 
       <section
         className={cn(
-          "relative z-10 -mt-8 min-h-64 rounded-t-[2rem] bg-white px-6 pb-8 pt-8 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] sm:mx-6 sm:-mt-10 sm:rounded-[2rem] sm:border sm:border-[#e5e5e5] sm:px-9 sm:pb-10 sm:pt-9",
+          "relative z-10 -mt-7 min-h-64 rounded-t-[1.75rem] bg-[#fbfcfa] px-6 pb-8 pt-8 shadow-[0_-12px_40px_rgba(20,42,32,0.07)] sm:mx-8 sm:-mt-12 sm:rounded-[1.5rem] sm:border sm:border-black/[0.06] sm:px-10 sm:pb-11 sm:pt-10",
           contentClassName
         )}
       >

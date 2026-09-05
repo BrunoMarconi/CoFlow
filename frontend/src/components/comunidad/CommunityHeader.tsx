@@ -38,7 +38,7 @@ export default function CommunityHeader({
   const highlights = getHighlights(community);
 
   return (
-    <div className="space-y-5 sm:space-y-7">
+    <div className="space-y-7 sm:space-y-9">
       <PhotoDetailShell
         transitionName={detailTransitionName("community", community.id)}
         media={
@@ -67,7 +67,7 @@ export default function CommunityHeader({
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-2 text-sm font-bold text-primary-dark"><span className={cn("h-2 w-2 rounded-full", community.is_active ? "bg-primary" : "bg-muted")} />{community.is_active ? "Comunidad activa" : "Comunidad inactiva"}</span>
           </div>
-          <h1 className="font-rounded text-3xl font-semibold tracking-[-0.035em] text-brand-dark sm:text-4xl">
+          <h1 className="mt-3 text-[34px] font-semibold tracking-[-0.045em] text-[#17392c] sm:text-[46px]">
             {community.name}
           </h1>
 
@@ -75,7 +75,7 @@ export default function CommunityHeader({
             {community.description}
           </p>
 
-          <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="mt-7 grid grid-cols-2 overflow-hidden rounded-[20px] border border-black/[0.07] sm:grid-cols-4 sm:divide-x sm:divide-black/[0.06]">
             <Fact icon={<PeopleIcon />} value={`${community.member_count}/${community.max_members}`} label="Miembros" />
             <Fact
               icon={<BudgetIcon />}
@@ -95,11 +95,11 @@ export default function CommunityHeader({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="grid gap-5 xl:grid-cols-[minmax(0,1.12fr)_minmax(360px,0.88fr)] xl:items-start"
+        className="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_minmax(350px,0.82fr)] xl:items-start"
       >
         <div className="space-y-5">
-          <section className="rounded-24 border border-border bg-surface p-5 shadow-soft sm:p-7">
-            <h2 className="text-xl font-extrabold text-brand-dark">Sobre nosotros</h2>
+          <section className="rounded-[24px] border border-black/[0.07] bg-[#fbfcfa] p-5 sm:p-7">
+            <h2 className="text-xl font-semibold tracking-[-0.025em] text-[#17392c]">Sobre nosotros</h2>
             {community.profile_description && (
               <p className="mt-3 whitespace-pre-line text-sm leading-6 text-secondary">
                 {community.profile_description}
@@ -117,10 +117,10 @@ export default function CommunityHeader({
             </ul>
           </section>
 
-          <section className="rounded-24 border border-border bg-surface p-5 shadow-soft sm:p-7">
+          <section className="rounded-[24px] border border-black/[0.07] bg-[#fbfcfa] p-5 sm:p-7">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-extrabold text-brand-dark">
+                <h2 className="text-xl font-semibold tracking-[-0.025em] text-[#17392c]">
                   Miembros ({community.member_count})
                 </h2>
                 <p className="mt-1 text-sm text-secondary">
@@ -166,11 +166,11 @@ export default function CommunityHeader({
           </section>
         </div>
 
-        <aside className="rounded-24 border border-primary/25 bg-surface p-5 shadow-soft sm:p-7 xl:sticky xl:top-24">
-          <span className="flex h-12 w-12 items-center justify-center text-primary">
+        <aside className="rounded-[24px] bg-[#183c2d] p-6 text-white shadow-[0_20px_48px_rgba(24,60,45,.16)] sm:p-7 xl:sticky xl:top-24">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white">
             <JoinIcon />
           </span>
-          <h2 className="mt-4 text-xl font-extrabold text-brand-dark">
+          <h2 className="mt-5 text-xl font-semibold tracking-[-0.025em] text-white">
             {community.is_member
               ? "Ya formas parte"
               : isOwner
@@ -179,7 +179,7 @@ export default function CommunityHeader({
                   ? "¿Te interesa unirte?"
                   : "Comunidad completa"}
           </h2>
-          <p className="mt-2 text-sm leading-6 text-secondary">
+          <p className="mt-2 text-sm leading-6 text-white/65">
             {community.is_member
               ? "Entra al chat y mantente al día de todo lo que ocurre en la comunidad."
               : isOwner
@@ -189,7 +189,7 @@ export default function CommunityHeader({
                   : "Ahora mismo no quedan plazas disponibles, pero puedes guardar esta comunidad para revisarla más adelante."}
           </p>
 
-          <div className="mt-5">
+          <div className="mt-5 [&>a]:!bg-white [&>a]:!text-[#183c2d] [&>button]:!bg-white [&>button]:!text-[#183c2d]">
             <MembershipAction
               community={community}
               isOwner={isOwner}
@@ -199,7 +199,7 @@ export default function CommunityHeader({
           </div>
 
           {location && (
-            <p className="mt-5 flex items-center gap-2 border-t border-border pt-4 text-xs font-semibold text-secondary">
+            <p className="mt-5 flex items-center gap-2 border-t border-white/10 pt-4 text-xs font-semibold text-white/60">
               <LocationIcon />
               {location}
             </p>
@@ -283,7 +283,7 @@ function MembershipAction({
 
 function Fact({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
-    <div className="min-w-0 rounded-14 border border-border px-3 py-3 text-center">
+    <div className="min-w-0 border-b border-black/[0.06] px-3 py-4 text-center sm:border-b-0">
       <span className="mx-auto flex h-6 w-6 items-center justify-center text-primary">{icon}</span>
       <p className="mt-1 truncate text-sm font-extrabold text-brand-dark">{value}</p>
       <p className="mt-0.5 truncate text-[11px] font-semibold text-secondary">{label}</p>

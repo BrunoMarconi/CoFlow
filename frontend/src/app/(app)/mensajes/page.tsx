@@ -383,7 +383,7 @@ export default function MensajesPage() {
             animate="show"
             whileTap={{ scale: 0.985 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="mb-2 flex min-h-20 items-center gap-3.5 rounded-20 bg-surface px-3 py-3.5 shadow-sm transition-colors duration-200 active:bg-mint-50"
+            className="mb-0.5 flex min-h-20 items-center gap-3.5 rounded-[16px] border-b border-black/[0.045] px-2 py-3.5 transition-colors duration-200 active:bg-mint-50"
           >
             <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
             <ConversationPreview
@@ -447,7 +447,7 @@ export default function MensajesPage() {
                   delay: Math.min(index, 8) * 0.02,
                 }}
                 whileTap={{ scale: 0.985 }}
-                className="mb-2 flex min-h-20 items-center gap-3.5 rounded-20 bg-surface px-3 py-3.5 shadow-sm transition-colors duration-200 active:bg-mint-50"
+                className="mb-0.5 flex min-h-20 items-center gap-3.5 rounded-[16px] border-b border-black/[0.045] px-2 py-3.5 transition-colors duration-200 active:bg-mint-50"
               >
                 <ConversationAvatar
                   initials={initialsOf(other.first_name, other.last_name)}
@@ -470,7 +470,7 @@ export default function MensajesPage() {
 
         <Link
           href="/usuarios"
-          className="mt-1 flex min-h-20 items-center gap-3.5 rounded-20 bg-brand-dark px-3 py-3.5 text-white shadow-sm transition-colors duration-200 active:bg-primary-dark"
+          className="mt-3 flex min-h-18 items-center gap-3.5 rounded-[18px] bg-brand-dark px-3 py-3 text-white shadow-[0_10px_24px_rgba(20,55,41,.14)] transition-colors duration-200 active:bg-primary-dark"
         >
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-white">
             <ComposeIcon />
@@ -963,7 +963,7 @@ function ConversationPreview({
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-1.5">
           <p
-            className="truncate text-base font-extrabold text-foreground sm:text-sm"
+            className={`truncate text-base text-foreground sm:text-sm ${unread ? "font-bold" : "font-semibold"}`}
           >
             {name || "Persona de CoFlow"}
           </p>

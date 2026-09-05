@@ -711,10 +711,10 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
     <MotionConfig reducedMotion="user">
     <div
       className={cn(
-        "flex flex-col overflow-hidden bg-surface",
+        "flex flex-col overflow-hidden bg-[#fbfcfa]",
         variant === "full"
-          ? "h-full min-h-0 rounded-none border-0 sm:h-[min(74dvh,680px)] sm:min-h-[440px] sm:rounded-24 sm:border sm:border-border sm:shadow-soft"
-          : "h-[min(78dvh,680px)] min-h-[420px] rounded-24 border border-border shadow-soft sm:h-[min(74dvh,680px)]"
+          ? "h-full min-h-0 rounded-none border-0 sm:h-[min(74dvh,680px)] sm:min-h-[440px] sm:rounded-[22px] sm:border sm:border-black/[0.06] sm:shadow-[0_12px_36px_rgba(20,42,32,.06)]"
+          : "h-[min(78dvh,680px)] min-h-[420px] rounded-[22px] border border-black/[0.06] shadow-[0_12px_36px_rgba(20,42,32,.06)] sm:h-[min(74dvh,680px)]"
       )}
     >
       <div className="relative min-h-0 flex-1">
@@ -724,7 +724,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           role="log"
           aria-live="polite"
           aria-relevant="additions"
-          className="chat-wallpaper h-full overflow-y-auto overscroll-contain px-3 py-4 sm:px-5 sm:py-5"
+          className="chat-wallpaper h-full overflow-y-auto overscroll-contain px-3 py-5 sm:px-6 sm:py-6"
         >
           {hasOlder && !loading && (
             <div className="mb-4 flex justify-center">
@@ -817,7 +817,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           <button
             type="button"
             onClick={() => window.dispatchEvent(new Event("online"))}
-            className="absolute left-1/2 top-3 z-20 min-h-10 -translate-x-1/2 rounded-full bg-red-50 px-4 text-xs font-semibold text-red-600"
+            className="absolute left-1/2 top-3 z-20 min-h-10 -translate-x-1/2 rounded-full border border-red-100 bg-red-50/95 px-4 text-xs font-semibold text-red-700 shadow-sm backdrop-blur"
           >
             {loadError} Reintentar
           </button>
@@ -853,13 +853,13 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
       </div>
 
       {!isOnline && (
-        <div className="border-t border-border bg-surface px-4 py-2 text-center text-xs font-semibold text-secondary">
+        <div className="border-t border-amber-200/70 bg-amber-50 px-4 py-2 text-center text-xs font-semibold text-amber-800">
           Sin conexión. Puedes seguir escribiendo y reintentar al volver.
         </div>
       )}
 
       {typingNames.length > 0 && (
-        <div className="flex items-center gap-1.5 border-t border-border bg-surface px-4 py-1.5 text-xs font-semibold text-secondary">
+        <div className="flex items-center gap-1.5 bg-[#fbfcfa] px-5 py-1.5 text-xs font-medium text-secondary">
           <TypingDots />
           {typingNames.length === 1
             ? `${typingNames[0]} está escribiendo…`
@@ -869,7 +869,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
 
       <form
         onSubmit={handleSubmit}
-        className="border-t border-border bg-surface px-3 pb-[max(0.75rem,var(--safe-bottom))] pt-3 sm:px-4 sm:pb-4"
+        className="border-t border-black/[0.06] bg-white/95 px-3 pb-[max(0.75rem,var(--safe-bottom))] pt-3 backdrop-blur-xl sm:px-4 sm:pb-4"
       >
         {replyingTo && (
           <div className="mb-2 flex items-center gap-2 rounded-14 border-l-4 border-primary bg-primary/6 py-1.5 pl-2.5 pr-1.5">
@@ -909,14 +909,14 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                 onClick={() => imageInputRef.current?.click()}
                 disabled={sendingImage}
                 aria-label="Adjuntar foto"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-soft hover:text-foreground disabled:opacity-50"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/[0.06] bg-[#f5f7f4] text-secondary transition hover:bg-[#edf2ee] hover:text-foreground disabled:opacity-50"
               >
                 <ImageIcon />
               </button>
             </>
           )}
 
-          <div className="flex min-h-11 flex-1 items-end rounded-24 border border-border bg-flat px-4 py-2 transition-colors duration-200 focus-within:border-primary/40">
+          <div className="flex min-h-11 flex-1 items-end rounded-[22px] border border-black/[0.07] bg-[#f5f7f4] px-4 py-2 transition duration-200 focus-within:border-primary/35 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/8">
             <textarea
               ref={textareaRef}
               value={content}
@@ -940,7 +940,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
             aria-label="Enviar mensaje"
             whileTap={content.trim() ? { scale: 0.9 } : undefined}
             transition={MOTION_SPRING.snappy}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-border disabled:text-muted"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-dark text-white shadow-[0_4px_12px_rgba(20,55,41,.18)] transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-[#e4e7e3] disabled:text-[#9ca39f] disabled:shadow-none"
           >
             <SendIcon />
           </motion.button>
@@ -1078,15 +1078,15 @@ const MessageBubble = memo(function MessageBubble({
         <div
           {...pressHandlers}
           className={cn(
-            "select-none touch-none rounded-18 px-3.5 py-2 shadow-[0_1px_2px_rgb(0_0_0/0.05)]",
+            "select-none touch-none rounded-[18px] px-3.5 py-2 shadow-[0_1px_2px_rgb(0_0_0/0.04)]",
             isOwn
               ? cn(
-                  "bg-chat-bubble-own text-foreground",
+                  "bg-[#dcece3] text-[#17251f]",
                   lastOfGroup && "chat-tail-own rounded-br-md",
                   !firstOfGroup && "rounded-tr-md"
                 )
               : cn(
-                  "border border-border bg-surface text-foreground",
+                  "border border-black/[0.055] bg-white text-foreground",
                   lastOfGroup && "chat-tail-other rounded-bl-md",
                   !firstOfGroup && "rounded-tl-md"
                 )
@@ -1119,13 +1119,15 @@ const MessageBubble = memo(function MessageBubble({
               type="button"
               onPointerDown={(event) => event.stopPropagation()}
               onClick={() => onOpenImage(message.image_url as string)}
-              className="-mx-3.5 -mt-2 mb-1.5 block w-[calc(100%+1.75rem)] overflow-hidden first:mt-0"
+              className="relative -mx-3.5 -mt-2 mb-1.5 block aspect-[4/3] w-[calc(100%+1.75rem)] overflow-hidden first:mt-0"
             >
-              <img
+              <Image
                 src={message.image_url}
                 alt="Foto enviada en el chat"
-                className="max-h-72 w-full object-cover"
-                loading="lazy"
+                fill
+                unoptimized
+                sizes="(min-width: 640px) 420px, 84vw"
+                className="object-cover"
               />
             </button>
           )}
@@ -1185,8 +1187,8 @@ function PendingMessageBubble({
           </div>
         )}
         {message.imagePreviewUrl && (
-          <div className="-mx-3.5 -mt-2 mb-1.5 overflow-hidden">
-            <img src={message.imagePreviewUrl} alt="" className="max-h-72 w-full object-cover opacity-90" />
+          <div className="relative -mx-3.5 -mt-2 mb-1.5 aspect-[4/3] overflow-hidden">
+            <Image src={message.imagePreviewUrl} alt="Vista previa de la foto" fill unoptimized sizes="(min-width: 640px) 420px, 84vw" className="object-cover opacity-90" />
           </div>
         )}
         {message.content && (

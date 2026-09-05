@@ -236,7 +236,7 @@ export default function ConexionesPage() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="mx-auto w-full max-w-5xl pb-4">
+      <div className="mx-auto w-full max-w-6xl pb-6">
         <button
           type="button"
           onClick={() => router.back()}
@@ -246,19 +246,20 @@ export default function ConexionesPage() {
           Volver
         </button>
 
-        <header className="flex items-end justify-between gap-4">
+        <header className="flex items-end justify-between gap-6 border-b border-black/[0.07] pb-6 sm:pb-8">
           <div>
-            <h1 className="font-rounded text-3xl font-semibold tracking-[-0.03em] text-foreground sm:text-4xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736c]">Tu red CoFlow</p>
+            <h1 className="mt-2 text-[36px] font-semibold tracking-[-0.05em] text-[#17392c] sm:text-[48px]">
               Conexiones
             </h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-secondary sm:text-base">
-              Personas con las que ya puedes hablar y solicitudes que esperan una respuesta.
+            <p className="mt-2 max-w-xl text-sm leading-6 text-[#68756e] sm:text-base">
+              Gestiona tus conversaciones y decide con quién quieres conectar.
             </p>
           </div>
 
           <Link
             href="/usuarios"
-            className="hidden h-11 shrink-0 items-center gap-2 rounded-full bg-foreground px-5 text-sm font-bold text-white shadow-button transition-transform active:scale-[0.98] sm:inline-flex"
+            className="hidden h-12 shrink-0 items-center gap-2 rounded-[13px] bg-[#183c2d] px-5 text-sm font-semibold text-white transition-transform active:scale-[0.98] sm:inline-flex"
           >
             <UserRound className="h-4 w-4" aria-hidden="true" />
             Encontrar personas
@@ -268,7 +269,7 @@ export default function ConexionesPage() {
         <div
           role="tablist"
           aria-label="Secciones de conexiones"
-          className="-mx-1 mt-6 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="mt-5 grid grid-cols-3 gap-1 rounded-[16px] bg-[#e9eeeb] p-1"
         >
           {tabs.map((item) => {
             const Icon = item.icon;
@@ -284,17 +285,17 @@ export default function ConexionesPage() {
                   setTab(item.key);
                   setActionError("");
                 }}
-                className={`flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-bold transition-all duration-200 active:scale-[0.98] ${
+                className={`flex min-h-12 min-w-0 items-center justify-center gap-1.5 rounded-[12px] px-2 text-xs font-semibold transition-all duration-200 active:scale-[0.98] sm:gap-2 sm:text-sm ${
                   active
-                    ? "border-foreground bg-foreground text-white shadow-button"
-                    : "border-border bg-white text-foreground shadow-soft hover:border-foreground/30"
+                    ? "bg-white text-[#17392c] shadow-[0_3px_12px_rgba(20,42,32,.08)] ring-1 ring-black/[0.035]"
+                    : "text-[#66736c] hover:text-[#17392c]"
                 }`}
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
                 {item.label}
                 <span
                   className={`flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] tabular-nums ${
-                    active ? "bg-white/15 text-white" : "bg-[#f2f2f2] text-secondary"
+                    active ? "bg-[#183c2d] text-white" : "bg-black/[0.05] text-secondary"
                   }`}
                 >
                   {item.count}
@@ -313,7 +314,7 @@ export default function ConexionesPage() {
           </p>
         )}
 
-        <section className="mt-5" aria-live="polite">
+        <section className="mt-6" aria-live="polite">
           {isLoading ? (
             <div className="grid gap-3 md:grid-cols-2">
               {Array.from({ length: 4 }).map((_, index) => (
@@ -347,7 +348,7 @@ export default function ConexionesPage() {
                   duration: MOTION_DURATION.fast,
                   ease: MOTION_EASE.out,
                 }}
-                className="grid gap-3 md:grid-cols-2"
+                className="grid gap-4 md:grid-cols-2"
               >
                 {activeItems.map((connection) => {
                   const person = user
@@ -367,7 +368,7 @@ export default function ConexionesPage() {
                           type="button"
                           onClick={() => handleAccept(connection)}
                           disabled={busy}
-                          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-foreground px-4 text-sm font-bold text-white shadow-button disabled:opacity-55"
+                          className="flex h-12 flex-1 items-center justify-center gap-2 rounded-[12px] bg-[#183c2d] px-4 text-sm font-semibold text-white disabled:opacity-55"
                         >
                           {busy ? (
                             <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -381,7 +382,7 @@ export default function ConexionesPage() {
                           onClick={() => handleReject(connection)}
                           disabled={busy}
                           aria-label={`Rechazar solicitud de ${person.first_name}`}
-                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-white text-secondary transition-colors hover:border-red-200 hover:text-red-600 disabled:opacity-55"
+                          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-[#f0f2f0] text-secondary transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-55"
                         >
                           <X className="h-4 w-4" aria-hidden="true" />
                         </button>
@@ -405,7 +406,7 @@ export default function ConexionesPage() {
                           type="button"
                           onClick={() => handleCancel(connection)}
                           disabled={busy}
-                          className="flex h-11 items-center justify-center rounded-full border border-border bg-white px-4 text-sm font-bold text-foreground transition-colors hover:border-foreground/30 disabled:opacity-55"
+                          className="flex h-11 items-center justify-center px-3 text-xs font-semibold text-[#66736c] underline decoration-black/15 underline-offset-4 transition-colors hover:text-[#17392c] disabled:opacity-55"
                         >
                           {busy ? "Cancelando…" : "Cancelar"}
                         </button>
@@ -426,7 +427,7 @@ export default function ConexionesPage() {
                     >
                       <Link
                         href={`/mensajes/${connection.id}`}
-                        className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-foreground px-4 text-sm font-bold text-white shadow-button transition-transform active:scale-[0.98]"
+                        className="flex h-12 flex-1 items-center justify-center gap-2 rounded-[12px] bg-[#183c2d] px-4 text-sm font-semibold text-white transition-transform active:scale-[0.98]"
                       >
                         <MessageCircle className="h-4 w-4" aria-hidden="true" />
                         Enviar mensaje
@@ -435,7 +436,7 @@ export default function ConexionesPage() {
                         type="button"
                         onClick={() => setConnectionToRemove(connection)}
                         aria-label={`Eliminar conexión con ${person.first_name}`}
-                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-white text-secondary transition-colors hover:border-foreground/30 hover:text-foreground"
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-[#f0f2f0] text-secondary transition-colors hover:bg-red-50 hover:text-red-600"
                       >
                         <X className="h-4 w-4" aria-hidden="true" />
                       </button>
@@ -449,7 +450,7 @@ export default function ConexionesPage() {
 
         <Link
           href="/usuarios"
-          className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-sm font-bold text-white shadow-button transition-transform active:scale-[0.98] sm:hidden"
+          className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-[12px] bg-[#183c2d] px-5 text-sm font-semibold text-white transition-transform active:scale-[0.98] sm:hidden"
         >
           <UserRound className="h-4 w-4" aria-hidden="true" />
           Encontrar personas
@@ -493,7 +494,7 @@ function ConnectionCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-      className="flex min-h-44 flex-col rounded-24 border border-border bg-white p-4 shadow-soft sm:p-5"
+      className="flex min-h-44 flex-col rounded-[22px] border border-black/[0.065] bg-[#fbfcfa] p-4 shadow-[0_8px_28px_rgba(20,42,32,.045)] transition-shadow hover:shadow-[0_16px_38px_rgba(20,42,32,.075)] sm:p-5"
     >
       <Link
         href={`/personas/${person.id}`}
@@ -516,20 +517,20 @@ function ConnectionCard({
         </div>
 
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-base font-extrabold text-foreground">
+          <span className="block truncate text-lg font-semibold tracking-[-0.025em] text-[#17392c]">
             {fullName || "Persona de CoFlow"}
           </span>
           <span className="mt-1 block text-xs text-secondary">{meta}</span>
         </span>
 
-        <span className="shrink-0 rounded-full border border-border bg-white px-2.5 py-1 text-[10px] font-bold text-secondary">
+        <span className="shrink-0 rounded-full bg-[#e9efeb] px-2.5 py-1.5 text-[10px] font-semibold text-[#40544a]">
           {badge}
         </span>
         </div>
         </ViewTransition>
       </Link>
 
-      <div className="mt-auto flex items-center gap-2 border-t border-border/70 pt-4">
+      <div className="mt-auto flex items-center gap-2 border-t border-black/[0.06] pt-4">
         {children}
       </div>
     </motion.article>

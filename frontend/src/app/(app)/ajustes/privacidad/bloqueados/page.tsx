@@ -44,7 +44,8 @@ export default function BlockedUsersPage() {
           <ArrowLeftIcon />
         </button>
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">Personas bloqueadas</h1>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary">Privacidad</p>
+          <h1 className="font-rounded text-2xl font-semibold tracking-[-0.035em] text-brand-dark sm:text-3xl">Personas bloqueadas</h1>
           <p className="mt-1 text-sm text-secondary">Puedes desbloquearlas cuando quieras.</p>
         </div>
       </header>
@@ -57,7 +58,7 @@ export default function BlockedUsersPage() {
         ) : data.length === 0 ? (
           <EmptyState title="No has bloqueado a nadie" description="Las personas que bloquees aparecerán aquí para que puedas gestionar la lista." />
         ) : (
-          <div className="overflow-hidden rounded-18 border border-border bg-surface shadow-soft">
+          <div className="overflow-hidden rounded-[22px] border border-black/[0.06] bg-[#fbfcfa] shadow-[0_10px_30px_rgba(20,42,32,.04)]">
             {data.map((user) => (
               <BlockedUserRow key={user.id} user={user} actioning={actioningId === user.id} onUnblock={() => unblock(user)} />
             ))}
@@ -72,17 +73,17 @@ function BlockedUserRow({ user, actioning, onUnblock }: { user: BlockedUser; act
   const [imageError, setImageError] = useState(false);
   const initials = [user.first_name, user.last_name].filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
   return (
-    <div className="flex items-center gap-3 border-b border-border px-4 py-4 last:border-b-0 sm:px-5">
+    <div className="flex items-center gap-3 border-b border-black/[0.055] px-4 py-4 last:border-b-0 sm:px-5">
       {user.avatar_url && !imageError ? (
         <Image src={user.avatar_url} alt="" width={48} height={48} unoptimized onError={() => setImageError(true)} className="h-12 w-12 shrink-0 rounded-full object-cover" />
       ) : (
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-black text-sm font-bold text-white">{initials || "CF"}</span>
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-dark text-sm font-bold text-white">{initials || "CF"}</span>
       )}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-extrabold text-foreground">{`${user.first_name} ${user.last_name}`.trim()}</p>
+        <p className="truncate text-sm font-bold text-brand-dark">{`${user.first_name} ${user.last_name}`.trim()}</p>
         <p className="mt-0.5 text-xs text-secondary">No puede encontrarte ni escribirte</p>
       </div>
-      <button type="button" onClick={onUnblock} disabled={actioning} className="flex h-10 shrink-0 items-center justify-center rounded-full border border-foreground px-4 text-xs font-bold text-foreground transition hover:bg-black hover:text-white disabled:opacity-50">
+      <button type="button" onClick={onUnblock} disabled={actioning} className="flex h-10 shrink-0 items-center justify-center rounded-full border border-black/[0.12] bg-white px-4 text-xs font-bold text-brand-dark transition hover:border-primary/30 hover:bg-mint-50 disabled:opacity-50">
         {actioning ? "..." : "Desbloquear"}
       </button>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 
@@ -35,12 +36,12 @@ export default function ImageLightbox({
       >
         <CloseIcon />
       </button>
-      <img
-        src={url}
-        alt="Foto ampliada"
+      <div
         onClick={(event) => event.stopPropagation()}
-        className="max-h-full max-w-full rounded-14 object-contain"
-      />
+        className="relative h-full max-h-[calc(100dvh-2rem)] w-full max-w-6xl"
+      >
+        <Image src={url} alt="Foto ampliada" fill unoptimized sizes="100vw" className="rounded-14 object-contain" />
+      </div>
     </motion.div>,
     document.body
   );

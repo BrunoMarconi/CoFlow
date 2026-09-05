@@ -39,8 +39,8 @@ export default function UserGrid({
       {showRecommendedHeading && (
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">Descubre</p>
-            <h2 className="mt-1 text-xl font-extrabold text-brand-dark">Personas para ti</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736c]">Descubre</p>
+            <h2 className="mt-1 text-2xl font-semibold tracking-[-0.035em] text-[#17392c]">Personas para ti</h2>
           </div>
           <p className="hidden text-sm text-secondary sm:block">Perfiles con afinidad para ti</p>
         </div>

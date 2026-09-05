@@ -93,11 +93,14 @@ export default function UserCard({
       role="button"
       tabIndex={0}
       onKeyDown={(event) => {
-        if (event.key === "Enter") handleOpen();
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          handleOpen();
+        }
       }}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.985 }}
-      className="cursor-pointer outline-none"
+      className="cursor-pointer rounded-[22px] outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-3"
     >
       <ViewTransition name={detailTransitionName("person", user.id)} share="coflow-detail-morph">
         <div className="h-full">{renderCardContent()}</div>
@@ -109,8 +112,8 @@ export default function UserCard({
     return <>
       <div className="sm:hidden">
         {mobileVariant === "featured" ? (
-          <div className="h-full overflow-hidden rounded-18 border border-border/60 bg-surface">
-            <div className="relative h-36 bg-surface-muted min-[390px]:h-44">
+          <div className="h-full overflow-hidden rounded-[20px] border border-black/[0.06] bg-[#fbfcfa] shadow-[0_8px_26px_rgba(20,42,32,.055)]">
+            <div className="relative h-40 bg-[#e9ece8] min-[390px]:h-48">
               {hasProfilePhoto && profilePhoto ? (
                 <Image
                   src={profilePhoto}
@@ -141,9 +144,9 @@ export default function UserCard({
               </button>
             </div>
 
-            <div className="p-3">
+            <div className="p-3.5">
               <div className="flex items-center gap-1">
-                <h3 className="truncate text-[15px] font-extrabold text-foreground">
+                <h3 className="truncate text-[16px] font-semibold tracking-[-0.02em] text-[#17251f]">
                   {shortName}
                 </h3>
                 {user.is_verified && <VerifiedIcon className="h-4 w-4 shrink-0 text-primary" />}
@@ -156,37 +159,13 @@ export default function UserCard({
                 </p>
               )}
 
-              {habitChips.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {habitChips.slice(0, 2).map((chip) => (
-                    <span
-                      key={chip}
-                      className="max-w-full truncate rounded-full bg-flat px-2 py-1 text-[9px] font-bold text-primary-dark"
-                    >
-                      {chip}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <p className="mt-2 truncate text-[11px] text-secondary">
-                Presupuesto: <span className="font-extrabold text-brand-dark">{budgetLabel}</span>
+              <p className="mt-3 truncate border-t border-black/[0.06] pt-3 text-[11px] text-secondary">
+                <span className="font-semibold text-[#17392c]">{budgetLabel}</span>
               </p>
-
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  handleOpen();
-                }}
-                className="mt-3 flex h-9 w-full items-center justify-center rounded-10 bg-primary px-2 text-xs font-bold text-white shadow-button"
-              >
-                Ver perfil
-              </button>
             </div>
           </div>
         ) : (
-          <div className="flex min-h-24 items-center gap-3 rounded-18 border border-border/60 bg-surface p-3">
+          <div className="flex min-h-24 items-center gap-3 rounded-[18px] border border-black/[0.06] bg-[#fbfcfa] p-3 shadow-[0_6px_20px_rgba(20,42,32,.04)]">
             <div className="relative shrink-0">
               <UserAvatar
                 firstName={user.first_name}
@@ -202,7 +181,7 @@ export default function UserCard({
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1">
-                <h3 className="truncate text-sm font-extrabold text-foreground">{shortName}</h3>
+                <h3 className="truncate text-sm font-semibold text-[#17251f]">{shortName}</h3>
                 {user.is_verified && <VerifiedIcon className="h-3.5 w-3.5 shrink-0 text-primary" />}
               </div>
               {metaLine && (
@@ -230,8 +209,8 @@ export default function UserCard({
         )}
       </div>
 
-      <div className="hidden h-full flex-col overflow-hidden rounded-18 border border-border/60 bg-surface transition-shadow duration-200 sm:flex sm:hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]">
-        <div className="relative h-40 shrink-0 border-b border-border bg-surface lg:h-44">
+      <div className="hidden h-full flex-col overflow-hidden rounded-[22px] border border-black/[0.06] bg-[#fbfcfa] transition-shadow duration-200 sm:flex sm:hover:shadow-[0_20px_42px_-14px_rgb(13_59_42/0.18)]">
+        <div className="relative h-52 shrink-0 bg-[#e9ece8] lg:h-56">
           {hasProfilePhoto && profilePhoto ? (
             <Image
               src={profilePhoto}
@@ -262,11 +241,11 @@ export default function UserCard({
           </button>
         </div>
 
-        <div className="flex min-h-52 flex-1 flex-col p-4">
+        <div className="flex min-h-48 flex-1 flex-col p-5">
           <div className="flex items-start gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
-                <h3 className="truncate text-base font-extrabold text-foreground">
+                <h3 className="truncate text-lg font-semibold tracking-[-0.025em] text-[#17251f]">
                   {fullName || "Persona de CoFlow"}
                   {user.age !== null && <span className="font-semibold text-secondary">, {user.age}</span>}
                 </h3>
@@ -287,17 +266,17 @@ export default function UserCard({
           </div>
 
           {habitChips.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {habitChips.slice(0, 4).map((chip) => (
-                <span key={chip} className="rounded-full bg-flat px-2.5 py-1 text-[11px] font-bold text-primary-dark">
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {habitChips.slice(0, 3).map((chip) => (
+                <span key={chip} className="rounded-full bg-[#eaf0ec] px-2.5 py-1.5 text-[10px] font-semibold text-[#315f4b]">
                   {chip}
                 </span>
               ))}
             </div>
           )}
 
-          <p className="pt-4 text-xs text-secondary">
-            Presupuesto <span className="font-extrabold text-brand-dark">{budgetLabel}</span>
+          <p className="mt-auto border-t border-black/[0.06] pt-4 text-xs text-secondary">
+            Presupuesto <span className="font-semibold text-[#17392c]">{budgetLabel}</span>
           </p>
 
           <div className="mt-3 flex items-center gap-2">
@@ -305,7 +284,7 @@ export default function UserCard({
               type="button"
               onClick={handlePrimaryAction}
               disabled={connecting || connectionStatus === "PENDING_SENT"}
-              className="flex h-10 flex-1 items-center justify-center gap-2 rounded-14 bg-primary px-4 text-sm font-bold text-white shadow-button disabled:opacity-60"
+              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-[12px] bg-[#183c2d] px-4 text-sm font-semibold text-white shadow-none disabled:opacity-60"
             >
               <MessageIcon />
               {connectionStatus === "ACCEPTED"

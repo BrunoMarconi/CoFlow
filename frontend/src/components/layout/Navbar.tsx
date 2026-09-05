@@ -6,11 +6,15 @@ import Avatar from "@/components/ui/Avatar";
 import Logo from "@/components/ui/Logo";
 import NotificationBell from "@/components/layout/NotificationBell";
 import { useOwnerMode } from "@/hooks/useOwnerMode";
+import ProfileCompletionRing from "@/components/ui/ProfileCompletionRing";
+import { computeProfileCompletion } from "@/lib/profileCompletion";
 
 export default function Navbar() {
   const { user } = useAuth();
   const { isOwnerMode } = useOwnerMode();
   const homeHref = isOwnerMode ? "/propietarios/pisos" : "/explorar";
+  const profileCompletion = user ? computeProfileCompletion(user) : 100;
+  const showProfileProgress = !isOwnerMode && profileCompletion < 100;
 
   return (
     <header className="sticky top-0 z-(--z-sticky-header) bg-background/85 pt-(--safe-top) backdrop-blur-xl">
@@ -40,14 +44,14 @@ export default function Navbar() {
 
             <Link
               href={isOwnerMode ? "/propietarios/perfil" : "/perfil"}
-              aria-label="Abrir perfil"
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-surface/90 shadow-soft backdrop-blur-xl"
+              aria-label={showProfileProgress ? `Abrir perfil, completado al ${profileCompletion}%` : "Abrir perfil"}
+              className="group flex h-11 items-center gap-2 rounded-full bg-surface/90 p-1 pr-1 shadow-soft backdrop-blur-xl"
             >
-              <Avatar
-                name={`${user.first_name} ${user.last_name}`}
-                imageUrl={user.avatar_url}
-                size={38}
-              />
+              {showProfileProgress && <span className="pl-2 text-[11px] font-semibold tabular-nums text-primary-dark">{profileCompletion}%</span>}
+              <span className="relative flex h-10 w-10 shrink-0 items-center justify-center">
+                {showProfileProgress && <ProfileCompletionRing completion={profileCompletion} className="absolute inset-0 h-10 w-10" />}
+                <Avatar name={`${user.first_name} ${user.last_name}`} imageUrl={user.avatar_url} size={showProfileProgress ? 32 : 38} />
+              </span>
             </Link>
           </div>
         )}

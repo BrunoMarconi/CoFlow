@@ -93,31 +93,16 @@ export default function UsuariosPage() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="mx-auto w-full max-w-7xl">
-        <header className="relative mt-4 overflow-hidden rounded-24 bg-brand-dark text-white shadow-soft">
-          <Image
-            src={featuredCity.image}
-            alt=""
-            fill
-            priority
-            sizes="(min-width: 768px) 70vw, 100vw"
-            className="object-cover opacity-35"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-dark via-brand-dark/90 to-brand-dark/20" />
-          <div className="relative max-w-2xl px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
-            <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold text-white/90 backdrop-blur-sm">
-              Personas CoFlow
-            </span>
-            <h1 className="mt-4 max-w-xl font-rounded text-3xl font-extrabold leading-tight tracking-[-0.03em] sm:text-4xl">
-              Encuentra a alguien con quien compartir mucho más que piso
-            </h1>
-            <p className="mt-3 max-w-lg text-sm font-medium leading-6 text-white/78 sm:text-base">
-              Descubre personas afines por ciudad, presupuesto y forma de convivir.
-            </p>
+        <header className="mt-6 flex items-end justify-between gap-6 border-b border-black/[0.07] pb-6 sm:mt-8 sm:pb-8">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736c]">Personas · {featuredCity.name}</p>
+            <h1 className="mt-2 max-w-2xl text-[34px] font-semibold leading-[1.02] tracking-[-0.05em] text-[#17392c] sm:text-[48px]">Encuentra una forma de convivir que encaje contigo.</h1>
           </div>
+          <p className="hidden max-w-xs text-right text-sm leading-6 text-[#6b7771] lg:block">Perfiles con hábitos, presupuesto y preferencias visibles antes de conectar.</p>
         </header>
 
-        <div className="sticky top-[calc(var(--safe-top)+1rem)] z-(--z-sticky-header) mt-4 rounded-2xl border border-border bg-surface/95 px-5 pb-3 pt-4 shadow-soft backdrop-blur-xl sm:px-6 lg:px-8">
-          <div className="flex h-13 items-center rounded-14 bg-flat px-4 transition-colors duration-200 focus-within:bg-surface focus-within:ring-2 focus-within:ring-primary/20 sm:h-14">
+        <div className="sticky top-[calc(var(--safe-top)+.5rem)] z-(--z-sticky-header) -mx-2 mt-4 rounded-[20px] border border-black/[0.06] bg-[#f8faf8]/95 px-3 pb-3 pt-3 shadow-[0_12px_32px_rgba(20,42,32,.07)] backdrop-blur-xl sm:mx-0 sm:px-4">
+          <div className="flex h-13 items-center rounded-[14px] bg-white px-4 ring-1 ring-black/[0.06] transition focus-within:ring-2 focus-within:ring-[#315f4b]/25 sm:h-14">
             <SearchInput
               bare
               value={search}
@@ -139,8 +124,8 @@ export default function UsuariosPage() {
                   aria-pressed={active}
                   className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
                     active
-                      ? "bg-brand-dark text-white"
-                      : "bg-flat text-foreground hover:bg-flat-strong"
+                      ? "bg-[#183c2d] text-white"
+                      : "bg-[#edf1ee] text-[#34463c] hover:bg-[#e4ebe7]"
                   }`}
                 >
                   {active && <LocationIcon />}
@@ -155,8 +140,8 @@ export default function UsuariosPage() {
               aria-expanded={filtersOpen}
               className={`flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
                 filtersOpen || filters.maxBudget || filters.communityStatus !== "ALL"
-                  ? "bg-brand-dark text-white"
-                  : "bg-flat text-foreground hover:bg-flat-strong"
+                  ? "bg-[#183c2d] text-white"
+                  : "bg-[#edf1ee] text-[#34463c] hover:bg-[#e4ebe7]"
               }`}
             >
               <FilterIcon />
@@ -184,7 +169,7 @@ export default function UsuariosPage() {
           )}
         </AnimatePresence>
 
-        <div className="mt-8 lg:grid lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-8">
+        <div className="mt-7 lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start lg:gap-8">
         <section className="min-w-0">
           {(hasQuery || hasActiveFilters) && (
             <div className="mb-4 flex items-end justify-between gap-3">
@@ -251,25 +236,25 @@ export default function UsuariosPage() {
 
         <aside className="mt-8 space-y-4 lg:sticky lg:top-36 lg:mt-0" aria-label="Mejora tu búsqueda">
           {profileIncomplete && (
-            <div className="rounded-24 border border-primary/20 bg-mint-50 p-5 shadow-soft">
+            <div className="rounded-[22px] bg-[#183c2d] p-5 text-white shadow-[0_18px_42px_rgba(24,60,45,.14)]">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-dark text-white">
                 <ProfileIcon />
               </span>
               <div className="mt-4 flex items-center justify-between gap-3">
-                <h2 className="font-rounded text-lg font-semibold text-brand-dark">
+                <h2 className="text-lg font-semibold text-white">
                   Mejora tus resultados
                 </h2>
-                <span className="text-sm font-bold text-primary-dark">{profileCompletion}%</span>
+                <span className="text-sm font-semibold text-white/70">{profileCompletion}%</span>
               </div>
               <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-primary/12" aria-hidden="true">
                 <div className="h-full rounded-full bg-primary" style={{ width: `${profileCompletion}%` }} />
               </div>
-              <p className="mt-3 text-sm leading-6 text-secondary">
+              <p className="mt-3 text-sm leading-6 text-white/65">
                 Completa tu perfil para que otras personas entiendan mejor cómo sería convivir contigo.
               </p>
               <Link
                 href="/perfil/editar"
-                className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-14 bg-brand-dark px-4 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
+                className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-[12px] bg-white px-4 text-sm font-semibold text-[#183c2d] transition-colors hover:bg-[#f0f3f1]"
               >
                 Completar perfil
               </Link>

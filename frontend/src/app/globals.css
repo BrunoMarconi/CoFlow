@@ -208,6 +208,31 @@ select {
   font: inherit;
 }
 
+/* Accesibilidad transversal: cualquier control conserva una señal de foco
+   clara aunque un componente retire el outline nativo para dibujar su propio
+   estado. `:focus-visible` evita mostrar el aro al tocar con ratón o dedo. */
+:where(a, button, input, textarea, select, summary, [role="button"]):focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--brand) 68%, white);
+  outline-offset: 3px;
+}
+
+/* Reduce tanto animaciones CSS propias como transiciones decorativas. Framer
+   Motion ya usa reducedMotion="user" en los recorridos principales. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 .ios-secondary,
 .ios-muted {
   display: inline-flex;

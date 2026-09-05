@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { Bell, ChevronRight, CircleHelp, CreditCard, KeyRound, LockKeyhole, LoaderCircle, UserRound, TriangleAlert } from "lucide-react";
+import { Bell, CheckCircle2, ChevronDown, ChevronRight, CircleHelp, CreditCard, KeyRound, LockKeyhole, LoaderCircle, LogOut, UserRound, TriangleAlert } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { stripePromise } from "@/lib/stripe";
 import { clearToken } from "@/lib/auth";
@@ -29,28 +29,32 @@ export default function AjustesPage() {
   return (
     <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] space-y-4 px-6 py-6 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-5xl sm:rounded-[32px] sm:p-7 lg:p-8">
       <header className="px-1 pb-2">
-        <p className="text-xs font-semibold text-muted">Cuenta y preferencias</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary">Tu espacio</p>
         <h1 className="mt-0.5 font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">
           Ajustes
         </h1>
       </header>
 
       {user && (
-        <section className="rounded-[28px] bg-brand-dark p-5 text-white shadow-sm sm:p-6">
-          <p className="text-xs font-semibold text-white/60">Sesión actual</p>
-          <p className="mt-1 font-rounded text-2xl font-semibold tracking-[-0.02em]">
-            {user.first_name} {user.last_name}
-          </p>
-          <p className="mt-1 truncate text-sm text-white/65">{user.email}</p>
+        <section className="relative overflow-hidden rounded-[26px] bg-brand-dark p-5 text-white shadow-[0_16px_40px_rgba(20,55,41,.16)] sm:p-6">
+          <span className="absolute -right-12 -top-16 h-44 w-44 rounded-full border-[28px] border-white/[0.04]" aria-hidden="true" />
+          <div className="relative flex items-center gap-4">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-bold">{[user.first_name, user.last_name].filter(Boolean).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</span>
+            <div className="min-w-0 flex-1">
+              <p className="font-rounded text-xl font-semibold tracking-[-0.02em]">{user.first_name} {user.last_name}</p>
+              <p className="mt-0.5 truncate text-sm text-white/60">{user.email}</p>
+            </div>
+            <span className="hidden items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/80 sm:flex"><CheckCircle2 className="h-3.5 w-3.5" /> Sesión activa</span>
+          </div>
         </section>
       )}
 
       <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-4">
-          <SettingsGroup title="Cuenta">
+          <SettingsGroup title="Cuenta y preferencias">
             <SettingsLink href="/perfil/editar" icon={<UserRound />} title="Información personal" subtitle="Nombre, biografía y datos de contacto" />
             <SettingsLink href="/notificaciones" icon={<Bell />} title="Notificaciones" subtitle="Actividad, mensajes y avisos" />
-            <SettingsLink href="/ajustes/privacidad" icon={<LockKeyhole />} title="Privacidad y seguridad" subtitle="Visibilidad y personas bloqueadas" />
+            <SettingsLink href="/ajustes/privacidad" icon={<LockKeyhole />} title="Privacidad" subtitle="Visibilidad del perfil y personas bloqueadas" />
           </SettingsGroup>
 
           <SettingsGroup title="Soporte">
@@ -70,7 +74,7 @@ export default function AjustesPage() {
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-[28px] bg-surface p-5 shadow-sm sm:p-6">
+    <section className="rounded-[24px] border border-black/[0.06] bg-[#fbfcfa] p-5 shadow-[0_10px_30px_rgba(20,42,32,.04)] sm:p-6">
       <h2 className="font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">{title}</h2>
       <div className="mt-4">{children}</div>
     </section>
@@ -117,6 +121,7 @@ function SettingsLink({
 }
 
 function PasswordSection() {
+  const [open, setOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -153,8 +158,13 @@ function PasswordSection() {
   }
 
   return (
-    <SectionCard title="Contraseña">
-      <form onSubmit={submit} className="space-y-4">
+    <section className="overflow-hidden rounded-[24px] border border-black/[0.06] bg-[#fbfcfa] shadow-[0_10px_30px_rgba(20,42,32,.04)]">
+      <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} className="flex min-h-20 w-full items-center gap-3 p-4 text-left transition hover:bg-[#f5f7f4] sm:p-5">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-mint-50 text-primary"><KeyRound className="h-5 w-5" /></span>
+        <span className="min-w-0 flex-1"><span className="block text-sm font-bold text-brand-dark">Contraseña</span><span className="mt-0.5 block text-xs leading-5 text-secondary">Actualiza tu clave de acceso de forma segura</span></span>
+        <ChevronDown className={`h-4 w-4 text-muted transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && <form onSubmit={submit} className="space-y-4 border-t border-black/[0.06] p-5">
         <Input
           label="Contraseña actual"
           type="password"
@@ -192,8 +202,8 @@ function PasswordSection() {
         <Button type="submit" disabled={loading}>
           {loading ? "Guardando..." : "Actualizar contraseña"}
         </Button>
-      </form>
-    </SectionCard>
+      </form>}
+    </section>
   );
 }
 
@@ -385,24 +395,24 @@ function DangerSection({ onLogout }: { onLogout: () => void }) {
 
   return (
     <>
-      <section className="rounded-[28px] bg-surface p-5 shadow-sm sm:p-6">
+      <section className="rounded-[24px] border border-black/[0.06] bg-[#fbfcfa] p-4 shadow-[0_10px_30px_rgba(20,42,32,.04)] sm:p-5">
         <h2 className="font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Sesión y cuenta</h2>
 
         <button
           type="button"
           onClick={onLogout}
-          className="mt-3 flex min-h-13 w-full items-center rounded-14 px-3 text-left text-sm font-bold text-foreground transition-colors duration-180 hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          className="mt-3 flex min-h-13 w-full items-center gap-3 rounded-14 px-3 text-left text-sm font-bold text-foreground transition-colors duration-180 hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
-          Cerrar sesión
+          <LogOut className="h-4.5 w-4.5 text-muted" /> Cerrar sesión
         </button>
 
         <div className="border-t border-border/70">
           <button
             type="button"
             onClick={() => setShowDelete(true)}
-            className="flex min-h-13 w-full items-center rounded-14 px-3 text-left text-sm font-bold text-red-600 transition-colors duration-180 hover:bg-red-50/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+            className="flex min-h-13 w-full items-center gap-3 rounded-14 px-3 text-left text-sm font-bold text-red-600 transition-colors duration-180 hover:bg-red-50/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
           >
-            Eliminar cuenta
+            <TriangleAlert className="h-4.5 w-4.5" /> Eliminar cuenta
           </button>
         </div>
       </section>

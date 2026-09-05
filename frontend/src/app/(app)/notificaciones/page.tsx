@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import EmptyContentState from "@/components/ui/EmptyState";
@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import type { AppNotification, NotificationType } from "@/types/notification";
 
 type Category = "ALL" | "INVITATIONS" | "MESSAGES" | "ACTIVITY" | "INFO";
+type DateGroup = "HOY" | "SEMANA" | "ANTERIORES";
 
 const categories: Array<{ value: Category; label: string; icon: ReactNode }> = [
   { value: "ALL", label: "Todas", icon: <BellIcon /> },
@@ -26,13 +27,13 @@ export default function NotificationsPage() {
   const {
     notifications,
     notificationsLoading,
+    unreadCount,
     refreshUnreadCount,
     markNotificationAsRead,
     markAllNotificationsAsRead,
   } = useAuth();
   const [category, setCategory] = useState<Category>("ALL");
   const [error, setError] = useState("");
-  const markedOnEntryRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -49,16 +50,6 @@ export default function NotificationsPage() {
     };
   }, [refreshUnreadCount]);
 
-  useEffect(() => {
-    if (notificationsLoading || markedOnEntryRef.current) return;
-    markedOnEntryRef.current = true;
-    if (notifications.some((notification) => !notification.is_read)) {
-      void markAllNotificationsAsRead().catch(() => {
-        setError("No pudimos actualizar el estado de lectura.");
-      });
-    }
-  }, [markAllNotificationsAsRead, notifications, notificationsLoading]);
-
   const filtered = useMemo(
     () =>
       notifications.filter(
@@ -66,6 +57,16 @@ export default function NotificationsPage() {
       ),
     [notifications, category]
   );
+
+  const grouped = useMemo(() => {
+    const groups: Record<DateGroup, AppNotification[]> = {
+      HOY: [],
+      SEMANA: [],
+      ANTERIORES: [],
+    };
+    filtered.forEach((notification) => groups[getDateGroup(notification.created_at)].push(notification));
+    return groups;
+  }, [filtered]);
 
   async function reload() {
     setError("");
@@ -93,22 +94,19 @@ export default function NotificationsPage() {
             >
               <ArrowLeftIcon />
             </button>
-            <h1 className="text-3xl font-semibold tracking-[-0.04em] text-[#222222] sm:text-4xl">
+            <h1 className="font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">
               Notificaciones
             </h1>
           </div>
-          <p className="mt-2 text-sm leading-6 text-[#717171]">
-            Lo importante, ordenado y sin ruido.
+          <p className="mt-2 text-sm leading-6 text-secondary">
+            Solicitudes, mensajes y cambios importantes, en un solo lugar.
           </p>
         </div>
 
-        <Link
-          href="/ajustes"
-          aria-label="Ajustes de notificaciones"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#dddddd] bg-white text-[#222222] transition hover:border-[#b0b0b0] hover:bg-[#f7f7f7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
-        >
-          <SettingsIcon />
-        </Link>
+        <div className="flex shrink-0 items-center gap-2">
+          {unreadCount > 0 && <button type="button" onClick={() => void markAllNotificationsAsRead().catch(() => setError("No pudimos marcar las notificaciones como leídas."))} className="hidden h-11 items-center rounded-full px-4 text-xs font-bold text-primary-dark transition hover:bg-[#eef2ef] sm:flex">Marcar todas como leídas</button>}
+          <Link href="/ajustes" aria-label="Ajustes de notificaciones" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/[0.07] bg-[#fbfcfa] text-brand-dark transition hover:bg-[#eef2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"><SettingsIcon /></Link>
+        </div>
       </header>
 
       <nav
@@ -126,8 +124,8 @@ export default function NotificationsPage() {
               className={cn(
                 "flex h-11 shrink-0 items-center justify-center gap-2 rounded-full border px-4 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black",
                 active
-                  ? "border-black bg-black text-white"
-                  : "border-[#dddddd] bg-white text-[#222222] hover:border-[#b0b0b0]"
+                  ? "border-brand-dark bg-brand-dark text-white"
+                  : "border-black/[0.07] bg-[#fbfcfa] text-secondary hover:text-brand-dark"
               )}
             >
               {item.icon}
@@ -159,36 +157,30 @@ export default function NotificationsPage() {
           description="No tienes notificaciones en esta categoría."
         />
       ) : (
-        <motion.ul
-          initial="hidden"
-          animate="show"
-          variants={{
-            hidden: {},
-            show: { transition: { staggerChildren: 0.035 } },
-          }}
-          className="mt-7 grid gap-3 md:grid-cols-2"
-        >
-          {filtered.map((notification) => (
-            <motion.li
-              key={notification.id}
-              variants={{
-                hidden: { opacity: 0, y: 6 },
-                show: { opacity: 1, y: 0 },
-              }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
-            >
-              <NotificationCard
-                notification={notification}
-                onOpen={openNotification}
-              />
-            </motion.li>
+        <motion.div initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.035 } } }} className="mt-7 space-y-7">
+          {(["HOY", "SEMANA", "ANTERIORES"] as DateGroup[]).map((group) => grouped[group].length > 0 && (
+            <section key={group} aria-labelledby={`notification-group-${group}`}>
+              <div className="mb-2 flex items-center gap-3 px-1">
+                <h2 id={`notification-group-${group}`} className="text-[11px] font-bold uppercase tracking-[0.15em] text-muted">{getDateGroupLabel(group)}</h2>
+                <span className="h-px flex-1 bg-black/[0.06]" />
+              </div>
+              <ul className="overflow-hidden rounded-[22px] border border-black/[0.06] bg-[#fbfcfa] shadow-[0_10px_30px_rgba(20,42,32,.04)]">
+                <AnimatePresence initial={false}>
+                  {grouped[group].map((notification) => (
+                    <motion.li key={notification.id} variants={{ hidden: { opacity: 0, y: 6 }, show: { opacity: 1, y: 0 } }} transition={{ duration: 0.18, ease: "easeOut" }} className="border-b border-black/[0.055] last:border-b-0">
+                      <NotificationCard notification={notification} wasUnread={!notification.is_read} onOpen={openNotification} />
+                    </motion.li>
+                  ))}
+                </AnimatePresence>
+              </ul>
+            </section>
           ))}
-        </motion.ul>
+        </motion.div>
       )}
 
       <Link
         href="/ajustes"
-        className="mt-8 flex min-h-18 items-center gap-4 rounded-2xl border border-[#dddddd] bg-white p-4 transition hover:border-[#b0b0b0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+        className="mt-8 flex min-h-18 items-center gap-4 rounded-[20px] border border-black/[0.06] bg-[#fbfcfa] p-4 transition hover:bg-[#f5f7f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f7f7f7] text-[#222222]">
           <BellIcon />
@@ -209,23 +201,26 @@ export default function NotificationsPage() {
 
 function NotificationCard({
   notification,
+  wasUnread,
   onOpen,
 }: {
   notification: AppNotification;
+  wasUnread: boolean;
   onOpen: (notification: AppNotification) => void;
 }) {
+  const actionLabel = getActionLabel(notification.type);
   return (
     <button
       type="button"
       onClick={() => onOpen(notification)}
-      className="group flex h-full min-h-32 w-full items-start gap-4 rounded-2xl border border-[#dddddd] bg-white p-4 text-left transition hover:border-[#b0b0b0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+      className={cn("group relative flex min-h-24 w-full items-start gap-3.5 p-4 text-left transition hover:bg-[#f3f6f3] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand sm:p-5", wasUnread && "bg-[#f2f7f4]")}
     >
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f7f7f7] text-[#222222]">
+      <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-full", wasUnread ? "bg-primary text-white" : "bg-[#e9eeea] text-primary-dark")}>
         {getTypeIcon(notification.type)}
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-start justify-between gap-3">
-          <span className="text-sm font-semibold leading-5 text-[#222222]">
+          <span className={cn("text-sm leading-5 text-brand-dark", wasUnread ? "font-bold" : "font-semibold")}>
             {notification.title}
           </span>
           <time className="shrink-0 text-[11px] font-medium text-[#717171]">
@@ -236,13 +231,41 @@ function NotificationCard({
           {notification.message}
         </span>
         {notification.link && (
-          <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[#222222] underline decoration-[#b0b0b0] underline-offset-4 group-hover:decoration-black">
-            Ver detalle <ChevronIcon />
+          <span className="mt-2.5 inline-flex items-center gap-1 text-xs font-bold text-primary-dark">
+            {actionLabel} <ChevronIcon />
           </span>
         )}
       </span>
+      {wasUnread && <span className="absolute right-4 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-primary sm:right-5" aria-label="Nueva" />}
     </button>
   );
+}
+
+function getDateGroup(value: string): DateGroup {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "ANTERIORES";
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  const days = Math.floor((startOfToday - startOfDate) / 86_400_000);
+  if (days <= 0) return "HOY";
+  if (days < 7) return "SEMANA";
+  return "ANTERIORES";
+}
+
+function getDateGroupLabel(group: DateGroup) {
+  if (group === "HOY") return "Hoy";
+  if (group === "SEMANA") return "Esta semana";
+  return "Anteriores";
+}
+
+function getActionLabel(type: NotificationType) {
+  if (type === "PRIVATE_MESSAGE_RECEIVED") return "Abrir conversación";
+  if (type === "CONNECTION_REQUEST_RECEIVED") return "Responder solicitud";
+  if (type === "COMMUNITY_INVITATION_RECEIVED") return "Ver invitación";
+  if (type.startsWith("COMMUNITY_APPLICATION")) return "Ver solicitud";
+  if (type === "CONNECTION_REQUEST_ACCEPTED") return "Ver conexión";
+  return "Ver detalle";
 }
 
 function getCategory(type: NotificationType): Exclude<Category, "ALL"> {
