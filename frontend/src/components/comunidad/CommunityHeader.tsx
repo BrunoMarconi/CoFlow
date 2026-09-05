@@ -64,8 +64,10 @@ export default function CommunityHeader({
           </>
         }
       >
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-2 text-sm font-bold text-primary-dark"><span className={cn("h-2 w-2 rounded-full", community.is_active ? "bg-primary" : "bg-muted")} />{community.is_active ? "Comunidad activa" : "Comunidad inactiva"}</span>
+            <span className="rounded-full bg-[#edf1ee] px-2.5 py-1 text-[10px] font-bold text-secondary">{community.join_type === "OPEN" ? "Entrada abierta" : "Acceso con solicitud"}</span>
+            {availablePlaces > 0 && <span className="rounded-full bg-[#e5f1ea] px-2.5 py-1 text-[10px] font-bold text-primary-dark">{availablePlaces} {availablePlaces === 1 ? "plaza" : "plazas"}</span>}
           </div>
           <h1 className="mt-3 text-[34px] font-semibold tracking-[-0.045em] text-[#17392c] sm:text-[46px]">
             {community.name}
@@ -98,6 +100,17 @@ export default function CommunityHeader({
         className="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_minmax(350px,0.82fr)] xl:items-start"
       >
         <div className="space-y-5">
+          <section className="rounded-[24px] border border-black/[0.07] bg-[#fbfcfa] p-5 sm:p-7">
+            <div className="flex items-end justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">Información práctica</p><h2 className="mt-1 text-xl font-semibold tracking-[-0.025em] text-[#17392c]">Lo esencial antes de decidir</h2></div><span className={`shrink-0 rounded-full px-3 py-1.5 text-[10px] font-bold ${availablePlaces > 0 ? "bg-emerald-50 text-emerald-700" : "bg-[#eef0ed] text-secondary"}`}>{availablePlaces > 0 ? "Disponible" : "Completa"}</span></div>
+            <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-[16px] bg-black/[0.06] sm:grid-cols-4">
+              <DecisionFact label="Aportación" value={community.monthly_rent !== null ? `${community.monthly_rent.toLocaleString("es-ES")} €/mes` : "Por acordar"} />
+              <DecisionFact label="Depósito" value={community.deposit !== null ? `${community.deposit.toLocaleString("es-ES")} €` : "No indicado"} />
+              <DecisionFact label="Entrada" value={formatMoveInDate(community.move_in_date)} />
+              <DecisionFact label="Acceso" value={community.join_type === "OPEN" ? "Directo" : "Con solicitud"} />
+            </div>
+            {community.room_description && <p className="mt-4 text-sm leading-6 text-secondary">{community.room_description}</p>}
+          </section>
+
           <section className="rounded-[24px] border border-black/[0.07] bg-[#fbfcfa] p-5 sm:p-7">
             <h2 className="text-xl font-semibold tracking-[-0.025em] text-[#17392c]">Sobre nosotros</h2>
             {community.profile_description && (
@@ -152,9 +165,8 @@ export default function CommunityHeader({
                       member.role === "OWNER" && "ring-2 ring-primary ring-offset-2 ring-offset-surface"
                     )}
                   />
-                  <span className="w-full truncate text-xs font-bold text-foreground">
-                    {member.user.first_name}
-                  </span>
+                  <span className="w-full truncate text-xs font-bold text-foreground">{member.user.first_name}</span>
+                  <span className="-mt-1 text-[9px] font-semibold text-muted">{member.role === "OWNER" ? "Admin" : "Miembro"}</span>
                 </Link>
               ))}
               {community.member_count > 6 && (
@@ -166,7 +178,7 @@ export default function CommunityHeader({
           </section>
         </div>
 
-        <aside className="rounded-[24px] bg-[#183c2d] p-6 text-white shadow-[0_20px_48px_rgba(24,60,45,.16)] sm:p-7 xl:sticky xl:top-24">
+        <aside id="community-membership-action" className="order-first rounded-[24px] bg-[#183c2d] p-6 text-white shadow-[0_20px_48px_rgba(24,60,45,.16)] sm:p-7 xl:order-none xl:sticky xl:top-24">
           <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white">
             <JoinIcon />
           </span>
@@ -289,6 +301,17 @@ function Fact({ icon, value, label }: { icon: React.ReactNode; value: string; la
       <p className="mt-0.5 truncate text-[11px] font-semibold text-secondary">{label}</p>
     </div>
   );
+}
+
+function DecisionFact({ label, value }: { label: string; value: string }) {
+  return <div className="min-w-0 bg-white px-3 py-3.5"><p className="text-[9px] font-bold uppercase tracking-[0.1em] text-muted">{label}</p><p className="mt-1 truncate text-xs font-bold text-brand-dark" title={value}>{value}</p></div>;
+}
+
+function formatMoveInDate(value: string | null) {
+  if (!value) return "Flexible";
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return "Por acordar";
+  return new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short" }).format(date);
 }
 
 function getHighlights(community: Community) {

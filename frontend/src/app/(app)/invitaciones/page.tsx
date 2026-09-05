@@ -1,26 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { ArrowLeft, ChevronRight, Inbox, MapPin, Send, Users } from "lucide-react";
+import { ArrowLeft, ChevronRight, Clock3, Inbox, MapPin, Send, Users, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import CommunityApplicationsManager from "@/components/comunidad/CommunityApplicationsManager";
 import CommunityInvitationsManager from "@/components/comunidad/CommunityInvitationsManager";
 import { cancelApplication, getMyApplications } from "@/services/applications";
 import { getReceivedInvitations } from "@/services/invitations";
+import { getCommunity } from "@/services/communities";
 import { toast } from "@/components/ui/Toast";
 import { cn } from "@/lib/utils";
 import type { CommunityApplication } from "@/types/application";
 import type { CommunityInvitationInboxItem } from "@/types/invitation";
+import type { Community } from "@/types/community";
 
 type Tab = "RECEIVED" | "SENT";
 
 export default function InvitationsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, community, loading, communityLoading } = useAuth();
-  const [tab, setTab] = useState<Tab>("RECEIVED");
+  const [tab, setTab] = useState<Tab>(searchParams.get("tab") === "sent" ? "SENT" : "RECEIVED");
 
   if (loading || communityLoading || !user) {
     return <div className="mx-auto grid w-full max-w-4xl gap-4 pt-4"><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>;
@@ -36,14 +39,15 @@ export default function InvitationsPage() {
             <ArrowLeft className="h-6 w-6" />
           </button>
           <div>
-            <h1 className="text-3xl font-semibold tracking-[-0.04em] text-[#222222] sm:text-4xl">Invitaciones</h1>
-            <p className="mt-1 max-w-xl text-sm leading-6 text-[#717171] sm:text-base">Decide con calma quién entra en vuestra comunidad.</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary">Tu comunidad</p>
+            <h1 className="font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">Solicitudes e invitaciones</h1>
+            <p className="mt-1 max-w-xl text-sm leading-6 text-secondary sm:text-base">Sigue tus solicitudes y decide con calma quién entra en vuestra comunidad.</p>
           </div>
         </div>
       </header>
 
-      <div className="mt-7 grid grid-cols-2 rounded-2xl border border-[#dddddd] bg-white p-1" role="tablist" aria-label="Tipo de invitaciones">
-        <TabButton active={tab === "RECEIVED"} onClick={() => setTab("RECEIVED")} icon={<Inbox className="h-4 w-4" />} label="Recibidas" />
+      <div className="mt-7 grid grid-cols-2 rounded-[18px] border border-black/[0.06] bg-[#f1f3f1] p-1" role="tablist" aria-label="Tipo de solicitudes e invitaciones">
+        <TabButton active={tab === "RECEIVED"} onClick={() => setTab("RECEIVED")} icon={<Inbox className="h-4 w-4" />} label="Para ti" />
         <TabButton active={tab === "SENT"} onClick={() => setTab("SENT")} icon={<Send className="h-4 w-4" />} label="Enviadas" />
       </div>
 
@@ -129,7 +133,7 @@ function ReceivedInvitations() {
 }
 
 function TabButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: ReactNode; label: string }) {
-  return <button type="button" role="tab" aria-selected={active} onClick={onClick} className={cn("flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold transition", active ? "bg-black text-white shadow-sm" : "text-[#717171] hover:bg-[#f7f7f7] hover:text-[#222222]")}>{icon}{label}</button>;
+  return <button type="button" role="tab" aria-selected={active} onClick={onClick} className={cn("flex min-h-11 items-center justify-center gap-2 rounded-[14px] px-3 text-sm font-semibold transition", active ? "bg-white text-brand-dark shadow-sm" : "text-secondary hover:text-brand-dark")}>{icon}{label}</button>;
 }
 
 function SectionHeading({ title, description }: { title: string; description: string }) {
@@ -142,22 +146,34 @@ function EmptyState({ icon, text }: { icon: ReactNode; text: string }) {
 
 function MyApplications() {
   const [applications, setApplications] = useState<CommunityApplication[]>([]);
+  const [communities, setCommunities] = useState<Record<number, Community>>({});
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [confirmingId, setConfirmingId] = useState<number | null>(null);
 
   useEffect(() => {
     let active = true;
-    getMyApplications().then((data) => { if (active) setApplications(data); }).catch(() => { if (active) setError("No hemos podido cargar tus solicitudes."); }).finally(() => { if (active) setLoading(false); });
+    getMyApplications().then(async (data) => {
+      if (!active) return;
+      setApplications(data);
+      const uniqueIds = [...new Set(data.map((item) => item.community_id))];
+      const results = await Promise.allSettled(uniqueIds.map((id) => getCommunity(id)));
+      if (!active) return;
+      const next: Record<number, Community> = {};
+      results.forEach((result) => { if (result.status === "fulfilled") next[result.value.id] = result.value; });
+      setCommunities(next);
+    }).catch(() => { if (active) setError("No hemos podido cargar tus solicitudes."); }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, []);
 
   async function cancel(application: CommunityApplication) {
-    if (busyId !== null || !window.confirm("¿Quieres cancelar esta solicitud?")) return;
+    if (busyId !== null) return;
     setBusyId(application.id);
     try {
       const updated = await cancelApplication(application.id);
       setApplications((current) => current.map((item) => item.id === updated.id ? updated : item));
+      setConfirmingId(null);
       toast.success("Solicitud cancelada");
     } catch {
       toast.error("No hemos podido cancelar la solicitud");
@@ -170,24 +186,35 @@ function MyApplications() {
   if (error) return <div className="rounded-2xl border border-red-200 bg-white p-5 text-center text-sm font-medium text-red-600">{error}</div>;
   if (applications.length === 0) return <EmptyState icon={<Send className="h-6 w-6" />} text="Todavía no has enviado solicitudes a ninguna comunidad." />;
 
-  return <div className="divide-y divide-[#ebebeb] overflow-hidden rounded-2xl border border-[#dddddd] bg-white">{applications.map((application) => (
-    <article key={application.id} className="p-5">
+  const ordered = [...applications].sort((left, right) => {
+    if (left.status === "PENDING" && right.status !== "PENDING") return -1;
+    if (right.status === "PENDING" && left.status !== "PENDING") return 1;
+    return new Date(right.created_at).getTime() - new Date(left.created_at).getTime();
+  });
+
+  return <div className="grid gap-3 sm:grid-cols-2">{ordered.map((application) => {
+    const community = communities[application.community_id];
+    const dateLabel = application.status === "PENDING" ? `Enviada el ${formatDate(application.created_at)}` : application.reviewed_at ? `Resuelta el ${formatDate(application.reviewed_at)}` : `Actualizada el ${formatDate(application.cancelled_at ?? application.created_at)}`;
+    return (
+    <article key={application.id} className="flex min-h-56 flex-col rounded-[20px] border border-black/[0.06] bg-[#fbfcfa] p-5 shadow-[0_8px_26px_rgba(20,42,32,.045)]">
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0"><p className="text-sm font-semibold text-[#222222]">Comunidad #{application.community_id}</p><p className="mt-1 text-xs text-[#717171]">Enviada el {formatDate(application.created_at)}</p></div>
+        <div className="min-w-0"><p className="truncate text-base font-semibold text-brand-dark">{community?.name ?? "Comunidad"}</p><p className="mt-1 flex items-center gap-1.5 text-xs text-secondary">{community ? <><MapPin className="h-3.5 w-3.5" />{community.city}</> : `Solicitud #${application.id}`}</p></div>
         <Status status={application.status} />
       </div>
-      {application.message && <p className="mt-3 text-sm leading-6 text-[#717171]">{application.message}</p>}
-      <div className="mt-4 flex gap-2">
-        <Link href={`/comunidades/${application.community_id}`} className="flex min-h-11 flex-1 items-center justify-center rounded-xl border border-black bg-white px-4 text-sm font-semibold text-[#222222]">Ver comunidad</Link>
-        {application.status === "PENDING" && <button type="button" disabled={busyId !== null} onClick={() => cancel(application)} className="min-h-11 rounded-xl px-4 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50">{busyId === application.id ? "Cancelando…" : "Cancelar"}</button>}
+      {application.message && <p className="mt-4 line-clamp-3 text-sm leading-6 text-secondary">“{application.message}”</p>}
+      <p className="mt-3 flex items-center gap-1.5 text-[11px] text-muted"><Clock3 className="h-3.5 w-3.5" />{dateLabel}</p>
+      <div className="mt-auto flex gap-2 pt-4">
+        <Link href={`/comunidades/${application.community_id}`} className="flex min-h-11 flex-1 items-center justify-center rounded-full bg-brand-dark px-4 text-sm font-semibold text-white">Ver comunidad</Link>
+        {application.status === "PENDING" && <button type="button" disabled={busyId !== null} onClick={() => setConfirmingId(application.id)} aria-label="Cancelar solicitud" className="flex h-11 w-11 items-center justify-center rounded-full border border-black/[0.08] bg-white text-secondary hover:bg-red-50 hover:text-red-600 disabled:opacity-50"><X className="h-4 w-4" /></button>}
       </div>
+      {confirmingId === application.id && <div className="mt-3 rounded-[14px] border border-red-100 bg-red-50/70 p-3"><p className="text-xs leading-5 text-red-800">¿Retirar esta solicitud? La comunidad dejará de verla como pendiente.</p><div className="mt-2 flex gap-2"><button type="button" onClick={() => void cancel(application)} disabled={busyId !== null} className="h-9 flex-1 rounded-full bg-red-600 px-3 text-xs font-bold text-white disabled:opacity-50">{busyId === application.id ? "Retirando…" : "Sí, retirar"}</button><button type="button" onClick={() => setConfirmingId(null)} disabled={busyId !== null} className="h-9 flex-1 rounded-full bg-white px-3 text-xs font-bold text-brand-dark">Mantener</button></div></div>}
     </article>
-  ))}</div>;
+  );})}</div>;
 }
 
 function Status({ status }: { status: CommunityApplication["status"] }) {
   const labels = { PENDING: "Pendiente", ACCEPTED: "Aceptada", REJECTED: "Rechazada", CANCELLED: "Cancelada" };
-  return <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase", status === "ACCEPTED" ? "bg-emerald-50 text-emerald-700" : status === "REJECTED" ? "bg-red-50 text-red-600" : "bg-[#f7f7f7] text-[#717171]")}>{labels[status]}</span>;
+  return <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold", status === "ACCEPTED" ? "bg-emerald-50 text-emerald-700" : status === "REJECTED" ? "bg-red-50 text-red-600" : status === "PENDING" ? "bg-amber-50 text-amber-700" : "bg-[#eef0ed] text-secondary")}>{labels[status]}</span>;
 }
 
 function formatDate(value: string) {

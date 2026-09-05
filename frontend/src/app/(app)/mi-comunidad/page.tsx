@@ -24,6 +24,7 @@ import CompatibilityRadar, { CompatibilityRadarIcon } from "@/components/convive
 import CommunityWelcomeSheet from "@/components/comunidad/CommunityWelcomeSheet";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
 import { hasSeenCommunityWelcome, markCommunityWelcomeSeen } from "@/lib/communityWelcome";
+import { getCommunityApplications } from "@/services/applications";
 import type { Community } from "@/types/community";
 
 type Panel = "dashboard" | "chat" | "members" | "applications";
@@ -170,6 +171,16 @@ function CommunityDashboard({
   const [expanded, setExpanded] = useState<ExpandedSection>(null);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [shareLabel, setShareLabel] = useState("Compartir comunidad");
+  const [pendingApplications, setPendingApplications] = useState(0);
+
+  useEffect(() => {
+    if (!isOwner) return;
+    let active = true;
+    getCommunityApplications(community.id)
+      .then((items) => { if (active) setPendingApplications(items.filter((item) => item.status === "PENDING").length); })
+      .catch(() => { /* El panel sigue disponible aunque falle el contador. */ });
+    return () => { active = false; };
+  }, [community.id, isOwner]);
 
   const owner = useMemo(
     () => community.members.find((member) => member.role === "OWNER"),
@@ -325,6 +336,15 @@ function CommunityDashboard({
               </button>
             </div>
           </div>
+        </div>
+      </motion.section>
+
+      <motion.section initial="hidden" animate="show" variants={sectionVariants} className="rounded-[24px] border border-black/[0.06] bg-[#fbfcfa] p-4 shadow-[0_10px_30px_rgba(20,42,32,.04)] sm:p-5">
+        <div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">Ahora</p><h2 className="mt-1 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Estado de la comunidad</h2></div><span className="rounded-full bg-[#e9eeea] px-3 py-1.5 text-[10px] font-bold text-primary-dark">{isOwner ? "Vista de administrador" : "Vista de miembro"}</span></div>
+        <div className="mt-4 grid gap-2 sm:grid-cols-3">
+          {isOwner ? <DashboardAction icon={<ApplicationsIcon className="h-5 w-5" />} value={String(pendingApplications)} label="solicitudes pendientes" detail={pendingApplications > 0 ? "Esperan tu respuesta" : "Todo revisado"} attention={pendingApplications > 0} onClick={() => onOpenPanel("applications")} /> : <DashboardAction icon={<MessageIcon className="h-5 w-5" />} value="Chat" label="de la comunidad" detail="Habla con tus convivientes" onClick={() => onOpenPanel("chat")} />}
+          <DashboardAction icon={<SpotsIcon className="h-5 w-5" />} value={String(availablePlaces)} label="plazas disponibles" detail={availablePlaces > 0 ? "La comunidad puede crecer" : "Comunidad completa"} onClick={() => isOwner ? toggle("spots") : onOpenPanel("members")} />
+          <DashboardAction icon={<WalletIcon className="h-5 w-5" />} value={community.total_monthly_rent !== null ? `${community.total_monthly_rent.toLocaleString("es-ES")} €` : "Pendiente"} label="alquiler total" detail={community.total_monthly_rent !== null ? "Revisa el reparto mensual" : "Falta definir el reparto"} attention={community.total_monthly_rent === null} onClick={() => isOwner ? toggle("rent") : undefined} />
         </div>
       </motion.section>
 
@@ -490,13 +510,13 @@ function CommunityDashboard({
         <h2 className="mb-3 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Gestionar comunidad</h2>
 
         <SettingsSection label="">
-          <SettingsRow icon={MessageIcon} title="Mensajes de la comunidad" onClick={() => onOpenPanel("chat")} />
-          <SettingsRow icon={MembersIcon} title="Gestionar miembros" onClick={() => onOpenPanel("members")} />
+          <SettingsRow icon={MessageIcon} title="Mensajes de la comunidad" subtitle="Conversación privada entre miembros" onClick={() => onOpenPanel("chat")} />
+          <SettingsRow icon={MembersIcon} title={isOwner ? "Gestionar miembros" : "Miembros"} subtitle={`${community.member_count} de ${community.max_members} plazas ocupadas`} onClick={() => onOpenPanel("members")} />
 
           {isOwner && (
             <>
               <SettingsRow icon={EditIcon} title="Editar información" href={`/comunidades/${community.id}/editar`} />
-              <SettingsRow icon={ApplicationsIcon} title="Solicitudes para entrar" onClick={() => onOpenPanel("applications")} />
+              <SettingsRow icon={ApplicationsIcon} title="Solicitudes para entrar" subtitle={pendingApplications > 0 ? `${pendingApplications} pendientes de revisión` : "No hay solicitudes pendientes"} badge={pendingApplications} onClick={() => onOpenPanel("applications")} />
               <SettingsRow icon={InviteIcon} title="Invitaciones" onClick={() => toggle("invitations")} expanded={expanded === "invitations"} />
               <SettingsRow icon={SpotsIcon} title="Gestionar plazas" onClick={() => toggle("spots")} expanded={expanded === "spots"} />
               <SettingsRow icon={WalletIcon} title="Reparto del alquiler" onClick={() => toggle("rent")} expanded={expanded === "rent"} />
@@ -643,6 +663,11 @@ function HeroStat({ value, label }: { value: string; label: string }) {
       </p>
     </div>
   );
+}
+
+function DashboardAction({ icon, value, label, detail, attention = false, onClick }: { icon: ReactNode; value: string; label: string; detail: string; attention?: boolean; onClick?: () => void }) {
+  const content = <><span className={`flex h-10 w-10 items-center justify-center rounded-full ${attention ? "bg-amber-100 text-amber-800" : "bg-[#e8eeea] text-primary-dark"}`}>{icon}</span><span className="mt-3 block text-lg font-semibold tracking-[-0.02em] text-brand-dark">{value}</span><span className="block text-xs font-bold text-brand-dark">{label}</span><span className="mt-1 block text-[10px] leading-4 text-secondary">{detail}</span></>;
+  return onClick ? <button type="button" onClick={onClick} className="rounded-[16px] border border-black/[0.055] bg-white p-3.5 text-left transition hover:bg-[#f4f7f4]">{content}</button> : <div className="rounded-[16px] border border-black/[0.055] bg-white p-3.5">{content}</div>;
 }
 
 function Fact({ icon, label }: { icon: React.ReactNode; label: string }) {
