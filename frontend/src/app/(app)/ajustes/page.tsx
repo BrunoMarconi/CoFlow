@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { Bell, CheckCircle2, ChevronDown, ChevronRight, CircleHelp, CreditCard, KeyRound, LockKeyhole, LoaderCircle, LogOut, UserRound, TriangleAlert } from "lucide-react";
+import { Bell, CheckCircle2, ChevronDown, ChevronRight, CircleHelp, CreditCard, Home, KeyRound, LockKeyhole, LoaderCircle, LogOut, UserRound, TriangleAlert } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { stripePromise } from "@/lib/stripe";
 import { clearToken } from "@/lib/auth";
@@ -53,6 +53,7 @@ export default function AjustesPage() {
         <div className="space-y-4">
           <SettingsGroup title="Cuenta y preferencias">
             <SettingsLink href="/perfil/editar" icon={<UserRound />} title="Información personal" subtitle="Nombre, biografía y datos de contacto" />
+            <SettingsLink href="/perfil/preferencias" icon={<Home />} title="Preferencias de vivienda" subtitle="Presupuesto, hábitos y convivencia ideal" />
             <SettingsLink href="/notificaciones" icon={<Bell />} title="Notificaciones" subtitle="Actividad, mensajes y avisos" />
             <SettingsLink href="/ajustes/privacidad" icon={<LockKeyhole />} title="Privacidad" subtitle="Visibilidad del perfil y personas bloqueadas" />
           </SettingsGroup>
