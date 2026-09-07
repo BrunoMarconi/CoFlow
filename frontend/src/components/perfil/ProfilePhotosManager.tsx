@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens";
 import { Camera, ChevronLeft, ChevronRight, Grip, ImageIcon, Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import BottomSheet from "@/components/ui/BottomSheet";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
@@ -22,7 +23,9 @@ export default function ProfilePhotosManager({ photos, onUpload, onDelete, onReo
   const [showSourceSheet, setShowSourceSheet] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [busyPhotoId, setBusyPhotoId] = useState<number | null>(null);
-  const [draggedPhotoId, setDraggedPhotoId] = useState<number | null>(null);
+  const [pendingUploads, setPendingUploads] = useState<
+    Array<{ id: string; url: string }>
+  >([]);
   const [error, setError] = useState("");
 
   const sorted = [...photos].sort((a, b) => a.position - b.position);
@@ -47,11 +50,24 @@ export default function ProfilePhotosManager({ photos, onUpload, onDelete, onReo
     setError("");
     setUploading(true);
     setShowSourceSheet(false);
+
+    // Miniaturas locales al instante: la foto se ve en su sitio desde el
+    // primer momento en vez de un "Subiendo fotos..." sin nada que mirar.
+    // No se inventa un porcentaje porque onUpload no informa del avance;
+    // mostrar una barra falsa sería peor que no mostrarla.
+    const previews = files.map((file) => ({
+      id: `${file.name}-${file.lastModified}-${Math.random()}`,
+      url: URL.createObjectURL(file),
+    }));
+    setPendingUploads(previews);
+
     try {
       await onUpload(files);
     } catch (uploadError) {
       setError(getCommunityErrorMessage(uploadError, "No pudimos subir las fotos. Inténtalo de nuevo."));
     } finally {
+      previews.forEach((preview) => URL.revokeObjectURL(preview.url));
+      setPendingUploads([]);
       setUploading(false);
       resetInputs();
     }
@@ -75,6 +91,48 @@ export default function ProfilePhotosManager({ photos, onUpload, onDelete, onReo
     }
   }
 
+  /* Al soltar se mira qué foto hay bajo el dedo. Es más fiable que
+   * calcular la celda a partir del desplazamiento: la cuadrícula cambia
+   * de columnas con el ancho y las filas no son todas iguales.
+   *
+   * Se usan las coordenadas del evento nativo (de viewport) y no
+   * `info.point`, que framer da relativo al documento y obligaría a
+   * corregir el scroll a mano. */
+  function handleDragEnd(
+    photoId: number,
+    event: MouseEvent | TouchEvent | PointerEvent,
+    info: { point: { x: number; y: number } }
+  ) {
+
+    const point =
+      "clientX" in event
+        ? { x: event.clientX, y: event.clientY }
+        : event.changedTouches?.[0]
+          ? {
+              x: event.changedTouches[0].clientX,
+              y: event.changedTouches[0].clientY,
+            }
+          : { x: info.point.x - window.scrollX, y: info.point.y - window.scrollY };
+
+    // La foto que se arrastra queda justo debajo del dedo y taparía al
+    // destino, así que se recorren todas las capas del punto y se
+    // descarta la propia.
+    const dropTarget = document
+      .elementsFromPoint(point.x, point.y)
+      .map((element) => element.closest<HTMLElement>("[data-photo-index]"))
+      .find(
+        (element): element is HTMLElement =>
+          Boolean(element) && element!.dataset.photoId !== String(photoId)
+      );
+
+    if (!dropTarget) return;
+
+    const targetIndex = Number(dropTarget.dataset.photoIndex);
+    if (Number.isNaN(targetIndex)) return;
+
+    void movePhoto(photoId, targetIndex);
+  }
+
   async function movePhoto(photoId: number, targetIndex: number) {
     const currentIndex = sorted.findIndex((photo) => photo.id === photoId);
     if (currentIndex < 0 || targetIndex < 0 || targetIndex >= sorted.length || currentIndex === targetIndex || busyPhotoId !== null) return;
@@ -90,7 +148,6 @@ export default function ProfilePhotosManager({ photos, onUpload, onDelete, onReo
       setError("No pudimos reordenar las fotos.");
     } finally {
       setBusyPhotoId(null);
-      setDraggedPhotoId(null);
     }
   }
 
@@ -135,31 +192,83 @@ export default function ProfilePhotosManager({ photos, onUpload, onDelete, onReo
         </div>
 
         {error && <p role="alert" className="mt-3 rounded-12 border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-soft">{error}</p>}
-        {uploading && <p className="mt-3 text-sm font-semibold text-secondary">Subiendo fotos...</p>}
 
         <div className="mt-4 grid grid-cols-3 gap-3">
           {sorted.map((photo, index) => (
-            <article
+            /* Arrastre con framer-motion y no con el `draggable` de HTML5:
+               esa API es de escritorio y en táctil no dispara ningún
+               evento, así que en el móvil el asa invitaba a un gesto que
+               no hacía nada. framer usa eventos de puntero y funciona con
+               el dedo igual que con el ratón. */
+            <motion.article
               key={photo.id}
-              draggable={busyPhotoId === null}
-              onDragStart={() => setDraggedPhotoId(photo.id)}
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={() => draggedPhotoId && movePhoto(draggedPhotoId, index)}
-              className="group relative aspect-[3/4] overflow-hidden rounded-18 border border-border bg-surface shadow-soft"
+              layout
+              transition={MOTION_SPRING.snappy}
+              drag={busyPhotoId === null}
+              dragSnapToOrigin
+              dragElastic={0.16}
+              whileDrag={{ scale: 1.08, zIndex: 30, boxShadow: "var(--shadow-modal)" }}
+              onDragEnd={(event, info) => handleDragEnd(photo.id, event, info)}
+              data-photo-index={index}
+              data-photo-id={photo.id}
+              style={{ touchAction: "none" }}
+              className="group relative aspect-[3/4] cursor-grab overflow-hidden rounded-18 border border-border bg-surface shadow-soft active:cursor-grabbing"
             >
-              <Image src={photo.image_url} alt={`Foto ${index + 1} del perfil`} fill unoptimized sizes="(min-width: 640px) 240px, 33vw" className="object-cover" />
+              <Image src={photo.image_url} alt={`Foto ${index + 1} del perfil`} fill unoptimized sizes="(min-width: 640px) 240px, 33vw" className="pointer-events-none object-cover" />
               <span className="absolute left-2 top-2 flex h-7 w-7 cursor-grab items-center justify-center rounded-full bg-white/95 text-muted shadow-soft"><Grip className="h-4 w-4" /></span>
               <button type="button" disabled={busyPhotoId !== null} onClick={() => removePhoto(photo)} aria-label="Eliminar foto" className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-soft transition sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 disabled:opacity-40"><Trash2 className="h-3.5 w-3.5" /></button>
               <span className="absolute bottom-2 right-2 flex h-7 min-w-7 items-center justify-center rounded-full bg-black/65 px-2 text-xs font-bold text-white">{index + 1}</span>
+              {/* La primera es la portada del perfil: merece decirlo, es
+                  el motivo real por el que alguien reordena. */}
+              {index === 0 && (
+                <span className="pointer-events-none absolute inset-x-2 bottom-2 mr-9 truncate rounded-full bg-primary px-2 py-1 text-3xs font-bold text-white">
+                  Portada
+                </span>
+              )}
               <div className="absolute bottom-2 left-2 flex gap-1 transition sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                 <button type="button" disabled={index === 0 || busyPhotoId !== null} onClick={() => movePhoto(photo.id, index - 1)} aria-label="Mover foto antes" className="flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-foreground shadow-soft disabled:opacity-40"><ChevronLeft className="h-3.5 w-3.5" /></button>
                 <button type="button" disabled={index === sorted.length - 1 || busyPhotoId !== null} onClick={() => movePhoto(photo.id, index + 1)} aria-label="Mover foto después" className="flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-foreground shadow-soft disabled:opacity-40"><ChevronRight className="h-3.5 w-3.5" /></button>
               </div>
-            </article>
+            </motion.article>
           ))}
 
+          {/* Las fotos que están subiendo ocupan ya su hueco en la
+              cuadrícula: al terminar, la real las sustituye sin que nada
+              se mueva de sitio. */}
+          <AnimatePresence>
+            {pendingUploads.map((preview) => (
+              <motion.div
+                key={preview.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={MOTION_SPRING.snappy}
+                className="relative aspect-3/4 overflow-hidden rounded-18 border border-border bg-surface shadow-soft"
+              >
+                {/* Miniatura local, no pasa por next/image: es un blob
+                    del dispositivo y no hay nada que optimizar. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={preview.url}
+                  alt="Foto subiéndose"
+                  className="h-full w-full object-cover opacity-45"
+                />
+                <motion.div
+                  aria-hidden
+                  animate={{ opacity: [0.35, 0.8, 0.35] }}
+                  transition={{ duration: 1.3, repeat: Infinity, ease: MOTION_EASE.out }}
+                  className="absolute inset-x-0 bottom-0 h-1 bg-primary"
+                />
+                <span className="absolute inset-0 flex items-end justify-center pb-3 text-3xs font-bold text-white [text-shadow:0_1px_3px_rgb(0_0_0/0.6)]">
+                  Subiendo…
+                </span>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+
           {remaining > 0 && (
-            <button type="button" onClick={() => setShowSourceSheet(true)} disabled={uploading} className="flex aspect-[3/4] flex-col items-center justify-center rounded-18 border border-dashed border-border bg-surface text-center shadow-soft disabled:opacity-60">
+            <button type="button" onClick={() => setShowSourceSheet(true)} disabled={uploading} className="flex aspect-3/4 flex-col items-center justify-center rounded-18 border border-dashed border-border bg-surface text-center shadow-soft disabled:opacity-60">
               <Plus className="h-7 w-7 text-primary" />
               <span className="mt-2 text-xs font-bold text-foreground sm:text-sm">Añadir foto</span>
             </button>

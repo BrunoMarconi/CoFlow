@@ -12,13 +12,19 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion, MotionConfig } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  MotionConfig,
+  useAnimationControls,
+  useReducedMotion,
+} from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
   CHAT_MESSAGES_CHANGED_EVENT,
   type ChatMessageChangedDetail,
 } from "@/lib/chatEvents";
-import { MOTION_SPRING } from "@/lib/motionTokens";
+import { MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens";
 import BottomSheet from "@/components/ui/BottomSheet";
 import ImageLightbox from "@/components/chat/ImageLightbox";
 
@@ -153,6 +159,9 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
     ? lastReadState.value
     : undefined;
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+
+  const prefersReducedMotion = useReducedMotion();
+  const sendControls = useAnimationControls();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -582,6 +591,21 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
     const trimmed = content.trim();
     if (!trimmed) return;
 
+    // El avión sale despedido y vuelve a su sitio. El mensaje ya se
+    // pinta optimista en el hilo, así que esto no informa de nada nuevo:
+    // solo cierra el gesto de enviar, que es lo que se echaba en falta.
+    if (!prefersReducedMotion) {
+      void sendControls
+        .start({ x: 22, y: -22, opacity: 0, scale: 0.7 }, { duration: 0.22, ease: MOTION_EASE.out })
+        .then(() => {
+          sendControls.set({ x: -14, y: 14, opacity: 0, scale: 0.7 });
+          return sendControls.start(
+            { x: 0, y: 0, opacity: 1, scale: 1 },
+            MOTION_SPRING.snappy
+          );
+        });
+    }
+
     const optimisticMessage: PendingMessage = {
       id: `pending-${Date.now()}-${Math.random().toString(36).slice(2)}`,
       content: trimmed,
@@ -948,9 +972,11 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
             aria-label="Enviar mensaje"
             whileTap={content.trim() ? { scale: 0.9 } : undefined}
             transition={MOTION_SPRING.snappy}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-dark text-white shadow-[0_4px_12px_rgba(20,55,41,.18)] transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-[#e4e7e3] disabled:text-[#9ca39f] disabled:shadow-none"
+            className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-dark text-white shadow-raised transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-surface-soft disabled:text-muted disabled:shadow-none"
           >
-            <SendIcon />
+            <motion.span animate={sendControls} className="flex">
+              <SendIcon />
+            </motion.span>
           </motion.button>
         </div>
 

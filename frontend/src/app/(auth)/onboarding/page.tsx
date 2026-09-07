@@ -3,8 +3,10 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Camera, Check, Clock3, Coins, Home, Leaf, MessageCircle, PawPrint, Sparkles, Users } from "lucide-react";
 import Logo from "@/components/ui/Logo";
+import { MOTION_DURATION, MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens";
 import Spinner from "@/components/ui/Spinner";
 import { useAuth } from "@/hooks/useAuth";
 import { getMyOnboarding, saveOnboarding } from "@/services/onboarding";
@@ -14,6 +16,16 @@ import type { OnboardingAnswers } from "@/types/onboarding";
 const AVATAR_ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const AVATAR_MAX_SIZE_BYTES = 5 * 1024 * 1024;
 const DRAFT_KEY = "coflow_onboarding_v2";
+
+/* El recorrido son ocho pantallas seguidas y, hasta ahora, cada una
+ * sustituía a la anterior de golpe. El desplazamiento es corto (28px) a
+ * propósito: son ocho pasos y una animación de viaje largo, repetida
+ * ocho veces, se convierte en una espera. */
+const STAGE_VARIANTS = {
+  enter: (direction: number) => ({ opacity: 0, x: direction * 28 }),
+  center: { opacity: 1, x: 0 },
+  exit: (direction: number) => ({ opacity: 0, x: direction * -28 }),
+};
 
 type DraftAnswers = Partial<OnboardingAnswers>;
 type Question = { key: keyof OnboardingAnswers; title: string; options: string[] };
@@ -62,6 +74,9 @@ export default function OnboardingPage() {
   const isEditing = searchParams.get("edit") === "true";
   const { user, loading: authLoading, refresh } = useAuth();
   const [stage, setStage] = useState(0);
+  // 1 al avanzar, -1 al volver: el paso entra por el lado del que viene,
+  // así el gesto de "atrás" se siente como deshacer y no como otro avance.
+  const [direction, setDirection] = useState(1);
   const [answers, setAnswers] = useState<DraftAnswers>({});
   const [initializing, setInitializing] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -100,7 +115,14 @@ export default function OnboardingPage() {
     if (!stageComplete) { setError("Elige una opción en cada bloque para continuar."); return; }
     setError("");
     if (isLastStage) { void finish(); return; }
+    setDirection(1);
     setStage((value) => Math.min(value + 1, STAGES.length - 1));
+  }
+
+  function back() {
+    if (stage === 0) { router.back(); return; }
+    setDirection(-1);
+    setStage((value) => value - 1);
   }
 
   async function finish() {
@@ -128,13 +150,37 @@ export default function OnboardingPage() {
   return <main className="min-h-dvh bg-surface px-5 pb-8 pt-[calc(var(--safe-top)+1.5rem)] sm:px-8">
     <div className="mx-auto w-full max-w-3xl">
       <header className="flex items-center justify-between">
-        <button type="button" onClick={() => stage > 0 ? setStage((value) => value - 1) : router.back()} aria-label="Volver" className="flex h-11 w-11 items-center justify-start text-brand-dark"><ArrowLeft className="h-6 w-6" /></button>
+        <button type="button" onClick={back} aria-label="Volver" className="flex h-11 w-11 items-center justify-start text-brand-dark"><ArrowLeft className="h-6 w-6" /></button>
         <div className="flex items-center gap-2"><Logo size="sm" /><span className="text-xl font-bold text-brand-dark">CoFlow</span></div>
         <span className="min-w-16 text-right text-sm font-semibold text-secondary">{stage + 1} de {STAGES.length}</span>
       </header>
-      <div className="mt-5 grid grid-cols-8 gap-2" aria-label={`Paso ${stage + 1} de ${STAGES.length}`}>{STAGES.map((_, index) => <span key={index} className={`h-1.5 rounded-full transition-colors ${index <= stage ? "bg-primary" : "bg-border"}`} />)}</div>
+      {/* Cada segmento se rellena desde la izquierda en vez de cambiar de
+          color de golpe: el progreso se ve avanzar, que es lo único que
+          sostiene al que va por el paso 5 de 8. */}
+      <div className="mt-5 grid grid-cols-8 gap-2" aria-label={`Paso ${stage + 1} de ${STAGES.length}`}>
+        {STAGES.map((_, index) => (
+          <span key={index} className="h-1.5 overflow-hidden rounded-full bg-border">
+            <motion.span
+              className="block h-full origin-left rounded-full bg-primary"
+              initial={false}
+              animate={{ scaleX: index <= stage ? 1 : 0 }}
+              transition={MOTION_SPRING.snappy}
+            />
+          </span>
+        ))}
+      </div>
 
-      <section key={stage} className="animate-fade-in-up mt-9">
+      <AnimatePresence mode="wait" custom={direction} initial={false}>
+      <motion.section
+        key={stage}
+        custom={direction}
+        variants={STAGE_VARIANTS}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+        className="mt-9"
+      >
         <p className="text-sm font-bold uppercase tracking-[0.12em] text-primary">{current.eyebrow}</p>
         <h1 className="mt-2 text-3xl font-bold tracking-[-0.03em] text-brand-dark sm:text-5xl">{current.title}</h1>
         <p className="mt-3 max-w-xl text-base leading-7 text-secondary">{current.description}</p>
@@ -144,11 +190,25 @@ export default function OnboardingPage() {
             <legend className="px-1 text-base font-bold text-foreground">{question.title}</legend>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">{question.options.map((option, index) => {
               const selected = answers[question.key] === option;
-              return <button key={option} type="button" onClick={() => setAnswers((value) => ({ ...value, [question.key]: option }))} aria-pressed={selected} className={`flex min-h-16 items-center gap-3 rounded-14 border p-3 text-left text-sm font-semibold transition ${selected ? "border-primary text-primary-dark shadow-[inset_0_0_0_1px_var(--brand)]" : "border-border text-secondary hover:border-primary/30 hover:text-foreground"}`}>
+              return <motion.button key={option} type="button" onClick={() => setAnswers((value) => ({ ...value, [question.key]: option }))} aria-pressed={selected} whileTap={{ scale: 0.97 }} transition={MOTION_SPRING.snappy} className={`flex min-h-16 items-center gap-3 rounded-14 border p-3 text-left text-sm font-semibold transition-colors ${selected ? "border-primary text-primary-dark shadow-[inset_0_0_0_1px_var(--brand)]" : "border-border text-secondary hover:border-primary/30 hover:text-foreground"}`}>
                 <OptionIllustration index={index} active={selected} icon={current.icon} />
                 <span className="min-w-0 flex-1 leading-5">{option}</span>
-                {selected && <Check className="h-4 w-4 shrink-0 text-primary" />}
-              </button>;
+                {/* El check entra con spring: elegir es la única acción de
+                    esta pantalla y hasta ahora no devolvía nada. */}
+                <AnimatePresence>
+                  {selected && (
+                    <motion.span
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={MOTION_SPRING.snappy}
+                      className="shrink-0"
+                    >
+                      <Check className="h-4 w-4 text-primary" />
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>;
             })}</div>
           </fieldset>)}
         </div>}
@@ -157,7 +217,8 @@ export default function OnboardingPage() {
         <button type="button" onClick={next} disabled={submitting || (!isLastStage && !stageComplete)} className="mt-7 flex h-14 w-full items-center justify-center gap-2 rounded-14 bg-primary px-6 text-base font-bold text-white shadow-button transition hover:bg-primary-hover disabled:opacity-45">{submitting ? "Guardando..." : isLastStage ? (isEditing ? "Guardar cambios" : "Terminar") : "Continuar"}<ArrowRight className="h-5 w-5" /></button>
         {isLastStage && !avatarFile && <button type="button" onClick={next} disabled={submitting} className="mx-auto mt-4 block text-sm font-bold text-primary">Continuar sin foto</button>}
         {!isLastStage && <p className="mt-4 text-center text-xs text-muted">Tus respuestas se guardan mientras avanzas</p>}
-      </section>
+      </motion.section>
+      </AnimatePresence>
     </div>
   </main>;
 }
