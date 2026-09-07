@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
+import { AnimatePresence, motion } from "framer-motion";
+import { MOTION_DURATION, MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens";
 import { cn } from "@/lib/utils";
 
 /** Botón de favorito reutilizable, pensado para colocarse como
@@ -19,7 +19,7 @@ export default function SaveHeartButton({
   className?: string;
 }) {
   return (
-    <button
+    <motion.button
       type="button"
       onClick={(event) => {
         event.preventDefault();
@@ -27,15 +27,33 @@ export default function SaveHeartButton({
         onToggle();
       }}
       disabled={saving}
+      whileTap={saving ? undefined : { scale: 0.88 }}
+      transition={MOTION_SPRING.snappy}
       aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
       aria-pressed={saved}
       className={cn(
-        "flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-primary shadow-soft disabled:opacity-60",
+        "relative flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-primary shadow-soft disabled:opacity-60",
         className
       )}
     >
+      {/* Anillo que se expande solo al guardar: confirma la acción sin
+          añadir un toast para algo tan pequeño. */}
+      <AnimatePresence>
+        {saved && (
+          <motion.span
+            key="ring"
+            aria-hidden
+            initial={{ opacity: 0.5, scale: 0.6 }}
+            animate={{ opacity: 0, scale: 1.7 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: MOTION_EASE.out }}
+            className="absolute inset-0 rounded-full border-2 border-primary"
+          />
+        )}
+      </AnimatePresence>
+
       <HeartIcon filled={saved} />
-    </button>
+    </motion.button>
   );
 }
 

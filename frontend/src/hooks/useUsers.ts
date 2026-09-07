@@ -33,9 +33,9 @@ export function useUsers(params?: GetPublicUsersParams) {
     error: query.isError
       ? "No pudimos cargar las personas. Inténtalo de nuevo."
       : "",
-    refetch: () => {
-      query.refetch();
-    },
+    // Devuelve la promesa para que quien refresque pueda esperarla
+    // (pull-to-refresh necesita saber cuándo termina).
+    refetch: () => query.refetch(),
     hasMore: Boolean(query.hasNextPage),
     loadingMore: query.isFetchingNextPage,
     loadMore: () => {

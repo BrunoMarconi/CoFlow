@@ -10,6 +10,7 @@ import { AnimatePresence, motion, MotionConfig, useDragControls } from "framer-m
 import { useCommunities } from "@/hooks/useCommunities";
 import { useAuth } from "@/hooks/useAuth";
 import CommunityGrid from "@/components/comunidad/CommunityGrid";
+import PullToRefresh from "@/components/interaction/PullToRefresh";
 import CommunityFilters, {
   JOIN_TYPE_OPTIONS,
   URGENCY_OPTIONS,
@@ -236,7 +237,7 @@ export default function ComunidadesPage() {
       retryLabel="Volver a intentarlo"
     />
   ) : (
-    <>
+    <PullToRefresh onRefresh={refetch}>
       <CommunityGrid
         communities={visibleCommunities}
         ownCommunityId={myCommunity?.id}
@@ -249,7 +250,7 @@ export default function ComunidadesPage() {
           </SecondaryButton>
         </div>
       )}
-    </>
+    </PullToRefresh>
   );
 
   const resultsCounter = !loading && !error && (

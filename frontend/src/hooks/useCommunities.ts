@@ -45,9 +45,9 @@ export function useCommunities(params?: GetCommunitiesParams) {
     error: query.isError
       ? "No pudimos cargar las comunidades. Intenta de nuevo."
       : "",
-    refetch: () => {
-      query.refetch();
-    },
+    // Devuelve la promesa para que quien refresque pueda esperarla
+    // (pull-to-refresh necesita saber cuándo termina).
+    refetch: () => query.refetch(),
     hasMore: Boolean(query.hasNextPage),
     loadingMore: query.isFetchingNextPage,
     loadMore: () => {

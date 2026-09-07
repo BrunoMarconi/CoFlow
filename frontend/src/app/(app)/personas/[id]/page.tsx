@@ -9,6 +9,7 @@ import Spinner from "@/components/ui/Spinner";
 import PhotoDetailShell from "@/components/ui/PhotoDetailShell";
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import UserAvatar from "@/components/ui/UserAvatar";
+import OnlineDot from "@/components/ui/OnlineDot";
 import UserSafetyActions from "@/components/usuario/UserSafetyActions";
 import CompatibilityRadar, { CompatibilityRadarIcon } from "@/components/convivencia/CompatibilityRadar";
 import CompatibilityExplanation from "@/components/usuario/CompatibilityExplanation";
@@ -100,7 +101,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
               size="xl"
               className="h-32 w-32 sm:h-36 sm:w-36"
             />
-            {profile.is_online && <span className="absolute bottom-2 right-2 h-4 w-4 rounded-full border-2 border-white bg-emerald-500" aria-label="En línea" />}
+            {profile.is_online && <OnlineDot size="md" className="bottom-2 right-2" />}
           </div>
 
           <div>

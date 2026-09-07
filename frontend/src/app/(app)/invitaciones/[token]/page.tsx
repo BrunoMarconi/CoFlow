@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, CalendarDays, Check, MapPin, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
+import { celebrate } from "@/components/interaction/Celebration";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import { acceptInvitation, declineInvitation, getInvitationByToken } from "@/services/invitations";
 import type { CommunityInvitationDetail } from "@/types/invitation";
@@ -50,6 +51,9 @@ export default function InvitationPage() {
       await refreshUnreadCount();
       await refreshCommunity();
       router.replace("/mi-comunidad");
+      if (invitation) {
+        celebrate.community({ name: invitation.community.name });
+      }
     } catch (error) {
       setActionError(getCommunityErrorMessage(error, "No hemos podido aceptar la invitación. Inténtalo de nuevo."));
       setSubmitting(false);

@@ -8,6 +8,7 @@ import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useUsers } from "@/hooks/useUsers";
 import UserGrid from "@/components/usuario/UserGrid";
+import PullToRefresh from "@/components/interaction/PullToRefresh";
 import UserFilters, {
   defaultUserFilters,
   isUserFiltersActive,
@@ -34,7 +35,7 @@ export default function UsuariosPage() {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const maxBudget = filters.maxBudget ? Number(filters.maxBudget) : undefined;
-  const { users, loading, hasMore, loadingMore, loadMore } = useUsers({
+  const { users, loading, hasMore, loadingMore, loadMore, refetch } = useUsers({
     max_budget: maxBudget,
     city: filters.city || undefined,
     community_status:
@@ -216,7 +217,7 @@ export default function UsuariosPage() {
               }
             />
           ) : (
-            <>
+            <PullToRefresh onRefresh={refetch}>
               <UserGrid
                 users={visibleUsers}
                 onOpen={(userId) => router.push(`/personas/${userId}`, { transitionTypes: ["nav-forward"] })}
@@ -230,7 +231,7 @@ export default function UsuariosPage() {
                   </SecondaryButton>
                 </div>
               )}
-            </>
+            </PullToRefresh>
           )}
         </section>
 

@@ -22,6 +22,7 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import EmptyState from "@/components/ui/EmptyState";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import UserAvatar from "@/components/ui/UserAvatar";
+import { celebrate } from "@/components/interaction/Celebration";
 import { detailTransitionName } from "@/lib/detailTransitions";
 import {
   acceptConnection,
@@ -153,7 +154,32 @@ export default function ConexionesPage() {
       }));
       syncPerson(acceptedConnection, "ACCEPTED");
       refreshConnectionQueries(queryClient);
-      router.push(`/mensajes/${connection.id}`);
+
+      // Antes esto empujaba directamente al chat. Aceptar una solicitud
+      // es de los pocos momentos con carga emocional de la app, así que
+      // se celebra y se deja que sea el usuario quien decida entrar —
+      // el chat sigue estando a un solo tap.
+      if (user) {
+        const person = otherParticipant(acceptedConnection, user.id);
+        celebrate.match({
+          me: {
+            id: user.id,
+            firstName: user.first_name,
+            lastName: user.last_name,
+            imageUrl: user.avatar_url,
+          },
+          them: {
+            id: person.id,
+            firstName: person.first_name,
+            lastName: person.last_name,
+            imageUrl: person.avatar_url,
+          },
+          action: {
+            label: `Enviar mensaje a ${person.first_name}`,
+            onClick: () => router.push(`/mensajes/${connection.id}`),
+          },
+        });
+      }
     } catch (error) {
       setActionError(
         getCommunityErrorMessage(

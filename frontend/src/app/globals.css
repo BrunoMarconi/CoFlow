@@ -41,7 +41,11 @@
      reserva espacio (padding) y los componentes que la ocupan
      realmente (Navbar, BottomNavigation), para que no diverjan. */
   --mobile-header-height: 4.5rem;
-  --mobile-bottom-nav-height: 5rem;
+  /* La barra inferior flota: 4rem de cápsula + 0.625rem de separación
+     del borde. Todo lo que se apoya sobre ella (FAB, barras de guardar,
+     toasts) se posiciona con esta variable, así que debe reflejar el
+     alto real ocupado, sin contar la safe area. */
+  --mobile-bottom-nav-height: 4.75rem;
 
   /* Escala de z-index única para toda la app. No renombra literales
      que nunca compiten entre sí (FAB, barras de progreso puntuales). */

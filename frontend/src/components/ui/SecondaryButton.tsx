@@ -25,8 +25,8 @@ export default function SecondaryButton({
 }: SecondaryButtonProps) {
   const classes = cn(
     "inline-flex h-11 items-center justify-center gap-2 rounded-14 border bg-surface px-5 text-sm font-bold",
-    "transition-all duration-180 ease-out hover:-translate-y-0.5",
-    "disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0",
+    "transition-all duration-180 ease-out hover:-translate-y-0.5 active:scale-[0.97]",
+    "disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:active:scale-100",
     destructive
       ? "border-red-200 text-red-600 hover:bg-red-50"
       : "border-border text-foreground hover:bg-surface-muted",

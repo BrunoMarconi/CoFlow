@@ -33,7 +33,7 @@ export default function Tabs({
     >
       {items.map((item) => {
         const tabClassName = cn(
-          "relative flex h-11 shrink-0 items-center whitespace-nowrap px-1 text-sm font-bold transition-colors duration-200",
+          "relative flex h-11 shrink-0 items-center whitespace-nowrap px-1 text-sm font-bold transition-colors duration-200 active:scale-[0.96]",
           item.active
             ? "text-primary-dark"
             : "text-muted hover:text-foreground"

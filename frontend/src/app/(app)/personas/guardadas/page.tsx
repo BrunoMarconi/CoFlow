@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
+import OnlineDot from "@/components/ui/OnlineDot";
 import PersonPreviewPanel from "@/components/usuario/PersonPreviewPanel";
 import MatchScoreBadge from "@/components/usuario/MatchScoreBadge";
 import Spinner from "@/components/ui/Spinner";
@@ -166,7 +167,7 @@ function SavedPersonCard({ profile, removing, onOpen, onRemove }: { profile: Use
   return (
     <motion.article layout exit={{ opacity: 0, scale: 0.97 }} className="group relative flex min-h-44 flex-col rounded-[20px] border border-black/[0.06] bg-[#fbfcfa] p-4 shadow-[0_8px_26px_rgba(20,42,32,.045)] transition-shadow sm:hover:shadow-[0_16px_36px_rgba(20,42,32,.09)]">
       <div className="flex items-start gap-3">
-        <div className="relative shrink-0"><UserAvatar firstName={profile.first_name} lastName={profile.last_name} userId={profile.id} imageUrl={profile.avatar_url} size="lg" />{profile.is_online && <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500" aria-label="En línea" />}</div>
+        <div className="relative shrink-0"><UserAvatar firstName={profile.first_name} lastName={profile.last_name} userId={profile.id} imageUrl={profile.avatar_url} size="lg" />{profile.is_online && <OnlineDot className="bottom-0 right-0" />}</div>
         <button type="button" onClick={onOpen} className="min-w-0 flex-1 text-left">
           <span className="flex items-center gap-1.5"><span className="truncate text-[16px] font-semibold tracking-[-0.02em] text-brand-dark">{fullName}</span>{profile.is_verified && <VerifiedIcon />}</span>
           <span className="mt-1 block truncate text-xs text-secondary">{[profile.age !== null ? `${profile.age} años` : null, details].filter(Boolean).join(" · ")}</span>

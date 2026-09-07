@@ -15,6 +15,7 @@ import BottomNavigation from "@/components/layout/BottomNavigation";
 import EmailVerificationBanner from "@/components/layout/EmailVerificationBanner";
 import SwipeNavigation from "@/components/layout/SwipeNavigation";
 import Toaster from "@/components/ui/Toast";
+import Celebrations from "@/components/interaction/Celebration";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { useAuth } from "@/hooks/useAuth";
 import { useOwnerMode } from "@/hooks/useOwnerMode";
@@ -278,6 +279,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       {!hidesAppChrome && <BottomNavigation />}
       {!hidesAppChrome && pathname === "/perfil" && <OwnerModeToggle />}
       <Toaster />
+      <Celebrations />
       <ConnectivityStatus />
       {transitionTarget && (
         <OwnerModeTransition

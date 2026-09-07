@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
+import OnlineDot from "@/components/ui/OnlineDot";
 import MatchScoreBadge from "./MatchScoreBadge";
 import { useUserConnection } from "@/hooks/useUserConnection";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
@@ -174,9 +175,7 @@ export default function UserCard({
                 imageUrl={isGenericCoflowAvatar(user.avatar_url) ? null : user.avatar_url}
                 size="lg"
               />
-              {user.is_online && (
-                <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500" />
-              )}
+              {user.is_online && <OnlineDot className="bottom-0 right-0" />}
             </div>
 
             <div className="min-w-0 flex-1">

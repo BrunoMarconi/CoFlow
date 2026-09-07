@@ -129,3 +129,34 @@ export const MOTION_PROFILE_PUBLIC_NAV_TILT_DEG = 6;
 
 /** Con prefers-reduced-motion: solo fade, sin desplazamiento ni giro. */
 export const MOTION_PROFILE_PUBLIC_NAV_REDUCED_DURATION = 0.1;
+
+/* --- Celebraciones ----------------------------------------------------
+ * La única familia de motion de la app donde la animación SÍ es
+ * protagonista, y no contradice la filosofía de velocidad de arriba: no
+ * ocurre al navegar (nunca retrasa una transición ni se interpone entre
+ * un tap y su pantalla), sino en los pocos momentos que merecen pausa —
+ * una conexión aceptada, entrar en una comunidad, el perfil al 100%.
+ * Son eventos raros y con carga emocional: aquí el coste de ~500ms se
+ * paga en percepción de producto, no en fricción diaria. */
+
+/** Spring del núcleo (avatares juntándose, medalla): más recorrido y un
+ * rebote leve y perceptible, al contrario que MOTION_SPRING.gentle. */
+export const MOTION_CELEBRATION_SPRING: Transition = {
+  type: "spring",
+  stiffness: 260,
+  damping: 18,
+  mass: 0.85,
+};
+
+/** Duración del destello radial que sale del punto de encuentro. */
+export const MOTION_CELEBRATION_BURST_DURATION = 0.72;
+
+/** Distancia (px) que recorren las partículas del destello. */
+export const MOTION_CELEBRATION_BURST_DISTANCE = 92;
+
+/** Stagger entre las piezas de texto/acciones del overlay. */
+export const MOTION_CELEBRATION_STAGGER = 0.07;
+
+/** Cierre automático del overlay de celebración. Suficiente para leerlo
+ * sin llegar a estorbar; siempre se puede descartar antes. */
+export const MOTION_CELEBRATION_AUTO_DISMISS_MS = 3600;

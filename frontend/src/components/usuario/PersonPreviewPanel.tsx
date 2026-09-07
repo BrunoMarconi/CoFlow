@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
+import OnlineDot from "@/components/ui/OnlineDot";
 import Spinner from "@/components/ui/Spinner";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { useUserConnection } from "@/hooks/useUserConnection";
@@ -169,7 +170,7 @@ function PreviewContent({ profile, onClose }: { profile: UserPublicProfile; onCl
               imageUrl={profile.avatar_url}
               size="xl"
             />
-            {profile.is_online && <span className="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-white bg-emerald-500" />}
+            {profile.is_online && <OnlineDot size="md" className="bottom-1 right-1" />}
           </div>
 
           <button

@@ -1,7 +1,16 @@
 "use client";
 
-import { ViewTransition, type ReactNode } from "react";
+import { useRef, ViewTransition, type ReactNode } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
+
+/* Parallax de la portada en las pantallas de detalle (persona, piso,
+ * comunidad). El media se desplaza más despacio que la página, así que
+ * la ficha parece deslizarse por encima de la foto.
+ *
+ * El contenedor interno sobresale un 12% por arriba y por abajo para que
+ * el recorrido (±8%) nunca destape un borde vacío. */
+const PARALLAX_TRAVEL = ["-8%", "8%"];
 
 export default function PhotoDetailShell({
   transitionName,
@@ -18,17 +27,35 @@ export default function PhotoDetailShell({
   mediaClassName?: string;
   contentClassName?: string;
 }) {
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: mediaRef,
+    offset: ["start start", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], PARALLAX_TRAVEL);
+
   return (
     <div className="-mx-6 sm:mx-auto sm:w-full sm:max-w-6xl">
       <div className="relative">
         <ViewTransition name={transitionName} share="coflow-detail-morph">
           <div
+            ref={mediaRef}
             className={cn(
               "relative h-[52svh] min-h-[22rem] max-h-[40rem] overflow-hidden bg-[#eceeea] sm:h-[38rem] sm:rounded-[1.75rem]",
               mediaClassName
             )}
           >
-            {media}
+            {prefersReducedMotion ? (
+              media
+            ) : (
+              <motion.div
+                style={{ y }}
+                className="absolute inset-x-0 inset-y-[-12%] will-change-transform"
+              >
+                {media}
+              </motion.div>
+            )}
           </div>
         </ViewTransition>
 

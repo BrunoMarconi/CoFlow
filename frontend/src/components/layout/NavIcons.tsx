@@ -1,4 +1,9 @@
-export type IconProps = { className?: string };
+export type IconProps = {
+  className?: string;
+  /** Variante sólida para el estado activo de la barra inferior: es el
+   * cambio trazo → relleno que usa iOS para marcar la pestaña actual. */
+  filled?: boolean;
+};
 
 export function HomeIcon({ className }: IconProps) {
   return (
@@ -10,7 +15,15 @@ export function HomeIcon({ className }: IconProps) {
   );
 }
 
-export function KeyIcon({ className }: IconProps) {
+export function KeyIcon({ className, filled }: IconProps) {
+  if (filled) {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" clipRule="evenodd" d="M19.29 3.29a1 1 0 1 1 1.42 1.42l-1.3 1.29 1.3 1.3a1 1 0 0 1-1.42 1.41l-1.29-1.3-1.29 1.3 1.3 1.29a1 1 0 1 1-1.42 1.41l-1.3-1.29-2.6 2.6a5.5 5.5 0 1 1-1.41-1.42L19.29 3.29ZM8 11.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" />
+      </svg>
+    );
+  }
+
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="8" cy="15" r="4" />
@@ -21,7 +34,15 @@ export function KeyIcon({ className }: IconProps) {
   );
 }
 
-export function CompassIcon({ className }: IconProps) {
+export function CompassIcon({ className, filled }: IconProps) {
+  if (filled) {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" clipRule="evenodd" d="M12 2.6a9.4 9.4 0 1 0 0 18.8 9.4 9.4 0 0 0 0-18.8Zm4.06 4.5a.75.75 0 0 1 .96.96l-2.4 6.32a.75.75 0 0 1-.44.44l-6.32 2.4a.75.75 0 0 1-.96-.96l2.4-6.32a.75.75 0 0 1 .44-.44l6.32-2.4Z" />
+      </svg>
+    );
+  }
+
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="12" cy="12" r="9" />
@@ -30,7 +51,18 @@ export function CompassIcon({ className }: IconProps) {
   );
 }
 
-export function UsersIcon({ className }: IconProps) {
+export function UsersIcon({ className, filled }: IconProps) {
+  if (filled) {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <circle cx="9" cy="7.2" r="4.2" />
+        <path d="M9 13.4c-3.98 0-7 2.62-7 5.95V21h14v-1.65c0-3.33-3.02-5.95-7-5.95Z" />
+        <circle cx="17.4" cy="8.4" r="3.1" />
+        <path d="M17.4 13.6c-.7 0-1.37.11-1.98.32A8.3 8.3 0 0 1 17.6 19.4V21H22v-1.9c0-3-2.06-5.5-4.6-5.5Z" />
+      </svg>
+    );
+  }
+
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
@@ -41,7 +73,15 @@ export function UsersIcon({ className }: IconProps) {
   );
 }
 
-export function MessageIcon({ className }: IconProps) {
+export function MessageIcon({ className, filled }: IconProps) {
+  if (filled) {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M17 2.6H7A4.4 4.4 0 0 0 2.6 7v14.4a.9.9 0 0 0 1.4.75L8.6 19H17a4.4 4.4 0 0 0 4.4-4.4V7A4.4 4.4 0 0 0 17 2.6Z" />
+      </svg>
+    );
+  }
+
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" />
@@ -66,7 +106,16 @@ export function PlusIcon({ className }: IconProps) {
   );
 }
 
-export function ProfileIcon({ className }: IconProps) {
+export function ProfileIcon({ className, filled }: IconProps) {
+  if (filled) {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <circle cx="12" cy="8" r="4.3" />
+        <path d="M12 14.1c-4.66 0-8.4 3.2-8.4 7.15 0 .42.34.75.75.75h15.3c.41 0 .75-.33.75-.75 0-3.95-3.74-7.15-8.4-7.15Z" />
+      </svg>
+    );
+  }
+
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="12" cy="8" r="4" />

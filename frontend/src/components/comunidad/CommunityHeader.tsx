@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import CommunityApplicationAction from "./CommunityApplicationAction";
 import CommunityCover from "@/components/ui/CommunityCover";
+import CountUp from "@/components/ui/CountUp";
 import PhotoDetailShell from "@/components/ui/PhotoDetailShell";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
@@ -78,13 +79,26 @@ export default function CommunityHeader({
           </p>
 
           <div className="mt-7 grid grid-cols-2 overflow-hidden rounded-[20px] border border-black/[0.07] sm:grid-cols-4 sm:divide-x sm:divide-black/[0.06]">
-            <Fact icon={<PeopleIcon />} value={`${community.member_count}/${community.max_members}`} label="Miembros" />
+            <Fact
+              icon={<PeopleIcon />}
+              value={
+                <>
+                  <CountUp value={community.member_count} />/{community.max_members}
+                </>
+              }
+              label="Miembros"
+            />
             <Fact
               icon={<BudgetIcon />}
               value={
-                community.monthly_rent !== null
-                  ? `${community.monthly_rent.toLocaleString("es-ES")} €`
-                  : "A convenir"
+                community.monthly_rent !== null ? (
+                  <CountUp
+                    value={community.monthly_rent}
+                    format={(current) => `${current.toLocaleString("es-ES")} €`}
+                  />
+                ) : (
+                  "A convenir"
+                )
               }
               label="Por persona"
             />
@@ -293,7 +307,7 @@ function MembershipAction({
   return <CommunityApplicationAction community={community} actionLabel="Solicitar unirme" />;
 }
 
-function Fact({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
+function Fact({ icon, value, label }: { icon: React.ReactNode; value: React.ReactNode; label: string }) {
   return (
     <div className="min-w-0 border-b border-black/[0.06] px-3 py-4 text-center sm:border-b-0">
       <span className="mx-auto flex h-6 w-6 items-center justify-center text-primary">{icon}</span>

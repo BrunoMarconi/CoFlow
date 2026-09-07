@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { celebrate } from "@/components/interaction/Celebration";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import type { User } from "@/types/auth";
 
@@ -24,9 +26,32 @@ function computeCompletion(user: User) {
   return Math.round((done / checks.length) * 100);
 }
 
+/** Marca de "ya celebrado" en el propio dispositivo: el backend no
+ * guarda este hito y sin ella la celebración volvería a salir en cada
+ * visita al perfil una vez completado. */
+const CELEBRATED_KEY = "coflow:profile-completion-celebrated";
+
 export default function ProfileCompletionCard({ user }: { user: User }) {
   const pct = computeCompletion(user);
   const prefersReducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (pct < 100) return;
+
+    try {
+      if (localStorage.getItem(CELEBRATED_KEY) === user.id) return;
+      localStorage.setItem(CELEBRATED_KEY, user.id);
+    } catch {
+      // Modo privado / almacenamiento bloqueado: preferimos celebrar de
+      // más que romper el perfil.
+    }
+
+    celebrate.milestone({
+      title: "¡Perfil al 100%!",
+      message: "Ahora apareces mucho más arriba en las búsquedas.",
+      glyph: "✨",
+    });
+  }, [pct, user.id]);
 
   return (
     <section className="rounded-18 border border-border bg-surface p-4 sm:p-5">
