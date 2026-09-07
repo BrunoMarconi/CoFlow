@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useMobilePageTitle } from "@/hooks/useMobilePageTitle";
 import Avatar from "@/components/ui/Avatar";
+import ProfileChecklistCard from "@/components/perfil/ProfileChecklistCard";
 import AvatarUploader from "@/components/perfil/AvatarUploader";
 import TrustSection from "@/components/perfil/TrustProfileCard";
 import YourProfileSection from "@/components/perfil/YourProfileSection";
@@ -20,7 +21,7 @@ import { getMyCompatibilityScore, getSavedProfiles } from "@/services/users";
 import { getConnectionOverview } from "@/services/connections";
 import { CONNECTION_OVERVIEW_QUERY_KEY } from "@/lib/connectionQueryState";
 import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
-import { computeProfileCompletion, getProfileCompletionChecklist } from "@/lib/profileCompletion";
+import { getProfileCompletionChecklist } from "@/lib/profileCompletion";
 import type { OnboardingAnswers } from "@/types/onboarding";
 
 export default function PerfilPage() {
@@ -84,10 +85,7 @@ export default function PerfilPage() {
     return <PageSkeleton variant="profile" />;
   }
 
-  const completion = computeProfileCompletion(user);
-  const missingItems = getProfileCompletionChecklist(user).filter(
-    (item) => !item.done
-  );
+  const checklist = getProfileCompletionChecklist(user);
   const connectionsCount = connectionOverview?.accepted.length ?? 0;
   const pendingReceivedCount = connectionOverview?.received.length ?? 0;
   const locationLine = [community?.city, user.age ? `${user.age} años` : null]
@@ -107,145 +105,81 @@ export default function PerfilPage() {
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
       className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] space-y-4 px-6 py-6 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-7xl sm:rounded-sheet sm:p-7 lg:p-8"
     >
-      <section className="relative overflow-hidden rounded-panel bg-surface p-4 shadow-sm sm:p-7 lg:p-8">
-        <div className="mb-5 flex items-end justify-between gap-4 sm:mb-7">
-          <div>
-            <p className="text-xs font-semibold text-muted">Tu identidad en CoFlow</p>
-            <h1 className="mt-0.5 font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">
-              Mi perfil
-            </h1>
-          </div>
-          <Link
-            href={`/personas/${user.id}`}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-surface-soft px-4 text-xs font-bold text-primary-dark transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:text-sm"
-          >
-            <EyeIcon />
-            <span className="hidden sm:inline">Ver perfil público</span>
-            <span className="sm:hidden">Vista pública</span>
-          </Link>
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-stretch lg:gap-5">
-          <div className="min-w-0 rounded-24 bg-surface-soft/65 p-4 sm:p-5">
-            <div className="flex items-center gap-3 sm:gap-6">
-              <div className="relative shrink-0 rounded-full border-4 border-white shadow-soft">
-              <Avatar
-                name={`${user.first_name} ${user.last_name}`}
-                imageUrl={user.avatar_url}
-                size={96}
-              />
-              <AvatarUploader
-                hasAvatar={Boolean(user.avatar_url)}
-                onUpdated={async () => {
-                  await refresh();
-                }}
-              />
+      {/* Antes esto era una tarjeta blanca que contenía otra tarjeta gris.
+          Ese anidamiento no separaba nada: el contenido va directo sobre la
+          superficie y el bloque pierde un borde y un fondo de ruido. */}
+      <section className="relative overflow-hidden rounded-panel bg-surface p-5 shadow-soft sm:p-7 lg:p-8">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-6">
+          <div className="min-w-0">
+            <div className="flex items-start gap-4 sm:gap-5">
+              <div className="relative shrink-0">
+                <Avatar
+                  name={`${user.first_name} ${user.last_name}`}
+                  imageUrl={user.avatar_url}
+                  size={88}
+                />
+                <AvatarUploader
+                  hasAvatar={Boolean(user.avatar_url)}
+                  onUpdated={async () => {
+                    await refresh();
+                  }}
+                />
               </div>
 
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 pt-1">
                 <div className="flex items-center gap-2">
-                  <h2 className="truncate font-rounded text-2xl font-semibold tracking-[-0.03em] text-brand-dark sm:text-4xl">
+                  <h1 className="truncate font-rounded text-3xl font-bold tracking-[-0.04em] text-brand-dark">
                     {user.first_name}
-                  </h2>
+                  </h1>
                   {user.is_email_verified && <VerifiedIcon />}
                 </div>
 
                 {locationLine && (
-                  <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-secondary">
+                  <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-secondary">
                     <LocationIcon />
                     {locationLine}
                   </p>
                 )}
 
-                <span className="mt-2 inline-flex rounded-full border border-primary/15 bg-white/75 px-2.5 py-1 text-2xs font-bold text-primary-dark sm:mt-3 sm:px-3 sm:py-1.5 sm:text-xs">
+                {/* Punto de color en vez de una píldora con borde: el estado
+                    es un dato de una línea, no una etiqueta que compita con
+                    el nombre. */}
+                <p className="mt-2 flex items-center gap-2 text-2xs font-bold text-primary-dark sm:text-xs">
+                  <span
+                    aria-hidden
+                    className={`h-1.5 w-1.5 shrink-0 rounded-full ${user.is_looking_for_roommates ? "bg-primary" : "bg-muted"}`}
+                  />
                   {user.is_looking_for_roommates
                     ? "Buscando compañero de piso"
                     : "No busca compañero ahora mismo"}
-                </span>
+                </p>
               </div>
             </div>
 
-            {user.bio ? (
-              <p className="mt-4 line-clamp-2 max-w-2xl text-sm leading-5 text-secondary sm:mt-5 sm:line-clamp-none sm:leading-6">{user.bio}</p>
-            ) : (
-              <p className="mt-4 line-clamp-2 max-w-xl text-sm leading-5 text-secondary sm:mt-5 sm:line-clamp-none sm:leading-6">
-                Añade una breve presentación para que otras personas puedan conocerte antes de conectar.
-              </p>
-            )}
+            <p className={`mt-4 max-w-2xl text-sm leading-6 ${user.bio ? "text-secondary" : "text-muted"}`}>
+              {user.bio || "Añade una breve presentación para que otras personas puedan conocerte antes de conectar."}
+            </p>
 
-            <div className="mt-4 sm:mt-6">
+            {/* Las dos acciones al mismo nivel y en la misma fila: editar y
+                verse como te ven son la misma decisión vista de dos lados. */}
+            <div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:gap-3">
               <Link
                 href="/perfil/editar"
-                className="inline-flex min-h-11 w-full items-center justify-center rounded-14 bg-brand-dark px-5 text-sm font-bold text-white shadow-button transition-colors duration-180 hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-auto"
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-brand-dark px-5 text-sm font-bold text-white shadow-button transition-colors duration-180 hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
-                Editar mi perfil
+                Editar perfil
+              </Link>
+              <Link
+                href={`/personas/${user.id}`}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-surface-soft px-5 text-sm font-bold text-primary-dark transition-colors duration-180 hover:bg-mint-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              >
+                <EyeIcon />
+                Vista pública
               </Link>
             </div>
           </div>
 
-          <div className="rounded-24 bg-brand-dark p-5 text-white sm:p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">
-                  Perfil completado
-                </p>
-                <p className="mt-0.5 font-rounded text-3xl font-semibold text-white sm:mt-1 sm:text-4xl">
-                  {completion}%
-                </p>
-              </div>
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white sm:h-12 sm:w-12">
-                <ProfileSparkIcon />
-              </span>
-            </div>
-
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/15">
-              <motion.div
-                initial={{ width: prefersReducedMotion ? `${completion}%` : 0 }}
-                animate={{ width: `${completion}%` }}
-                transition={{ duration: MOTION_DURATION.slow, ease: MOTION_EASE.out }}
-                className="h-full rounded-full bg-mint-100"
-              />
-            </div>
-
-            {missingItems.length > 0 ? (
-              <div className="mt-3 sm:mt-4">
-                <div className="flex flex-wrap gap-1.5 sm:hidden">
-                  {missingItems.slice(0, 2).map((item) => (
-                    <Link
-                      key={item.key}
-                      href={item.href}
-                      className="inline-flex min-h-8 items-center rounded-full bg-white/10 px-3 py-1 text-2xs font-bold text-white"
-                    >
-                      + {item.label}
-                    </Link>
-                  ))}
-                  {missingItems.length > 2 && (
-                    <Link
-                      href="/perfil/editar"
-                      className="inline-flex min-h-8 items-center rounded-full border border-white/15 px-3 py-1 text-2xs font-bold text-white"
-                    >
-                      +{missingItems.length - 2} pendientes
-                    </Link>
-                  )}
-                </div>
-                <div className="hidden flex-wrap gap-1.5 sm:flex">
-                  {missingItems.map((item) => (
-                    <Link
-                      key={item.key}
-                      href={item.href}
-                      className="inline-flex min-h-8 items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white transition-colors duration-180 hover:bg-white/15"
-                    >
-                      + {item.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <p className="mt-4 text-sm font-semibold text-white/80">
-                Tu perfil está listo para compartir.
-              </p>
-            )}
-          </div>
+          <ProfileChecklistCard items={checklist} />
         </div>
       </section>
 
@@ -498,15 +432,6 @@ function EyeIcon() {
   );
 }
 
-function ProfileSparkIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true">
-      <circle cx="10" cy="8" r="3.5" />
-      <path d="M3.5 20a6.5 6.5 0 0 1 13 0" />
-      <path d="m18 3 .7 1.8L20.5 5.5l-1.8.7L18 8l-.7-1.8-1.8-.7 1.8-.7Z" />
-    </svg>
-  );
-}
 
 function UserIcon() {
   return <MenuIcon path={<><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>} />;
