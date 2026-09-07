@@ -1,6 +1,15 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import { cn } from "@/lib/utils";
 import SecondaryButton from "@/components/ui/SecondaryButton";
+
+/* Un error no se "dibuja" como el estado vacío: entra de una pieza con
+ * una sacudida corta. Es la misma gramática que el campo de formulario
+ * que falla, así que un fallo se reconoce igual en toda la app. */
+const SHAKE_KEYFRAMES = { x: [0, -5, 4, -2, 0] };
 
 /** Hermano de EmptyState para bloques/pantallas que fallaron al
  * cargar — borde sólido (no discontinuo) para que un vacío nunca se
@@ -23,6 +32,8 @@ export default function ErrorState({
   retryLabel?: string;
   className?: string;
 }) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <div
       role="alert"
@@ -32,22 +43,50 @@ export default function ErrorState({
         className
       )}
     >
-      <div className="mb-4 flex h-20 w-24 items-center justify-center text-red-500 [&>svg]:h-14 [&>svg]:w-14">
+      <motion.div
+        initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
+        animate={
+          prefersReducedMotion
+            ? { opacity: 1 }
+            : { opacity: 1, scale: 1, ...SHAKE_KEYFRAMES }
+        }
+        transition={{ duration: 0.45, ease: MOTION_EASE.out }}
+        className="mb-4 flex h-20 w-24 items-center justify-center text-red-500 [&>svg]:h-14 [&>svg]:w-14"
+      >
         {icon ?? <AlertIcon />}
-      </div>
+      </motion.div>
 
-      <h3 className="text-lg font-bold text-foreground">{title}</h3>
+      <motion.h3
+        initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+        className="text-lg font-bold text-foreground"
+      >
+        {title}
+      </motion.h3>
 
       {description && (
-        <p className="mt-2 max-w-sm text-sm text-secondary">{description}</p>
+        <motion.p
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.16, duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+          className="mt-2 max-w-sm text-sm text-secondary"
+        >
+          {description}
+        </motion.p>
       )}
 
       {(action ?? onRetry) && (
-        <div className="mt-5">
+        <motion.div
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22, duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+          className="mt-5"
+        >
           {action ?? (
             <SecondaryButton onClick={onRetry}>{retryLabel}</SecondaryButton>
           )}
-        </div>
+        </motion.div>
       )}
     </div>
   );

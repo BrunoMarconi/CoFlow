@@ -184,7 +184,7 @@ export default function UserSafetyActions({
                     placeholder="No incluyas datos sensibles."
                     className="mt-2 w-full resize-none rounded-14 border border-border bg-surface px-4 py-3 text-sm text-foreground shadow-soft outline-none transition placeholder:text-muted hover:border-secondary/40 focus:border-foreground focus:ring-2 focus:ring-foreground/10"
                   />
-                  <span className="mt-1 block text-right text-[11px] text-muted">
+                  <span className="mt-1 block text-right text-2xs text-muted">
                     {details.length}/500
                   </span>
                 </label>

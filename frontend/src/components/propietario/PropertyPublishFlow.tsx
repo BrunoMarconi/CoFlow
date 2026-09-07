@@ -513,7 +513,7 @@ function SpaceIntroduction() {
 }
 
 function ScreenTitle({ children }: { children: ReactNode }) {
-  return <><p className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary">Nueva vivienda</p><h1 className="mt-2 font-rounded text-[clamp(2rem,7vw,3.65rem)] font-semibold leading-[1.03] tracking-[-0.05em] text-brand-dark">{children}</h1></>;
+  return <><p className="text-2xs font-bold uppercase tracking-[0.14em] text-primary">Nueva vivienda</p><h1 className="mt-2 font-rounded text-[clamp(2rem,7vw,3.65rem)] font-semibold leading-[1.03] tracking-[-0.05em] text-brand-dark">{children}</h1></>;
 }
 
 function ChoiceGrid({ title, choices, selected, onSelect }: { title: string; choices: Array<{ value: string; label: string; icon: ReactNode }>; selected: string; onSelect: (value: string) => void }) {
@@ -584,7 +584,7 @@ function PhotosScreen({ photos, error, onAdd, onRemove }: { photos: PendingPhoto
         <label className="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-[1.25rem] border border-[#cfcfcf] bg-white shadow-card transition hover:border-black"><ImagePlus className="h-7 w-7" /><span className="text-sm font-semibold">Elegir fotos</span><input type="file" multiple accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => onAdd(event.target.files)} /></label>
         <label className="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-[1.25rem] border border-[#cfcfcf] bg-white shadow-card transition hover:border-black"><Camera className="h-7 w-7" /><span className="text-sm font-semibold">Tomar una foto</span><input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(event) => onAdd(event.target.files)} /></label>
       </div>
-      {photos.length ? <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">{photos.map((photo, index) => <div key={photo.id} className="relative aspect-square overflow-hidden rounded-[1rem] border border-hairline"><Image src={photo.previewUrl} alt={`Foto ${index + 1} de la vivienda`} fill unoptimized className="object-cover" />{index === 0 ? <span className="absolute bottom-2 left-2 rounded-full bg-black px-2 py-1 text-[10px] font-semibold text-white">Portada</span> : null}<button type="button" aria-label={`Eliminar foto ${index + 1}`} onClick={() => onRemove(photo.id)} className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white text-black shadow"><X className="h-4 w-4" /></button></div>)}</div> : null}
+      {photos.length ? <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">{photos.map((photo, index) => <div key={photo.id} className="relative aspect-square overflow-hidden rounded-[1rem] border border-hairline"><Image src={photo.previewUrl} alt={`Foto ${index + 1} de la vivienda`} fill unoptimized className="object-cover" />{index === 0 ? <span className="absolute bottom-2 left-2 rounded-full bg-black px-2 py-1 text-3xs font-semibold text-white">Portada</span> : null}<button type="button" aria-label={`Eliminar foto ${index + 1}`} onClick={() => onRemove(photo.id)} className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white text-black shadow"><X className="h-4 w-4" /></button></div>)}</div> : null}
       <p className="mt-4 text-sm text-neutral-mid">Necesitas 1 foto para publicar. Recomendamos 5 para generar más confianza · {photos.length}/{MAX_PHOTOS}</p>
       {error ? <p className="mt-2 text-sm font-semibold text-red-600">{error}</p> : null}
     </section>
@@ -664,7 +664,7 @@ function PublishScreen({ termsAccepted, onTermsAcceptedChange, title, city, neig
 
       <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-hairline bg-white shadow-card">
         <div className="flex items-center justify-between border-b border-[#eeeeee] px-5 py-4"><div><p className="text-xs font-bold uppercase tracking-[0.12em] text-neutral-mid">Vista previa</p><h2 className="mt-1 text-lg font-bold text-neutral-strong">{title || "Tu vivienda"}</h2></div><span className="rounded-full bg-[#edf5f0] px-3 py-1.5 text-xs font-bold text-[#17633a]">{rent ? `${rent} €/mes` : "Precio pendiente"}</span></div>
-        <div className="grid grid-cols-3 divide-x divide-[#eeeeee] px-2 py-4 text-center"><div><strong className="block text-base text-neutral-strong">{photoCount}</strong><span className="text-[11px] text-neutral-mid">Fotos</span></div><div><strong className="block text-base text-neutral-strong">{bedrooms}</strong><span className="text-[11px] text-neutral-mid">Habitaciones</span></div><div><strong className="block text-base text-neutral-strong">{maxTenants}</strong><span className="text-[11px] text-neutral-mid">Plazas</span></div></div>
+        <div className="grid grid-cols-3 divide-x divide-[#eeeeee] px-2 py-4 text-center"><div><strong className="block text-base text-neutral-strong">{photoCount}</strong><span className="text-2xs text-neutral-mid">Fotos</span></div><div><strong className="block text-base text-neutral-strong">{bedrooms}</strong><span className="text-2xs text-neutral-mid">Habitaciones</span></div><div><strong className="block text-base text-neutral-strong">{maxTenants}</strong><span className="text-2xs text-neutral-mid">Plazas</span></div></div>
         <p className="border-t border-[#eeeeee] px-5 py-3 text-xs font-semibold text-[#5f6d65]">{[neighborhood, city].filter(Boolean).join(", ") || "Ubicación pendiente"}</p>
       </div>
 
@@ -704,7 +704,7 @@ function FlowFooter({ screen, progress, publishing, termsAccepted, error, onBack
   return (
     <footer className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/96 px-5 pb-[calc(1rem+var(--safe-bottom))] pt-3 backdrop-blur-xl sm:px-8">
       <div className="mx-auto max-w-4xl">
-        <div className="flex items-center justify-between gap-4"><p className="text-[11px] font-bold uppercase tracking-[0.11em] text-secondary">{stage}</p><p className="text-[11px] font-semibold tabular-nums text-muted">{progress} de {SCREENS.length}</p></div>
+        <div className="flex items-center justify-between gap-4"><p className="text-2xs font-bold uppercase tracking-[0.11em] text-secondary">{stage}</p><p className="text-2xs font-semibold tabular-nums text-muted">{progress} de {SCREENS.length}</p></div>
         <div className="mt-2 h-1 overflow-hidden rounded-full bg-primary/10" role="progressbar" aria-label="Progreso de publicación" aria-valuemin={1} aria-valuemax={SCREENS.length} aria-valuenow={progress}><div className="h-full rounded-full bg-primary transition-[width] duration-300" style={{ width: `${(progress / SCREENS.length) * 100}%` }} /></div>
         {error ? <p role="alert" className="mt-2 truncate text-center text-xs font-semibold text-red-600">{error}</p> : null}
         {final ? <p className="mt-2 text-center text-xs font-bold text-primary-dark">Gratis · Sin tarjeta · Sin permanencia</p> : null}

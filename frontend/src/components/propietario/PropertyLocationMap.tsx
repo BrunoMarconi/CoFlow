@@ -230,7 +230,7 @@ export default function PropertyLocationMap({
           target="_blank"
           rel="noreferrer"
           onPointerDown={(event) => event.stopPropagation()}
-          className="absolute bottom-1 left-2 text-[9px] font-semibold text-black/65"
+          className="absolute bottom-1 left-2 text-3xs font-semibold text-black/65"
         >
           © OpenStreetMap
         </a>

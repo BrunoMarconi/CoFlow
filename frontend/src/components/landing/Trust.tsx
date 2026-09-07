@@ -40,7 +40,7 @@ export default function Trust() {
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-green-300">
                   <Icon />
                 </span>
-                <div><p className="text-[12px] font-semibold text-white">{point.title}</p><p className="mt-1 text-[10px] leading-4 text-green-50/65">{point.description}</p></div>
+                <div><p className="text-xs font-semibold text-white">{point.title}</p><p className="mt-1 text-3xs leading-4 text-green-50/65">{point.description}</p></div>
               </div>
             );
           })}

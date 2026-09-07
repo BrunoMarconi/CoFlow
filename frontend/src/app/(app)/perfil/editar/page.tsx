@@ -35,7 +35,7 @@ export default function EditarPerfilPage() {
         >
           <ArrowLeftIcon />
         </button>
-        <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6a756f]">Tu identidad</p><h1 className="mt-1 text-[34px] font-semibold tracking-[-0.05em] text-brand-dark">
+        <div><p className="text-3xs font-semibold uppercase tracking-[0.16em] text-[#6a756f]">Tu identidad</p><h1 className="mt-1 text-4xl font-semibold tracking-[-0.05em] text-brand-dark">
           Editar perfil
         </h1></div>
       </header>

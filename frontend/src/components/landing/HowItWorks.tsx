@@ -22,7 +22,7 @@ export default function HowItWorks() {
                 key={step.number}
                 className="relative flex gap-3 rounded-[1.35rem] bg-white p-4 ring-1 ring-black/[0.035]"
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#eef2ef] text-[10px] font-bold text-brand">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#eef2ef] text-3xs font-bold text-brand">
                   {index + 1}
                 </span>
 

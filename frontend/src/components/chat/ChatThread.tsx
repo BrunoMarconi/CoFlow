@@ -751,14 +751,14 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                     key={item.key}
                     className="sticky top-0 z-10 mb-3 flex justify-center first:mt-0 not-first:mt-4"
                   >
-                    <span className="rounded-full bg-surface/90 px-3 py-1 text-[11px] font-semibold text-secondary backdrop-blur-md">
+                    <span className="rounded-full bg-surface/90 px-3 py-1 text-2xs font-semibold text-secondary backdrop-blur-md">
                       {item.label}
                     </span>
                   </div>
                 ) : item.type === "unread-divider" ? (
                   <div key={item.key} className="my-4 flex items-center gap-3">
                     <span className="h-px flex-1 bg-red-200" />
-                    <span className="rounded-full bg-red-50 px-3 py-1 text-[11px] font-bold text-red-600">
+                    <span className="rounded-full bg-red-50 px-3 py-1 text-2xs font-bold text-red-600">
                       Mensajes nuevos
                     </span>
                     <span className="h-px flex-1 bg-red-200" />
@@ -955,7 +955,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
         </div>
 
         {content.length > 1800 && (
-          <p className="mt-1.5 text-right text-[10px] font-semibold text-secondary">
+          <p className="mt-1.5 text-right text-3xs font-semibold text-secondary">
             {content.length}/2000
           </p>
         )}
@@ -1074,7 +1074,7 @@ const MessageBubble = memo(function MessageBubble({
               className="h-7 w-7 shrink-0 rounded-full object-cover"
             />
           ) : (
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-3xs font-bold text-white">
               {initials || "CF"}
             </div>
           )
@@ -1141,12 +1141,12 @@ const MessageBubble = memo(function MessageBubble({
           )}
 
           {message.content && (
-            <p className="chat-message-text whitespace-pre-wrap text-[15px] leading-6 wrap-anywhere">
+            <p className="chat-message-text whitespace-pre-wrap text-sm leading-6 wrap-anywhere">
               {message.content}
             </p>
           )}
 
-          <p className="mt-0.5 flex items-center justify-end gap-1 text-[10px] font-medium text-muted">
+          <p className="mt-0.5 flex items-center justify-end gap-1 text-3xs font-medium text-muted">
             {formatMessageTime(message.created_at)}
             {isOwn && showReadStatus && <ReadTicks read={isRead} />}
           </p>
@@ -1159,7 +1159,7 @@ const MessageBubble = memo(function MessageBubble({
             onClick={onQuickLike}
             aria-label={likedByMe ? "Quitar me gusta" : "Me gusta"}
             className={cn(
-              "absolute -bottom-2.5 flex h-5 items-center gap-0.5 rounded-full bg-surface px-1.5 text-[10px] font-bold shadow-soft",
+              "absolute -bottom-2.5 flex h-5 items-center gap-0.5 rounded-full bg-surface px-1.5 text-3xs font-bold shadow-soft",
               isOwn ? "left-1.5" : "right-1.5",
               likedByMe ? "text-red-600" : "text-secondary"
             )}
@@ -1200,11 +1200,11 @@ function PendingMessageBubble({
           </div>
         )}
         {message.content && (
-          <p className="chat-message-text whitespace-pre-wrap text-[15px] leading-6 wrap-anywhere">
+          <p className="chat-message-text whitespace-pre-wrap text-sm leading-6 wrap-anywhere">
             {message.content}
           </p>
         )}
-        <div className="mt-0.5 flex items-center justify-end gap-1.5 text-[10px] font-medium text-muted">
+        <div className="mt-0.5 flex items-center justify-end gap-1.5 text-3xs font-medium text-muted">
           <span>{formatMessageTime(message.createdAt)}</span>
           {message.status === "sending" ? (
             <span>Enviando…</span>

@@ -97,7 +97,7 @@ export default function NotificationsPage() {
             <h1 className="font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">
               Notificaciones
             </h1>
-            {unreadCount > 0 && <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary-dark">{unreadCount} nuevas</span>}
+            {unreadCount > 0 && <span className="rounded-full bg-primary/10 px-2.5 py-1 text-2xs font-bold text-primary-dark">{unreadCount} nuevas</span>}
           </div>
           <p className="mt-2 text-sm leading-6 text-secondary">
             Solicitudes, mensajes y cambios importantes, en un solo lugar.
@@ -162,7 +162,7 @@ export default function NotificationsPage() {
           {(["HOY", "SEMANA", "ANTERIORES"] as DateGroup[]).map((group) => grouped[group].length > 0 && (
             <section key={group} aria-labelledby={`notification-group-${group}`}>
               <div className="mb-2 flex items-center gap-3 px-1">
-                <h2 id={`notification-group-${group}`} className="text-[11px] font-bold uppercase tracking-[0.15em] text-muted">{getDateGroupLabel(group)}</h2>
+                <h2 id={`notification-group-${group}`} className="text-2xs font-bold uppercase tracking-[0.15em] text-muted">{getDateGroupLabel(group)}</h2>
                 <span className="h-px flex-1 bg-black/[0.06]" />
               </div>
               <ul className="overflow-hidden rounded-card border border-black/[0.06] bg-surface-raised shadow-card">
@@ -224,7 +224,7 @@ function NotificationCard({
           <span className={cn("text-sm leading-5 text-brand-dark", wasUnread ? "font-bold" : "font-semibold")}>
             {notification.title}
           </span>
-          <time className="shrink-0 text-[11px] font-medium text-neutral-mid">
+          <time className="shrink-0 text-2xs font-medium text-neutral-mid">
             {formatNotificationDate(notification.created_at)}
           </time>
         </span>

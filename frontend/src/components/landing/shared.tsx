@@ -27,7 +27,7 @@ export function SectionHeader({
       }
     >
       <p
-        className={`text-[11px] font-bold uppercase tracking-[0.18em] ${
+        className={`text-2xs font-bold uppercase tracking-[0.18em] ${
           isDark ? "text-green-300" : "text-brand"
         }`}
       >

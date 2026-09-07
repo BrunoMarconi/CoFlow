@@ -106,7 +106,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
 
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="truncate text-[34px] font-semibold tracking-[-0.045em] text-brand-dark sm:text-[42px]">{fullName || "Persona de CoFlow"}</h2>
+              <h2 className="truncate text-4xl font-semibold tracking-[-0.045em] text-brand-dark sm:text-[42px]">{fullName || "Persona de CoFlow"}</h2>
               {profile.is_verified && <VerifiedIcon />}
             </div>
             <p className="mt-1 text-sm text-secondary">
@@ -121,7 +121,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
 
       {profile.bio && (
         <section className="mt-6 border-l-2 border-brand-mid py-2 pl-5">
-          <p className="max-w-3xl text-[15px] leading-7 text-[#58665f]">“{profile.bio}”</p>
+          <p className="max-w-3xl text-sm leading-7 text-[#58665f]">“{profile.bio}”</p>
         </section>
       )}
 
@@ -247,7 +247,7 @@ function PrimaryConnectionAction({ profile, status, connectionId, connecting, on
 }
 
 function QuickFact({ icon, label, value, reverse = false }: { icon: React.ReactNode; label: string; value: string; reverse?: boolean }) {
-  return <div className="flex min-h-24 flex-col items-center justify-center border-b border-black/[0.06] p-3 text-center sm:border-b-0"><span className="text-brand-mid">{icon}</span><span className="mt-2 line-clamp-1 text-xs font-semibold text-brand-dark">{reverse ? value : label}</span><span className="mt-0.5 line-clamp-2 text-[10px] leading-4 text-[#748078]">{reverse ? label : value}</span></div>;
+  return <div className="flex min-h-24 flex-col items-center justify-center border-b border-black/[0.06] p-3 text-center sm:border-b-0"><span className="text-brand-mid">{icon}</span><span className="mt-2 line-clamp-1 text-xs font-semibold text-brand-dark">{reverse ? value : label}</span><span className="mt-0.5 line-clamp-2 text-3xs leading-4 text-[#748078]">{reverse ? label : value}</span></div>;
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) { return <div className="grid grid-cols-[110px_1fr] gap-3 text-xs"><dt className="text-secondary">{label}</dt><dd className="font-semibold text-foreground">{value}</dd></div>; }

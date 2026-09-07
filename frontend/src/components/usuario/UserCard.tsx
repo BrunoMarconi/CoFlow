@@ -148,20 +148,20 @@ export default function UserCard({
 
             <div className="p-3.5">
               <div className="flex items-center gap-1">
-                <h3 className="truncate text-[16px] font-semibold tracking-[-0.02em] text-brand-dark">
+                <h3 className="truncate text-base font-semibold tracking-[-0.02em] text-brand-dark">
                   {shortName}
                 </h3>
                 {user.is_verified && <VerifiedIcon className="h-4 w-4 shrink-0 text-primary" />}
               </div>
 
               {metaLine && (
-                <p className="mt-1 flex items-center gap-1 truncate text-[11px] text-secondary">
+                <p className="mt-1 flex items-center gap-1 truncate text-2xs text-secondary">
                   <LocationIcon />
                   {metaLine}
                 </p>
               )}
 
-              <p className="mt-3 truncate border-t border-black/[0.06] pt-3 text-[11px] text-secondary">
+              <p className="mt-3 truncate border-t border-black/[0.06] pt-3 text-2xs text-secondary">
                 <span className="font-semibold text-brand-dark">{budgetLabel}</span>
               </p>
             </div>
@@ -185,12 +185,12 @@ export default function UserCard({
                 {user.is_verified && <VerifiedIcon className="h-3.5 w-3.5 shrink-0 text-primary" />}
               </div>
               {metaLine && (
-                <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-secondary">
+                <p className="mt-0.5 flex items-center gap-1 truncate text-2xs text-secondary">
                   <LocationIcon />
                   {metaLine}
                 </p>
               )}
-              <p className="mt-1 truncate text-[11px] text-secondary">
+              <p className="mt-1 truncate text-2xs text-secondary">
                 Presupuesto: <span className="font-bold text-primary-dark">{budgetLabel}</span>
               </p>
             </div>
@@ -198,7 +198,7 @@ export default function UserCard({
             <div className="hidden shrink-0 flex-col items-end gap-1.5 min-[380px]:flex">
               {user.match_score !== null && <MatchScoreBadge score={user.match_score} size="sm" />}
               {habitChips.length > 0 && (
-                <span className="max-w-24 truncate rounded-full bg-flat px-2 py-1 text-[9px] font-bold text-primary-dark">
+                <span className="max-w-24 truncate rounded-full bg-flat px-2 py-1 text-3xs font-bold text-primary-dark">
                   {habitChips[0]}
                 </span>
               )}
@@ -259,7 +259,7 @@ export default function UserCard({
               )}
             </div>
             {statusLabel && (
-              <span className="shrink-0 rounded-full bg-flat px-2 py-1 text-[10px] font-bold text-primary-dark">
+              <span className="shrink-0 rounded-full bg-flat px-2 py-1 text-3xs font-bold text-primary-dark">
                 {statusLabel}
               </span>
             )}
@@ -268,7 +268,7 @@ export default function UserCard({
           {habitChips.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-1.5">
               {habitChips.slice(0, 3).map((chip) => (
-                <span key={chip} className="rounded-full bg-[#eaf0ec] px-2.5 py-1.5 text-[10px] font-semibold text-brand-mid">
+                <span key={chip} className="rounded-full bg-[#eaf0ec] px-2.5 py-1.5 text-3xs font-semibold text-brand-mid">
                   {chip}
                 </span>
               ))}
@@ -325,8 +325,8 @@ function ProfileIdentityCover({ user, habitChips, compact = false }: { user: Use
       <span className="absolute right-[18%] top-[18%] h-2 w-2 rounded-full opacity-50" style={{ backgroundColor: palette.ink }} />
       <div className={`relative flex items-center justify-center rounded-full border border-white/60 bg-white/55 font-bold tracking-[-.05em] shadow-[0_10px_30px_rgba(41,71,58,.1)] backdrop-blur ${compact ? "h-16 w-16 text-2xl" : "h-20 w-20 text-3xl"}`}>{initials}</div>
       <p className={`relative mt-2 font-semibold tracking-[-.025em] ${compact ? "text-xs" : "text-sm"}`}>{user.first_name}{user.age !== null ? `, ${user.age}` : ""}</p>
-      {traits.length > 0 && <div className="relative mt-2 flex max-w-full flex-wrap justify-center gap-1">{traits.map((trait) => <span key={trait} className="max-w-full truncate rounded-full border border-white/50 bg-white/45 px-2 py-1 text-[8px] font-semibold backdrop-blur">{trait}</span>)}</div>}
-      <span className="absolute bottom-2.5 left-3 text-[8px] font-semibold uppercase tracking-[.13em] opacity-60">Perfil CoFlow</span>
+      {traits.length > 0 && <div className="relative mt-2 flex max-w-full flex-wrap justify-center gap-1">{traits.map((trait) => <span key={trait} className="max-w-full truncate rounded-full border border-white/50 bg-white/45 px-2 py-1 text-3xs font-semibold backdrop-blur">{trait}</span>)}</div>}
+      <span className="absolute bottom-2.5 left-3 text-3xs font-semibold uppercase tracking-[.13em] opacity-60">Perfil CoFlow</span>
     </div>
   );
 }

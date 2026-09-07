@@ -116,7 +116,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               onBlur?.(event);
             }}
             className={clsx(
-              "h-11.5 w-full rounded-14 border bg-surface px-4 text-[15px] text-foreground shadow-soft",
+              "h-11.5 w-full rounded-14 border bg-surface px-4 text-sm text-foreground shadow-soft",
               "outline-none transition-all duration-180",
               "placeholder:text-muted",
               "hover:border-secondary/40",

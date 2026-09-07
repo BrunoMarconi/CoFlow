@@ -96,7 +96,7 @@ export default function UserFilters({
             value={filters.city}
             onChange={(event) => update({ city: event.target.value })}
             placeholder="Ej. Málaga"
-            className="h-12 w-full rounded-[13px] border border-black/[0.08] bg-[#f2f5f3] px-4 text-[15px] text-foreground outline-none transition-all duration-180 placeholder:text-muted hover:border-[#8fa097] focus:border-brand-mid focus:bg-white focus:ring-4 focus:ring-brand-mid/10"
+            className="h-12 w-full rounded-[13px] border border-black/[0.08] bg-[#f2f5f3] px-4 text-sm text-foreground outline-none transition-all duration-180 placeholder:text-muted hover:border-[#8fa097] focus:border-brand-mid focus:bg-white focus:ring-4 focus:ring-brand-mid/10"
           />
         </div>
 
@@ -123,7 +123,7 @@ export default function UserFilters({
                 update({ maxBudget: event.target.value })
               }
               placeholder="Sin límite"
-              className="h-12 w-full rounded-[13px] border border-black/[0.08] bg-[#f2f5f3] pl-9 pr-4 text-[15px] text-foreground outline-none transition-all duration-180 placeholder:text-muted hover:border-[#8fa097] focus:border-brand-mid focus:bg-white focus:ring-4 focus:ring-brand-mid/10"
+              className="h-12 w-full rounded-[13px] border border-black/[0.08] bg-[#f2f5f3] pl-9 pr-4 text-sm text-foreground outline-none transition-all duration-180 placeholder:text-muted hover:border-[#8fa097] focus:border-brand-mid focus:bg-white focus:ring-4 focus:ring-brand-mid/10"
             />
           </div>
         </div>

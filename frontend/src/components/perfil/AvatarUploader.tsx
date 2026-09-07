@@ -274,7 +274,7 @@ export default function AvatarUploader({
                         <span className="block text-sm font-extrabold text-foreground">
                           {preset.name}
                         </span>
-                        <span className="mt-0.5 block text-[11px] text-secondary">
+                        <span className="mt-0.5 block text-2xs text-secondary">
                           {preset.description}
                         </span>
                       </span>

@@ -43,11 +43,11 @@ export default function MobileLargeTitle({
       >
         <div className="min-w-0">
           {eyebrow && (
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted">
+            <p className="text-3xs font-bold uppercase tracking-[0.18em] text-muted">
               {eyebrow}
             </p>
           )}
-          <h1 className="mt-2 font-rounded text-[28px] font-extrabold tracking-[-0.04em] text-brand-dark">
+          <h1 className="mt-2 font-rounded text-3xl font-extrabold tracking-[-0.04em] text-brand-dark">
             {title}
           </h1>
         </div>

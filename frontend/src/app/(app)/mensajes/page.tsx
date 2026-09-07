@@ -857,7 +857,7 @@ function InboxSearchAndTabs({
             type="button"
             onClick={() => onTabChange(option.key)}
             aria-pressed={tab === option.key}
-            className={`relative flex h-9 min-w-0 items-center justify-center overflow-hidden rounded-10 px-1 text-[11px] font-semibold transition-colors duration-180 sm:h-8 ${
+            className={`relative flex h-9 min-w-0 items-center justify-center overflow-hidden rounded-10 px-1 text-2xs font-semibold transition-colors duration-180 sm:h-8 ${
               tab === option.key
                 ? "text-brand-dark"
                 : "text-muted hover:text-foreground"
@@ -942,7 +942,7 @@ function CommunityAvatar({
 
 function CommunityBadge() {
   return (
-    <span className="shrink-0 rounded-full bg-flat px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-dark">
+    <span className="shrink-0 rounded-full bg-flat px-2 py-0.5 text-3xs font-bold uppercase tracking-wide text-primary-dark">
       Comunidad
     </span>
   );
@@ -972,14 +972,14 @@ function ConversationPreview({
           </p>
 
           {badge && (
-            <span className="shrink-0 rounded-full border border-primary/20 bg-surface px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary-dark shadow-soft">
+            <span className="shrink-0 rounded-full border border-primary/20 bg-surface px-1.5 py-0.5 text-3xs font-bold uppercase tracking-wide text-primary-dark shadow-soft">
               {badge}
             </span>
           )}
         </div>
 
         {lastMessage && (
-          <span className="shrink-0 text-xs font-medium text-secondary sm:text-[11px]">
+          <span className="shrink-0 text-xs font-medium text-secondary sm:text-2xs">
             {formatPreviewTime(lastMessage.created_at)}
           </span>
         )}

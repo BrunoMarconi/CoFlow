@@ -928,7 +928,7 @@ export default function CreateCommunityWizard({
                 <div className="mt-5 flex gap-4 overflow-x-auto pb-2">
                   {user && (
                     <div className="w-24 shrink-0 rounded-18 border border-border p-3 text-center">
-                      <span className="inline-flex rounded-full border border-primary/20 bg-surface px-2 py-0.5 text-[10px] font-bold text-primary-dark shadow-soft">
+                      <span className="inline-flex rounded-full border border-primary/20 bg-surface px-2 py-0.5 text-3xs font-bold text-primary-dark shadow-soft">
                         Creador
                       </span>
                       <div className="mx-auto mt-2 w-fit">

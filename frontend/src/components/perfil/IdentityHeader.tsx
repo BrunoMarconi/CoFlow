@@ -52,7 +52,7 @@ export default function IdentityHeader({
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
-            <h1 className="truncate text-[22px] font-bold tracking-tight text-brand-dark">
+            <h1 className="truncate text-xl font-bold tracking-tight text-brand-dark">
               {fullName || "Persona de CoFlow"}
             </h1>
 

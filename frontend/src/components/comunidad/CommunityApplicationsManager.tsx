@@ -231,7 +231,7 @@ function ApplicationRow({
             </Link>
 
             <span
-              className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
+              className={`rounded-full px-2.5 py-1 text-3xs font-bold uppercase tracking-wide ${
                 application.status === "PENDING"
                   ? "bg-primary/8 text-primary-dark"
                   : "bg-surface-soft text-secondary"
@@ -254,7 +254,7 @@ function ApplicationRow({
               ).map((key) => (
                 <span
                   key={key}
-                  className="rounded-full bg-surface-soft px-2.5 py-1 text-[10px] font-medium text-secondary"
+                  className="rounded-full bg-surface-soft px-2.5 py-1 text-3xs font-medium text-secondary"
                 >
                   {PREFERENCE_LABELS[key]}:{" "}
                   {application.applicant.preferences?.[key]}

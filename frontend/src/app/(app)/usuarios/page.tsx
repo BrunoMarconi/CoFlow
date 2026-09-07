@@ -100,8 +100,8 @@ export default function UsuariosPage() {
       <div className="mx-auto w-full max-w-7xl">
         <header className="mt-6 flex items-end justify-between gap-6 border-b border-black/[0.07] pb-6 sm:mt-8 sm:pb-8">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736c]">Personas · {featuredCity.name}</p>
-            <h1 className="mt-2 max-w-2xl text-[34px] font-semibold leading-[1.02] tracking-[-0.05em] text-brand-dark sm:text-[48px]">Encuentra una forma de convivir que encaje contigo.</h1>
+            <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-[#66736c]">Personas · {featuredCity.name}</p>
+            <h1 className="mt-2 max-w-2xl text-4xl font-semibold leading-[1.02] tracking-[-0.05em] text-brand-dark sm:text-5xl">Encuentra una forma de convivir que encaje contigo.</h1>
           </div>
           <p className="hidden max-w-xs text-right text-sm leading-6 text-[#6b7771] lg:block">Perfiles con hábitos, presupuesto y preferencias visibles antes de conectar.</p>
         </header>

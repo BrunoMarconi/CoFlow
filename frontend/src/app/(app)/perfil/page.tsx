@@ -157,7 +157,7 @@ export default function PerfilPage() {
                   </p>
                 )}
 
-                <span className="mt-2 inline-flex rounded-full border border-primary/15 bg-white/75 px-2.5 py-1 text-[11px] font-bold text-primary-dark sm:mt-3 sm:px-3 sm:py-1.5 sm:text-xs">
+                <span className="mt-2 inline-flex rounded-full border border-primary/15 bg-white/75 px-2.5 py-1 text-2xs font-bold text-primary-dark sm:mt-3 sm:px-3 sm:py-1.5 sm:text-xs">
                   {user.is_looking_for_roommates
                     ? "Buscando compañero de piso"
                     : "No busca compañero ahora mismo"}
@@ -214,7 +214,7 @@ export default function PerfilPage() {
                     <Link
                       key={item.key}
                       href={item.href}
-                      className="inline-flex min-h-8 items-center rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold text-white"
+                      className="inline-flex min-h-8 items-center rounded-full bg-white/10 px-3 py-1 text-2xs font-bold text-white"
                     >
                       + {item.label}
                     </Link>
@@ -222,7 +222,7 @@ export default function PerfilPage() {
                   {missingItems.length > 2 && (
                     <Link
                       href="/perfil/editar"
-                      className="inline-flex min-h-8 items-center rounded-full border border-white/15 px-3 py-1 text-[11px] font-bold text-white"
+                      className="inline-flex min-h-8 items-center rounded-full border border-white/15 px-3 py-1 text-2xs font-bold text-white"
                     >
                       +{missingItems.length - 2} pendientes
                     </Link>
@@ -439,7 +439,7 @@ function ProfileMenuRow({
         {label}
       </span>
       {badge ? (
-        <span className="rounded-full bg-surface-soft px-2.5 py-1 text-[11px] font-bold text-muted">
+        <span className="rounded-full bg-surface-soft px-2.5 py-1 text-2xs font-bold text-muted">
           {badge}
         </span>
       ) : (

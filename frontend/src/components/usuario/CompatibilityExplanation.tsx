@@ -35,7 +35,7 @@ export default function CompatibilityExplanation({
     <section className="rounded-18 border border-primary/15 bg-mint-50 p-4 shadow-soft sm:p-5" aria-labelledby="compatibility-title">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-primary">Compatibilidad contigo</p>
+          <p className="text-2xs font-bold uppercase tracking-[0.12em] text-primary">Compatibilidad contigo</p>
           <h2 id="compatibility-title" className="mt-1 font-rounded text-xl font-semibold text-brand-dark">
             Más que un porcentaje
           </h2>
@@ -76,7 +76,7 @@ function CompatibilityPoint({
 }) {
   return (
     <div className="rounded-14 border border-white/80 bg-white/75 p-3">
-      <p className={`text-[10px] font-bold uppercase tracking-[0.08em] ${positive ? "text-primary" : "text-amber-700"}`}>
+      <p className={`text-3xs font-bold uppercase tracking-[0.08em] ${positive ? "text-primary" : "text-amber-700"}`}>
         {label}
       </p>
       <div className="mt-1 flex items-center justify-between gap-2">

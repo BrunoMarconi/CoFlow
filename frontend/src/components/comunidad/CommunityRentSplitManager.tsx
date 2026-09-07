@@ -188,7 +188,7 @@ export default function CommunityRentSplitManager({
                 <p className="truncate text-sm font-bold text-foreground">
                   {contribution.first_name} {contribution.last_name}
                   {contribution.role === "OWNER" && (
-                    <span className="ml-2 rounded-full border border-primary/20 bg-surface px-2 py-0.5 text-[10px] font-bold uppercase text-primary-dark shadow-soft">
+                    <span className="ml-2 rounded-full border border-primary/20 bg-surface px-2 py-0.5 text-3xs font-bold uppercase text-primary-dark shadow-soft">
                       Administrador
                     </span>
                   )}

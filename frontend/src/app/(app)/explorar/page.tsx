@@ -81,7 +81,7 @@ export default function ExplorarPage() {
       <header className="flex items-end justify-between gap-4">
         <div>
           <p className="text-xs font-bold text-secondary">Hola, {user.first_name}</p>
-          <h1 className="mt-0.5 font-rounded text-[32px] font-semibold leading-none tracking-[-0.04em] text-brand-dark sm:text-4xl">
+          <h1 className="mt-0.5 font-rounded text-3xl font-semibold leading-none tracking-[-0.04em] text-brand-dark sm:text-4xl">
             Explorar
           </h1>
         </div>
@@ -114,7 +114,7 @@ export default function ExplorarPage() {
       <section className="mt-5 grid gap-3 sm:grid-cols-[1.35fr_0.65fr]">
         <Link href="/usuarios" className="group relative min-h-44 overflow-hidden rounded-24 bg-brand-dark p-5 text-white shadow-modal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
           <div className="relative z-10 max-w-[24rem]">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/60">Selección para ti</p>
+            <p className="text-2xs font-bold uppercase tracking-[0.12em] text-white/60">Selección para ti</p>
             <h2 className="mt-2 font-rounded text-2xl font-semibold leading-tight tracking-[-0.03em]">Encuentra personas con las que encajar de verdad.</h2>
             <p className="mt-2 text-sm leading-5 text-white/70">Compara hábitos, presupuesto y forma de convivir antes de escribir.</p>
           </div>
@@ -129,7 +129,7 @@ export default function ExplorarPage() {
         <Link href={ctaHref} className="group flex min-h-36 flex-col justify-between rounded-24 border border-black/[0.04] bg-white p-5 shadow-overlay focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:min-h-44">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/[0.045] text-primary"><SparkleIcon /></span>
           <div className="mt-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted">Siguiente paso</p>
+            <p className="text-2xs font-bold uppercase tracking-[0.1em] text-muted">Siguiente paso</p>
             <div className="mt-1 flex items-end justify-between gap-3">
               <div><h2 className="font-rounded text-lg font-semibold text-brand-dark">{ctaTitle}</h2><p className="mt-0.5 text-xs leading-5 text-secondary">{ctaDescription}</p></div>
               <ChevronIcon className="mb-1 h-4 w-4 shrink-0 text-muted transition-transform group-hover:translate-x-0.5" />
@@ -252,7 +252,7 @@ function DiscoveryRow({
   return (
     <section className="overflow-hidden rounded-24 border border-black/[0.04] bg-white py-4 shadow-overlay sm:py-5">
       <div className="mb-3 flex items-center justify-between gap-3 px-4 sm:px-5">
-        <h2 className="whitespace-nowrap font-rounded text-[19px] font-semibold tracking-[-0.025em] text-brand-dark">
+        <h2 className="whitespace-nowrap font-rounded text-lg font-semibold tracking-[-0.025em] text-brand-dark">
           {title}
         </h2>
 
@@ -484,7 +484,7 @@ function ExploreCommunityCard({
             </p>
 
             {isOwn && (
-              <span className="shrink-0 rounded-full border border-primary/20 bg-surface px-1.5 py-0.5 text-[10px] font-bold text-primary-dark shadow-soft">
+              <span className="shrink-0 rounded-full border border-primary/20 bg-surface px-1.5 py-0.5 text-3xs font-bold text-primary-dark shadow-soft">
                 Tuya
               </span>
             )}

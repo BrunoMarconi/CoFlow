@@ -84,7 +84,7 @@ export default function ExplorerSearchBar({
             </motion.span>
 
             <span
-              className={`truncate ${compact ? "text-xs" : "text-[15px]"} ${
+              className={`truncate ${compact ? "text-xs" : "text-sm"} ${
                 value ? "text-foreground" : "text-muted"
               }`}
             >

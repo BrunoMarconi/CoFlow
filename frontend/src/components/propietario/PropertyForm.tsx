@@ -509,7 +509,7 @@ export default function PropertyForm({
                 }`}
               >
                 <span
-                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] ${
+                  className={`flex h-5 w-5 items-center justify-center rounded-full text-2xs ${
                     current
                       ? "bg-white/20"
                       : reachable

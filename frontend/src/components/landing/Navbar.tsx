@@ -41,7 +41,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <Link
             href="/register"
-            className="inline-flex h-8 items-center justify-center rounded-full bg-brand px-4 text-[11px] font-semibold text-white shadow-sm transition hover:bg-brand-dark"
+            className="inline-flex h-8 items-center justify-center rounded-full bg-brand px-4 text-2xs font-semibold text-white shadow-sm transition hover:bg-brand-dark"
           >
             Entrar
           </Link>

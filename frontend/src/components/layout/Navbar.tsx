@@ -74,7 +74,7 @@ export default function Navbar() {
                     CoFlow
                   </span>
                   {isOwnerMode && (
-                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-primary">
+                    <span className="text-3xs font-bold uppercase tracking-[0.12em] text-primary">
                       Pisos
                     </span>
                   )}
@@ -95,7 +95,7 @@ export default function Navbar() {
               aria-label={showProfileProgress ? `Abrir perfil, completado al ${profileCompletion}%` : "Abrir perfil"}
               className="group flex h-11 items-center gap-2 rounded-full p-1 transition-colors hover:bg-surface-soft"
             >
-              {showProfileProgress && <span className="pl-2 text-[11px] font-semibold tabular-nums text-primary-dark">{profileCompletion}%</span>}
+              {showProfileProgress && <span className="pl-2 text-2xs font-semibold tabular-nums text-primary-dark">{profileCompletion}%</span>}
               <span className="relative flex h-10 w-10 shrink-0 items-center justify-center">
                 {showProfileProgress && <ProfileCompletionRing completion={profileCompletion} className="absolute inset-0 h-10 w-10" />}
                 <Avatar name={`${user.first_name} ${user.last_name}`} imageUrl={user.avatar_url} size={showProfileProgress ? 32 : 38} />

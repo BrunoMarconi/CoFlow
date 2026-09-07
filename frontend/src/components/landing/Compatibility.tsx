@@ -11,7 +11,7 @@ export default function Compatibility() {
       <div className="mx-auto max-w-xl">
         <div className="grid items-center gap-6">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand">
+            <p className="text-2xs font-bold uppercase tracking-[0.18em] text-brand">
               Más que buscar una habitación
             </p>
 
@@ -19,7 +19,7 @@ export default function Compatibility() {
               Tu perfil de convivencia, en un vistazo.
             </h2>
 
-            <p className="mt-3 max-w-xl text-[13px] leading-5 text-muted">
+            <p className="mt-3 max-w-xl text-xs leading-5 text-muted">
               Al terminar el test de convivencia, CoFlow convierte tus
               respuestas en un perfil visual con 6 ejes: limpieza, energía
               social, horario, economía, forma de resolver conflictos y
@@ -33,7 +33,7 @@ export default function Compatibility() {
               {compatibilityAxes.map((item) => (
                 <span
                   key={item}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#f5f6f5] px-3 py-2.5 text-[10px] font-semibold text-brand-dark"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#f5f6f5] px-3 py-2.5 text-3xs font-semibold text-brand-dark"
                 >
                   <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand text-white">
                     <CheckIcon />
@@ -43,7 +43,7 @@ export default function Compatibility() {
               ))}
             </div>
 
-            <p className="mt-4 max-w-xl text-[11px] font-semibold leading-5 text-brand-dark">
+            <p className="mt-4 max-w-xl text-2xs font-semibold leading-5 text-brand-dark">
               CoFlow no decide por ti. Te ayuda a decidir con más información.
             </p>
           </div>

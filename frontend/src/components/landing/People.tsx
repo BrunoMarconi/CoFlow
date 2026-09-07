@@ -17,7 +17,7 @@ export default function People() {
           align="left"
         />
 
-        <p className="mt-3 max-w-2xl text-left text-[9px] font-semibold uppercase tracking-wider text-muted">
+        <p className="mt-3 max-w-2xl text-left text-3xs font-semibold uppercase tracking-wider text-muted">
           Ejemplo ilustrativo de cómo se ve un perfil
         </p>
 

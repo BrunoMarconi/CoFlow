@@ -29,7 +29,7 @@ export default function MatchScoreBadge({
         aria-label={explanation}
         title={explanation}
         className={cn(
-          "inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-surface px-2 py-1 text-[11px] font-bold shadow-soft",
+          "inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-surface px-2 py-1 text-2xs font-bold shadow-soft",
           tone,
           className
         )}

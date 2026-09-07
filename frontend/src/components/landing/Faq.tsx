@@ -9,7 +9,7 @@ export default function Faq() {
     >
       <div className="mx-auto grid max-w-xl gap-6">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand">
+          <p className="text-2xs font-bold uppercase tracking-[0.18em] text-brand">
             Preguntas frecuentes
           </p>
 
@@ -29,7 +29,7 @@ export default function Faq() {
               key={item.question}
               className="group overflow-hidden rounded-[1.2rem] bg-white ring-1 ring-black/[0.035]"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 text-[12px] font-semibold text-brand-dark">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 text-xs font-semibold text-brand-dark">
                 {item.question}
 
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-brand shadow-sm transition group-open:rotate-45">

@@ -45,7 +45,7 @@ export default function SearchInput({
       <input
         type="text"
         value={value}
-        className="h-full min-w-0 flex-1 bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted"
+        className="h-full min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted"
         {...props}
       />
 

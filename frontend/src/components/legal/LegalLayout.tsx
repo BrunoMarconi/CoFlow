@@ -43,7 +43,7 @@ export default function LegalLayout({
         <h1 className="mt-2 text-3xl font-black tracking-[-0.02em] text-brand-dark sm:text-4xl">{title}</h1>
         <p className="mt-2 text-sm text-secondary">Última actualización: {updated}</p>
 
-        <div className="mt-9 space-y-7 text-sm leading-7 text-secondary sm:text-[15px]">{children}</div>
+        <div className="mt-9 space-y-7 text-sm leading-7 text-secondary sm:text-sm">{children}</div>
       </main>
 
       <footer className="border-t border-line px-5 py-8 sm:px-8">

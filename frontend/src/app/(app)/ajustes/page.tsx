@@ -21,7 +21,7 @@ export default function AjustesPage() {
   return (
     <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] space-y-4 px-6 py-6 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-5xl sm:rounded-sheet sm:p-7 lg:p-8">
       <header className="px-1 pb-2">
-        <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary">{isOwnerMode ? "Espacio de propietario" : "Tu espacio"}</p>
+        <p className="text-2xs font-bold uppercase tracking-[0.15em] text-primary">{isOwnerMode ? "Espacio de propietario" : "Tu espacio"}</p>
         <h1 className="mt-0.5 font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">
           {isOwnerMode ? "Ajustes de propietario" : "Ajustes"}
         </h1>
@@ -37,7 +37,7 @@ export default function AjustesPage() {
               <p className="font-rounded text-xl font-semibold tracking-[-0.02em]">{user.first_name} {user.last_name}</p>
               <p className="mt-0.5 truncate text-sm text-white/60">{user.email}</p>
             </div>
-            <span className="hidden items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/80 sm:flex"><CheckCircle2 className="h-3.5 w-3.5" /> {isOwnerMode ? "Modo propietario" : "Sesión activa"}</span>
+            <span className="hidden items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-2xs font-semibold text-white/80 sm:flex"><CheckCircle2 className="h-3.5 w-3.5" /> {isOwnerMode ? "Modo propietario" : "Sesión activa"}</span>
           </div>
         </section>
       )}
@@ -142,7 +142,7 @@ function SecuritySessionsSection() {
           {sessions.map((session) => (
             <div key={session.id} className="flex items-center gap-3 rounded-16 bg-surface-soft p-3.5">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface text-primary shadow-soft">{session.device_label === "iPhone" || session.device_label === "Android" ? <Smartphone className="h-5 w-5" /> : <MonitorSmartphone className="h-5 w-5" />}</span>
-              <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="text-sm font-bold text-foreground">{session.device_label}</p>{session.is_current && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary-dark">Este dispositivo</span>}</div><p className="mt-0.5 text-xs text-muted">{session.browser_label} · {formatSessionActivity(session.last_active_at)}</p></div>
+              <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="text-sm font-bold text-foreground">{session.device_label}</p>{session.is_current && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-3xs font-bold text-primary-dark">Este dispositivo</span>}</div><p className="mt-0.5 text-xs text-muted">{session.browser_label} · {formatSessionActivity(session.last_active_at)}</p></div>
               {!session.is_current && <button type="button" disabled={workingId === session.id} onClick={() => void closeOne(session.id)} className="min-h-11 shrink-0 rounded-full px-3 text-xs font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-50">{workingId === session.id ? "Cerrando…" : "Cerrar"}</button>}
             </div>
           ))}

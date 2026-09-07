@@ -122,7 +122,7 @@ function PreviewMessageBubble({
         <p className="text-sm leading-6">{message.text}</p>
 
         <p
-          className={`mt-1 text-[10px] font-semibold ${
+          className={`mt-1 text-3xs font-semibold ${
             message.own ? "text-white/70" : "text-muted"
           }`}
         >

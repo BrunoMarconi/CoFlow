@@ -250,7 +250,7 @@ export default function PropertyImageUploader({
               />
 
               {image.is_cover && (
-                <span className="absolute left-2 top-2 rounded-full bg-brand px-2 py-1 text-[10px] font-bold text-white">
+                <span className="absolute left-2 top-2 rounded-full bg-brand px-2 py-1 text-3xs font-bold text-white">
                   Portada
                 </span>
               )}
@@ -285,7 +285,7 @@ export default function PropertyImageUploader({
                       type="button"
                       disabled={busyImageId !== null}
                       onClick={() => handleSetCover(image.id)}
-                      className="h-7 rounded-lg bg-white/90 px-2 text-[10px] font-bold text-foreground disabled:opacity-40"
+                      className="h-7 rounded-lg bg-white/90 px-2 text-3xs font-bold text-foreground disabled:opacity-40"
                     >
                       Portada
                     </button>

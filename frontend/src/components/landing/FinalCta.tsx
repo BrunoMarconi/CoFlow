@@ -14,7 +14,7 @@ export default function FinalCta() {
       />
 
       <div className="relative mx-auto max-w-xl rounded-[1.65rem] bg-white px-5 py-10 text-center ring-1 ring-black/[0.035]">
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand">
+        <p className="text-2xs font-bold uppercase tracking-[0.2em] text-brand">
           Empieza cuando quieras
         </p>
 
@@ -22,7 +22,7 @@ export default function FinalCta() {
           Encuentra una convivencia que tenga sentido para ti.
         </h2>
 
-        <p className="mx-auto mt-4 max-w-md text-[12px] leading-5 text-muted">
+        <p className="mx-auto mt-4 max-w-md text-xs leading-5 text-muted">
           Explora comunidades, conoce personas y escríbeles en privado antes
           de decidir.
         </p>

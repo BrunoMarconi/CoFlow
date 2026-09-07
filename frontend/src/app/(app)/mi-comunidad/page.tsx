@@ -336,7 +336,7 @@ function CommunityDashboard({
       </motion.section>
 
       <motion.section initial="hidden" animate="show" variants={sectionVariants} className="rounded-panel border border-black/[0.06] bg-surface-raised p-4 shadow-card sm:p-5">
-        <div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">Ahora</p><h2 className="mt-1 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Estado de la comunidad</h2></div><span className="rounded-full bg-[#e9eeea] px-3 py-1.5 text-[10px] font-bold text-primary-dark">{isOwner ? "Vista de administrador" : "Vista de miembro"}</span></div>
+        <div className="flex items-center justify-between gap-3"><div><p className="text-3xs font-bold uppercase tracking-[0.14em] text-primary">Ahora</p><h2 className="mt-1 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Estado de la comunidad</h2></div><span className="rounded-full bg-[#e9eeea] px-3 py-1.5 text-3xs font-bold text-primary-dark">{isOwner ? "Vista de administrador" : "Vista de miembro"}</span></div>
         <div className="mt-4 grid gap-2 sm:grid-cols-3">
           {isOwner ? <DashboardAction icon={<ApplicationsIcon className="h-5 w-5" />} value={String(pendingApplications)} label="solicitudes pendientes" detail={pendingApplications > 0 ? "Esperan tu respuesta" : "Todo revisado"} attention={pendingApplications > 0} onClick={() => onOpenPanel("applications")} /> : <DashboardAction icon={<MessageIcon className="h-5 w-5" />} value="Chat" label="de la comunidad" detail="Habla con tus convivientes" onClick={() => onOpenPanel("chat")} />}
           <DashboardAction icon={<SpotsIcon className="h-5 w-5" />} value={String(availablePlaces)} label="plazas disponibles" detail={availablePlaces > 0 ? "La comunidad puede crecer" : "Comunidad completa"} onClick={() => isOwner ? toggle("spots") : onOpenPanel("members")} />
@@ -654,7 +654,7 @@ function HeroStat({ value, label }: { value: string; label: string }) {
       <p className="truncate font-rounded text-lg font-semibold text-brand-dark sm:text-xl">
         {value}
       </p>
-      <p className="mt-0.5 truncate text-[11px] font-semibold text-secondary">
+      <p className="mt-0.5 truncate text-2xs font-semibold text-secondary">
         {label}
       </p>
     </div>
@@ -662,7 +662,7 @@ function HeroStat({ value, label }: { value: string; label: string }) {
 }
 
 function DashboardAction({ icon, value, label, detail, attention = false, onClick }: { icon: ReactNode; value: string; label: string; detail: string; attention?: boolean; onClick?: () => void }) {
-  const content = <><span className={`flex h-10 w-10 items-center justify-center rounded-full ${attention ? "bg-amber-100 text-amber-800" : "bg-[#e8eeea] text-primary-dark"}`}>{icon}</span><span className="mt-3 block text-lg font-semibold tracking-[-0.02em] text-brand-dark">{value}</span><span className="block text-xs font-bold text-brand-dark">{label}</span><span className="mt-1 block text-[10px] leading-4 text-secondary">{detail}</span></>;
+  const content = <><span className={`flex h-10 w-10 items-center justify-center rounded-full ${attention ? "bg-amber-100 text-amber-800" : "bg-[#e8eeea] text-primary-dark"}`}>{icon}</span><span className="mt-3 block text-lg font-semibold tracking-[-0.02em] text-brand-dark">{value}</span><span className="block text-xs font-bold text-brand-dark">{label}</span><span className="mt-1 block text-3xs leading-4 text-secondary">{detail}</span></>;
   return onClick ? <button type="button" onClick={onClick} className="rounded-field border border-black/[0.055] bg-white p-3.5 text-left transition hover:bg-[#f4f7f4]">{content}</button> : <div className="rounded-field border border-black/[0.055] bg-white p-3.5">{content}</div>;
 }
 
@@ -678,7 +678,7 @@ function Fact({ icon, label }: { icon: React.ReactNode; label: string }) {
 function Preference({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-14 border border-border bg-surface px-3 py-2.5 shadow-soft">
-      <p className="text-[11px] font-semibold text-secondary">{label}</p>
+      <p className="text-2xs font-semibold text-secondary">{label}</p>
       <p className="mt-0.5 text-sm font-bold text-foreground">{value}</p>
     </div>
   );

@@ -15,7 +15,7 @@ export default function AyudaPropietariosPage() {
         <span className="absolute -right-14 -top-20 h-52 w-52 rounded-full border-[34px] border-white/[0.04]" aria-hidden="true" />
         <div className="relative max-w-2xl">
           <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10"><CircleHelp className="h-5 w-5" /></span>
-          <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.15em] text-white/55">Centro de ayuda</p>
+          <p className="mt-5 text-2xs font-bold uppercase tracking-[0.15em] text-white/55">Centro de ayuda</p>
           <h1 className="mt-1 font-rounded text-3xl font-semibold tracking-[-0.045em] sm:text-4xl">Resuelve tus dudas como propietario</h1>
           <p className="mt-3 max-w-xl text-sm leading-6 text-white/65">Información clara sobre publicación, gestión y próximos pasos en CoFlow.</p>
         </div>

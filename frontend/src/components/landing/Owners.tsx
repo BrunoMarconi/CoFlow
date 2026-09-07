@@ -31,12 +31,12 @@ export default function Owners() {
               Encuentra a la persona adecuada para tu piso.
             </h2>
 
-            <p className="mt-3 max-w-xl text-[13px] leading-5 text-muted">
+            <p className="mt-3 max-w-xl text-xs leading-5 text-muted">
               Publica tu vivienda gratis y recibe solicitudes de personas que
               ya han contado qué buscan, cuánto pueden pagar y cómo conviven.
             </p>
 
-            <div className="mt-5 space-y-2.5 rounded-[1.25rem] bg-[#f3f6f3] p-4 text-[11px] leading-4 text-brand-dark">
+            <div className="mt-5 space-y-2.5 rounded-[1.25rem] bg-[#f3f6f3] p-4 text-2xs leading-4 text-brand-dark">
               {ownerPoints.map((point) => (
                 <CheckItem key={point} text={point} />
               ))}
@@ -50,7 +50,7 @@ export default function Owners() {
                 Publicar mi vivienda gratis
                 <ArrowRightIcon />
               </Link>
-              <span className="text-center text-[10px] text-secondary">
+              <span className="text-center text-3xs text-secondary">
                 Sin tarjeta · Sin permanencia
               </span>
             </div>

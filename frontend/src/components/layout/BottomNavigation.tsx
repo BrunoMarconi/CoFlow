@@ -324,7 +324,7 @@ function BottomNavLink({
 
       <span
         className={cn(
-          "relative text-[10px] leading-none tracking-[-0.01em]",
+          "relative text-3xs leading-none tracking-[-0.01em]",
           // El peso lo decide `active`, nunca `tinted`: si las dos capas
           // usaran pesos distintos el texto no encajaría al superponerse.
           active ? "font-bold" : "font-semibold",

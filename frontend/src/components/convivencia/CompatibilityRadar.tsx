@@ -129,7 +129,7 @@ export default function CompatibilityRadar({
                 y={point.y}
                 textAnchor={anchor}
                 dominantBaseline="middle"
-                className="fill-secondary text-[9px] font-bold uppercase tracking-[0.03em]"
+                className="fill-secondary text-3xs font-bold uppercase tracking-[0.03em]"
               >
                 {words.map((word, wordIndex) => (
                   <tspan key={word} x={point.x} dy={wordIndex === 0 ? (words.length > 1 ? "-0.5em" : 0) : "1.1em"}>
@@ -145,7 +145,7 @@ export default function CompatibilityRadar({
         <div className="min-w-0 flex-1 space-y-2">
           {categories.map((category, index) => (
             <div key={category.key} className="flex items-center gap-2.5">
-              <span className="w-24 shrink-0 truncate text-[11px] font-bold uppercase tracking-[0.03em] text-secondary sm:w-28">
+              <span className="w-24 shrink-0 truncate text-2xs font-bold uppercase tracking-[0.03em] text-secondary sm:w-28">
                 {category.label}
               </span>
               <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-soft">

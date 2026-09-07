@@ -39,7 +39,7 @@ export default function InvitationsPage() {
             <ArrowLeft className="h-6 w-6" />
           </button>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary">Tu comunidad</p>
+            <p className="text-2xs font-bold uppercase tracking-[0.15em] text-primary">Tu comunidad</p>
             <h1 className="font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">Solicitudes e invitaciones</h1>
             <p className="mt-1 max-w-xl text-sm leading-6 text-secondary sm:text-base">Sigue tus solicitudes y decide con calma quién entra en vuestra comunidad.</p>
           </div>
@@ -202,7 +202,7 @@ function MyApplications() {
         <Status status={application.status} />
       </div>
       {application.message && <p className="mt-4 line-clamp-3 text-sm leading-6 text-secondary">“{application.message}”</p>}
-      <p className="mt-3 flex items-center gap-1.5 text-[11px] text-muted"><Clock3 className="h-3.5 w-3.5" />{dateLabel}</p>
+      <p className="mt-3 flex items-center gap-1.5 text-2xs text-muted"><Clock3 className="h-3.5 w-3.5" />{dateLabel}</p>
       <div className="mt-auto flex gap-2 pt-4">
         <Link href={`/comunidades/${application.community_id}`} className="flex min-h-11 flex-1 items-center justify-center rounded-full bg-brand-dark px-4 text-sm font-semibold text-white">Ver comunidad</Link>
         {application.status === "PENDING" && <button type="button" disabled={busyId !== null} onClick={() => setConfirmingId(application.id)} aria-label="Cancelar solicitud" className="flex h-11 w-11 items-center justify-center rounded-full border border-black/[0.08] bg-white text-secondary hover:bg-red-50 hover:text-red-600 disabled:opacity-50"><X className="h-4 w-4" /></button>}
@@ -214,7 +214,7 @@ function MyApplications() {
 
 function Status({ status }: { status: CommunityApplication["status"] }) {
   const labels = { PENDING: "Pendiente", ACCEPTED: "Aceptada", REJECTED: "Rechazada", CANCELLED: "Cancelada" };
-  return <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold", status === "ACCEPTED" ? "bg-emerald-50 text-emerald-700" : status === "REJECTED" ? "bg-red-50 text-red-600" : status === "PENDING" ? "bg-amber-50 text-amber-700" : "bg-[#eef0ed] text-secondary")}>{labels[status]}</span>;
+  return <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-3xs font-bold", status === "ACCEPTED" ? "bg-emerald-50 text-emerald-700" : status === "REJECTED" ? "bg-red-50 text-red-600" : status === "PENDING" ? "bg-amber-50 text-amber-700" : "bg-[#eef0ed] text-secondary")}>{labels[status]}</span>;
 }
 
 function formatDate(value: string) {

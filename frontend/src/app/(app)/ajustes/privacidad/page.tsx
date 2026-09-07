@@ -66,7 +66,7 @@ export default function PrivacyPage() {
     <main className="mx-auto w-full max-w-3xl pb-10">
       <header className="flex items-center gap-3">
         <button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-11 w-11 items-center justify-start"><ChevronLeft className="h-6 w-6" /></button>
-        <div><p className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary">Control de privacidad</p><h1 className="font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark">Privacidad</h1><p className="mt-1 text-sm text-secondary">Tú decides quién puede encontrarte y conocerte.</p></div>
+        <div><p className="text-2xs font-bold uppercase tracking-[0.14em] text-primary">Control de privacidad</p><h1 className="font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark">Privacidad</h1><p className="mt-1 text-sm text-secondary">Tú decides quién puede encontrarte y conocerte.</p></div>
       </header>
 
       {loading ? <div className="flex min-h-72 items-center justify-center"><Spinner /></div> : (
@@ -90,7 +90,7 @@ export default function PrivacyPage() {
       )}
 
       <section className="mt-8">
-        <h2 className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.14em] text-muted">Seguridad y control</h2>
+        <h2 className="mb-2 px-1 text-2xs font-bold uppercase tracking-[0.14em] text-muted">Seguridad y control</h2>
         <div className="overflow-hidden rounded-card border border-black/[0.06] bg-surface-raised shadow-card">
           <Link href="/ajustes/privacidad/bloqueados" className="flex min-h-18 items-center gap-3 border-b border-black/[0.055] px-4 py-3 transition hover:bg-[#f5f7f4]">
             <span className="flex h-10 w-10 items-center justify-center rounded-control bg-[#e9eeea] text-primary-dark"><Ban className="h-5 w-5" /></span>

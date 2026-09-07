@@ -277,8 +277,8 @@ export default function ConexionesPage() {
 
         <header className="flex items-end justify-between gap-6 border-b border-black/[0.07] pb-6 sm:pb-8">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736c]">Tu red CoFlow</p>
-            <h1 className="mt-2 text-[36px] font-semibold tracking-[-0.05em] text-brand-dark sm:text-[48px]">
+            <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-[#66736c]">Tu red CoFlow</p>
+            <h1 className="mt-2 text-4xl font-semibold tracking-[-0.05em] text-brand-dark sm:text-5xl">
               Conexiones
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-[#68756e] sm:text-base">
@@ -323,7 +323,7 @@ export default function ConexionesPage() {
                 <Icon className="h-4 w-4" aria-hidden="true" />
                 {item.label}
                 <span
-                  className={`flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] tabular-nums ${
+                  className={`flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-2xs tabular-nums ${
                     active ? "bg-brand-dark text-white" : "bg-black/[0.05] text-secondary"
                   }`}
                 >
@@ -552,7 +552,7 @@ function ConnectionCard({
           <span className="mt-1 block text-xs text-secondary">{meta}</span>
         </span>
 
-        <span className="shrink-0 rounded-full bg-[#e9efeb] px-2.5 py-1.5 text-[10px] font-semibold text-[#40544a]">
+        <span className="shrink-0 rounded-full bg-[#e9efeb] px-2.5 py-1.5 text-3xs font-semibold text-[#40544a]">
           {badge}
         </span>
         </div>

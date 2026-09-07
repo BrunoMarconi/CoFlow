@@ -31,7 +31,7 @@ function TrustItem({ href, icon, title, value, tone }: { href?: string; icon: Re
   const content = (
     <motion.div whileTap={href ? { scale: MOTION_HOME_TAP_SCALE } : undefined} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }} className="flex min-h-20 items-center gap-3 rounded-field border border-black/[0.06] bg-surface-raised p-3.5 transition hover:bg-[#f5f7f4]">
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e8eeea] text-primary-dark [&>svg]:h-4.5 [&>svg]:w-4.5">{icon}</span>
-      <span className="min-w-0 flex-1"><span className="block text-xs font-bold text-brand-dark">{title}</span><span className={`mt-0.5 block truncate text-[11px] font-semibold ${tone === "positive" ? "text-emerald-700" : tone === "pending" ? "text-amber-700" : "text-secondary"}`}>{value}</span></span>
+      <span className="min-w-0 flex-1"><span className="block text-xs font-bold text-brand-dark">{title}</span><span className={`mt-0.5 block truncate text-2xs font-semibold ${tone === "positive" ? "text-emerald-700" : tone === "pending" ? "text-amber-700" : "text-secondary"}`}>{value}</span></span>
       {href && <span className="text-muted" aria-hidden="true">›</span>}
     </motion.div>
   );

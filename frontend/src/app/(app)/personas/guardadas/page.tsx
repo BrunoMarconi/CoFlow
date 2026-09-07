@@ -90,7 +90,7 @@ export default function PersonasGuardadasPage() {
       <div className="mx-auto w-full max-w-5xl pb-8">
         <header className="flex items-end justify-between gap-4">
           <div>
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-primary">Tu selección</p>
+            <p className="mb-2 text-2xs font-bold uppercase tracking-[0.16em] text-primary">Tu selección</p>
             <h1 className="font-rounded text-3xl font-semibold tracking-[-0.035em] text-brand-dark sm:text-4xl">Personas guardadas</h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-secondary">Vuelve a los perfiles que te interesan y decide con calma con quién conectar.</p>
           </div>
@@ -169,12 +169,12 @@ function SavedPersonCard({ profile, removing, onOpen, onRemove }: { profile: Use
       <div className="flex items-start gap-3">
         <div className="relative shrink-0"><UserAvatar firstName={profile.first_name} lastName={profile.last_name} userId={profile.id} imageUrl={profile.avatar_url} size="lg" />{profile.is_online && <OnlineDot className="bottom-0 right-0" />}</div>
         <button type="button" onClick={onOpen} className="min-w-0 flex-1 text-left">
-          <span className="flex items-center gap-1.5"><span className="truncate text-[16px] font-semibold tracking-[-0.02em] text-brand-dark">{fullName}</span>{profile.is_verified && <VerifiedIcon />}</span>
+          <span className="flex items-center gap-1.5"><span className="truncate text-base font-semibold tracking-[-0.02em] text-brand-dark">{fullName}</span>{profile.is_verified && <VerifiedIcon />}</span>
           <span className="mt-1 block truncate text-xs text-secondary">{[profile.age !== null ? `${profile.age} años` : null, details].filter(Boolean).join(" · ")}</span>
         </button>
         <button type="button" onClick={onRemove} disabled={removing} aria-label={`Quitar a ${fullName} de guardados`} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/[0.06] bg-white text-primary transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"><HeartIcon /></button>
       </div>
-      {(status || profile.is_looking_for_roommates || interests.length > 0) && <div className="mt-4 flex flex-wrap gap-1.5">{status && <span className="rounded-full bg-[#dfece5] px-2.5 py-1 text-[10px] font-bold text-primary-dark">{status}</span>}{!status && profile.is_looking_for_roommates && <span className="rounded-full bg-[#dfece5] px-2.5 py-1 text-[10px] font-bold text-primary-dark">Busca convivencia</span>}{interests.map((interest) => <span key={interest} className="rounded-full bg-[#eef0ed] px-2.5 py-1 text-[10px] font-semibold text-secondary">{interest}</span>)}</div>}
+      {(status || profile.is_looking_for_roommates || interests.length > 0) && <div className="mt-4 flex flex-wrap gap-1.5">{status && <span className="rounded-full bg-[#dfece5] px-2.5 py-1 text-3xs font-bold text-primary-dark">{status}</span>}{!status && profile.is_looking_for_roommates && <span className="rounded-full bg-[#dfece5] px-2.5 py-1 text-3xs font-bold text-primary-dark">Busca convivencia</span>}{interests.map((interest) => <span key={interest} className="rounded-full bg-[#eef0ed] px-2.5 py-1 text-3xs font-semibold text-secondary">{interest}</span>)}</div>}
       <button type="button" onClick={onOpen} className="mt-auto flex items-end justify-between gap-3 border-t border-black/[0.06] pt-4 text-left">
         <span className="text-xs text-secondary">{profile.rental_budget !== null ? <><strong className="font-semibold text-brand-dark">{profile.rental_budget.toLocaleString("es-ES")} €</strong> / mes</> : "Presupuesto por definir"}</span>
         {profile.match_score !== null ? <MatchScoreBadge score={profile.match_score} size="sm" /> : <span className="text-xs font-semibold text-primary-dark">Ver perfil <span aria-hidden="true">→</span></span>}

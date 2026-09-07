@@ -61,7 +61,7 @@ export function SettingsRow({
           </span>
 
           {typeof badge === "number" && badge > 0 && (
-            <span className="shrink-0 rounded-full bg-brand px-1.5 py-0.5 text-[10px] font-bold text-white">
+            <span className="shrink-0 rounded-full bg-brand px-1.5 py-0.5 text-3xs font-bold text-white">
               {badge > 99 ? "99+" : badge}
             </span>
           )}

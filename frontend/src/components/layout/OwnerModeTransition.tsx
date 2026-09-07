@@ -215,7 +215,7 @@ export default function OwnerModeTransition({
         }}
       >
         <motion.div
-          className="flex items-center gap-2 text-[13px] font-medium tracking-[-0.01em] text-white/76 sm:text-sm"
+          className="flex items-center gap-2 text-xs font-medium tracking-[-0.01em] text-white/76 sm:text-sm"
           initial={reduced ? false : { opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: reduced ? 0 : 0.24, duration: reduced ? 0 : 0.35 }}

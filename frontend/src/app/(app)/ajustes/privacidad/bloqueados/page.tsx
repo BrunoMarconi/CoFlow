@@ -44,7 +44,7 @@ export default function BlockedUsersPage() {
           <ArrowLeftIcon />
         </button>
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary">Privacidad</p>
+          <p className="text-2xs font-bold uppercase tracking-[0.14em] text-primary">Privacidad</p>
           <h1 className="font-rounded text-2xl font-semibold tracking-[-0.035em] text-brand-dark sm:text-3xl">Personas bloqueadas</h1>
           <p className="mt-1 text-sm text-secondary">Puedes desbloquearlas cuando quieras.</p>
         </div>

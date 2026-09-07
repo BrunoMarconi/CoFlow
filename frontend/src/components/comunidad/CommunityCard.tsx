@@ -42,11 +42,11 @@ export default function CommunityCard({ community, isOwn = false }: { community:
             </div>
 
             <div className="flex flex-1 flex-col px-1.5 pb-1.5 pt-3">
-              <div className="flex items-center gap-2"><h3 className="min-w-0 flex-1 truncate font-rounded text-[17px] font-semibold leading-tight tracking-[-.025em] text-brand-dark">{community.name}</h3><span className="shrink-0 rounded-full bg-[#edf4f0] px-2.5 py-1 text-[9px] font-semibold text-[#416151]">{available ? "Busca personas" : community.is_full ? "Completa" : "Sin plazas"}</span></div>
-              <p className="mt-1 line-clamp-2 min-h-8 text-[10px] leading-4 text-secondary">{community.description || getProfileTypeLabel(community.profile_type)}</p>
+              <div className="flex items-center gap-2"><h3 className="min-w-0 flex-1 truncate font-rounded text-base font-semibold leading-tight tracking-[-.025em] text-brand-dark">{community.name}</h3><span className="shrink-0 rounded-full bg-[#edf4f0] px-2.5 py-1 text-3xs font-semibold text-[#416151]">{available ? "Busca personas" : community.is_full ? "Completa" : "Sin plazas"}</span></div>
+              <p className="mt-1 line-clamp-2 min-h-8 text-3xs leading-4 text-secondary">{community.description || getProfileTypeLabel(community.profile_type)}</p>
 
               <div className="mt-2.5 flex items-center justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-2"><AvatarGroup members={members.map(({ user }) => ({ id: user.id, firstName: user.first_name, lastName: user.last_name, imageUrl: user.avatar_url }))} totalCount={community.member_count} size="sm" /><span className="truncate text-[10px] font-medium text-secondary">{residents || `${community.member_count} residentes`}</span></div>
+                <div className="flex min-w-0 items-center gap-2"><AvatarGroup members={members.map(({ user }) => ({ id: user.id, firstName: user.first_name, lastName: user.last_name, imageUrl: user.avatar_url }))} totalCount={community.member_count} size="sm" /><span className="truncate text-3xs font-medium text-secondary">{residents || `${community.member_count} residentes`}</span></div>
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#edf4f0] text-brand-mid"><PeopleIcon /></span>
               </div>
 
@@ -59,8 +59,8 @@ export default function CommunityCard({ community, isOwn = false }: { community:
               </div>
 
               <div className="mt-auto flex items-center justify-between gap-3 border-t border-black/5 pt-3">
-                <span className="flex min-w-0 items-center gap-1.5 truncate text-[10px] font-medium text-secondary"><HomeIcon />{community.join_type === "OPEN" ? "Entrada abierta" : "Acceso con solicitud"}</span>
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-mid px-4 py-2 text-[10px] font-bold text-white">Conocer <ArrowIcon /></span>
+                <span className="flex min-w-0 items-center gap-1.5 truncate text-3xs font-medium text-secondary"><HomeIcon />{community.join_type === "OPEN" ? "Entrada abierta" : "Acceso con solicitud"}</span>
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-mid px-4 py-2 text-3xs font-bold text-white">Conocer <ArrowIcon /></span>
               </div>
             </div>
           </motion.article>
@@ -72,8 +72,8 @@ export default function CommunityCard({ community, isOwn = false }: { community:
 }
 
 function formatDate(value: string) { return new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short" }).format(new Date(value)); }
-function Overlay({ children, className }: { children: React.ReactNode; className: string }) { return <span className={`absolute inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[9px] font-semibold shadow-sm backdrop-blur ${className}`}>{children}</span>; }
-function MiniTag({ children }: { children: React.ReactNode }) { return <span className="inline-flex max-w-full items-center gap-1 truncate rounded-full bg-[#eef4f1] px-2.5 py-1.5 text-[9px] font-medium text-[#50625a]">{children}</span>; }
+function Overlay({ children, className }: { children: React.ReactNode; className: string }) { return <span className={`absolute inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-3xs font-semibold shadow-sm backdrop-blur ${className}`}>{children}</span>; }
+function MiniTag({ children }: { children: React.ReactNode }) { return <span className="inline-flex max-w-full items-center gap-1 truncate rounded-full bg-[#eef4f1] px-2.5 py-1.5 text-3xs font-medium text-[#50625a]">{children}</span>; }
 function ArrowIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" className="h-3 w-3" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>; }
 function PinIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3 shrink-0" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>; }
 function PeopleIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4" /><circle cx="8.5" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.2a4 4 0 0 1 0 7.6" /></svg>; }

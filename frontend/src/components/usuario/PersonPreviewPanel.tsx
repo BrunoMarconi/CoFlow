@@ -218,7 +218,7 @@ function PreviewContent({ profile, onClose }: { profile: UserPublicProfile; onCl
               <h3 className="text-sm font-extrabold text-foreground">Estilo de convivencia</h3>
               <div className="mt-2 flex flex-wrap gap-2">
                 {traits.map((trait) => (
-                  <span key={trait.key} className="rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-bold text-primary-dark shadow-soft">
+                  <span key={trait.key} className="rounded-full border border-border bg-surface px-3 py-1.5 text-2xs font-bold text-primary-dark shadow-soft">
                     {trait.value}
                   </span>
                 ))}
@@ -271,7 +271,7 @@ function PreviewConnectionAction({ profile, status, connectionId, connecting, on
 }
 
 function PreviewFact({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-14 border border-border bg-surface p-3 shadow-soft"><p className="text-[11px] text-secondary">{label}</p><p className="mt-0.5 truncate text-xs font-extrabold text-foreground">{value}</p></div>;
+  return <div className="rounded-14 border border-border bg-surface p-3 shadow-soft"><p className="text-2xs text-secondary">{label}</p><p className="mt-0.5 truncate text-xs font-extrabold text-foreground">{value}</p></div>;
 }
 
 function CloseIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-4 w-4" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>; }

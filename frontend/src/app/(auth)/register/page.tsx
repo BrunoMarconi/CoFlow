@@ -82,11 +82,11 @@ export default function RegisterPage() {
         <AuthBrand />
 
         <div className="mt-4 text-center sm:mt-6">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#707871]">Tu cuenta CoFlow</p>
-          <h1 className="text-[30px] font-semibold tracking-[-0.05em] text-[#12251c]">
+          <p className="mb-2 text-3xs font-semibold uppercase tracking-[0.2em] text-[#707871]">Tu cuenta CoFlow</p>
+          <h1 className="text-3xl font-semibold tracking-[-0.05em] text-[#12251c]">
             {role === "OWNER" ? "Publica gratis en Málaga" : "Crea tu cuenta"}
           </h1>
-          <p className="mx-auto mt-1 max-w-sm text-[13px] leading-5 text-secondary">
+          <p className="mx-auto mt-1 max-w-sm text-xs leading-5 text-secondary">
             {role === "OWNER"
               ? "Sin tarjeta, sin permanencia y con control total sobre tu anuncio."
               : "Encuentra compañero de piso y únete a su comunidad."}
@@ -116,7 +116,7 @@ export default function RegisterPage() {
                 required
                 className="mt-0.5 h-5 w-5 shrink-0 rounded-md border-border text-primary focus:ring-primary/30"
               />
-              <span className="text-[12px] leading-[1.45] text-secondary">
+              <span className="text-xs leading-[1.45] text-secondary">
                 Acepto los{" "}
                 <Link href="/legal/terminos" target="_blank" className="font-bold text-primary-dark underline underline-offset-4">
                   Términos y Condiciones
@@ -131,7 +131,7 @@ export default function RegisterPage() {
                 onChange={(event) => setMarketingConsent(event.target.checked)}
                 className="mt-0.5 h-5 w-5 shrink-0 rounded-md border-border text-primary focus:ring-primary/30"
               />
-              <span className="text-[12px] leading-[1.45] text-secondary">Recibir novedades de CoFlow <span className="text-muted">(opcional)</span>.</span>
+              <span className="text-xs leading-[1.45] text-secondary">Recibir novedades de CoFlow <span className="text-muted">(opcional)</span>.</span>
             </label>
           </div>
 
@@ -143,7 +143,7 @@ export default function RegisterPage() {
           </Button>
         </form>
 
-        <p className="mt-3 text-center text-[12px] text-secondary">
+        <p className="mt-3 text-center text-xs text-secondary">
           ¿Ya tienes cuenta? <Link href="/login" className="font-semibold text-primary-dark underline underline-offset-4">Inicia sesión</Link>
         </p>
       </div>
@@ -158,7 +158,7 @@ function RoleButton({ active, onClick, icon, label }: { active: boolean; onClick
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "flex min-h-11 items-center justify-center gap-2 px-2 text-center text-[12px] font-semibold transition",
+        "flex min-h-11 items-center justify-center gap-2 px-2 text-center text-xs font-semibold transition",
         active ? "bg-brand-dark text-white shadow-none" : "text-[#5e6761] hover:text-brand-dark"
       )}
     >
@@ -173,9 +173,9 @@ type AppleFieldProps = InputHTMLAttributes<HTMLInputElement> & { label: string; 
 function AppleField({ label, icon, rightElement, className, ...props }: AppleFieldProps) {
   return (
     <label className="group relative block h-[54px] bg-[#fafaf7] ring-1 ring-black/[0.11] transition focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-dark/45">
-      <span className="pointer-events-none absolute left-11 top-2 text-[9px] font-semibold uppercase tracking-[0.12em] text-[#747b76]">{label}</span>
+      <span className="pointer-events-none absolute left-11 top-2 text-3xs font-semibold uppercase tracking-[0.12em] text-[#747b76]">{label}</span>
       <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-[#626c65] [&>svg]:h-[16px] [&>svg]:w-[16px]">{icon}</span>
-      <input aria-label={label} className={cn("h-full w-full bg-transparent pb-1 pl-11 pr-3 pt-5 text-[16px] text-brand-dark outline-none", rightElement && "pr-14", className)} {...props} />
+      <input aria-label={label} className={cn("h-full w-full bg-transparent pb-1 pl-11 pr-3 pt-5 text-base text-brand-dark outline-none", rightElement && "pr-14", className)} {...props} />
       {rightElement ? <span className="absolute inset-y-0 right-1.5 flex items-center">{rightElement}</span> : null}
     </label>
   );

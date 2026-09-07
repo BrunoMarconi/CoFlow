@@ -26,6 +26,10 @@ export default function CountUp({
   const inView = useInView(ref, { once: true, margin: "-40px" });
   const prefersReducedMotion = useReducedMotion();
   const [counted, setCounted] = useState(0);
+  // Arranca donde lo dejó, no siempre en cero: cuando el número cambia en
+  // vivo (un recuento de resultados mientras se tocan filtros), volver a
+  // contar desde cero cada vez se lee como un parpadeo, no como un cambio.
+  const fromRef = useRef(0);
 
   // Con reduced motion no hay cuenta atrás que valga: se deriva el valor
   // final en render en vez de sincronizarlo por efecto.
@@ -34,10 +38,13 @@ export default function CountUp({
   useEffect(() => {
     if (!inView || prefersReducedMotion) return;
 
-    const controls = animate(0, value, {
+    const controls = animate(fromRef.current, value, {
       duration: durationSeconds,
       ease: "easeOut",
-      onUpdate: (current) => setCounted(Math.round(current)),
+      onUpdate: (current) => {
+        fromRef.current = current;
+        setCounted(Math.round(current));
+      },
     });
 
     return () => controls.stop();

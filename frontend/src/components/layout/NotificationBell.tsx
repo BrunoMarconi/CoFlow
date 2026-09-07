@@ -244,7 +244,7 @@ export default function NotificationBell() {
             <span className="min-w-0 flex-1">
               <span className="flex items-start justify-between gap-3">
                 <span className={`text-sm leading-5 text-brand-dark ${notification.is_read ? "font-semibold" : "font-bold"}`}>{notification.title}</span>
-                <span className="shrink-0 text-[10px] font-medium text-muted">{formatNotificationDate(notification.created_at)}</span>
+                <span className="shrink-0 text-3xs font-medium text-muted">{formatNotificationDate(notification.created_at)}</span>
               </span>
               <span className="mt-0.5 line-clamp-2 block text-xs leading-5 text-secondary">{notification.message}</span>
             </span>
@@ -314,7 +314,7 @@ export default function NotificationBell() {
               <CoFlowBellIcon className="h-5 w-5 text-neutral-strong" />
             </motion.div>
 
-            <div><p id="notification-panel-title" className="text-sm font-bold text-neutral-strong">Notificaciones</p>{visibleUnreadCount > 0 && <p className="text-[10px] font-semibold text-muted">{visibleUnreadCount} sin leer</p>}</div>
+            <div><p id="notification-panel-title" className="text-sm font-bold text-neutral-strong">Notificaciones</p>{visibleUnreadCount > 0 && <p className="text-3xs font-semibold text-muted">{visibleUnreadCount} sin leer</p>}</div>
           </div>
 
           {hasUnread && (
@@ -374,7 +374,7 @@ export default function NotificationBell() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.7 }}
               transition={MOTION_SPRING.snappy}
-              className="absolute right-1 top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white ring-2 ring-white"
+              className="absolute right-1 top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-3xs font-bold text-white ring-2 ring-white"
             >
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.span

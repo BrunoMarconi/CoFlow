@@ -84,7 +84,7 @@ export default function OwnerProfileForm({ mode = "create", initialValues, submi
     <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] px-6 pb-12 pt-5 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-4xl sm:rounded-sheet sm:p-7 lg:p-8">
       <header className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary">Identidad profesional</p>
+          <p className="text-2xs font-bold uppercase tracking-[0.15em] text-primary">Identidad profesional</p>
           <h1 className="mt-1 font-rounded text-3xl font-semibold tracking-[-0.045em] text-brand-dark sm:text-4xl">Editar perfil</h1>
           <p className="mt-2 text-sm leading-6 text-secondary">Mantén actualizada la información asociada a tus viviendas.</p>
         </div>
@@ -127,7 +127,7 @@ function OwnerStepScreen({ step, value: initialValue, submitting, error, progres
           {progress && <div className="mt-5 h-1 overflow-hidden rounded-full bg-primary/10"><div className="h-full rounded-full bg-primary transition-transform duration-300" style={{ width: `${(Number(progress.split(" ")[0]) / Number(progress.split(" ")[2])) * 100}%` }} /></div>}
           <main className="flex flex-1 flex-col justify-center py-8 sm:py-12">
             <div className="rounded-panel bg-surface p-5 shadow-soft sm:p-8">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary">Perfil de propietario</p>
+            <p className="text-2xs font-bold uppercase tracking-[0.14em] text-primary">Perfil de propietario</p>
             <h1 className="mt-2 font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">{meta.title}</h1>
             <p className="mt-3 text-base leading-7 text-secondary">{meta.description}</p>
             {step === "owner_type" ? (

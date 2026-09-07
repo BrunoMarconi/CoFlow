@@ -81,7 +81,7 @@ export default function CompanerosDePisoPage() {
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-black/5" />
               <div className="absolute inset-x-0 bottom-0 p-5">
-                <span className="rounded-full border border-white/25 bg-black/20 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur">
+                <span className="rounded-full border border-white/25 bg-black/20 px-2.5 py-1 text-2xs font-bold text-white backdrop-blur">
                   {city.region}
                 </span>
                 <h2 className="mt-2 text-xl font-black tracking-tight text-white">

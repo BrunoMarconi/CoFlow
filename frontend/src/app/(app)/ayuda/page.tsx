@@ -55,7 +55,7 @@ export default function HelpPage() {
           <button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-10 w-10 shrink-0 items-center justify-start text-brand-dark md:hidden">
             <ArrowLeft className="h-6 w-6" />
           </button>
-          <div><p className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary">Ayuda y confianza</p><h1 className="font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">¿Cómo podemos ayudarte?</h1></div>
+          <div><p className="text-2xs font-bold uppercase tracking-[0.15em] text-primary">Ayuda y confianza</p><h1 className="font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">¿Cómo podemos ayudarte?</h1></div>
         </div>
         <p className="mt-1 text-sm leading-6 text-secondary sm:mt-2 sm:text-base">
           Encuentra respuestas, guías y soluciones para todo lo relacionado con CoFlow.

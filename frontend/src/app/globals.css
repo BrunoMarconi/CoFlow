@@ -136,6 +136,14 @@
   /* Diálogos y sheets, lo único que llega a proyectar de verdad. */
   --shadow-modal: 0 28px 64px -16px rgb(8 30 21 / 0.30);
 
+  /* Tailwind arranca en 12px (text-xs), pero la interfaz usa mucho el
+     rango por debajo — etiquetas de chip, pies de tarjeta, contadores —
+     y por eso habían aparecido 24 tamaños arbitrarios distintos, ocho de
+     ellos solo entre 9 y 16px. Estos dos escalones completan la escala
+     nativa por abajo; el resto de tamaños mapea a los de Tailwind. */
+  --text-3xs: 10px;
+  --text-2xs: 11px;
+
   --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
   --font-rounded: var(--font-jakarta);

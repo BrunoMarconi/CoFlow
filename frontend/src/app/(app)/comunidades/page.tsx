@@ -31,7 +31,8 @@ import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import ErrorState from "@/components/ui/ErrorState";
 import HomeFab from "@/components/explorer/HomeFab";
-import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
+import CountUp from "@/components/ui/CountUp";
+import { MOTION_DURATION, MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens";
 import { seoCities } from "@/lib/seoCities";
 
 const SEARCH_BAR_LAYOUT_ID = "community-search-bar";
@@ -299,8 +300,8 @@ export default function ComunidadesPage() {
           />
           <header className="mb-4 hidden items-end justify-between gap-4 md:flex">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted">Descubre</p>
-              <h1 className="mt-2 font-rounded text-[28px] font-extrabold tracking-[-0.04em] text-brand-dark sm:text-4xl">Comunidades</h1>
+              <p className="text-3xs font-bold uppercase tracking-[0.18em] text-muted">Descubre</p>
+              <h1 className="mt-2 font-rounded text-3xl font-extrabold tracking-[-0.04em] text-brand-dark sm:text-4xl">Comunidades</h1>
             </div>
           </header>
         </>
@@ -470,17 +471,58 @@ export default function ComunidadesPage() {
               className="cursor-grab touch-none active:cursor-grabbing"
             >
               <div className="flex justify-center pb-2 pt-[calc(.75rem+var(--safe-top))]"><span className="h-1.5 w-11 rounded-full bg-black/15" /></div>
-              <header className="grid grid-cols-[1fr_auto_1fr] items-center border-b border-[#eef1f1] px-5 pb-4 pt-1">
-                <button type="button" onClick={() => setFilters(defaultCommunityFilters)} className="justify-self-start text-xs font-semibold text-[#727974] transition hover:text-[#161d1d]">Restablecer</button>
-                <div className="text-center"><h2 id="community-filter-title" className="font-rounded text-[18px] font-bold tracking-[-.035em] text-[#161d1d]">Filtros de Convivencia</h2><p className="mt-0.5 flex items-center justify-center gap-1 text-[10px] text-[#476255]"><span className="h-1.5 w-1.5 rounded-full bg-[#476255]" />Algoritmo CoFlow</p></div>
-                <button type="button" onClick={() => setFiltersOpen(false)} className="flex h-9 w-9 items-center justify-center justify-self-end rounded-full bg-[#eef5f4] text-[#424844] transition hover:bg-[#e2eae9]" aria-label="Cerrar filtros"><CloseIcon /></button>
+              <header className="grid grid-cols-[1fr_auto_1fr] items-center border-b border-border px-5 pb-4 pt-1">
+                {/* "Restablecer" solo existe cuando hay algo que restablecer:
+                    en un panel recién abierto era un botón muerto. */}
+                <AnimatePresence initial={false}>
+                  {isCommunityFiltersActive(filters) ? (
+                    <motion.button
+                      key="reset"
+                      type="button"
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -6 }}
+                      transition={{ duration: MOTION_DURATION.fast }}
+                      onClick={() => setFilters(defaultCommunityFilters)}
+                      className="justify-self-start text-xs font-semibold text-muted transition hover:text-foreground"
+                    >
+                      Restablecer
+                    </motion.button>
+                  ) : (
+                    <span key="reset-placeholder" />
+                  )}
+                </AnimatePresence>
+                <div className="text-center"><h2 id="community-filter-title" className="font-rounded text-lg font-bold tracking-[-.035em] text-foreground">Filtros de Convivencia</h2><p className="mt-0.5 flex items-center justify-center gap-1 text-3xs text-primary"><span className="h-1.5 w-1.5 rounded-full bg-primary" />Algoritmo CoFlow</p></div>
+                <button type="button" onClick={() => setFiltersOpen(false)} className="flex h-9 w-9 items-center justify-center justify-self-end rounded-full bg-surface-soft text-secondary transition hover:bg-border" aria-label="Cerrar filtros"><CloseIcon /></button>
               </header>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#f4fbfa] pb-2">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-surface-soft pb-2">
               <CommunityFilters filters={filters} onChange={setFilters} onClear={() => setFilters(defaultCommunityFilters)} resultCount={resultCount} sheet />
             </div>
-            <div className="border-t border-black/5 bg-white p-4 pb-[calc(1rem+var(--safe-bottom))]">
-              <button type="button" onClick={() => setFiltersOpen(false)} className="flex h-14 w-full items-center justify-between rounded-2xl bg-[#4e675b] px-5 text-white shadow-modal transition hover:bg-[#3e564b] active:scale-[.985]"><span className="text-[14px] font-bold">Ver {resultCount} {resultCount === 1 ? "comunidad afín" : "comunidades afines"}</span><span className="flex items-center gap-1.5 text-xs font-medium text-[#e6f3f0]">Aplicar filtros <ArrowIcon /></span></button>
+            <div className="border-t border-border bg-surface p-4 pb-[calc(1rem+var(--safe-bottom))]">
+              <motion.button
+                type="button"
+                onClick={() => setFiltersOpen(false)}
+                disabled={resultCount === 0}
+                whileTap={{ scale: 0.98 }}
+                transition={MOTION_SPRING.snappy}
+                className="flex h-14 w-full items-center justify-between rounded-field bg-primary px-5 text-white shadow-modal transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-muted"
+              >
+                {/* El recuento cuenta en vivo mientras se tocan los filtros:
+                    es la respuesta a "¿me estoy quedando sin resultados?"
+                    sin tener que cerrar el panel para comprobarlo. */}
+                <span className="text-sm font-bold">
+                  {resultCount === 0 ? (
+                    "Sin resultados"
+                  ) : (
+                    <>
+                      Ver <CountUp value={resultCount} durationSeconds={0.4} />{" "}
+                      {resultCount === 1 ? "comunidad afín" : "comunidades afines"}
+                    </>
+                  )}
+                </span>
+                <span className="flex items-center gap-1.5 text-xs font-medium text-white/75">Aplicar filtros <ArrowIcon /></span>
+              </motion.button>
             </div>
           </motion.section>
         </motion.div>}
@@ -639,7 +681,7 @@ function CommunityPageFooter() {
         <FooterGroup title="Propietarios" links={[["Publicar vivienda", "/para-propietarios"], ["Cómo funciona", "/para-propietarios#como-funciona"], ["Contacto", "mailto:soporte@coflowapp.es"]]} />
         <FooterGroup title="Legal" links={[["Privacidad", "/legal/privacidad"], ["Términos", "/legal/terminos"], ["Política de cookies", "/legal/cookies"]]} />
       </div>
-      <p className="mt-9 border-t border-black/5 pt-5 text-[10px] text-muted">© {new Date().getFullYear()} CoFlow Living Technologies S.L.</p>
+      <p className="mt-9 border-t border-black/5 pt-5 text-3xs text-muted">© {new Date().getFullYear()} CoFlow Living Technologies S.L.</p>
     </footer>
   );
 }

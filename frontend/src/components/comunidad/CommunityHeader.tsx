@@ -67,10 +67,10 @@ export default function CommunityHeader({
       >
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-2 text-sm font-bold text-primary-dark"><span className={cn("h-2 w-2 rounded-full", community.is_active ? "bg-primary" : "bg-muted")} />{community.is_active ? "Comunidad activa" : "Comunidad inactiva"}</span>
-            <span className="rounded-full bg-[#edf1ee] px-2.5 py-1 text-[10px] font-bold text-secondary">{community.join_type === "OPEN" ? "Entrada abierta" : "Acceso con solicitud"}</span>
-            {availablePlaces > 0 && <span className="rounded-full bg-[#e5f1ea] px-2.5 py-1 text-[10px] font-bold text-primary-dark">{availablePlaces} {availablePlaces === 1 ? "plaza" : "plazas"}</span>}
+            <span className="rounded-full bg-[#edf1ee] px-2.5 py-1 text-3xs font-bold text-secondary">{community.join_type === "OPEN" ? "Entrada abierta" : "Acceso con solicitud"}</span>
+            {availablePlaces > 0 && <span className="rounded-full bg-[#e5f1ea] px-2.5 py-1 text-3xs font-bold text-primary-dark">{availablePlaces} {availablePlaces === 1 ? "plaza" : "plazas"}</span>}
           </div>
-          <h1 className="mt-3 text-[34px] font-semibold tracking-[-0.045em] text-brand-dark sm:text-[46px]">
+          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.045em] text-brand-dark sm:text-5xl">
             {community.name}
           </h1>
 
@@ -115,7 +115,7 @@ export default function CommunityHeader({
       >
         <div className="space-y-5">
           <section className="rounded-panel border border-black/[0.07] bg-surface-raised p-5 sm:p-7">
-            <div className="flex items-end justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">Información práctica</p><h2 className="mt-1 text-xl font-semibold tracking-[-0.025em] text-brand-dark">Lo esencial antes de decidir</h2></div><span className={`shrink-0 rounded-full px-3 py-1.5 text-[10px] font-bold ${availablePlaces > 0 ? "bg-emerald-50 text-emerald-700" : "bg-[#eef0ed] text-secondary"}`}>{availablePlaces > 0 ? "Disponible" : "Completa"}</span></div>
+            <div className="flex items-end justify-between gap-4"><div><p className="text-3xs font-bold uppercase tracking-[0.14em] text-primary">Información práctica</p><h2 className="mt-1 text-xl font-semibold tracking-[-0.025em] text-brand-dark">Lo esencial antes de decidir</h2></div><span className={`shrink-0 rounded-full px-3 py-1.5 text-3xs font-bold ${availablePlaces > 0 ? "bg-emerald-50 text-emerald-700" : "bg-[#eef0ed] text-secondary"}`}>{availablePlaces > 0 ? "Disponible" : "Completa"}</span></div>
             <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-field bg-black/[0.06] sm:grid-cols-4">
               <DecisionFact label="Aportación" value={community.monthly_rent !== null ? `${community.monthly_rent.toLocaleString("es-ES")} €/mes` : "Por acordar"} />
               <DecisionFact label="Depósito" value={community.deposit !== null ? `${community.deposit.toLocaleString("es-ES")} €` : "No indicado"} />
@@ -180,7 +180,7 @@ export default function CommunityHeader({
                     )}
                   />
                   <span className="w-full truncate text-xs font-bold text-foreground">{member.user.first_name}</span>
-                  <span className="-mt-1 text-[9px] font-semibold text-muted">{member.role === "OWNER" ? "Admin" : "Miembro"}</span>
+                  <span className="-mt-1 text-3xs font-semibold text-muted">{member.role === "OWNER" ? "Admin" : "Miembro"}</span>
                 </Link>
               ))}
               {community.member_count > 6 && (
@@ -312,13 +312,13 @@ function Fact({ icon, value, label }: { icon: React.ReactNode; value: React.Reac
     <div className="min-w-0 border-b border-black/[0.06] px-3 py-4 text-center sm:border-b-0">
       <span className="mx-auto flex h-6 w-6 items-center justify-center text-primary">{icon}</span>
       <p className="mt-1 truncate text-sm font-extrabold text-brand-dark">{value}</p>
-      <p className="mt-0.5 truncate text-[11px] font-semibold text-secondary">{label}</p>
+      <p className="mt-0.5 truncate text-2xs font-semibold text-secondary">{label}</p>
     </div>
   );
 }
 
 function DecisionFact({ label, value }: { label: string; value: string }) {
-  return <div className="min-w-0 bg-white px-3 py-3.5"><p className="text-[9px] font-bold uppercase tracking-[0.1em] text-muted">{label}</p><p className="mt-1 truncate text-xs font-bold text-brand-dark" title={value}>{value}</p></div>;
+  return <div className="min-w-0 bg-white px-3 py-3.5"><p className="text-3xs font-bold uppercase tracking-[0.1em] text-muted">{label}</p><p className="mt-1 truncate text-xs font-bold text-brand-dark" title={value}>{value}</p></div>;
 }
 
 function formatMoveInDate(value: string | null) {
