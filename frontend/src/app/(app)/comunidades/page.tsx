@@ -224,34 +224,50 @@ export default function ComunidadesPage() {
 
   // Mismo bloque de resultados en la vista normal y dentro del modo
   // búsqueda: se reutiliza tal cual, nunca se duplica.
-  const resultsBlock = loading ? (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
-      {Array.from({ length: 4 }).map((_, index) => (
-        <SkeletonCard key={index} withCover coverClassName="h-32 sm:h-36" />
-      ))}
-    </div>
-  ) : error ? (
-    <ErrorState
-      title="No hemos podido cargar las comunidades"
-      description={error}
-      onRetry={refetch}
-      retryLabel="Volver a intentarlo"
-    />
-  ) : (
-    <PullToRefresh onRefresh={refetch}>
-      <CommunityGrid
-        communities={visibleCommunities}
-        ownCommunityId={myCommunity?.id}
-      />
+  // El esqueleto y el contenido se funden en vez de reemplazarse de
+  // golpe: sin esto, cada carga termina con un salto brusco.
+  const resultsState = loading ? "loading" : error ? "error" : "results";
 
-      {hasMore && (
-        <div className="mt-6 flex justify-center">
-          <SecondaryButton onClick={loadMore} disabled={loadingMore}>
-            {loadingMore ? "Cargando..." : "Cargar más comunidades"}
-          </SecondaryButton>
-        </div>
-      )}
-    </PullToRefresh>
+  const resultsBlock = (
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={resultsState}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+      >
+        {loading ? (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <SkeletonCard key={index} withCover coverClassName="h-32 sm:h-36" />
+            ))}
+          </div>
+        ) : error ? (
+          <ErrorState
+            title="No hemos podido cargar las comunidades"
+            description={error}
+            onRetry={refetch}
+            retryLabel="Volver a intentarlo"
+          />
+        ) : (
+          <PullToRefresh onRefresh={refetch}>
+            <CommunityGrid
+              communities={visibleCommunities}
+              ownCommunityId={myCommunity?.id}
+            />
+
+            {hasMore && (
+              <div className="mt-6 flex justify-center">
+                <SecondaryButton onClick={loadMore} disabled={loadingMore}>
+                  {loadingMore ? "Cargando..." : "Cargar más comunidades"}
+                </SecondaryButton>
+              </div>
+            )}
+          </PullToRefresh>
+        )}
+      </motion.div>
+    </AnimatePresence>
   );
 
   const resultsCounter = !loading && !error && (

@@ -8,6 +8,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { motion, MotionConfig } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import { useMobilePageTitle } from "@/hooks/useMobilePageTitle";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import ChatSettingsSheet from "@/components/chat/ChatSettingsSheet";
 import EmptyState from "@/components/ui/EmptyState";
@@ -142,6 +143,8 @@ function formatPreviewTime(value: string) {
 
 export default function MensajesPage() {
   const { user, community, markNotificationsForLinkAsRead } = useAuth();
+
+  useMobilePageTitle("Mensajes");
   const router = useRouter();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();

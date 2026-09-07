@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useUsers } from "@/hooks/useUsers";
+import { useMobilePageTitle } from "@/hooks/useMobilePageTitle";
 import UserGrid from "@/components/usuario/UserGrid";
 import PullToRefresh from "@/components/interaction/PullToRefresh";
 import UserFilters, {
@@ -30,6 +31,9 @@ const CITY_OPTIONS = ["Málaga"];
 export default function UsuariosPage() {
   const router = useRouter();
   const { user: currentUser } = useAuth();
+  // El encabezado de esta pantalla es una frase larga, así que la barra
+  // adopta el nombre corto de la pestaña en vez del titular.
+  useMobilePageTitle("Personas");
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<UserFilterState>(defaultUserFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -194,6 +198,17 @@ export default function UsuariosPage() {
             </div>
           )}
 
+          {/* El esqueleto y el contenido se funden en vez de
+              reemplazarse de golpe: sin esto, cada carga termina con un
+              salto brusco. */}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={loading ? "loading" : resultCount === 0 ? "empty" : "results"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
+            >
           {loading ? (
             <div className="grid auto-rows-max grid-cols-2 items-start gap-3 sm:gap-5 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, index) => (
@@ -233,6 +248,8 @@ export default function UsuariosPage() {
               )}
             </PullToRefresh>
           )}
+            </motion.div>
+          </AnimatePresence>
         </section>
 
         <aside className="mt-8 space-y-4 lg:sticky lg:top-36 lg:mt-0" aria-label="Mejora tu búsqueda">

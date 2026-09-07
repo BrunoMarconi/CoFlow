@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { useMobilePageTitle } from "@/hooks/useMobilePageTitle";
 import Avatar from "@/components/ui/Avatar";
 import AvatarUploader from "@/components/perfil/AvatarUploader";
 import TrustSection from "@/components/perfil/TrustProfileCard";
@@ -25,6 +26,8 @@ import type { OnboardingAnswers } from "@/types/onboarding";
 export default function PerfilPage() {
   const { user, loading, ownerProfile, community, logout, refresh } = useAuth();
   const prefersReducedMotion = useReducedMotion();
+
+  useMobilePageTitle("Mi perfil");
 
   const [answers, setAnswers] = useState<Partial<OnboardingAnswers>>({});
   const [loadingAnswers, setLoadingAnswers] = useState(true);

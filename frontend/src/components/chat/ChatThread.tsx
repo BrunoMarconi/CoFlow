@@ -767,8 +767,15 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                   <motion.div
                     key={item.message.id}
                     layout="position"
-                    initial={{ opacity: 0, y: 10, scale: 0.97 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    // Cada burbuja nace desde su propio lado del hilo:
+                    // los mensajes salen de donde está quien escribe.
+                    initial={{
+                      opacity: 0,
+                      y: 10,
+                      x: item.message.sender.id === currentUserId ? 14 : -14,
+                      scale: 0.97,
+                    }}
+                    animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
                     transition={MOTION_SPRING.snappy}
                     className={item.firstOfGroup ? "mt-3 first:mt-0" : "mt-0.5"}
                   >
@@ -798,8 +805,9 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                 <motion.div
                   key={message.id}
                   layout="position"
-                  initial={{ opacity: 0, y: 10, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  // Los pendientes son siempre propios: entran por la derecha.
+                  initial={{ opacity: 0, y: 10, x: 14, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
                   transition={MOTION_SPRING.snappy}
                   className="mt-3"
                 >

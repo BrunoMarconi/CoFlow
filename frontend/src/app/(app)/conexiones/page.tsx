@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { useMobilePageTitle } from "@/hooks/useMobilePageTitle";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import EmptyState from "@/components/ui/EmptyState";
 import SkeletonCard from "@/components/ui/SkeletonCard";
@@ -54,6 +55,8 @@ function isValidTab(value: string | null): value is Tab {
 
 export default function ConexionesPage() {
   const { user, markNotificationsForLinkAsRead } = useAuth();
+
+  useMobilePageTitle("Conexiones");
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();

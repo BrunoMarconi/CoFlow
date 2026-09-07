@@ -1,20 +1,19 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { useMobileChrome } from "@/providers/MobileChromeProvider";
+import {
+  TITLE_HANDOFF_DISTANCE,
+  useMobilePageTitle,
+} from "@/hooks/useMobilePageTitle";
 import { cn } from "@/lib/utils";
 
 /* Título grande estilo iOS: ocupa su sitio arriba del todo y, al
  * desplazarse, se encoge y se desvanece mientras la barra superior
- * adopta el mismo texto en pequeño (ver Navbar). El relevo entre los dos
- * se coordina por el provider de chrome móvil.
+ * adopta el mismo texto en pequeño (ver Navbar).
  *
  * Solo existe en móvil: en escritorio hay sidebar y espacio de sobra, y
  * el título se comporta como un encabezado normal. */
-
-/** Scroll (px) en el que el título grande acaba de ceder el relevo. */
-const HANDOFF_DISTANCE = 44;
 
 export default function MobileLargeTitle({
   title,
@@ -27,42 +26,19 @@ export default function MobileLargeTitle({
   action?: ReactNode;
   className?: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
-  const { setPageTitle, setTitleCollapsed } = useMobileChrome();
-
   const { scrollY } = useScroll();
 
-  const opacity = useTransform(scrollY, [0, HANDOFF_DISTANCE], [1, 0]);
-  const y = useTransform(scrollY, [0, HANDOFF_DISTANCE], [0, -10]);
-  const scale = useTransform(scrollY, [0, HANDOFF_DISTANCE], [1, 0.94]);
+  useMobilePageTitle(title);
 
-  useEffect(() => {
-    setPageTitle(title);
-
-    return () => setPageTitle(null);
-  }, [title, setPageTitle]);
-
-  useEffect(() => {
-    // El relevo se decide por la posición real de scroll, no por un
-    // observer sobre el título: así la barra no parpadea cuando el
-    // contenido de la página cambia de alto al cargar.
-    function sync() {
-      setTitleCollapsed(window.scrollY > HANDOFF_DISTANCE);
-    }
-
-    sync();
-    window.addEventListener("scroll", sync, { passive: true });
-
-    return () => window.removeEventListener("scroll", sync);
-  }, [setTitleCollapsed]);
+  const opacity = useTransform(scrollY, [0, TITLE_HANDOFF_DISTANCE], [1, 0]);
+  const y = useTransform(scrollY, [0, TITLE_HANDOFF_DISTANCE], [0, -10]);
+  const scale = useTransform(scrollY, [0, TITLE_HANDOFF_DISTANCE], [1, 0.94]);
 
   return (
-    <header ref={ref} className={cn("md:hidden", className)}>
+    <header className={cn("md:hidden", className)}>
       <motion.div
-        style={
-          prefersReducedMotion ? undefined : { opacity, y, scale }
-        }
+        style={prefersReducedMotion ? undefined : { opacity, y, scale }}
         className="flex origin-left items-end justify-between gap-4"
       >
         <div className="min-w-0">
