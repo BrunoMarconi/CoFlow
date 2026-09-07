@@ -11,6 +11,7 @@ import { useCommunities } from "@/hooks/useCommunities";
 import { useAuth } from "@/hooks/useAuth";
 import CommunityGrid from "@/components/comunidad/CommunityGrid";
 import PullToRefresh from "@/components/interaction/PullToRefresh";
+import MobileLargeTitle from "@/components/layout/MobileLargeTitle";
 import CommunityFilters, {
   JOIN_TYPE_OPTIONS,
   URGENCY_OPTIONS,
@@ -274,12 +275,19 @@ export default function ComunidadesPage() {
     <MotionConfig reducedMotion="user">
     <div className="community-discovery-page -mx-2 min-h-dvh bg-white px-2 sm:-mx-8 sm:px-8 md:mx-0 md:min-h-0 md:bg-transparent md:px-0">
       {!searchOpen && (
-        <header className="mb-4 mt-2 flex items-end justify-between gap-4 sm:mt-0">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted">Descubre</p>
-            <h1 className="mt-2 font-rounded text-[28px] font-extrabold tracking-[-0.04em] text-brand-dark sm:text-4xl">Comunidades</h1>
-          </div>
-        </header>
+        <>
+          <MobileLargeTitle
+            eyebrow="Descubre"
+            title="Comunidades"
+            className="mb-4 mt-2"
+          />
+          <header className="mb-4 hidden items-end justify-between gap-4 md:flex">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted">Descubre</p>
+              <h1 className="mt-2 font-rounded text-[28px] font-extrabold tracking-[-0.04em] text-brand-dark sm:text-4xl">Comunidades</h1>
+            </div>
+          </header>
+        </>
       )}
       <AnimatePresence initial={false}>
         {false && (

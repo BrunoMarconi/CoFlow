@@ -220,7 +220,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
   }, [completeModeSwitch, router]);
 
   return (
-    <div className="min-h-dvh bg-background">
+    // El id lo usa globals.css para apartar la app hacia atrás mientras
+    // hay un bottom sheet abierto (efecto de capas de iOS).
+    <div id="app-shell" className="min-h-dvh bg-background">
       {!hidesAppChrome && (
         <a
           href="#main-content"

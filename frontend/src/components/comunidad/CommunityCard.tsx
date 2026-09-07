@@ -9,6 +9,7 @@ import SaveHeartButton from "@/components/ui/SaveHeartButton";
 import { useCommunitySave } from "@/hooks/useCommunitySave";
 import { getProfileTypeLabel } from "@/lib/communityProfileType";
 import { detailTransitionName } from "@/lib/detailTransitions";
+import { MOTION_SPRING } from "@/lib/motionTokens";
 import type { Community } from "@/types/community";
 
 export default function CommunityCard({ community, isOwn = false }: { community: Community; isOwn?: boolean }) {
@@ -31,7 +32,7 @@ export default function CommunityCard({ community, isOwn = false }: { community:
     <div className="relative h-full">
       <Link href={`/comunidades/${community.id}`} transitionTypes={["nav-forward"]} className="group block h-full">
         <ViewTransition name={detailTransitionName("community", community.id)} share="coflow-detail-morph">
-          <motion.article whileHover={{ y: -2 }} whileTap={{ scale: .988 }} className={`flex h-full flex-col overflow-hidden rounded-[22px] border border-black/[0.055] bg-white p-[7px] shadow-[0_8px_24px_rgba(25,54,43,.09)] transition-shadow hover:shadow-[0_15px_34px_rgba(25,54,43,.14)] ${available ? "" : "opacity-85"}`}>
+          <motion.article whileHover={{ y: -2 }} whileTap={{ scale: .965 }} transition={MOTION_SPRING.snappy} className={`flex h-full flex-col overflow-hidden rounded-[22px] border border-black/[0.055] bg-white p-[7px] shadow-[0_8px_24px_rgba(25,54,43,.09)] transition-shadow hover:shadow-[0_15px_34px_rgba(25,54,43,.14)] ${available ? "" : "opacity-85"}`}>
             <div className="relative aspect-[1.72] overflow-hidden rounded-[17px]">
               <CommunityCover name={community.name} coverColor={community.cover_color} coverImageUrl={community.cover_image_url} members={members.map(({ user }) => ({ id: user.id, firstName: user.first_name, lastName: user.last_name, imageUrl: user.avatar_url }))} memberCount={community.member_count} isOwn={isOwn} className={`h-full w-full ${available ? "" : "grayscale"}`} />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/5" />

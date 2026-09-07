@@ -8,7 +8,7 @@ import UserAvatar from "@/components/ui/UserAvatar";
 import OnlineDot from "@/components/ui/OnlineDot";
 import MatchScoreBadge from "./MatchScoreBadge";
 import { useUserConnection } from "@/hooks/useUserConnection";
-import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
+import { MOTION_DURATION, MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens";
 import { detailTransitionName } from "@/lib/detailTransitions";
 import { getHabitChips } from "@/lib/habitLabels";
 import type { UserPublicProfile } from "@/types/userPublic";
@@ -100,7 +100,8 @@ export default function UserCard({
         }
       }}
       whileHover={{ y: -2 }}
-      whileTap={{ scale: 0.985 }}
+      whileTap={{ scale: 0.965 }}
+      transition={MOTION_SPRING.snappy}
       className="cursor-pointer rounded-[22px] outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-3"
     >
       <ViewTransition name={detailTransitionName("person", user.id)} share="coflow-detail-morph">

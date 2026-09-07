@@ -18,6 +18,20 @@ import { cn } from "@/lib/utils";
 const DRAG_CLOSE_OFFSET = 120;
 const DRAG_CLOSE_VELOCITY = 600;
 
+/* Sheets abiertos a la vez (uno puede abrir otro): el marcador que
+ * aparta la app solo se retira cuando se cierra el último. */
+let openSheetCount = 0;
+
+function acquireStackedBackdrop() {
+  openSheetCount += 1;
+  document.body.dataset.sheetOpen = "true";
+
+  return () => {
+    openSheetCount = Math.max(openSheetCount - 1, 0);
+    if (openSheetCount === 0) delete document.body.dataset.sheetOpen;
+  };
+}
+
 export default function BottomSheet({
   onClose,
   children,
@@ -93,6 +107,8 @@ export default function BottomSheet({
       window.scrollTo(0, scrollY);
     };
   }, [lockBodyScroll]);
+
+  useEffect(() => acquireStackedBackdrop(), []);
 
   const overlayTransition = prefersReducedMotion
     ? { duration: 0.01 }

@@ -1098,9 +1098,45 @@ summary::-webkit-details-marker {
   }
 }
 
+/* --- Sheets apilados (iOS) --------------------------------------------
+   Con un bottom sheet abierto, la app se aparta hacia atrás sobre un
+   fondo oscuro, como las tarjetas apiladas de iOS. Lo marca BottomSheet
+   con data-sheet-open en <body>.
+
+   Solo en móvil, y no por estética: al escalar #app-shell este pasa a
+   ser el bloque contenedor de sus descendientes `position: fixed`, así
+   que la barra inferior deja de anclarse al viewport. En móvil el sheet
+   nace pegado abajo y a todo el ancho, de modo que la tapa por completo
+   y el desajuste no llega a verse; en pantallas grandes el diálogo va
+   centrado y sí quedaría a la vista. */
+#app-shell {
+  transform-origin: top center;
+  transition:
+    transform 340ms cubic-bezier(0.32, 0.72, 0, 1),
+    border-radius 340ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (max-width: 639px) {
+  body[data-sheet-open] {
+    background-color: #000;
+  }
+
+  body[data-sheet-open] #app-shell {
+    transform: scale(0.93) translateY(calc(var(--safe-top) + 0.5rem));
+    border-radius: 16px;
+    overflow: hidden;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  #app-shell,
+  body[data-sheet-open] #app-shell {
+    transform: none;
+    transition: none;
   }
 
   .motion-landing section,
