@@ -78,7 +78,7 @@ export default function RegisterPage() {
 
   return (
     <main className="flex min-h-dvh items-center justify-center overflow-hidden bg-[#f1f0eb] px-5 py-[calc(var(--safe-top)+1rem)] sm:px-8 sm:py-10">
-      <div className="w-full max-w-[480px] sm:border sm:border-black/[0.07] sm:bg-[#fafaf7] sm:px-10 sm:py-9 sm:shadow-[0_28px_80px_rgba(30,39,34,.08)]">
+      <div className="w-full max-w-[480px] sm:border sm:border-black/[0.07] sm:bg-[#fafaf7] sm:px-10 sm:py-9 sm:shadow-modal">
         <AuthBrand />
 
         <div className="mt-4 text-center sm:mt-6">
@@ -137,7 +137,7 @@ export default function RegisterPage() {
 
           {error && <p role="alert" className="rounded-14 border border-red-200 bg-surface px-4 py-3 text-sm font-semibold text-red-600">{error}</p>}
 
-          <Button type="submit" disabled={loading} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-[10px] bg-[#183c2d] py-3 shadow-none hover:bg-[#102a20]">
+          <Button type="submit" disabled={loading} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-[10px] bg-brand-dark py-3 shadow-none hover:bg-[#102a20]">
             {loading ? "Creando cuenta..." : role === "OWNER" ? "Crear cuenta y publicar" : "Continuar"}
             <ArrowRight className="h-5 w-5" />
           </Button>
@@ -159,7 +159,7 @@ function RoleButton({ active, onClick, icon, label }: { active: boolean; onClick
       aria-pressed={active}
       className={cn(
         "flex min-h-11 items-center justify-center gap-2 px-2 text-center text-[12px] font-semibold transition",
-        active ? "bg-[#183c2d] text-white shadow-none" : "text-[#5e6761] hover:text-[#17251f]"
+        active ? "bg-brand-dark text-white shadow-none" : "text-[#5e6761] hover:text-brand-dark"
       )}
     >
       {icon}
@@ -172,10 +172,10 @@ type AppleFieldProps = InputHTMLAttributes<HTMLInputElement> & { label: string; 
 
 function AppleField({ label, icon, rightElement, className, ...props }: AppleFieldProps) {
   return (
-    <label className="group relative block h-[54px] bg-[#fafaf7] ring-1 ring-black/[0.11] transition focus-within:bg-white focus-within:ring-2 focus-within:ring-[#183c2d]/45">
+    <label className="group relative block h-[54px] bg-[#fafaf7] ring-1 ring-black/[0.11] transition focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-dark/45">
       <span className="pointer-events-none absolute left-11 top-2 text-[9px] font-semibold uppercase tracking-[0.12em] text-[#747b76]">{label}</span>
       <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-[#626c65] [&>svg]:h-[16px] [&>svg]:w-[16px]">{icon}</span>
-      <input aria-label={label} className={cn("h-full w-full bg-transparent pb-1 pl-11 pr-3 pt-5 text-[16px] text-[#17392c] outline-none", rightElement && "pr-14", className)} {...props} />
+      <input aria-label={label} className={cn("h-full w-full bg-transparent pb-1 pl-11 pr-3 pt-5 text-[16px] text-brand-dark outline-none", rightElement && "pr-14", className)} {...props} />
       {rightElement ? <span className="absolute inset-y-0 right-1.5 flex items-center">{rightElement}</span> : null}
     </label>
   );

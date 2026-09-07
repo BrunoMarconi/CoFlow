@@ -62,7 +62,7 @@ export default function VerificacionPendientePage() {
 
   return (
     <div className="mx-auto flex min-h-[60vh] w-full max-w-lg flex-col items-center justify-center px-4 text-center">
-      <div className="w-full rounded-[28px] border border-black/[0.06] bg-[#fbfcfa] p-6 shadow-[0_18px_50px_rgba(20,42,32,.07)] sm:p-9">
+      <div className="w-full rounded-panel border border-black/[0.06] bg-surface-raised p-6 shadow-overlay sm:p-9">
       <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#e5f1ea] text-primary-dark"><MailIcon /></span>
       <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.16em] text-brand">Confirma tu correo</p>
 
@@ -117,5 +117,5 @@ export default function VerificacionPendientePage() {
   );
 }
 
-function Step({ number, text }: { number: string; text: string }) { return <div className="rounded-[14px] bg-white p-3"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#e8eeea] text-[10px] font-bold text-primary-dark">{number}</span><p className="mt-2 text-[10px] font-semibold leading-4 text-secondary">{text}</p></div>; }
+function Step({ number, text }: { number: string; text: string }) { return <div className="rounded-control bg-white p-3"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#e8eeea] text-[10px] font-bold text-primary-dark">{number}</span><p className="mt-2 text-[10px] font-semibold leading-4 text-secondary">{text}</p></div>; }
 function MailIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>; }

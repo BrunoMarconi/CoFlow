@@ -32,7 +32,7 @@ export default function ConnectivityStatus() {
     <AnimatePresence>
       {visible && (
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} role="status" aria-live="polite" className="fixed left-1/2 top-[calc(var(--safe-top)+4.75rem)] z-(--z-toast) -translate-x-1/2">
-          <div className={`flex min-h-10 items-center gap-2 rounded-full border px-4 text-xs font-bold shadow-[0_12px_35px_rgba(20,42,32,.14)] backdrop-blur-xl ${online ? "border-primary/15 bg-[#edf8f1]/95 text-primary-dark" : "border-black/10 bg-[#202622]/95 text-white"}`}>
+          <div className={`flex min-h-10 items-center gap-2 rounded-full border px-4 text-xs font-bold shadow-raised backdrop-blur-xl ${online ? "border-primary/15 bg-[#edf8f1]/95 text-primary-dark" : "border-black/10 bg-[#202622]/95 text-white"}`}>
             <span className={`h-2 w-2 rounded-full ${online ? "bg-primary" : "bg-[#ffcc66]"}`} />
             {online ? "Conexión recuperada" : "Sin conexión · conservamos lo que estabas viendo"}
           </div>

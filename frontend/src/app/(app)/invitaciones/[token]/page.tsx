@@ -81,8 +81,8 @@ export default function InvitationPage() {
     return (
       <main className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center px-6 text-center">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#f7f7f7]"><Users className="h-6 w-6" /></span>
-        <h1 className="mt-5 text-3xl font-semibold tracking-[-0.04em] text-[#222222]">Este enlace ya no está disponible</h1>
-        <p className="mt-3 max-w-md text-sm leading-6 text-[#717171]">Puede que esté mal copiado o que la invitación ya no exista.</p>
+        <h1 className="mt-5 text-3xl font-semibold tracking-[-0.04em] text-neutral-strong">Este enlace ya no está disponible</h1>
+        <p className="mt-3 max-w-md text-sm leading-6 text-neutral-mid">Puede que esté mal copiado o que la invitación ya no exista.</p>
         <Link href="/invitaciones" className="mt-7 flex min-h-12 items-center justify-center rounded-xl bg-black px-6 text-sm font-semibold text-white">Volver a invitaciones</Link>
       </main>
     );
@@ -95,11 +95,11 @@ export default function InvitationPage() {
     <main className="mx-auto w-full max-w-2xl pb-8">
       <button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-11 w-11 items-center justify-start"><ArrowLeft className="h-6 w-6" /></button>
 
-      <section className="mt-5 overflow-hidden rounded-3xl border border-[#dddddd] bg-white">
+      <section className="mt-5 overflow-hidden rounded-3xl border border-hairline bg-white">
         <div className="flex min-h-48 flex-col justify-end bg-[linear-gradient(135deg,#f7f7f7_0%,#ececec_100%)] p-6 sm:min-h-56 sm:p-8">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm"><Users className="h-5 w-5" /></span>
-          <p className="mt-8 text-sm font-medium text-[#717171]">Te han invitado a formar parte de</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-[-0.04em] text-[#222222] sm:text-4xl">{invitation.community.name}</h1>
+          <p className="mt-8 text-sm font-medium text-neutral-mid">Te han invitado a formar parte de</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-[-0.04em] text-neutral-strong sm:text-4xl">{invitation.community.name}</h1>
         </div>
 
         <div className="p-6 sm:p-8">
@@ -109,20 +109,20 @@ export default function InvitationPage() {
             <Fact icon={<Check className="h-5 w-5" />} label="Disponibles" value={`${remaining} ${remaining === 1 ? "plaza" : "plazas"}`} />
           </div>
 
-          <p className="mt-6 text-sm leading-6 text-[#717171]">{invitation.community.owner_first_name} {invitation.community.owner_last_name} te invita a compartir este espacio. Si aceptas, entrarás en la comunidad y tendrás acceso a su conversación privada.</p>
+          <p className="mt-6 text-sm leading-6 text-neutral-mid">{invitation.community.owner_first_name} {invitation.community.owner_last_name} te invita a compartir este espacio. Si aceptas, entrarás en la comunidad y tendrás acceso a su conversación privada.</p>
 
-          {isPending ? <p className="mt-4 flex items-center gap-2 text-xs font-medium text-[#717171]"><CalendarDays className="h-4 w-4" />Caduca el {formatExpiry(invitation.expires_at)}</p> : null}
+          {isPending ? <p className="mt-4 flex items-center gap-2 text-xs font-medium text-neutral-mid"><CalendarDays className="h-4 w-4" />Caduca el {formatExpiry(invitation.expires_at)}</p> : null}
 
           {declined ? (
-            <div className="mt-6 rounded-2xl bg-[#f7f7f7] p-4 text-center text-sm font-medium text-[#717171]">Has rechazado esta invitación.</div>
+            <div className="mt-6 rounded-2xl bg-[#f7f7f7] p-4 text-center text-sm font-medium text-neutral-mid">Has rechazado esta invitación.</div>
           ) : !isPending ? (
-            <div className="mt-6 rounded-2xl bg-[#f7f7f7] p-4 text-center text-sm font-medium text-[#717171]">{STATUS_MESSAGES[invitation.status] ?? "Esta invitación ya no está disponible."}</div>
+            <div className="mt-6 rounded-2xl bg-[#f7f7f7] p-4 text-center text-sm font-medium text-neutral-mid">{STATUS_MESSAGES[invitation.status] ?? "Esta invitación ya no está disponible."}</div>
           ) : (
             <>
               {actionError ? <p role="alert" className="mt-5 rounded-2xl border border-red-200 p-4 text-sm font-medium text-red-600">{actionError}</p> : null}
               <div className="mt-7 flex flex-col gap-3 sm:flex-row-reverse">
                 <button type="button" onClick={handleAccept} disabled={submitting || remaining === 0} className="flex min-h-12 w-full items-center justify-center rounded-xl bg-black px-6 text-sm font-semibold text-white transition hover:bg-[#333333] disabled:cursor-not-allowed disabled:opacity-40 sm:flex-1">{submitting ? "Procesando…" : remaining === 0 ? "Comunidad completa" : "Aceptar invitación"}</button>
-                <button type="button" onClick={handleDecline} disabled={submitting} className="flex min-h-12 w-full items-center justify-center rounded-xl border border-black bg-white px-6 text-sm font-semibold text-[#222222] transition hover:bg-[#f7f7f7] disabled:opacity-40 sm:flex-1">Rechazar</button>
+                <button type="button" onClick={handleDecline} disabled={submitting} className="flex min-h-12 w-full items-center justify-center rounded-xl border border-black bg-white px-6 text-sm font-semibold text-neutral-strong transition hover:bg-[#f7f7f7] disabled:opacity-40 sm:flex-1">Rechazar</button>
               </div>
             </>
           )}
@@ -133,7 +133,7 @@ export default function InvitationPage() {
 }
 
 function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return <div><span className="text-[#222222]">{icon}</span><p className="mt-2 text-xs text-[#717171]">{label}</p><p className="mt-0.5 text-sm font-semibold text-[#222222]">{value}</p></div>;
+  return <div><span className="text-neutral-strong">{icon}</span><p className="mt-2 text-xs text-neutral-mid">{label}</p><p className="mt-0.5 text-sm font-semibold text-neutral-strong">{value}</p></div>;
 }
 
 function formatExpiry(value: string) {

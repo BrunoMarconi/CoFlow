@@ -60,7 +60,7 @@ export default function CommunityMembersList({
 
   return (
     <div>
-      <div className="divide-y divide-black/[0.055] overflow-visible rounded-[22px] border border-black/[0.06] bg-[#fbfcfa] shadow-[0_10px_30px_rgba(20,42,32,.04)]">
+      <div className="divide-y divide-black/[0.055] overflow-visible rounded-card border border-black/[0.06] bg-surface-raised shadow-card">
         {members.map((member) => {
           const name = `${member.user.first_name} ${member.user.last_name}`.trim();
           const canManage = isOwner && member.user_id !== currentUserId && member.role !== "OWNER";
@@ -87,7 +87,7 @@ export default function CommunityMembersList({
               ) : null}
 
               {openId === member.id ? (
-                <div className="absolute right-4 top-16 z-20 w-64 overflow-hidden rounded-18 border border-border bg-surface p-2 shadow-[0_12px_36px_rgba(0,0,0,0.14)]">
+                <div className="absolute right-4 top-16 z-20 w-64 overflow-hidden rounded-18 border border-border bg-surface p-2 shadow-raised">
                   <button type="button" onClick={() => { setConfirmation({ member, action: "transfer" }); setOpenId(null); }} disabled={busyId !== null} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium text-foreground hover:bg-surface-soft disabled:opacity-50"><Crown className="h-4 w-4 text-primary" /> Transferir administración</button>
                   <button type="button" onClick={() => { setConfirmation({ member, action: "remove" }); setOpenId(null); }} disabled={busyId !== null} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"><UserMinus className="h-4 w-4" /> Quitar de la comunidad</button>
                 </div>
@@ -96,7 +96,7 @@ export default function CommunityMembersList({
           );
         })}
       </div>
-      {confirmation && <div className={`mt-3 rounded-[18px] border p-4 ${confirmation.action === "remove" ? "border-red-100 bg-red-50" : "border-primary/15 bg-[#eef5f1]"}`} role="alertdialog" aria-labelledby="member-confirmation-title">
+      {confirmation && <div className={`mt-3 rounded-card border p-4 ${confirmation.action === "remove" ? "border-red-100 bg-red-50" : "border-primary/15 bg-[#eef5f1]"}`} role="alertdialog" aria-labelledby="member-confirmation-title">
         <p id="member-confirmation-title" className="text-sm font-bold text-brand-dark">{confirmation.action === "remove" ? `¿Quitar a ${confirmation.member.user.first_name}?` : `¿Transferir la administración a ${confirmation.member.user.first_name}?`}</p>
         <p className="mt-1 text-xs leading-5 text-secondary">{confirmation.action === "remove" ? "Perderá el acceso al chat y al espacio privado de la comunidad." : "Tú pasarás a ser miembro y la otra persona administrará miembros, solicitudes y ajustes."}</p>
         <div className="mt-3 flex gap-2"><button type="button" onClick={() => confirmation.action === "remove" ? void remove(confirmation.member) : void transfer(confirmation.member)} disabled={busyId !== null} className={`h-10 flex-1 rounded-full px-4 text-xs font-bold text-white disabled:opacity-50 ${confirmation.action === "remove" ? "bg-red-600" : "bg-brand-dark"}`}>{busyId ? "Procesando…" : confirmation.action === "remove" ? "Sí, quitar" : "Sí, transferir"}</button><button type="button" onClick={() => setConfirmation(null)} disabled={busyId !== null} className="h-10 flex-1 rounded-full bg-white px-4 text-xs font-bold text-brand-dark disabled:opacity-50">Cancelar</button></div>

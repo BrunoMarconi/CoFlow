@@ -89,10 +89,10 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
       <PhotoDetailShell
         transitionName={detailTransitionName("person", profile.id)}
         media={<PhotoGallery images={(gallery.length > 0 ? gallery.map((photo, index) => ({ id: photo.id, src: photo.image_url, alt: `${fullName}, foto ${index + 1}` })) : coverPhoto ? [{ id: "avatar", src: coverPhoto, alt: fullName }] : [])} priority empty={<div className="h-full bg-[#f2f2f2]" />} />}
-        actions={<><Link href="/usuarios" transitionTypes={["nav-back"]} aria-label="Volver a personas" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur"><ArrowLeftIcon /></Link><button type="button" onClick={() => setSafetyOpen(true)} aria-label="Más opciones" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur"><MoreIcon /></button></>}
+        actions={<><Link href="/usuarios" transitionTypes={["nav-back"]} aria-label="Volver a personas" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-neutral-strong shadow-card backdrop-blur"><ArrowLeftIcon /></Link><button type="button" onClick={() => setSafetyOpen(true)} aria-label="Más opciones" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-neutral-strong shadow-card backdrop-blur"><MoreIcon /></button></>}
       >
         <div className="relative">
-          <div className="relative -mt-20 mb-5 w-fit rounded-full border-[5px] border-[#fbfcfa] bg-surface shadow-[0_12px_32px_rgba(20,42,32,.12)] sm:-mt-24">
+          <div className="relative -mt-20 mb-5 w-fit rounded-full border-[5px] border-surface-raised bg-surface shadow-raised sm:-mt-24">
             <UserAvatar
               firstName={profile.first_name}
               lastName={profile.last_name}
@@ -106,13 +106,13 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
 
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="truncate text-[34px] font-semibold tracking-[-0.045em] text-[#17392c] sm:text-[42px]">{fullName || "Persona de CoFlow"}</h2>
+              <h2 className="truncate text-[34px] font-semibold tracking-[-0.045em] text-brand-dark sm:text-[42px]">{fullName || "Persona de CoFlow"}</h2>
               {profile.is_verified && <VerifiedIcon />}
             </div>
             <p className="mt-1 text-sm text-secondary">
               {[profile.age !== null ? `${profile.age} años` : null, location].filter(Boolean).join(" · ")}
             </p>
-            <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#e8f0eb] px-3 py-1.5 text-xs font-semibold text-[#315f4b]">
+            <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#e8f0eb] px-3 py-1.5 text-xs font-semibold text-brand-mid">
               {profile.is_looking_for_roommates ? "Buscando compañero de piso" : "No busca compañero actualmente"}
             </p>
           </div>
@@ -120,7 +120,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
       </PhotoDetailShell>
 
       {profile.bio && (
-        <section className="mt-6 border-l-2 border-[#315f4b] py-2 pl-5">
+        <section className="mt-6 border-l-2 border-brand-mid py-2 pl-5">
           <p className="max-w-3xl text-[15px] leading-7 text-[#58665f]">“{profile.bio}”</p>
         </section>
       )}
@@ -134,7 +134,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
         </section>
       )}
 
-      <section className="mt-7 grid grid-cols-2 overflow-hidden rounded-[20px] border border-black/[0.07] bg-[#fbfcfa] sm:grid-cols-4 sm:divide-x sm:divide-black/[0.06]">
+      <section className="mt-7 grid grid-cols-2 overflow-hidden rounded-card border border-black/[0.07] bg-surface-raised sm:grid-cols-4 sm:divide-x sm:divide-black/[0.06]">
         <QuickFact icon={<WorkIcon />} label={profile.occupation ?? "Ocupación"} value={profile.occupation ? "Ocupación" : "Sin indicar"} reverse />
         <QuickFact icon={<MoneyIcon />} label="Presupuesto" value={budget} />
         <QuickFact icon={<HomeIcon />} label="Comunidad" value={profile.community?.name ?? "Sin comunidad"} />
@@ -144,11 +144,11 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
       <div className="mt-7 grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
         <div className="space-y-5">
           {preferenceChips.length > 0 && (
-            <section className="rounded-[22px] border border-black/[0.07] bg-[#fbfcfa] p-5">
-              <h2 className="text-lg font-semibold tracking-[-0.02em] text-[#17392c]">Estilo de convivencia</h2>
+            <section className="rounded-card border border-black/[0.07] bg-surface-raised p-5">
+              <h2 className="text-lg font-semibold tracking-[-0.02em] text-brand-dark">Estilo de convivencia</h2>
               <div className="mt-3 flex flex-wrap gap-2">
                 {preferenceChips.map((item) => (
-                  <span key={item.key} className="inline-flex items-center gap-1.5 rounded-full bg-[#eaf0ec] px-3 py-2 text-xs font-semibold text-[#315f4b]">
+                  <span key={item.key} className="inline-flex items-center gap-1.5 rounded-full bg-[#eaf0ec] px-3 py-2 text-xs font-semibold text-brand-mid">
                     {item.icon}
                     {item.value}
                   </span>
@@ -157,8 +157,8 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
             </section>
           )}
 
-          <section className="rounded-[22px] border border-black/[0.07] bg-[#fbfcfa] p-5">
-            <h2 className="text-lg font-semibold tracking-[-0.02em] text-[#17392c]">Información básica</h2>
+          <section className="rounded-card border border-black/[0.07] bg-surface-raised p-5">
+            <h2 className="text-lg font-semibold tracking-[-0.02em] text-brand-dark">Información básica</h2>
             <dl className="mt-3 space-y-3">
               <InfoRow label="Edad" value={profile.age !== null ? `${profile.age} años` : "No indicada"} />
               <InfoRow label="Ubicación" value={location} />
@@ -171,13 +171,13 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
 
         <div className="space-y-4">
           {gallery.length > 0 && (
-            <section className="rounded-[22px] border border-black/[0.07] bg-[#fbfcfa] p-5">
-              <h2 className="text-lg font-semibold tracking-[-0.02em] text-[#17392c]">Fotos</h2>
+            <section className="rounded-card border border-black/[0.07] bg-surface-raised p-5">
+              <h2 className="text-lg font-semibold tracking-[-0.02em] text-brand-dark">Fotos</h2>
               <PhotoGallery className="mt-3" layout="grid" images={gallery.map((photo, index) => ({ id: photo.id, src: photo.image_url, alt: `${fullName}, foto ${index + 1}` }))} />
             </section>
           )}
 
-          <section className="rounded-[22px] border border-black/[0.07] bg-[#fbfcfa] p-5">
+          <section className="rounded-card border border-black/[0.07] bg-surface-raised p-5">
             {profile.community ? (
               <Link href={`/comunidades/${profile.community.id}`} className="flex items-center gap-3">
                 <span className="flex h-11 w-11 items-center justify-center text-primary"><PeopleIcon /></span>
@@ -247,7 +247,7 @@ function PrimaryConnectionAction({ profile, status, connectionId, connecting, on
 }
 
 function QuickFact({ icon, label, value, reverse = false }: { icon: React.ReactNode; label: string; value: string; reverse?: boolean }) {
-  return <div className="flex min-h-24 flex-col items-center justify-center border-b border-black/[0.06] p-3 text-center sm:border-b-0"><span className="text-[#315f4b]">{icon}</span><span className="mt-2 line-clamp-1 text-xs font-semibold text-[#17251f]">{reverse ? value : label}</span><span className="mt-0.5 line-clamp-2 text-[10px] leading-4 text-[#748078]">{reverse ? label : value}</span></div>;
+  return <div className="flex min-h-24 flex-col items-center justify-center border-b border-black/[0.06] p-3 text-center sm:border-b-0"><span className="text-brand-mid">{icon}</span><span className="mt-2 line-clamp-1 text-xs font-semibold text-brand-dark">{reverse ? value : label}</span><span className="mt-0.5 line-clamp-2 text-[10px] leading-4 text-[#748078]">{reverse ? label : value}</span></div>;
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) { return <div className="grid grid-cols-[110px_1fr] gap-3 text-xs"><dt className="text-secondary">{label}</dt><dd className="font-semibold text-foreground">{value}</dd></div>; }

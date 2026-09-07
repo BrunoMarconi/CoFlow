@@ -32,7 +32,7 @@ export default function PropertyCard({ property, onPause, onResume, onMarkRented
   const guidance = getGuidance(property.status);
 
   return (
-    <article className="group overflow-hidden rounded-[26px] border border-black/[0.045] bg-surface shadow-soft transition-shadow duration-200 hover:shadow-[0_16px_38px_rgba(20,42,32,.09)] sm:grid sm:grid-cols-[18rem_1fr]">
+    <article className="group overflow-hidden rounded-panel border border-black/[0.045] bg-surface shadow-soft transition-shadow duration-200 hover:shadow-overlay sm:grid sm:grid-cols-[18rem_1fr]">
       <Link href={`/propietarios/pisos/${property.id}`} transitionTypes={["nav-forward"]} className="relative block aspect-[16/10] overflow-hidden bg-surface-soft sm:aspect-auto sm:min-h-64" aria-label={`Abrir ${property.title}`}>
         <ViewTransition name={detailTransitionName("property", property.id)} share="coflow-detail-morph">
           <div className="relative h-full w-full overflow-hidden">
@@ -60,7 +60,7 @@ export default function PropertyCard({ property, onPause, onResume, onMarkRented
           <div className="flex items-center gap-3 text-xs font-semibold text-secondary"><span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4" />{property.bedrooms}</span><span className="flex items-center gap-1.5"><Users className="h-4 w-4" />{property.max_tenants} plazas</span></div>
         </div>
 
-        <div className="mt-4 flex items-start gap-3 rounded-[18px] bg-surface-soft p-3.5">
+        <div className="mt-4 flex items-start gap-3 rounded-card bg-surface-soft p-3.5">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface text-primary shadow-soft">{guidance.icon}</span>
           <div className="min-w-0"><p className="text-xs font-bold text-brand-dark">{guidance.title}</p><p className="mt-0.5 text-xs leading-5 text-secondary">{guidance.text}</p></div>
         </div>
@@ -83,7 +83,7 @@ function PrimaryAction({ property, actioning, onResume }: { property: PropertySu
 }
 
 function PropertyMenu({ property, actioning, onPause, onResume, onMarkRented, onArchive }: { property: PropertySummary; actioning: boolean; onPause: () => void; onResume: () => void; onMarkRented: () => void; onArchive: () => void }) {
-  return <details className="group/menu relative"><summary aria-label={`Más acciones para ${property.title}`} className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-full bg-surface-soft text-secondary transition hover:bg-mint-50 hover:text-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-details-marker]:hidden">{actioning ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <MoreHorizontal className="h-5 w-5" />}</summary><div className="absolute right-0 top-12 z-20 w-56 overflow-hidden rounded-[18px] border border-border bg-surface p-1.5 shadow-[0_16px_40px_rgba(20,42,32,.16)]">
+  return <details className="group/menu relative"><summary aria-label={`Más acciones para ${property.title}`} className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-full bg-surface-soft text-secondary transition hover:bg-mint-50 hover:text-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-details-marker]:hidden">{actioning ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <MoreHorizontal className="h-5 w-5" />}</summary><div className="absolute right-0 top-12 z-20 w-56 overflow-hidden rounded-card border border-border bg-surface p-1.5 shadow-modal">
     {property.status === "READY" && <MenuButton icon={<Pause />} label="Pausar anuncio" onClick={onPause} disabled={actioning} />}
     {property.status === "PAUSED" && <MenuButton icon={<Play />} label="Reactivar anuncio" onClick={onResume} disabled={actioning} />}
     {["READY", "PAUSED"].includes(property.status) && <MenuButton icon={<KeyRound />} label="Marcar como alquilado" onClick={onMarkRented} disabled={actioning} />}

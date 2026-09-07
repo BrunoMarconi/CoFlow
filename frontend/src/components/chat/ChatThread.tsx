@@ -711,10 +711,10 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
     <MotionConfig reducedMotion="user">
     <div
       className={cn(
-        "flex flex-col overflow-hidden bg-[#fbfcfa]",
+        "flex flex-col overflow-hidden bg-surface-raised",
         variant === "full"
-          ? "h-full min-h-0 rounded-none border-0 sm:h-[min(74dvh,680px)] sm:min-h-[440px] sm:rounded-[22px] sm:border sm:border-black/[0.06] sm:shadow-[0_12px_36px_rgba(20,42,32,.06)]"
-          : "h-[min(78dvh,680px)] min-h-[420px] rounded-[22px] border border-black/[0.06] shadow-[0_12px_36px_rgba(20,42,32,.06)] sm:h-[min(74dvh,680px)]"
+          ? "h-full min-h-0 rounded-none border-0 sm:h-[min(74dvh,680px)] sm:min-h-[440px] sm:rounded-card sm:border sm:border-black/[0.06] sm:shadow-card"
+          : "h-[min(78dvh,680px)] min-h-[420px] rounded-card border border-black/[0.06] shadow-card sm:h-[min(74dvh,680px)]"
       )}
     >
       <div className="relative min-h-0 flex-1">
@@ -867,7 +867,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
       )}
 
       {typingNames.length > 0 && (
-        <div className="flex items-center gap-1.5 bg-[#fbfcfa] px-5 py-1.5 text-xs font-medium text-secondary">
+        <div className="flex items-center gap-1.5 bg-surface-raised px-5 py-1.5 text-xs font-medium text-secondary">
           <TypingDots />
           {typingNames.length === 1
             ? `${typingNames[0]} está escribiendo…`
@@ -924,7 +924,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
             </>
           )}
 
-          <div className="flex min-h-11 flex-1 items-end rounded-[22px] border border-black/[0.07] bg-[#f5f7f4] px-4 py-2 transition duration-200 focus-within:border-primary/35 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/8">
+          <div className="flex min-h-11 flex-1 items-end rounded-card border border-black/[0.07] bg-[#f5f7f4] px-4 py-2 transition duration-200 focus-within:border-primary/35 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/8">
             <textarea
               ref={textareaRef}
               value={content}
@@ -1086,10 +1086,10 @@ const MessageBubble = memo(function MessageBubble({
         <div
           {...pressHandlers}
           className={cn(
-            "select-none touch-none rounded-[18px] px-3.5 py-2 shadow-[0_1px_2px_rgb(0_0_0/0.04)]",
+            "select-none touch-none rounded-card px-3.5 py-2 shadow-soft",
             isOwn
               ? cn(
-                  "bg-[#dcece3] text-[#17251f]",
+                  "bg-[#dcece3] text-brand-dark",
                   lastOfGroup && "chat-tail-own rounded-br-md",
                   !firstOfGroup && "rounded-tr-md"
                 )
@@ -1159,7 +1159,7 @@ const MessageBubble = memo(function MessageBubble({
             onClick={onQuickLike}
             aria-label={likedByMe ? "Quitar me gusta" : "Me gusta"}
             className={cn(
-              "absolute -bottom-2.5 flex h-5 items-center gap-0.5 rounded-full bg-surface px-1.5 text-[10px] font-bold shadow-[0_1px_3px_rgb(0_0_0/0.12)]",
+              "absolute -bottom-2.5 flex h-5 items-center gap-0.5 rounded-full bg-surface px-1.5 text-[10px] font-bold shadow-soft",
               isOwn ? "left-1.5" : "right-1.5",
               likedByMe ? "text-red-600" : "text-secondary"
             )}
@@ -1184,7 +1184,7 @@ function PendingMessageBubble({
     <div className="mt-3 flex flex-row-reverse items-end">
       <div
         className={cn(
-          "chat-tail-own max-w-[84%] rounded-18 rounded-br-md bg-chat-bubble-own px-3.5 py-2 text-foreground shadow-[0_1px_2px_rgb(0_0_0/0.05)] sm:max-w-[72%]",
+          "chat-tail-own max-w-[84%] rounded-18 rounded-br-md bg-chat-bubble-own px-3.5 py-2 text-foreground shadow-soft sm:max-w-[72%]",
           message.status === "sending" && "opacity-80"
         )}
       >

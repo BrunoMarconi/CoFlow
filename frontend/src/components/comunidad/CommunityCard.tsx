@@ -32,7 +32,7 @@ export default function CommunityCard({ community, isOwn = false }: { community:
     <div className="relative h-full">
       <Link href={`/comunidades/${community.id}`} transitionTypes={["nav-forward"]} className="group block h-full">
         <ViewTransition name={detailTransitionName("community", community.id)} share="coflow-detail-morph">
-          <motion.article whileHover={{ y: -2 }} whileTap={{ scale: .965 }} transition={MOTION_SPRING.snappy} className={`flex h-full flex-col overflow-hidden rounded-[22px] border border-black/[0.055] bg-white p-[7px] shadow-[0_8px_24px_rgba(25,54,43,.09)] transition-shadow hover:shadow-[0_15px_34px_rgba(25,54,43,.14)] ${available ? "" : "opacity-85"}`}>
+          <motion.article whileHover={{ y: -2 }} whileTap={{ scale: .965 }} transition={MOTION_SPRING.snappy} className={`flex h-full flex-col overflow-hidden rounded-card border border-black/[0.055] bg-white p-[7px] shadow-[0_8px_24px_rgba(25,54,43,.09)] transition-shadow hover:shadow-[0_15px_34px_rgba(25,54,43,.14)] ${available ? "" : "opacity-85"}`}>
             <div className="relative aspect-[1.72] overflow-hidden rounded-[17px]">
               <CommunityCover name={community.name} coverColor={community.cover_color} coverImageUrl={community.cover_image_url} members={members.map(({ user }) => ({ id: user.id, firstName: user.first_name, lastName: user.last_name, imageUrl: user.avatar_url }))} memberCount={community.member_count} isOwn={isOwn} className={`h-full w-full ${available ? "" : "grayscale"}`} />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/5" />
@@ -47,7 +47,7 @@ export default function CommunityCard({ community, isOwn = false }: { community:
 
               <div className="mt-2.5 flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2"><AvatarGroup members={members.map(({ user }) => ({ id: user.id, firstName: user.first_name, lastName: user.last_name, imageUrl: user.avatar_url }))} totalCount={community.member_count} size="sm" /><span className="truncate text-[10px] font-medium text-secondary">{residents || `${community.member_count} residentes`}</span></div>
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#edf4f0] text-[#315f4b]"><PeopleIcon /></span>
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#edf4f0] text-brand-mid"><PeopleIcon /></span>
               </div>
 
               <div className="mt-2.5 flex flex-wrap gap-1.5">
@@ -60,7 +60,7 @@ export default function CommunityCard({ community, isOwn = false }: { community:
 
               <div className="mt-auto flex items-center justify-between gap-3 border-t border-black/5 pt-3">
                 <span className="flex min-w-0 items-center gap-1.5 truncate text-[10px] font-medium text-secondary"><HomeIcon />{community.join_type === "OPEN" ? "Entrada abierta" : "Acceso con solicitud"}</span>
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#315f4b] px-4 py-2 text-[10px] font-bold text-white">Conocer <ArrowIcon /></span>
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-mid px-4 py-2 text-[10px] font-bold text-white">Conocer <ArrowIcon /></span>
               </div>
             </div>
           </motion.article>

@@ -80,7 +80,7 @@ export default function UserFilters({
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="rounded-[20px] border border-black/[0.06] bg-[#fbfcfa] p-4 shadow-[0_12px_32px_rgba(20,42,32,.05)] sm:p-5"
+      className="rounded-card border border-black/[0.06] bg-surface-raised p-4 shadow-card sm:p-5"
     >
       <motion.div variants={blockVariants} className="grid gap-4 sm:grid-cols-2">
         <div>
@@ -96,7 +96,7 @@ export default function UserFilters({
             value={filters.city}
             onChange={(event) => update({ city: event.target.value })}
             placeholder="Ej. Málaga"
-            className="h-12 w-full rounded-[13px] border border-black/[0.08] bg-[#f2f5f3] px-4 text-[15px] text-foreground outline-none transition-all duration-180 placeholder:text-muted hover:border-[#8fa097] focus:border-[#315f4b] focus:bg-white focus:ring-4 focus:ring-[#315f4b]/10"
+            className="h-12 w-full rounded-[13px] border border-black/[0.08] bg-[#f2f5f3] px-4 text-[15px] text-foreground outline-none transition-all duration-180 placeholder:text-muted hover:border-[#8fa097] focus:border-brand-mid focus:bg-white focus:ring-4 focus:ring-brand-mid/10"
           />
         </div>
 
@@ -123,7 +123,7 @@ export default function UserFilters({
                 update({ maxBudget: event.target.value })
               }
               placeholder="Sin límite"
-              className="h-12 w-full rounded-[13px] border border-black/[0.08] bg-[#f2f5f3] pl-9 pr-4 text-[15px] text-foreground outline-none transition-all duration-180 placeholder:text-muted hover:border-[#8fa097] focus:border-[#315f4b] focus:bg-white focus:ring-4 focus:ring-[#315f4b]/10"
+              className="h-12 w-full rounded-[13px] border border-black/[0.08] bg-[#f2f5f3] pl-9 pr-4 text-[15px] text-foreground outline-none transition-all duration-180 placeholder:text-muted hover:border-[#8fa097] focus:border-brand-mid focus:bg-white focus:ring-4 focus:ring-brand-mid/10"
             />
           </div>
         </div>
@@ -144,7 +144,7 @@ export default function UserFilters({
               transition={{ duration: 0.15, ease: "easeOut" }}
               className={`min-h-11 rounded-14 px-4 text-sm font-bold transition-colors duration-200 ${
                 filters.communityStatus === option.value
-                  ? "bg-[#183c2d] text-white"
+                  ? "bg-brand-dark text-white"
                   : "bg-[#edf1ee] text-[#5f6b64] hover:bg-[#e3eae6]"
               }`}
             >

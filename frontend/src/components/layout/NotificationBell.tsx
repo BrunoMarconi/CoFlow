@@ -297,7 +297,7 @@ export default function NotificationBell() {
           willChange: "transform",
           transformOrigin: isDesktop ? "top right" : undefined,
         }}
-        className="fixed inset-x-0 bottom-0 z-(--z-modal) max-h-[75dvh] overflow-hidden rounded-t-[24px] border border-black/[0.06] bg-[#fbfcfa] shadow-2xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-[calc(var(--safe-top)+4.5rem)] sm:w-96 sm:rounded-[20px] sm:shadow-[0_18px_55px_rgba(20,42,32,.16)]"
+        className="fixed inset-x-0 bottom-0 z-(--z-modal) max-h-[75dvh] overflow-hidden rounded-t-panel border border-black/[0.06] bg-surface-raised shadow-2xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-[calc(var(--safe-top)+4.5rem)] sm:w-96 sm:rounded-card sm:shadow-modal"
       >
         {!isDesktop && (
           <div className="flex shrink-0 justify-center pb-1 pt-2.5">
@@ -311,10 +311,10 @@ export default function NotificationBell() {
               layoutId={open ? "notification-bell-icon" : undefined}
               transition={{ layout: MOTION_SPRING.gentle }}
             >
-              <CoFlowBellIcon className="h-5 w-5 text-[#222222]" />
+              <CoFlowBellIcon className="h-5 w-5 text-neutral-strong" />
             </motion.div>
 
-            <div><p id="notification-panel-title" className="text-sm font-bold text-[#222222]">Notificaciones</p>{visibleUnreadCount > 0 && <p className="text-[10px] font-semibold text-muted">{visibleUnreadCount} sin leer</p>}</div>
+            <div><p id="notification-panel-title" className="text-sm font-bold text-neutral-strong">Notificaciones</p>{visibleUnreadCount > 0 && <p className="text-[10px] font-semibold text-muted">{visibleUnreadCount} sin leer</p>}</div>
           </div>
 
           {hasUnread && (
@@ -323,7 +323,7 @@ export default function NotificationBell() {
               onClick={handleMarkAllRead}
               whileTap={{ scale: 0.96 }}
               transition={{ duration: MOTION_DURATION.fast }}
-              className="min-h-11 rounded-full px-3 text-xs font-bold text-[#222222] hover:bg-[#f7f7f7]"
+              className="min-h-11 rounded-full px-3 text-xs font-bold text-neutral-strong hover:bg-[#f7f7f7]"
             >
               Marcar todas como leídas
             </motion.button>
@@ -364,7 +364,7 @@ export default function NotificationBell() {
           animate={bellControls}
           transition={{ layout: MOTION_SPRING.gentle }}
         >
-          <CoFlowBellIcon className="h-6 w-6 text-[#222222]" />
+          <CoFlowBellIcon className="h-6 w-6 text-neutral-strong" />
         </motion.div>
 
         <AnimatePresence>

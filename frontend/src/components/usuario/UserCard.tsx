@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, ViewTransition } from "react";
-import Image from "next/image";
+import FadeImage from "@/components/ui/FadeImage";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
@@ -102,7 +102,7 @@ export default function UserCard({
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.965 }}
       transition={MOTION_SPRING.snappy}
-      className="cursor-pointer rounded-[22px] outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-3"
+      className="cursor-pointer rounded-card outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-3"
     >
       <ViewTransition name={detailTransitionName("person", user.id)} share="coflow-detail-morph">
         <div className="h-full">{renderCardContent()}</div>
@@ -114,10 +114,10 @@ export default function UserCard({
     return <>
       <div className="sm:hidden">
         {mobileVariant === "featured" ? (
-          <div className="h-full overflow-hidden rounded-[20px] border border-black/[0.06] bg-[#fbfcfa] shadow-[0_8px_26px_rgba(20,42,32,.055)]">
+          <div className="h-full overflow-hidden rounded-card border border-black/[0.06] bg-surface-raised shadow-card">
             <div className="relative h-40 bg-[#e9ece8] min-[390px]:h-48">
               {hasProfilePhoto && profilePhoto ? (
-                <Image
+                <FadeImage
                   src={profilePhoto}
                   alt={fullName}
                   fill
@@ -140,7 +140,7 @@ export default function UserCard({
                 disabled={savingToggle}
                 aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
                 aria-pressed={saved}
-                className="absolute right-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-white text-primary shadow-[0_1px_3px_rgb(0_0_0/0.15)] disabled:opacity-60"
+                className="absolute right-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-white text-primary shadow-soft disabled:opacity-60"
               >
                 <HeartIcon filled={saved} />
               </button>
@@ -148,7 +148,7 @@ export default function UserCard({
 
             <div className="p-3.5">
               <div className="flex items-center gap-1">
-                <h3 className="truncate text-[16px] font-semibold tracking-[-0.02em] text-[#17251f]">
+                <h3 className="truncate text-[16px] font-semibold tracking-[-0.02em] text-brand-dark">
                   {shortName}
                 </h3>
                 {user.is_verified && <VerifiedIcon className="h-4 w-4 shrink-0 text-primary" />}
@@ -162,12 +162,12 @@ export default function UserCard({
               )}
 
               <p className="mt-3 truncate border-t border-black/[0.06] pt-3 text-[11px] text-secondary">
-                <span className="font-semibold text-[#17392c]">{budgetLabel}</span>
+                <span className="font-semibold text-brand-dark">{budgetLabel}</span>
               </p>
             </div>
           </div>
         ) : (
-          <div className="flex min-h-24 items-center gap-3 rounded-[18px] border border-black/[0.06] bg-[#fbfcfa] p-3 shadow-[0_6px_20px_rgba(20,42,32,.04)]">
+          <div className="flex min-h-24 items-center gap-3 rounded-card border border-black/[0.06] bg-surface-raised p-3 shadow-card">
             <div className="relative shrink-0">
               <UserAvatar
                 firstName={user.first_name}
@@ -181,7 +181,7 @@ export default function UserCard({
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1">
-                <h3 className="truncate text-sm font-semibold text-[#17251f]">{shortName}</h3>
+                <h3 className="truncate text-sm font-semibold text-brand-dark">{shortName}</h3>
                 {user.is_verified && <VerifiedIcon className="h-3.5 w-3.5 shrink-0 text-primary" />}
               </div>
               {metaLine && (
@@ -209,10 +209,10 @@ export default function UserCard({
         )}
       </div>
 
-      <div className="hidden h-full flex-col overflow-hidden rounded-[22px] border border-black/[0.06] bg-[#fbfcfa] transition-shadow duration-200 sm:flex sm:hover:shadow-[0_20px_42px_-14px_rgb(13_59_42/0.18)]">
+      <div className="hidden h-full flex-col overflow-hidden rounded-card border border-black/[0.06] bg-surface-raised transition-shadow duration-200 sm:flex sm:hover:shadow-modal">
         <div className="relative h-52 shrink-0 bg-[#e9ece8] lg:h-56">
           {hasProfilePhoto && profilePhoto ? (
-            <Image
+            <FadeImage
               src={profilePhoto}
               alt={fullName}
               fill
@@ -235,7 +235,7 @@ export default function UserCard({
             disabled={savingToggle}
             aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
             aria-pressed={saved}
-            className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-primary shadow-[0_1px_3px_rgb(0_0_0/0.15)] disabled:opacity-60"
+            className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-primary shadow-soft disabled:opacity-60"
           >
             <HeartIcon filled={saved} />
           </button>
@@ -245,7 +245,7 @@ export default function UserCard({
           <div className="flex items-start gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
-                <h3 className="truncate text-lg font-semibold tracking-[-0.025em] text-[#17251f]">
+                <h3 className="truncate text-lg font-semibold tracking-[-0.025em] text-brand-dark">
                   {fullName || "Persona de CoFlow"}
                   {user.age !== null && <span className="font-semibold text-secondary">, {user.age}</span>}
                 </h3>
@@ -268,7 +268,7 @@ export default function UserCard({
           {habitChips.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-1.5">
               {habitChips.slice(0, 3).map((chip) => (
-                <span key={chip} className="rounded-full bg-[#eaf0ec] px-2.5 py-1.5 text-[10px] font-semibold text-[#315f4b]">
+                <span key={chip} className="rounded-full bg-[#eaf0ec] px-2.5 py-1.5 text-[10px] font-semibold text-brand-mid">
                   {chip}
                 </span>
               ))}
@@ -276,7 +276,7 @@ export default function UserCard({
           )}
 
           <p className="mt-auto border-t border-black/[0.06] pt-4 text-xs text-secondary">
-            Presupuesto <span className="font-semibold text-[#17392c]">{budgetLabel}</span>
+            Presupuesto <span className="font-semibold text-brand-dark">{budgetLabel}</span>
           </p>
 
           <div className="mt-3 flex items-center gap-2">
@@ -284,7 +284,7 @@ export default function UserCard({
               type="button"
               onClick={handlePrimaryAction}
               disabled={connecting || connectionStatus === "PENDING_SENT"}
-              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-[12px] bg-[#183c2d] px-4 text-sm font-semibold text-white shadow-none disabled:opacity-60"
+              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-control bg-brand-dark px-4 text-sm font-semibold text-white shadow-none disabled:opacity-60"
             >
               <MessageIcon />
               {connectionStatus === "ACCEPTED"
@@ -321,7 +321,7 @@ function ProfileIdentityCover({ user, habitChips, compact = false }: { user: Use
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden px-4 text-center" style={{ backgroundColor: palette.background, color: palette.ink }} aria-label={`Portada de perfil de ${user.first_name}`}>
       <span className="absolute -left-8 -top-10 h-28 w-28 rounded-full border-[18px] opacity-45" style={{ borderColor: palette.accent }} />
-      <span className="absolute -bottom-12 -right-8 h-32 w-32 rotate-12 rounded-[32px] opacity-50" style={{ backgroundColor: palette.accent }} />
+      <span className="absolute -bottom-12 -right-8 h-32 w-32 rotate-12 rounded-sheet opacity-50" style={{ backgroundColor: palette.accent }} />
       <span className="absolute right-[18%] top-[18%] h-2 w-2 rounded-full opacity-50" style={{ backgroundColor: palette.ink }} />
       <div className={`relative flex items-center justify-center rounded-full border border-white/60 bg-white/55 font-bold tracking-[-.05em] shadow-[0_10px_30px_rgba(41,71,58,.1)] backdrop-blur ${compact ? "h-16 w-16 text-2xl" : "h-20 w-20 text-3xl"}`}>{initials}</div>
       <p className={`relative mt-2 font-semibold tracking-[-.025em] ${compact ? "text-xs" : "text-sm"}`}>{user.first_name}{user.age !== null ? `, ${user.age}` : ""}</p>

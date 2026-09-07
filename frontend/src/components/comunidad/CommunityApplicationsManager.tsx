@@ -106,7 +106,7 @@ export default function CommunityApplicationsManager({
   }
 
   return (
-    <section className="rounded-[22px] border border-black/[0.06] bg-[#fbfcfa] p-4 shadow-[0_10px_30px_rgba(20,42,32,.04)] sm:p-6">
+    <section className="rounded-card border border-black/[0.06] bg-surface-raised p-4 shadow-card sm:p-6">
       <div className="flex items-center gap-2">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
           Solicitudes
@@ -124,7 +124,7 @@ export default function CommunityApplicationsManager({
         El administrador revisa el perfil antes de decidir.
       </p>
 
-      <div className="mt-4 grid grid-cols-2 rounded-[14px] bg-[#eef1ee] p-1" role="tablist" aria-label="Estado de solicitudes">
+      <div className="mt-4 grid grid-cols-2 rounded-control bg-[#eef1ee] p-1" role="tablist" aria-label="Estado de solicitudes">
         <button type="button" role="tab" aria-selected={view === "pending"} onClick={() => setView("pending")} className={`h-9 rounded-[11px] text-xs font-bold transition ${view === "pending" ? "bg-white text-brand-dark shadow-sm" : "text-secondary"}`}>Pendientes · {pendingCount}</button>
         <button type="button" role="tab" aria-selected={view === "history"} onClick={() => setView("history")} className={`h-9 rounded-[11px] text-xs font-bold transition ${view === "history" ? "bg-white text-brand-dark shadow-sm" : "text-secondary"}`}>Historial · {applications.length - pendingCount}</button>
       </div>
@@ -147,7 +147,7 @@ export default function CommunityApplicationsManager({
             Todavía no habéis recibido solicitudes.
           </p>
         ) : visibleApplications.length === 0 ? (
-          <p className="rounded-[18px] border border-dashed border-black/10 p-6 text-center text-sm text-secondary">{view === "pending" ? "No hay solicitudes pendientes." : "Todavía no hay solicitudes resueltas."}</p>
+          <p className="rounded-card border border-dashed border-black/10 p-6 text-center text-sm text-secondary">{view === "pending" ? "No hay solicitudes pendientes." : "Todavía no hay solicitudes resueltas."}</p>
         ) : (
           visibleApplications.map((application) => (
             <ApplicationRow
@@ -215,7 +215,7 @@ function ApplicationRow({
       : "Presupuesto no indicado";
 
   return (
-    <div className="rounded-[18px] border border-black/[0.06] bg-white p-4 shadow-[0_5px_18px_rgba(20,42,32,.035)]">
+    <div className="rounded-card border border-black/[0.06] bg-white p-4 shadow-card">
       <div className="flex items-start gap-3">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/8 text-sm font-semibold text-primary-dark">
           {initials || "CF"}

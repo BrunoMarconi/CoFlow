@@ -32,7 +32,7 @@ function FloatingTile({
 }) {
   return (
     <motion.div
-      className={`absolute flex size-14 items-center justify-center rounded-[18px] bg-[#f8f7f2] text-[#123b2a] shadow-[0_12px_35px_rgba(0,0,0,0.16)] sm:size-16 sm:rounded-[20px] ${className}`}
+      className={`absolute flex size-14 items-center justify-center rounded-card bg-[#f8f7f2] text-brand-dark shadow-raised sm:size-16 sm:rounded-card ${className}`}
       initial={reduced ? false : { opacity: 0, scale: 0.55, y: 14 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{
@@ -130,7 +130,7 @@ function CommunityIllustration({ reduced }: { reduced: boolean }) {
       </motion.div>
 
       <motion.div
-        className="absolute inset-x-0 bottom-[4%] mx-auto flex w-fit items-center -space-x-3 rounded-full border-4 border-[#123b2a] bg-[#123b2a] px-1"
+        className="absolute inset-x-0 bottom-[4%] mx-auto flex w-fit items-center -space-x-3 rounded-full border-4 border-brand-dark bg-brand-dark px-1"
         initial={reduced ? false : { opacity: 0, y: 24, scale: 0.8 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{
@@ -206,7 +206,7 @@ export default function OwnerModeTransition({
       transition={{ duration: reduced ? 0.08 : 0.16 }}
     >
       <motion.section
-        className="relative flex h-[min(82dvh,46rem)] w-full max-w-[48rem] flex-col overflow-hidden rounded-[36px] bg-[#123b2a] px-6 pb-8 pt-6 shadow-[0_24px_80px_rgba(10,35,25,0.20)] sm:rounded-[48px] sm:px-10 sm:pb-10 sm:pt-8"
+        className="relative flex h-[min(82dvh,46rem)] w-full max-w-[48rem] flex-col overflow-hidden rounded-[36px] bg-brand-dark px-6 pb-8 pt-6 shadow-modal sm:rounded-[48px] sm:px-10 sm:pb-10 sm:pt-8"
         initial={reduced ? false : { opacity: 0, y: 40, scale: 0.86, borderRadius: 64 }}
         animate={{ opacity: 1, y: 0, scale: 1, borderRadius: 40 }}
         transition={{

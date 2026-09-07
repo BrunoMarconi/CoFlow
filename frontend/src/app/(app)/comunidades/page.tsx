@@ -340,7 +340,7 @@ export default function ComunidadesPage() {
         )}
       </AnimatePresence>
 
-      <div className="sticky top-[calc(var(--safe-top)+.5rem)] z-(--z-sticky-header) rounded-[18px] bg-background/95 py-2 backdrop-blur-xl">
+      <div className="sticky top-[calc(var(--safe-top)+.5rem)] z-(--z-sticky-header) rounded-card bg-background/95 py-2 backdrop-blur-xl">
         <ExplorerSearchBar
           layoutIdBar={SEARCH_BAR_LAYOUT_ID}
           layoutIdIcon={SEARCH_ICON_LAYOUT_ID}
@@ -480,7 +480,7 @@ export default function ComunidadesPage() {
               <CommunityFilters filters={filters} onChange={setFilters} onClear={() => setFilters(defaultCommunityFilters)} resultCount={resultCount} sheet />
             </div>
             <div className="border-t border-black/5 bg-white p-4 pb-[calc(1rem+var(--safe-bottom))]">
-              <button type="button" onClick={() => setFiltersOpen(false)} className="flex h-14 w-full items-center justify-between rounded-2xl bg-[#4e675b] px-5 text-white shadow-[0_12px_40px_rgba(78,103,91,.28)] transition hover:bg-[#3e564b] active:scale-[.985]"><span className="text-[14px] font-bold">Ver {resultCount} {resultCount === 1 ? "comunidad afín" : "comunidades afines"}</span><span className="flex items-center gap-1.5 text-xs font-medium text-[#e6f3f0]">Aplicar filtros <ArrowIcon /></span></button>
+              <button type="button" onClick={() => setFiltersOpen(false)} className="flex h-14 w-full items-center justify-between rounded-2xl bg-[#4e675b] px-5 text-white shadow-modal transition hover:bg-[#3e564b] active:scale-[.985]"><span className="text-[14px] font-bold">Ver {resultCount} {resultCount === 1 ? "comunidad afín" : "comunidades afines"}</span><span className="flex items-center gap-1.5 text-xs font-medium text-[#e6f3f0]">Aplicar filtros <ArrowIcon /></span></button>
             </div>
           </motion.section>
         </motion.div>}
@@ -631,8 +631,8 @@ function PeopleIcon() {
 
 function CommunityPageFooter() {
   return (
-    <footer className="mt-16 border-t border-border/80 bg-[#edf4f1] px-5 py-10 sm:rounded-[28px] sm:px-8">
-      <div className="flex items-center gap-2"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#315f4b] text-white"><HomeIcon /></span><span className="font-rounded text-sm font-semibold text-brand-dark">CoFlow</span></div>
+    <footer className="mt-16 border-t border-border/80 bg-[#edf4f1] px-5 py-10 sm:rounded-panel sm:px-8">
+      <div className="flex items-center gap-2"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-mid text-white"><HomeIcon /></span><span className="font-rounded text-sm font-semibold text-brand-dark">CoFlow</span></div>
       <p className="mt-4 max-w-lg text-xs leading-5 text-secondary">Encuentra personas y comunidades en Málaga según presupuesto, hábitos y preferencias de convivencia.</p>
       <div className="mt-7 grid grid-cols-2 gap-7 text-xs sm:grid-cols-3">
         <FooterGroup title="Producto" links={[["Comunidades", "/comunidades"], ["Personas afines", "/usuarios"], ["Crear comunidad", "/crear/comunidad"]]} />

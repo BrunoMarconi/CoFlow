@@ -126,7 +126,7 @@ function GalleryArrow({ direction, disabled, onClick }: { direction: "previous" 
       onClick={(event) => { event.stopPropagation(); onClick(); }}
       aria-label={direction === "previous" ? "Foto anterior" : "Foto siguiente"}
       className={cn(
-        "absolute top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-black shadow-[0_3px_16px_rgba(0,0,0,0.18)] transition hover:scale-105 disabled:pointer-events-none disabled:opacity-0 sm:flex",
+        "absolute top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-black shadow-raised transition hover:scale-105 disabled:pointer-events-none disabled:opacity-0 sm:flex",
         direction === "previous" ? "left-5" : "right-5"
       )}
     >

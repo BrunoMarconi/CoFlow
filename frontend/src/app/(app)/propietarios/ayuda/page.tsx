@@ -10,8 +10,8 @@ const FAQ = [
 
 export default function AyudaPropietariosPage() {
   return (
-    <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] px-6 pb-12 pt-5 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-5xl sm:rounded-[32px] sm:p-7 lg:p-8">
-      <header className="relative overflow-hidden rounded-[28px] bg-brand-dark p-6 text-white shadow-[0_18px_45px_rgba(20,55,41,.17)] sm:p-8">
+    <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] px-6 pb-12 pt-5 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-5xl sm:rounded-sheet sm:p-7 lg:p-8">
+      <header className="relative overflow-hidden rounded-panel bg-brand-dark p-6 text-white shadow-[0_18px_45px_rgba(20,55,41,.17)] sm:p-8">
         <span className="absolute -right-14 -top-20 h-52 w-52 rounded-full border-[34px] border-white/[0.04]" aria-hidden="true" />
         <div className="relative max-w-2xl">
           <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10"><CircleHelp className="h-5 w-5" /></span>
@@ -28,7 +28,7 @@ export default function AyudaPropietariosPage() {
       </section>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_17rem]">
-        <section className="rounded-[26px] bg-surface p-5 shadow-soft sm:p-6">
+        <section className="rounded-panel bg-surface p-5 shadow-soft sm:p-6">
           <p className="text-xs font-bold uppercase tracking-[0.13em] text-muted">Preguntas frecuentes</p>
           <div className="mt-3 divide-y divide-border/70">
             {FAQ.map((item) => (
@@ -43,7 +43,7 @@ export default function AyudaPropietariosPage() {
           </div>
         </section>
 
-        <aside className="rounded-[26px] bg-mint-50 p-5 sm:p-6">
+        <aside className="rounded-panel bg-mint-50 p-5 sm:p-6">
           <span className="flex h-11 w-11 items-center justify-center rounded-full bg-surface text-primary shadow-soft"><MessageCircle className="h-5 w-5" /></span>
           <h2 className="mt-5 font-rounded text-xl font-semibold text-brand-dark">¿Necesitas revisar algo?</h2>
           <p className="mt-2 text-sm leading-6 text-secondary">Consulta primero el estado de tu vivienda. Allí verás qué información falta y cuál es el siguiente paso.</p>
@@ -55,5 +55,5 @@ export default function AyudaPropietariosPage() {
 }
 
 function Topic({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
-  return <div className="flex items-center gap-3 rounded-[20px] bg-surface p-4 shadow-soft"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-mint-50 text-primary [&>svg]:h-5 [&>svg]:w-5">{icon}</span><span><span className="block text-sm font-bold text-brand-dark">{title}</span><span className="mt-0.5 block text-xs text-secondary">{text}</span></span></div>;
+  return <div className="flex items-center gap-3 rounded-card bg-surface p-4 shadow-soft"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-mint-50 text-primary [&>svg]:h-5 [&>svg]:w-5">{icon}</span><span><span className="block text-sm font-bold text-brand-dark">{title}</span><span className="mt-0.5 block text-xs text-secondary">{text}</span></span></div>;
 }

@@ -77,7 +77,7 @@ export default function ExplorarPage() {
   const heroPeople = users.slice(0, 3);
 
   return (
-    <div className="explore-shell -mx-5 -mt-3 min-h-[calc(100dvh-var(--mobile-header-height))] px-5 pb-8 pt-3 sm:-mx-6 sm:px-6 md:mx-auto md:-mt-2 md:max-w-6xl md:rounded-[32px] md:px-8 md:pb-10 md:pt-7">
+    <div className="explore-shell -mx-5 -mt-3 min-h-[calc(100dvh-var(--mobile-header-height))] px-5 pb-8 pt-3 sm:-mx-6 sm:px-6 md:mx-auto md:-mt-2 md:max-w-6xl md:rounded-sheet md:px-8 md:pb-10 md:pt-7">
       <header className="flex items-end justify-between gap-4">
         <div>
           <p className="text-xs font-bold text-secondary">Hola, {user.first_name}</p>
@@ -85,7 +85,7 @@ export default function ExplorarPage() {
             Explorar
           </h1>
         </div>
-        <span className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-white px-3 text-xs font-bold text-primary-dark shadow-[0_1px_2px_rgb(0_0_0/0.05)]">
+        <span className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-white px-3 text-xs font-bold text-primary-dark shadow-soft">
           <LocationPinIcon /> Málaga
         </span>
       </header>
@@ -112,7 +112,7 @@ export default function ExplorarPage() {
       </div>
 
       <section className="mt-5 grid gap-3 sm:grid-cols-[1.35fr_0.65fr]">
-        <Link href="/usuarios" className="group relative min-h-44 overflow-hidden rounded-24 bg-brand-dark p-5 text-white shadow-[0_16px_40px_-26px_rgb(10_45_33/0.75)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+        <Link href="/usuarios" className="group relative min-h-44 overflow-hidden rounded-24 bg-brand-dark p-5 text-white shadow-modal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
           <div className="relative z-10 max-w-[24rem]">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/60">Selección para ti</p>
             <h2 className="mt-2 font-rounded text-2xl font-semibold leading-tight tracking-[-0.03em]">Encuentra personas con las que encajar de verdad.</h2>
@@ -126,7 +126,7 @@ export default function ExplorarPage() {
           <span aria-hidden="true" className="absolute -bottom-20 right-12 h-40 w-40 rounded-full bg-white/[0.035]" />
         </Link>
 
-        <Link href={ctaHref} className="group flex min-h-36 flex-col justify-between rounded-24 border border-black/[0.04] bg-white p-5 shadow-[0_10px_30px_-24px_rgb(0_0_0/0.35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:min-h-44">
+        <Link href={ctaHref} className="group flex min-h-36 flex-col justify-between rounded-24 border border-black/[0.04] bg-white p-5 shadow-overlay focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:min-h-44">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/[0.045] text-primary"><SparkleIcon /></span>
           <div className="mt-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted">Siguiente paso</p>
@@ -220,7 +220,7 @@ function SegmentPill({
       onClick={onClick}
       className={cn("relative min-h-9 rounded-[10px] px-2 text-xs font-bold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-brand", active ? "text-brand-dark" : "text-secondary")}
     >
-      {active && <motion.span layoutId="explore-segment" className="absolute inset-0 rounded-[10px] bg-white shadow-[0_1px_3px_rgb(0_0_0/0.1)]" transition={{ type: "spring", stiffness: 450, damping: 36 }} />}
+      {active && <motion.span layoutId="explore-segment" className="absolute inset-0 rounded-[10px] bg-white shadow-soft" transition={{ type: "spring", stiffness: 450, damping: 36 }} />}
       <span className="relative z-10">{children}</span>
     </button>
   );
@@ -250,7 +250,7 @@ function DiscoveryRow({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-24 border border-black/[0.04] bg-white py-4 shadow-[0_10px_30px_-26px_rgb(0_0_0/0.3)] sm:py-5">
+    <section className="overflow-hidden rounded-24 border border-black/[0.04] bg-white py-4 shadow-overlay sm:py-5">
       <div className="mb-3 flex items-center justify-between gap-3 px-4 sm:px-5">
         <h2 className="whitespace-nowrap font-rounded text-[19px] font-semibold tracking-[-0.025em] text-brand-dark">
           {title}

@@ -101,13 +101,13 @@ export default function UsuariosPage() {
         <header className="mt-6 flex items-end justify-between gap-6 border-b border-black/[0.07] pb-6 sm:mt-8 sm:pb-8">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736c]">Personas · {featuredCity.name}</p>
-            <h1 className="mt-2 max-w-2xl text-[34px] font-semibold leading-[1.02] tracking-[-0.05em] text-[#17392c] sm:text-[48px]">Encuentra una forma de convivir que encaje contigo.</h1>
+            <h1 className="mt-2 max-w-2xl text-[34px] font-semibold leading-[1.02] tracking-[-0.05em] text-brand-dark sm:text-[48px]">Encuentra una forma de convivir que encaje contigo.</h1>
           </div>
           <p className="hidden max-w-xs text-right text-sm leading-6 text-[#6b7771] lg:block">Perfiles con hábitos, presupuesto y preferencias visibles antes de conectar.</p>
         </header>
 
-        <div className="sticky top-[calc(var(--safe-top)+.5rem)] z-(--z-sticky-header) -mx-2 mt-4 rounded-[20px] border border-black/[0.06] bg-[#f8faf8]/95 px-3 pb-3 pt-3 shadow-[0_12px_32px_rgba(20,42,32,.07)] backdrop-blur-xl sm:mx-0 sm:px-4">
-          <div className="flex h-13 items-center rounded-[14px] bg-white px-4 ring-1 ring-black/[0.06] transition focus-within:ring-2 focus-within:ring-[#315f4b]/25 sm:h-14">
+        <div className="sticky top-[calc(var(--safe-top)+.5rem)] z-(--z-sticky-header) -mx-2 mt-4 rounded-card border border-black/[0.06] bg-[#f8faf8]/95 px-3 pb-3 pt-3 shadow-card backdrop-blur-xl sm:mx-0 sm:px-4">
+          <div className="flex h-13 items-center rounded-control bg-white px-4 ring-1 ring-black/[0.06] transition focus-within:ring-2 focus-within:ring-brand-mid/25 sm:h-14">
             <SearchInput
               bare
               value={search}
@@ -129,7 +129,7 @@ export default function UsuariosPage() {
                   aria-pressed={active}
                   className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
                     active
-                      ? "bg-[#183c2d] text-white"
+                      ? "bg-brand-dark text-white"
                       : "bg-[#edf1ee] text-[#34463c] hover:bg-[#e4ebe7]"
                   }`}
                 >
@@ -145,7 +145,7 @@ export default function UsuariosPage() {
               aria-expanded={filtersOpen}
               className={`flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
                 filtersOpen || filters.maxBudget || filters.communityStatus !== "ALL"
-                  ? "bg-[#183c2d] text-white"
+                  ? "bg-brand-dark text-white"
                   : "bg-[#edf1ee] text-[#34463c] hover:bg-[#e4ebe7]"
               }`}
             >
@@ -254,7 +254,7 @@ export default function UsuariosPage() {
 
         <aside className="mt-8 space-y-4 lg:sticky lg:top-36 lg:mt-0" aria-label="Mejora tu búsqueda">
           {profileIncomplete && (
-            <div className="rounded-[22px] bg-[#183c2d] p-5 text-white shadow-[0_18px_42px_rgba(24,60,45,.14)]">
+            <div className="rounded-card bg-brand-dark p-5 text-white shadow-[0_18px_42px_rgba(24,60,45,.14)]">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-dark text-white">
                 <ProfileIcon />
               </span>
@@ -272,7 +272,7 @@ export default function UsuariosPage() {
               </p>
               <Link
                 href="/perfil/editar"
-                className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-[12px] bg-white px-4 text-sm font-semibold text-[#183c2d] transition-colors hover:bg-[#f0f3f1]"
+                className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-control bg-white px-4 text-sm font-semibold text-brand-dark transition-colors hover:bg-[#f0f3f1]"
               >
                 Completar perfil
               </Link>

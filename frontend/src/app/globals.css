@@ -30,6 +30,23 @@
      largas de texto. */
   --chat-bubble-own: oklch(0.93 0.07 152);
 
+  /* --- Neutros y acentos que estaban sueltos ---------------------------
+     Estos cinco valores vivían como literales hexadecimales repetidos por
+     decenas de componentes (#315f4b aparecía 74 veces). Al no estar en el
+     sistema, cada pantalla acababa eligiendo un verde oscuro ligeramente
+     distinto — llegaron a convivir ocho indistinguibles entre sí. */
+
+  /* Verde medio: chips, iconos sobre fondo claro, botones secundarios. */
+  --brand-mid: #315f4b;
+  /* Fondo de tarjeta/sección: blanco roto, un punto por debajo del lienzo. */
+  --surface-raised: #fbfcfa;
+  /* Neutros puros (sin tinte verde) para texto de alta y media jerarquía
+     en superficies fotográficas o muy neutras. */
+  --neutral-strong: #191919;
+  --neutral-mid: #717171;
+  /* Línea divisoria en superficies neutras, más marcada que --line. */
+  --hairline: #dddddd;
+
   /* Safe areas (iOS/Android con viewport-fit=cover). Se usan como
      var(--safe-*) en vez de repetir env(...) en cada componente. */
   --safe-top: env(safe-area-inset-top, 0px);
@@ -82,6 +99,11 @@
   --color-chat-bubble-own: var(--chat-bubble-own);
   --color-flat: var(--flat-neutral);
   --color-flat-strong: var(--flat-neutral-strong);
+  --color-brand-mid: var(--brand-mid);
+  --color-surface-raised: var(--surface-raised);
+  --color-neutral-strong: var(--neutral-strong);
+  --color-neutral-mid: var(--neutral-mid);
+  --color-hairline: var(--hairline);
 
   /* Radios nuevos del design system — no tocan la escala por defecto
      de Tailwind (rounded-lg/xl/2xl/3xl), que ya usan ~24 archivos. */
@@ -91,11 +113,28 @@
   --radius-24: 24px;
   --radius-control: 12px;
   --radius-card: 20px;
+  /* Escala de radios: 12 / 16 / 20 / 26 / 32. Los valores se eligieron
+     para quedar a ±2px de los diez radios arbitrarios que había sueltos
+     (18, 22, 24, 26, 28...), de modo que unificar no reencuadre nada. */
+  --radius-field: 16px;
+  --radius-panel: 26px;
+  --radius-sheet: 32px;
 
   /* Diseño plano: sombras casi imperceptibles, solo para separar
-     superficies, nunca para dar profundidad dramática. */
+     superficies, nunca para dar profundidad dramática.
+     Los cuatro niveles de abajo sustituyen a las 114 sombras distintas
+     que se habían escrito a mano por los componentes: la profundidad
+     pasa a ser una decisión del sistema y no de cada pantalla. */
   --shadow-soft: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-button: 0 1px 2px 0 rgb(0 0 0 / 0.06);
+  /* Tarjeta apoyada en el lienzo. */
+  --shadow-card: 0 8px 24px -6px rgb(20 42 32 / 0.10);
+  /* Elemento despegado: paneles destacados, tarjetas en hover. */
+  --shadow-raised: 0 14px 34px -10px rgb(20 42 32 / 0.14);
+  /* Flotante sobre el contenido: FAB, barras de acción, píldoras. */
+  --shadow-overlay: 0 18px 44px -12px rgb(20 42 32 / 0.20);
+  /* Diálogos y sheets, lo único que llega a proyectar de verdad. */
+  --shadow-modal: 0 28px 64px -16px rgb(8 30 21 / 0.30);
 
   --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);

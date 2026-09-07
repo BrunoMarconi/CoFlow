@@ -58,7 +58,7 @@ export default function BlockedUsersPage() {
         ) : data.length === 0 ? (
           <EmptyState title="No has bloqueado a nadie" description="Las personas que bloquees aparecerán aquí para que puedas gestionar la lista." />
         ) : (
-          <div className="overflow-hidden rounded-[22px] border border-black/[0.06] bg-[#fbfcfa] shadow-[0_10px_30px_rgba(20,42,32,.04)]">
+          <div className="overflow-hidden rounded-card border border-black/[0.06] bg-surface-raised shadow-card">
             {data.map((user) => (
               <BlockedUserRow key={user.id} user={user} actioning={actioningId === user.id} onUnblock={() => unblock(user)} />
             ))}

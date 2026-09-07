@@ -68,7 +68,7 @@ export default function PhotoDetailShell({
 
       <section
         className={cn(
-          "relative z-10 -mt-7 min-h-64 rounded-t-[1.75rem] bg-[#fbfcfa] px-6 pb-8 pt-8 shadow-[0_-12px_40px_rgba(20,42,32,0.07)] sm:mx-8 sm:-mt-12 sm:rounded-[1.5rem] sm:border sm:border-black/[0.06] sm:px-10 sm:pb-11 sm:pt-10",
+          "relative z-10 -mt-7 min-h-64 rounded-t-[1.75rem] bg-surface-raised px-6 pb-8 pt-8 shadow-overlay sm:mx-8 sm:-mt-12 sm:rounded-[1.5rem] sm:border sm:border-black/[0.06] sm:px-10 sm:pb-11 sm:pt-10",
           contentClassName
         )}
       >

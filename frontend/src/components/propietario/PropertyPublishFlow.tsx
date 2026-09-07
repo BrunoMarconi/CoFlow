@@ -469,8 +469,8 @@ function WelcomeScreen() {
       </div>
       <div className="mt-7">
         <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#17633a]">Gratis en Málaga · Sin tarjeta</p>
-        <h1 className="mt-2 text-[clamp(2.05rem,7vw,4rem)] font-semibold leading-[1.03] tracking-[-0.055em] text-[#191919]">Publica tu piso o habitación</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-[#717171] sm:text-base">Recibe solicitudes con presupuesto y hábitos de convivencia para decidir con más contexto.</p>
+        <h1 className="mt-2 text-[clamp(2.05rem,7vw,4rem)] font-semibold leading-[1.03] tracking-[-0.055em] text-neutral-strong">Publica tu piso o habitación</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-neutral-mid sm:text-base">Recibe solicitudes con presupuesto y hábitos de convivencia para decidir con más contexto.</p>
       </div>
     </section>
   );
@@ -479,10 +479,10 @@ function WelcomeScreen() {
 function AddressScreen({ address, onOpen }: { address: string; onOpen: () => void }) {
   return (
     <section className="mx-auto flex h-[calc(100dvh-12.5rem)] max-w-2xl flex-col justify-center">
-      <h1 className="text-[clamp(2.25rem,8vw,4rem)] font-semibold leading-[1.02] tracking-[-0.055em] text-[#191919]">¿Dónde está tu vivienda?</h1>
-      <button type="button" onClick={onOpen} className="mt-9 flex h-16 w-full items-center gap-4 rounded-full border border-[#c9c9c9] bg-white px-6 text-left text-lg font-medium text-[#191919] shadow-[0_8px_24px_rgba(0,0,0,0.07)] transition hover:border-black focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-black">
+      <h1 className="text-[clamp(2.25rem,8vw,4rem)] font-semibold leading-[1.02] tracking-[-0.055em] text-neutral-strong">¿Dónde está tu vivienda?</h1>
+      <button type="button" onClick={onOpen} className="mt-9 flex h-16 w-full items-center gap-4 rounded-full border border-[#c9c9c9] bg-white px-6 text-left text-lg font-medium text-neutral-strong shadow-card transition hover:border-black focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-black">
         <Search className="h-6 w-6 text-[#555]" />
-        <span className={address ? "truncate" : "text-[#717171]"}>{address || "¿Dónde está tu vivienda?"}</span>
+        <span className={address ? "truncate" : "text-neutral-mid"}>{address || "¿Dónde está tu vivienda?"}</span>
       </button>
     </section>
   );
@@ -492,8 +492,8 @@ function MapScreen(props: Parameters<typeof PropertyLocationMap>[0]) {
   return (
     <section className="mx-auto flex h-[calc(100dvh-12.5rem)] max-w-3xl flex-col justify-center overflow-hidden">
       <div className="shrink-0">
-        <h1 className="text-[clamp(2rem,7vw,3.65rem)] font-semibold leading-[1.02] tracking-[-0.055em] text-[#191919]">¿El marcador está en el lugar correcto?</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-[#717171] sm:text-lg">La dirección exacta nunca se mostrará públicamente.</p>
+        <h1 className="text-[clamp(2rem,7vw,3.65rem)] font-semibold leading-[1.02] tracking-[-0.055em] text-neutral-strong">¿El marcador está en el lugar correcto?</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-neutral-mid sm:text-lg">La dirección exacta nunca se mostrará públicamente.</p>
       </div>
       <div className="mt-5 min-h-0 flex-1"><PropertyLocationMap key={`${props.latitude}-${props.longitude}`} {...props} /></div>
     </section>
@@ -506,8 +506,8 @@ function SpaceIntroduction() {
       <div className="relative h-[clamp(250px,45dvh,470px)] w-full overflow-hidden rounded-[1.75rem] bg-[#f5f2ee]">
         <Image src="/images/owner-space-modular-2026.png" alt="Interior modular de una vivienda formándose" fill priority sizes="(min-width: 768px) 780px, 94vw" className="object-cover" />
       </div>
-      <p className="mt-6 text-sm font-semibold text-[#717171]">Paso 1</p>
-      <h1 className="mt-1 text-[clamp(2.25rem,8vw,4rem)] font-semibold leading-[1.02] tracking-[-0.055em] text-[#191919]">Describe tu espacio</h1>
+      <p className="mt-6 text-sm font-semibold text-neutral-mid">Paso 1</p>
+      <h1 className="mt-1 text-[clamp(2.25rem,8vw,4rem)] font-semibold leading-[1.02] tracking-[-0.055em] text-neutral-strong">Describe tu espacio</h1>
     </section>
   );
 }
@@ -523,7 +523,7 @@ function ChoiceGrid({ title, choices, selected, onSelect }: { title: string; cho
       <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         {choices.map((choice) => {
           const active = selected === choice.value;
-          return <button key={choice.value} type="button" aria-pressed={active} onClick={() => onSelect(choice.value)} className={`relative flex min-h-31 flex-col items-start justify-between rounded-[20px] border bg-surface p-4 text-left shadow-soft transition ${active ? "border-primary/30 bg-mint-50 ring-2 ring-primary/10" : "border-border hover:bg-surface"}`}><span className={`${active ? "text-primary" : "text-secondary"} [&>svg]:h-7 [&>svg]:w-7 [&>svg]:stroke-[1.65]`}>{choice.icon}</span><span className="text-base font-bold text-brand-dark">{choice.label}</span>{active ? <span className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white"><Check className="h-4 w-4" /></span> : null}</button>;
+          return <button key={choice.value} type="button" aria-pressed={active} onClick={() => onSelect(choice.value)} className={`relative flex min-h-31 flex-col items-start justify-between rounded-card border bg-surface p-4 text-left shadow-soft transition ${active ? "border-primary/30 bg-mint-50 ring-2 ring-primary/10" : "border-border hover:bg-surface"}`}><span className={`${active ? "text-primary" : "text-secondary"} [&>svg]:h-7 [&>svg]:w-7 [&>svg]:stroke-[1.65]`}>{choice.icon}</span><span className="text-base font-bold text-brand-dark">{choice.label}</span>{active ? <span className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white"><Check className="h-4 w-4" /></span> : null}</button>;
         })}
       </div>
     </section>
@@ -537,7 +537,7 @@ function ChoiceList({ title, choices, selected, onSelect }: { title: string; cho
       <div className="mt-7 space-y-3">
         {choices.map((choice) => {
           const active = selected === choice.value;
-          return <button key={choice.value} type="button" aria-pressed={active} onClick={() => onSelect(choice.value)} className={`flex min-h-20 w-full items-center gap-4 rounded-[20px] border bg-surface px-5 py-4 text-left shadow-soft transition ${active ? "border-primary/30 bg-mint-50 ring-2 ring-primary/10" : "border-border"}`}><span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full [&>svg]:h-6 [&>svg]:w-6 [&>svg]:stroke-[1.65] ${active ? "bg-primary text-white" : "bg-surface-soft text-secondary"}`}>{choice.icon}</span><span className="flex-1 text-lg font-bold text-brand-dark">{choice.label}</span>{active ? <Check className="h-5 w-5 text-primary" /> : null}</button>;
+          return <button key={choice.value} type="button" aria-pressed={active} onClick={() => onSelect(choice.value)} className={`flex min-h-20 w-full items-center gap-4 rounded-card border bg-surface px-5 py-4 text-left shadow-soft transition ${active ? "border-primary/30 bg-mint-50 ring-2 ring-primary/10" : "border-border"}`}><span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full [&>svg]:h-6 [&>svg]:w-6 [&>svg]:stroke-[1.65] ${active ? "bg-primary text-white" : "bg-surface-soft text-secondary"}`}>{choice.icon}</span><span className="flex-1 text-lg font-bold text-brand-dark">{choice.label}</span>{active ? <Check className="h-5 w-5 text-primary" /> : null}</button>;
         })}
       </div>
     </section>
@@ -548,7 +548,7 @@ function BasicsScreen(props: { bedrooms: number; bathrooms: number; maxTenants: 
   return (
     <section className="mx-auto max-w-2xl pt-4 sm:pt-8">
       <ScreenTitle>Información básica</ScreenTitle>
-      <div className="mt-7 divide-y divide-border rounded-[24px] border border-border bg-surface px-5 shadow-soft">
+      <div className="mt-7 divide-y divide-border rounded-panel border border-border bg-surface px-5 shadow-soft">
         <Counter label="Habitaciones" value={props.bedrooms} onChange={props.onBedrooms} />
         <Counter label="Baños" value={props.bathrooms} onChange={props.onBathrooms} minimum={1} />
         <Counter label="Plazas totales" value={props.maxTenants} onChange={props.onMaxTenants} minimum={1} />
@@ -569,7 +569,7 @@ function AmenitiesScreen({ selected, onToggle }: { selected: string[]; onToggle:
       <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {AMENITIES.map(({ label, icon }) => {
           const active = selected.includes(label);
-          return <button key={label} type="button" aria-pressed={active} onClick={() => onToggle(label)} className={`relative flex min-h-20 items-center gap-3 rounded-[18px] border bg-surface p-4 text-left shadow-soft transition ${active ? "border-primary/30 bg-mint-50 ring-2 ring-primary/10" : "border-border"}`}><span className={`${active ? "text-primary" : "text-secondary"} [&>svg]:h-6 [&>svg]:w-6 [&>svg]:stroke-[1.6]`}>{icon}</span><span className="pr-5 text-sm font-bold text-brand-dark">{label}</span>{active ? <span className="absolute right-2.5 top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white"><Check className="h-3.5 w-3.5" /></span> : null}</button>;
+          return <button key={label} type="button" aria-pressed={active} onClick={() => onToggle(label)} className={`relative flex min-h-20 items-center gap-3 rounded-card border bg-surface p-4 text-left shadow-soft transition ${active ? "border-primary/30 bg-mint-50 ring-2 ring-primary/10" : "border-border"}`}><span className={`${active ? "text-primary" : "text-secondary"} [&>svg]:h-6 [&>svg]:w-6 [&>svg]:stroke-[1.6]`}>{icon}</span><span className="pr-5 text-sm font-bold text-brand-dark">{label}</span>{active ? <span className="absolute right-2.5 top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white"><Check className="h-3.5 w-3.5" /></span> : null}</button>;
         })}
       </div>
     </section>
@@ -581,11 +581,11 @@ function PhotosScreen({ photos, error, onAdd, onRemove }: { photos: PendingPhoto
     <section className="mx-auto max-w-3xl pt-4 sm:pt-8">
       <ScreenTitle>Añade fotos</ScreenTitle>
       <div className="mt-7 grid grid-cols-2 gap-3">
-        <label className="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-[1.25rem] border border-[#cfcfcf] bg-white shadow-[0_5px_16px_rgba(0,0,0,0.055)] transition hover:border-black"><ImagePlus className="h-7 w-7" /><span className="text-sm font-semibold">Elegir fotos</span><input type="file" multiple accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => onAdd(event.target.files)} /></label>
-        <label className="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-[1.25rem] border border-[#cfcfcf] bg-white shadow-[0_5px_16px_rgba(0,0,0,0.055)] transition hover:border-black"><Camera className="h-7 w-7" /><span className="text-sm font-semibold">Tomar una foto</span><input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(event) => onAdd(event.target.files)} /></label>
+        <label className="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-[1.25rem] border border-[#cfcfcf] bg-white shadow-card transition hover:border-black"><ImagePlus className="h-7 w-7" /><span className="text-sm font-semibold">Elegir fotos</span><input type="file" multiple accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => onAdd(event.target.files)} /></label>
+        <label className="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-[1.25rem] border border-[#cfcfcf] bg-white shadow-card transition hover:border-black"><Camera className="h-7 w-7" /><span className="text-sm font-semibold">Tomar una foto</span><input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(event) => onAdd(event.target.files)} /></label>
       </div>
-      {photos.length ? <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">{photos.map((photo, index) => <div key={photo.id} className="relative aspect-square overflow-hidden rounded-[1rem] border border-[#dddddd]"><Image src={photo.previewUrl} alt={`Foto ${index + 1} de la vivienda`} fill unoptimized className="object-cover" />{index === 0 ? <span className="absolute bottom-2 left-2 rounded-full bg-black px-2 py-1 text-[10px] font-semibold text-white">Portada</span> : null}<button type="button" aria-label={`Eliminar foto ${index + 1}`} onClick={() => onRemove(photo.id)} className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white text-black shadow"><X className="h-4 w-4" /></button></div>)}</div> : null}
-      <p className="mt-4 text-sm text-[#717171]">Necesitas 1 foto para publicar. Recomendamos 5 para generar más confianza · {photos.length}/{MAX_PHOTOS}</p>
+      {photos.length ? <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">{photos.map((photo, index) => <div key={photo.id} className="relative aspect-square overflow-hidden rounded-[1rem] border border-hairline"><Image src={photo.previewUrl} alt={`Foto ${index + 1} de la vivienda`} fill unoptimized className="object-cover" />{index === 0 ? <span className="absolute bottom-2 left-2 rounded-full bg-black px-2 py-1 text-[10px] font-semibold text-white">Portada</span> : null}<button type="button" aria-label={`Eliminar foto ${index + 1}`} onClick={() => onRemove(photo.id)} className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white text-black shadow"><X className="h-4 w-4" /></button></div>)}</div> : null}
+      <p className="mt-4 text-sm text-neutral-mid">Necesitas 1 foto para publicar. Recomendamos 5 para generar más confianza · {photos.length}/{MAX_PHOTOS}</p>
       {error ? <p className="mt-2 text-sm font-semibold text-red-600">{error}</p> : null}
     </section>
   );
@@ -595,9 +595,9 @@ function TextScreen({ title, value, onChange, placeholder, multiline = false, ma
   return (
     <section className="mx-auto flex h-[calc(100dvh-12.5rem)] max-w-2xl flex-col justify-center">
       <ScreenTitle>{title}</ScreenTitle>
-      <div className="mt-8 rounded-[1.5rem] border border-[#c9c9c9] bg-white p-5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition focus-within:border-black focus-within:ring-1 focus-within:ring-black sm:p-6">
-        {multiline ? <textarea autoFocus rows={7} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} maxLength={maxLength} className="w-full resize-none bg-transparent text-lg leading-8 text-[#191919] outline-none placeholder:text-[#8c8c8c]" /> : <input autoFocus value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} maxLength={maxLength} className="h-12 w-full bg-transparent text-xl font-semibold text-[#191919] outline-none placeholder:text-[#8c8c8c]" />}
-        <p className="mt-2 text-right text-xs font-semibold text-[#717171]">{value.length}/{maxLength}</p>
+      <div className="mt-8 rounded-[1.5rem] border border-[#c9c9c9] bg-white p-5 shadow-card transition focus-within:border-black focus-within:ring-1 focus-within:ring-black sm:p-6">
+        {multiline ? <textarea autoFocus rows={7} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} maxLength={maxLength} className="w-full resize-none bg-transparent text-lg leading-8 text-neutral-strong outline-none placeholder:text-[#8c8c8c]" /> : <input autoFocus value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} maxLength={maxLength} className="h-12 w-full bg-transparent text-xl font-semibold text-neutral-strong outline-none placeholder:text-[#8c8c8c]" />}
+        <p className="mt-2 text-right text-xs font-semibold text-neutral-mid">{value.length}/{maxLength}</p>
       </div>
     </section>
   );
@@ -607,7 +607,7 @@ function VibeScreen({ selected, onToggle }: { selected: string[]; onToggle: (val
   return (
     <section className="mx-auto max-w-2xl pt-4 sm:pt-8">
       <ScreenTitle>¿Cómo describirías el ambiente?</ScreenTitle>
-      <div className="mt-8 flex flex-wrap gap-2.5">{VIBES.map((vibe) => { const active = selected.includes(vibe); return <button key={vibe} type="button" onClick={() => onToggle(vibe)} className={`inline-flex h-12 items-center gap-2 rounded-full border bg-white px-5 text-sm font-semibold shadow-[0_3px_10px_rgba(0,0,0,0.045)] transition ${active ? "border-black bg-black text-white" : "border-[#d5d5d5] text-[#333]"}`}>{vibe}{active ? <Check className="h-4 w-4" /> : null}</button>; })}</div>
+      <div className="mt-8 flex flex-wrap gap-2.5">{VIBES.map((vibe) => { const active = selected.includes(vibe); return <button key={vibe} type="button" onClick={() => onToggle(vibe)} className={`inline-flex h-12 items-center gap-2 rounded-full border bg-white px-5 text-sm font-semibold shadow-card transition ${active ? "border-black bg-black text-white" : "border-[#d5d5d5] text-[#333]"}`}>{vibe}{active ? <Check className="h-4 w-4" /> : null}</button>; })}</div>
     </section>
   );
 }
@@ -616,7 +616,7 @@ function ConditionsScreen({ rent, deposit, utilitiesIncluded, minimumStayMonths,
   return (
     <section className="mx-auto max-w-2xl pt-4 sm:pt-8">
       <ScreenTitle>Precio y condiciones</ScreenTitle>
-      <div className="mt-7 divide-y divide-[#e6e6e6] rounded-[1.5rem] border border-[#dddddd] bg-white px-5 shadow-[0_6px_20px_rgba(0,0,0,0.055)]">
+      <div className="mt-7 divide-y divide-[#e6e6e6] rounded-[1.5rem] border border-hairline bg-white px-5 shadow-card">
         <ConditionRow label="Precio al mes" value={rent ? `${rent} €` : "Añadir"} icon={<WalletCards />} onClick={() => onOpen("rent")} emphasized />
         <ConditionRow label="Fianza" value={deposit ? `${deposit} €` : "Añadir"} icon={<ShieldCheck />} onClick={() => onOpen("deposit")} emphasized />
         <div className="flex min-h-19 items-center gap-3 py-3"><WalletCards className="h-5 w-5" /><span className="flex-1 font-semibold">Gastos incluidos</span><button type="button" role="switch" aria-checked={utilitiesIncluded} onClick={() => onUtilities(!utilitiesIncluded)} className={`relative h-8 w-13 rounded-full transition ${utilitiesIncluded ? "bg-black" : "bg-[#d6d6d6]"}`}><span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition ${utilitiesIncluded ? "left-6" : "left-1"}`} /></button></div>
@@ -642,19 +642,19 @@ function PublishScreen({ termsAccepted, onTermsAcceptedChange, title, city, neig
   return (
     <section className="mx-auto max-w-2xl pt-4 sm:pt-8">
       <ScreenTitle>Todo listo para publicar</ScreenTitle>
-      <p className="mt-3 text-sm leading-6 text-[#717171] sm:text-base">
+      <p className="mt-3 text-sm leading-6 text-neutral-mid sm:text-base">
         Durante el lanzamiento en Málaga, publicar y gestionar tu vivienda en
-        CoFlow es <strong className="text-[#191919]">completamente gratis</strong>.
+        CoFlow es <strong className="text-neutral-strong">completamente gratis</strong>.
         No necesitas tarjeta y no se activará ninguna renovación automática.
       </p>
 
-      <div className="mt-7 rounded-[1.5rem] border border-[#cfe4d8] bg-[#f3fbf6] p-5 shadow-[0_6px_20px_rgba(0,0,0,0.04)] sm:p-6">
+      <div className="mt-7 rounded-[1.5rem] border border-[#cfe4d8] bg-[#f3fbf6] p-5 shadow-card sm:p-6">
         <div className="flex items-start gap-4">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#dff4e7] text-[#17633a]">
             <Check className="h-6 w-6" />
           </span>
           <div>
-            <h2 className="text-lg font-bold text-[#191919]">Publicación gratuita</h2>
+            <h2 className="text-lg font-bold text-neutral-strong">Publicación gratuita</h2>
             <p className="mt-1 text-sm leading-6 text-[#4f6257]">
               Podrás editar, pausar o marcar la vivienda como alquilada desde tu panel.
             </p>
@@ -662,13 +662,13 @@ function PublishScreen({ termsAccepted, onTermsAcceptedChange, title, city, neig
         </div>
       </div>
 
-      <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-[#dddddd] bg-white shadow-[0_8px_24px_rgba(0,0,0,.055)]">
-        <div className="flex items-center justify-between border-b border-[#eeeeee] px-5 py-4"><div><p className="text-xs font-bold uppercase tracking-[0.12em] text-[#717171]">Vista previa</p><h2 className="mt-1 text-lg font-bold text-[#191919]">{title || "Tu vivienda"}</h2></div><span className="rounded-full bg-[#edf5f0] px-3 py-1.5 text-xs font-bold text-[#17633a]">{rent ? `${rent} €/mes` : "Precio pendiente"}</span></div>
-        <div className="grid grid-cols-3 divide-x divide-[#eeeeee] px-2 py-4 text-center"><div><strong className="block text-base text-[#191919]">{photoCount}</strong><span className="text-[11px] text-[#717171]">Fotos</span></div><div><strong className="block text-base text-[#191919]">{bedrooms}</strong><span className="text-[11px] text-[#717171]">Habitaciones</span></div><div><strong className="block text-base text-[#191919]">{maxTenants}</strong><span className="text-[11px] text-[#717171]">Plazas</span></div></div>
+      <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-hairline bg-white shadow-card">
+        <div className="flex items-center justify-between border-b border-[#eeeeee] px-5 py-4"><div><p className="text-xs font-bold uppercase tracking-[0.12em] text-neutral-mid">Vista previa</p><h2 className="mt-1 text-lg font-bold text-neutral-strong">{title || "Tu vivienda"}</h2></div><span className="rounded-full bg-[#edf5f0] px-3 py-1.5 text-xs font-bold text-[#17633a]">{rent ? `${rent} €/mes` : "Precio pendiente"}</span></div>
+        <div className="grid grid-cols-3 divide-x divide-[#eeeeee] px-2 py-4 text-center"><div><strong className="block text-base text-neutral-strong">{photoCount}</strong><span className="text-[11px] text-neutral-mid">Fotos</span></div><div><strong className="block text-base text-neutral-strong">{bedrooms}</strong><span className="text-[11px] text-neutral-mid">Habitaciones</span></div><div><strong className="block text-base text-neutral-strong">{maxTenants}</strong><span className="text-[11px] text-neutral-mid">Plazas</span></div></div>
         <p className="border-t border-[#eeeeee] px-5 py-3 text-xs font-semibold text-[#5f6d65]">{[neighborhood, city].filter(Boolean).join(", ") || "Ubicación pendiente"}</p>
       </div>
 
-      <label className="mt-6 flex items-start gap-3 rounded-2xl border border-[#dddddd] p-4">
+      <label className="mt-6 flex items-start gap-3 rounded-2xl border border-hairline p-4">
         <input
           type="checkbox"
           checked={termsAccepted}
@@ -678,7 +678,7 @@ function PublishScreen({ termsAccepted, onTermsAcceptedChange, title, city, neig
         />
         <span className="text-sm leading-6 text-[#444]">
           Confirmo que puedo publicar esta vivienda y acepto las{" "}
-          <a href="/legal/condiciones-propietarios" target="_blank" className="font-bold text-[#191919] underline underline-offset-4">
+          <a href="/legal/condiciones-propietarios" target="_blank" className="font-bold text-neutral-strong underline underline-offset-4">
             Condiciones para propietarios
           </a>.
         </span>
@@ -688,7 +688,7 @@ function PublishScreen({ termsAccepted, onTermsAcceptedChange, title, city, neig
 }
 
 function ConditionRow({ label, value, icon, onClick, emphasized = false }: { label: string; value: string; icon: ReactNode; onClick: () => void; emphasized?: boolean }) {
-  return <button type="button" onClick={onClick} className="flex min-h-19 w-full items-center gap-3 py-3 text-left"><span className="[&>svg]:h-5 [&>svg]:w-5">{icon}</span><span className="flex-1 font-semibold">{label}</span><strong className={emphasized ? "text-xl font-bold" : "text-base font-semibold"}>{value}</strong><ChevronLeft className="h-5 w-5 rotate-180 text-[#717171]" /></button>;
+  return <button type="button" onClick={onClick} className="flex min-h-19 w-full items-center gap-3 py-3 text-left"><span className="[&>svg]:h-5 [&>svg]:w-5">{icon}</span><span className="flex-1 font-semibold">{label}</span><strong className={emphasized ? "text-xl font-bold" : "text-base font-semibold"}>{value}</strong><ChevronLeft className="h-5 w-5 rotate-180 text-neutral-mid" /></button>;
 }
 
 function FlowFooter({ screen, progress, publishing, termsAccepted, error, onBack, onNext, onPublish }: { screen: Screen; progress: number; publishing: boolean; termsAccepted: boolean; error: string; onBack: () => void; onNext: () => void; onPublish: () => void }) {
@@ -726,11 +726,11 @@ function getStage(screen: Screen) {
 }
 
 function AddressSheet({ open, value, onChange, onResolved, onClose, inputRef }: { open: boolean; value: string; onChange: (value: string) => void; onResolved: (address: ResolvedAddress) => void; onClose: () => void; inputRef: RefObject<HTMLInputElement | null> }) {
-  return <ViewportPortal><AnimatePresence>{open ? <motion.div className="fixed inset-0 z-70 bg-black/28 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section role="dialog" aria-modal="true" aria-label="Indica tu dirección" initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} onClick={(event) => event.stopPropagation()} className="absolute inset-x-0 bottom-0 flex h-[85dvh] flex-col rounded-t-[2rem] bg-white px-5 pb-[calc(1rem+var(--safe-bottom))] pt-5 shadow-[0_-20px_60px_rgba(0,0,0,0.14)] sm:left-1/2 sm:max-w-2xl sm:-translate-x-1/2 sm:px-7"><div className="mb-7 flex items-center justify-between"><h2 className="text-xl font-semibold text-[#191919] sm:text-2xl">Indica tu dirección</h2><button type="button" onClick={onClose} aria-label="Cerrar búsqueda" className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-[#f5f5f5]"><X className="h-6 w-6" /></button></div><AddressAutocomplete value={value} onChange={onChange} onResolved={onResolved} inputRef={inputRef} variant="sheet" /></motion.section></motion.div> : null}</AnimatePresence></ViewportPortal>;
+  return <ViewportPortal><AnimatePresence>{open ? <motion.div className="fixed inset-0 z-70 bg-black/28 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section role="dialog" aria-modal="true" aria-label="Indica tu dirección" initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} onClick={(event) => event.stopPropagation()} className="absolute inset-x-0 bottom-0 flex h-[85dvh] flex-col rounded-t-[2rem] bg-white px-5 pb-[calc(1rem+var(--safe-bottom))] pt-5 shadow-modal sm:left-1/2 sm:max-w-2xl sm:-translate-x-1/2 sm:px-7"><div className="mb-7 flex items-center justify-between"><h2 className="text-xl font-semibold text-neutral-strong sm:text-2xl">Indica tu dirección</h2><button type="button" onClick={onClose} aria-label="Cerrar búsqueda" className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-[#f5f5f5]"><X className="h-6 w-6" /></button></div><AddressAutocomplete value={value} onChange={onChange} onResolved={onResolved} inputRef={inputRef} variant="sheet" /></motion.section></motion.div> : null}</AnimatePresence></ViewportPortal>;
 }
 
 function PriceSheet({ field, rent, deposit, minimumStay, onRent, onDeposit, onMinimumStay, onClose }: { field: PriceField | null; rent: string; deposit: string; minimumStay: string; onRent: (value: string) => void; onDeposit: (value: string) => void; onMinimumStay: (value: string) => void; onClose: () => void }) {
   if (!field) return null;
   const config = field === "rent" ? { title: "Precio al mes", value: rent, suffix: "€", onChange: onRent } : field === "deposit" ? { title: "Fianza", value: deposit, suffix: "€", onChange: onDeposit } : { title: "Estancia mínima", value: minimumStay, suffix: "meses", onChange: onMinimumStay };
-  return <ViewportPortal><AnimatePresence><motion.div className="fixed inset-0 z-80 bg-black/28 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section role="dialog" aria-modal="true" aria-label={config.title} initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} onClick={(event) => event.stopPropagation()} className="absolute inset-x-0 bottom-0 rounded-t-[2rem] bg-white px-6 pb-[calc(1.25rem+var(--safe-bottom))] pt-5 shadow-[0_-20px_60px_rgba(0,0,0,0.14)] sm:left-1/2 sm:max-w-xl sm:-translate-x-1/2"><div className="mx-auto h-1.5 w-12 rounded-full bg-[#d7d7d7]" /><div className="mt-6 flex items-center justify-between"><h2 className="text-2xl font-semibold tracking-tight">{config.title}</h2><button type="button" onClick={onClose} aria-label="Cerrar" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f5f5f5]"><X className="h-5 w-5" /></button></div><label className="mt-10 flex items-baseline justify-center gap-3 border-b-2 border-black pb-4"><input autoFocus type="number" inputMode="numeric" min="0" value={config.value} onChange={(event) => config.onChange(event.target.value)} placeholder="0" className="w-44 bg-transparent text-center text-6xl font-semibold tracking-[-0.05em] outline-none placeholder:text-[#c5c5c5]" /><span className="text-xl font-semibold text-[#717171]">{config.suffix}</span></label><button type="button" onClick={onClose} className="mt-10 h-14 w-full rounded-full bg-black text-base font-semibold text-white">Guardar</button></motion.section></motion.div></AnimatePresence></ViewportPortal>;
+  return <ViewportPortal><AnimatePresence><motion.div className="fixed inset-0 z-80 bg-black/28 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section role="dialog" aria-modal="true" aria-label={config.title} initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} onClick={(event) => event.stopPropagation()} className="absolute inset-x-0 bottom-0 rounded-t-[2rem] bg-white px-6 pb-[calc(1.25rem+var(--safe-bottom))] pt-5 shadow-modal sm:left-1/2 sm:max-w-xl sm:-translate-x-1/2"><div className="mx-auto h-1.5 w-12 rounded-full bg-[#d7d7d7]" /><div className="mt-6 flex items-center justify-between"><h2 className="text-2xl font-semibold tracking-tight">{config.title}</h2><button type="button" onClick={onClose} aria-label="Cerrar" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f5f5f5]"><X className="h-5 w-5" /></button></div><label className="mt-10 flex items-baseline justify-center gap-3 border-b-2 border-black pb-4"><input autoFocus type="number" inputMode="numeric" min="0" value={config.value} onChange={(event) => config.onChange(event.target.value)} placeholder="0" className="w-44 bg-transparent text-center text-6xl font-semibold tracking-[-0.05em] outline-none placeholder:text-[#c5c5c5]" /><span className="text-xl font-semibold text-neutral-mid">{config.suffix}</span></label><button type="button" onClick={onClose} className="mt-10 h-14 w-full rounded-full bg-black text-base font-semibold text-white">Guardar</button></motion.section></motion.div></AnimatePresence></ViewportPortal>;
 }

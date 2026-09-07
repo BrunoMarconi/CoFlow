@@ -278,7 +278,7 @@ export default function ConexionesPage() {
         <header className="flex items-end justify-between gap-6 border-b border-black/[0.07] pb-6 sm:pb-8">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736c]">Tu red CoFlow</p>
-            <h1 className="mt-2 text-[36px] font-semibold tracking-[-0.05em] text-[#17392c] sm:text-[48px]">
+            <h1 className="mt-2 text-[36px] font-semibold tracking-[-0.05em] text-brand-dark sm:text-[48px]">
               Conexiones
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-[#68756e] sm:text-base">
@@ -288,7 +288,7 @@ export default function ConexionesPage() {
 
           <Link
             href="/usuarios"
-            className="hidden h-12 shrink-0 items-center gap-2 rounded-[13px] bg-[#183c2d] px-5 text-sm font-semibold text-white transition-transform active:scale-[0.98] sm:inline-flex"
+            className="hidden h-12 shrink-0 items-center gap-2 rounded-[13px] bg-brand-dark px-5 text-sm font-semibold text-white transition-transform active:scale-[0.98] sm:inline-flex"
           >
             <UserRound className="h-4 w-4" aria-hidden="true" />
             Encontrar personas
@@ -298,7 +298,7 @@ export default function ConexionesPage() {
         <div
           role="tablist"
           aria-label="Secciones de conexiones"
-          className="mt-5 grid grid-cols-3 gap-1 rounded-[16px] bg-[#e9eeeb] p-1"
+          className="mt-5 grid grid-cols-3 gap-1 rounded-field bg-[#e9eeeb] p-1"
         >
           {tabs.map((item) => {
             const Icon = item.icon;
@@ -314,17 +314,17 @@ export default function ConexionesPage() {
                   setTab(item.key);
                   setActionError("");
                 }}
-                className={`flex min-h-12 min-w-0 items-center justify-center gap-1.5 rounded-[12px] px-2 text-xs font-semibold transition-all duration-200 active:scale-[0.98] sm:gap-2 sm:text-sm ${
+                className={`flex min-h-12 min-w-0 items-center justify-center gap-1.5 rounded-control px-2 text-xs font-semibold transition-all duration-200 active:scale-[0.98] sm:gap-2 sm:text-sm ${
                   active
-                    ? "bg-white text-[#17392c] shadow-[0_3px_12px_rgba(20,42,32,.08)] ring-1 ring-black/[0.035]"
-                    : "text-[#66736c] hover:text-[#17392c]"
+                    ? "bg-white text-brand-dark shadow-card ring-1 ring-black/[0.035]"
+                    : "text-[#66736c] hover:text-brand-dark"
                 }`}
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
                 {item.label}
                 <span
                   className={`flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] tabular-nums ${
-                    active ? "bg-[#183c2d] text-white" : "bg-black/[0.05] text-secondary"
+                    active ? "bg-brand-dark text-white" : "bg-black/[0.05] text-secondary"
                   }`}
                 >
                   {item.count}
@@ -397,7 +397,7 @@ export default function ConexionesPage() {
                           type="button"
                           onClick={() => handleAccept(connection)}
                           disabled={busy}
-                          className="flex h-12 flex-1 items-center justify-center gap-2 rounded-[12px] bg-[#183c2d] px-4 text-sm font-semibold text-white disabled:opacity-55"
+                          className="flex h-12 flex-1 items-center justify-center gap-2 rounded-control bg-brand-dark px-4 text-sm font-semibold text-white disabled:opacity-55"
                         >
                           {busy ? (
                             <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -411,7 +411,7 @@ export default function ConexionesPage() {
                           onClick={() => handleReject(connection)}
                           disabled={busy}
                           aria-label={`Rechazar solicitud de ${person.first_name}`}
-                          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-[#f0f2f0] text-secondary transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-55"
+                          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-control bg-[#f0f2f0] text-secondary transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-55"
                         >
                           <X className="h-4 w-4" aria-hidden="true" />
                         </button>
@@ -435,7 +435,7 @@ export default function ConexionesPage() {
                           type="button"
                           onClick={() => handleCancel(connection)}
                           disabled={busy}
-                          className="flex h-11 items-center justify-center px-3 text-xs font-semibold text-[#66736c] underline decoration-black/15 underline-offset-4 transition-colors hover:text-[#17392c] disabled:opacity-55"
+                          className="flex h-11 items-center justify-center px-3 text-xs font-semibold text-[#66736c] underline decoration-black/15 underline-offset-4 transition-colors hover:text-brand-dark disabled:opacity-55"
                         >
                           {busy ? "Cancelando…" : "Cancelar"}
                         </button>
@@ -456,7 +456,7 @@ export default function ConexionesPage() {
                     >
                       <Link
                         href={`/mensajes/${connection.id}`}
-                        className="flex h-12 flex-1 items-center justify-center gap-2 rounded-[12px] bg-[#183c2d] px-4 text-sm font-semibold text-white transition-transform active:scale-[0.98]"
+                        className="flex h-12 flex-1 items-center justify-center gap-2 rounded-control bg-brand-dark px-4 text-sm font-semibold text-white transition-transform active:scale-[0.98]"
                       >
                         <MessageCircle className="h-4 w-4" aria-hidden="true" />
                         Enviar mensaje
@@ -465,7 +465,7 @@ export default function ConexionesPage() {
                         type="button"
                         onClick={() => setConnectionToRemove(connection)}
                         aria-label={`Eliminar conexión con ${person.first_name}`}
-                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-[#f0f2f0] text-secondary transition-colors hover:bg-red-50 hover:text-red-600"
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-control bg-[#f0f2f0] text-secondary transition-colors hover:bg-red-50 hover:text-red-600"
                       >
                         <X className="h-4 w-4" aria-hidden="true" />
                       </button>
@@ -479,7 +479,7 @@ export default function ConexionesPage() {
 
         <Link
           href="/usuarios"
-          className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-[12px] bg-[#183c2d] px-5 text-sm font-semibold text-white transition-transform active:scale-[0.98] sm:hidden"
+          className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-brand-dark px-5 text-sm font-semibold text-white transition-transform active:scale-[0.98] sm:hidden"
         >
           <UserRound className="h-4 w-4" aria-hidden="true" />
           Encontrar personas
@@ -523,7 +523,7 @@ function ConnectionCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-      className="flex min-h-44 flex-col rounded-[22px] border border-black/[0.065] bg-[#fbfcfa] p-4 shadow-[0_8px_28px_rgba(20,42,32,.045)] transition-shadow hover:shadow-[0_16px_38px_rgba(20,42,32,.075)] sm:p-5"
+      className="flex min-h-44 flex-col rounded-card border border-black/[0.065] bg-surface-raised p-4 shadow-card transition-shadow hover:shadow-overlay sm:p-5"
     >
       <Link
         href={`/personas/${person.id}`}
@@ -546,7 +546,7 @@ function ConnectionCard({
         </div>
 
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-lg font-semibold tracking-[-0.025em] text-[#17392c]">
+          <span className="block truncate text-lg font-semibold tracking-[-0.025em] text-brand-dark">
             {fullName || "Persona de CoFlow"}
           </span>
           <span className="mt-1 block text-xs text-secondary">{meta}</span>

@@ -100,15 +100,15 @@ export default function PersonasGuardadasPage() {
         </header>
 
         {!loading && profiles.length > 0 && (
-          <section className="mt-7 rounded-[22px] border border-black/[0.06] bg-[#fbfcfa] p-3 shadow-[0_10px_30px_rgba(20,42,32,.045)] sm:p-4">
+          <section className="mt-7 rounded-card border border-black/[0.06] bg-surface-raised p-3 shadow-card sm:p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <label className="relative min-w-0 flex-1">
                 <span className="sr-only">Buscar entre personas guardadas</span><SearchIcon />
-                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por nombre, ciudad o interés" className="h-11 w-full rounded-[14px] border border-black/[0.07] bg-white pl-10 pr-4 text-sm text-brand-dark outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/10" />
+                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por nombre, ciudad o interés" className="h-11 w-full rounded-control border border-black/[0.07] bg-white pl-10 pr-4 text-sm text-brand-dark outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/10" />
               </label>
               <label className="relative shrink-0">
                 <span className="sr-only">Ordenar perfiles</span>
-                <select value={sort} onChange={(event) => setSort(event.target.value as SavedSort)} className="h-11 w-full appearance-none rounded-[14px] border border-black/[0.07] bg-white pl-4 pr-10 text-sm font-semibold text-brand-dark outline-none focus:border-primary/40 sm:w-auto">
+                <select value={sort} onChange={(event) => setSort(event.target.value as SavedSort)} className="h-11 w-full appearance-none rounded-control border border-black/[0.07] bg-white pl-4 pr-10 text-sm font-semibold text-brand-dark outline-none focus:border-primary/40 sm:w-auto">
                   <option value="match">Mayor afinidad</option><option value="name">Nombre</option>
                 </select><SelectChevronIcon />
               </label>
@@ -123,10 +123,10 @@ export default function PersonasGuardadasPage() {
 
         <section className="mt-5" aria-live="polite">
           {loading ? <div className="flex min-h-48 items-center justify-center"><Spinner /></div>
-          : error && profiles.length === 0 ? <p className="rounded-[20px] border border-red-200 bg-red-50 p-6 text-center text-sm font-semibold text-red-700">{error}</p>
+          : error && profiles.length === 0 ? <p className="rounded-card border border-red-200 bg-red-50 p-6 text-center text-sm font-semibold text-red-700">{error}</p>
           : profiles.length === 0 ? <EmptyState variant="saved" title="Tu lista está lista para empezar" description="Guarda los perfiles que te llamen la atención y compáralos aquí cuando quieras." action={<Link href="/usuarios" className="flex h-11 items-center rounded-full bg-primary px-5 text-sm font-bold text-white">Explorar personas</Link>} />
           : visibleProfiles.length === 0 ? (
-            <div className="rounded-[22px] border border-dashed border-black/10 bg-[#fbfcfa] px-6 py-12 text-center">
+            <div className="rounded-card border border-dashed border-black/10 bg-surface-raised px-6 py-12 text-center">
               <p className="font-semibold text-brand-dark">No hay coincidencias</p><p className="mt-1 text-sm text-secondary">Prueba con otra búsqueda o cambia el filtro.</p>
               <button type="button" onClick={() => { setQuery(""); setFilter("all"); }} className="mt-4 text-sm font-bold text-primary-dark underline underline-offset-4">Limpiar filtros</button>
             </div>
@@ -142,7 +142,7 @@ export default function PersonasGuardadasPage() {
         <Link href="/usuarios" className="mt-5 flex h-12 items-center justify-center gap-2 rounded-full bg-brand-dark text-sm font-semibold text-white sm:hidden">Explorar más personas <ArrowIcon /></Link>
 
         <AnimatePresence>
-          {removedProfile && <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} className="fixed bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+.75rem)] left-1/2 z-40 flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-center gap-3 rounded-[16px] border border-white/10 bg-brand-dark px-4 py-3 text-sm text-white shadow-[0_16px_45px_rgba(8,30,21,.3)] sm:bottom-6" role="status">
+          {removedProfile && <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} className="fixed bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+.75rem)] left-1/2 z-40 flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-center gap-3 rounded-field border border-white/10 bg-brand-dark px-4 py-3 text-sm text-white shadow-modal sm:bottom-6" role="status">
             <span className="min-w-0 flex-1 truncate">Perfil eliminado de guardados</span>
             <button type="button" onClick={undoRemove} disabled={Boolean(updatingId)} className="shrink-0 font-bold text-[#bfe5d3] disabled:opacity-50">Deshacer</button>
             <button type="button" onClick={() => setRemovedProfile(null)} aria-label="Cerrar aviso" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10"><CloseIcon /></button>
@@ -165,7 +165,7 @@ function SavedPersonCard({ profile, removing, onOpen, onRemove }: { profile: Use
   const details = [profile.occupation, location].filter(Boolean).join(" · ");
   const interests = profile.interests.slice(0, 2);
   return (
-    <motion.article layout exit={{ opacity: 0, scale: 0.97 }} className="group relative flex min-h-44 flex-col rounded-[20px] border border-black/[0.06] bg-[#fbfcfa] p-4 shadow-[0_8px_26px_rgba(20,42,32,.045)] transition-shadow sm:hover:shadow-[0_16px_36px_rgba(20,42,32,.09)]">
+    <motion.article layout exit={{ opacity: 0, scale: 0.97 }} className="group relative flex min-h-44 flex-col rounded-card border border-black/[0.06] bg-surface-raised p-4 shadow-card transition-shadow sm:hover:shadow-raised">
       <div className="flex items-start gap-3">
         <div className="relative shrink-0"><UserAvatar firstName={profile.first_name} lastName={profile.last_name} userId={profile.id} imageUrl={profile.avatar_url} size="lg" />{profile.is_online && <OnlineDot className="bottom-0 right-0" />}</div>
         <button type="button" onClick={onOpen} className="min-w-0 flex-1 text-left">

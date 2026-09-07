@@ -70,7 +70,7 @@ export default function HelpPage() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Buscar en el centro de ayuda..."
-          className="h-13 w-full rounded-[18px] border border-black/[0.07] bg-[#fbfcfa] pl-12 pr-4 text-sm text-foreground shadow-[0_10px_30px_rgba(20,42,32,.045)] outline-none transition placeholder:text-muted focus:border-primary/40 focus:ring-4 focus:ring-primary/8"
+          className="h-13 w-full rounded-card border border-black/[0.07] bg-surface-raised pl-12 pr-4 text-sm text-foreground shadow-card outline-none transition placeholder:text-muted focus:border-primary/40 focus:ring-4 focus:ring-primary/8"
         />
       </label>
 
@@ -88,7 +88,7 @@ export default function HelpPage() {
                 type="button"
                 onClick={() => setActiveTopic((current) => current === topic.key ? "all" : topic.key)}
                 aria-pressed={activeTopic === topic.key}
-                className={`group flex min-h-36 flex-col rounded-[20px] border p-4 text-left transition sm:min-h-40 sm:p-5 ${activeTopic === topic.key ? "border-primary/30 bg-[#eef5f1] ring-1 ring-primary/15" : "border-black/[0.06] bg-[#fbfcfa] shadow-[0_8px_24px_rgba(20,42,32,.04)] hover:bg-[#f5f7f4]"}`}
+                className={`group flex min-h-36 flex-col rounded-card border p-4 text-left transition sm:min-h-40 sm:p-5 ${activeTopic === topic.key ? "border-primary/30 bg-[#eef5f1] ring-1 ring-primary/15" : "border-black/[0.06] bg-surface-raised shadow-card hover:bg-[#f5f7f4]"}`}
               >
                 <Icon className="h-7 w-7 text-primary" strokeWidth={1.8} />
                 <h3 className="mt-4 text-sm font-extrabold leading-5 text-foreground">{topic.title}</h3>
@@ -106,7 +106,7 @@ export default function HelpPage() {
             <h2 className="text-base font-extrabold text-foreground">Preguntas frecuentes</h2>
             {(activeTopic !== "all" || query) && <button type="button" onClick={() => { setActiveTopic("all"); setQuery(""); }} className="text-xs font-bold text-primary">Limpiar filtros</button>}
           </div>
-          <div className="mt-3 overflow-hidden rounded-[20px] border border-black/[0.06] bg-[#fbfcfa] shadow-[0_10px_30px_rgba(20,42,32,.04)]">
+          <div className="mt-3 overflow-hidden rounded-card border border-black/[0.06] bg-surface-raised shadow-card">
             {filteredFaqs.length > 0 ? filteredFaqs.map((item) => (
               <details key={item.question} className="group border-b border-border last:border-b-0">
                 <summary className="flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 py-3 text-sm font-semibold text-foreground sm:px-5">
@@ -125,7 +125,7 @@ export default function HelpPage() {
           </div>
         </section>
 
-        <aside className="h-fit rounded-[20px] bg-brand-dark p-5 text-white shadow-[0_14px_36px_rgba(20,55,41,.16)]">
+        <aside className="h-fit rounded-card bg-brand-dark p-5 text-white shadow-[0_14px_36px_rgba(20,55,41,.16)]">
           <h2 className="text-base font-bold text-white">¿Necesitas más ayuda?</h2>
           <p className="mt-1 text-sm leading-6 text-white/65">Escríbenos explicando qué ha ocurrido y desde qué pantalla.</p>
           <a
@@ -139,7 +139,7 @@ export default function HelpPage() {
         </aside>
       </div>
 
-      <aside className="mt-7 flex flex-col gap-5 rounded-[20px] border border-black/[0.06] bg-[#fbfcfa] p-5 shadow-[0_10px_30px_rgba(20,42,32,.04)] sm:flex-row sm:items-center sm:p-6">
+      <aside className="mt-7 flex flex-col gap-5 rounded-card border border-black/[0.06] bg-surface-raised p-5 shadow-card sm:flex-row sm:items-center sm:p-6">
         <ShieldCheck className="h-8 w-8 shrink-0 text-primary" strokeWidth={1.7} />
         <div className="min-w-0 flex-1">
           <h2 className="text-base font-extrabold text-foreground">CoFlow está aquí para ayudarte</h2>

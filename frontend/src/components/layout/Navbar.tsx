@@ -85,7 +85,7 @@ export default function Navbar() {
         </div>
 
         {user && (
-          <div className="flex items-center rounded-full border border-black/[0.055] bg-surface/92 p-1 shadow-[0_8px_28px_rgba(20,42,32,.07)] backdrop-blur-xl">
+          <div className="flex items-center rounded-full border border-black/[0.055] bg-surface/92 p-1 shadow-card backdrop-blur-xl">
             <NotificationBell />
 
             <span className="mx-0.5 h-5 w-px bg-black/[0.07]" aria-hidden="true" />

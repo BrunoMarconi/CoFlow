@@ -20,7 +20,7 @@ export default function InteractiveCard({
       className={cn(
         "rounded-18 border border-border bg-surface shadow-soft",
         "transition-all duration-180 ease-out",
-        "hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-12px_rgb(13_59_42/0.18)]",
+        "hover:-translate-y-0.5 hover:shadow-raised",
         padded && "p-5 sm:p-6",
         className
       )}

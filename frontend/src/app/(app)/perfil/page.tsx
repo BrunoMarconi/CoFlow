@@ -105,9 +105,9 @@ export default function PerfilPage() {
       initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 5 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-      className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] space-y-4 px-6 py-6 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-7xl sm:rounded-[32px] sm:p-7 lg:p-8"
+      className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] space-y-4 px-6 py-6 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-7xl sm:rounded-sheet sm:p-7 lg:p-8"
     >
-      <section className="relative overflow-hidden rounded-[28px] bg-surface p-4 shadow-sm sm:p-7 lg:p-8">
+      <section className="relative overflow-hidden rounded-panel bg-surface p-4 shadow-sm sm:p-7 lg:p-8">
         <div className="mb-5 flex items-end justify-between gap-4 sm:mb-7">
           <div>
             <p className="text-xs font-semibold text-muted">Tu identidad en CoFlow</p>
@@ -276,7 +276,7 @@ export default function PerfilPage() {
         </Link>
       )}
 
-      <section className="rounded-[28px] bg-surface p-4 shadow-sm sm:p-6">
+      <section className="rounded-panel bg-surface p-4 shadow-sm sm:p-6">
         <h2 className="mb-4 px-1 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">
           Tu espacio
         </h2>
@@ -327,7 +327,7 @@ export default function PerfilPage() {
       </section>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <section className="space-y-2 rounded-[28px] bg-surface p-4 shadow-sm sm:p-5">
+        <section className="space-y-2 rounded-panel bg-surface p-4 shadow-sm sm:p-5">
           <h2 className="px-2 font-rounded text-lg font-semibold text-brand-dark">Mi CoFlow</h2>
           <div className="divide-y divide-border">
             <ProfileMenuRow href="/perfil/editar" icon={<UserIcon />} label="Editar mi perfil" />
@@ -336,7 +336,7 @@ export default function PerfilPage() {
           </div>
         </section>
 
-        <section className="space-y-2 rounded-[28px] bg-surface p-4 shadow-sm sm:p-5">
+        <section className="space-y-2 rounded-panel bg-surface p-4 shadow-sm sm:p-5">
           <h2 className="px-2 font-rounded text-lg font-semibold text-brand-dark">Cuenta</h2>
           <div className="divide-y divide-border">
             {user.role === "ADMIN" ? (
@@ -351,7 +351,7 @@ export default function PerfilPage() {
         </section>
       </div>
 
-      <section id="confianza" className="scroll-mt-24 space-y-3 rounded-[28px] bg-surface p-4 shadow-sm sm:p-6">
+      <section id="confianza" className="scroll-mt-24 space-y-3 rounded-panel bg-surface p-4 shadow-sm sm:p-6">
         <h2 className="font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Detalles del perfil</h2>
 
         <YourProfileSection
@@ -368,7 +368,7 @@ export default function PerfilPage() {
         />
       </section>
 
-      <section className="space-y-3 rounded-[28px] bg-surface p-4 shadow-sm sm:p-6">
+      <section className="space-y-3 rounded-panel bg-surface p-4 shadow-sm sm:p-6">
         <h2 className="font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Confianza</h2>
         <TrustSection user={user} />
       </section>

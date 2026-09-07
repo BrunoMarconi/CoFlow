@@ -160,7 +160,7 @@ export default function BottomNavigation() {
       className="pointer-events-none fixed inset-x-0 bottom-0 z-(--z-bottom-nav) px-4 pb-[calc(var(--safe-bottom)+0.625rem)] md:hidden"
     >
       <div className="pointer-events-auto mx-auto max-w-sm">
-        <div className="relative overflow-hidden rounded-[24px] border border-white/50 bg-white/62 px-1.5 shadow-[0_10px_34px_-8px_rgba(16,42,31,0.28),0_2px_8px_-2px_rgba(16,42,31,0.12)] backdrop-blur-2xl backdrop-saturate-[1.8]">
+        <div className="relative overflow-hidden rounded-panel border border-white/50 bg-white/62 px-1.5 shadow-[0_10px_34px_-8px_rgba(16,42,31,0.28),0_2px_8px_-2px_rgba(16,42,31,0.12)] backdrop-blur-2xl backdrop-saturate-[1.8]">
           {/* Reflejo especular: la luz entra por arriba, como en el
               material de iOS. Es lo que evita que el cristal parezca un
               simple gris translúcido. */}

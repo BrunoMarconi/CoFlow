@@ -90,7 +90,7 @@ export default function NotificationsPage() {
               type="button"
               onClick={() => router.back()}
               aria-label="Volver"
-              className="flex h-11 w-11 shrink-0 items-center justify-start text-[#222222] md:hidden"
+              className="flex h-11 w-11 shrink-0 items-center justify-start text-neutral-strong md:hidden"
             >
               <ArrowLeftIcon />
             </button>
@@ -106,7 +106,7 @@ export default function NotificationsPage() {
 
         <div className="flex shrink-0 items-center gap-2">
           {unreadCount > 0 && <button type="button" onClick={() => void markAllNotificationsAsRead().catch(() => setError("No pudimos marcar las notificaciones como leídas."))} className="flex h-11 items-center rounded-full px-3 text-xs font-bold text-primary-dark transition hover:bg-[#eef2ef] sm:px-4"><span className="sm:hidden">Leer todas</span><span className="hidden sm:inline">Marcar todas como leídas</span></button>}
-          <Link href="/ajustes" aria-label="Ajustes de notificaciones" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/[0.07] bg-[#fbfcfa] text-brand-dark transition hover:bg-[#eef2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"><SettingsIcon /></Link>
+          <Link href="/ajustes" aria-label="Ajustes de notificaciones" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/[0.07] bg-surface-raised text-brand-dark transition hover:bg-[#eef2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"><SettingsIcon /></Link>
         </div>
       </header>
 
@@ -126,7 +126,7 @@ export default function NotificationsPage() {
                 "flex h-11 shrink-0 items-center justify-center gap-2 rounded-full border px-4 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black",
                 active
                   ? "border-brand-dark bg-brand-dark text-white"
-                  : "border-black/[0.07] bg-[#fbfcfa] text-secondary hover:text-brand-dark"
+                  : "border-black/[0.07] bg-surface-raised text-secondary hover:text-brand-dark"
               )}
             >
               {item.icon}
@@ -165,7 +165,7 @@ export default function NotificationsPage() {
                 <h2 id={`notification-group-${group}`} className="text-[11px] font-bold uppercase tracking-[0.15em] text-muted">{getDateGroupLabel(group)}</h2>
                 <span className="h-px flex-1 bg-black/[0.06]" />
               </div>
-              <ul className="overflow-hidden rounded-[22px] border border-black/[0.06] bg-[#fbfcfa] shadow-[0_10px_30px_rgba(20,42,32,.04)]">
+              <ul className="overflow-hidden rounded-card border border-black/[0.06] bg-surface-raised shadow-card">
                 <AnimatePresence initial={false}>
                   {grouped[group].map((notification) => (
                     <motion.li key={notification.id} variants={{ hidden: { opacity: 0, y: 6 }, show: { opacity: 1, y: 0 } }} transition={{ duration: 0.18, ease: "easeOut" }} className="border-b border-black/[0.055] last:border-b-0">
@@ -181,16 +181,16 @@ export default function NotificationsPage() {
 
       <Link
         href="/ajustes"
-        className="mt-8 flex min-h-18 items-center gap-4 rounded-[20px] border border-black/[0.06] bg-[#fbfcfa] p-4 transition hover:bg-[#f5f7f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+        className="mt-8 flex min-h-18 items-center gap-4 rounded-card border border-black/[0.06] bg-surface-raised p-4 transition hover:bg-[#f5f7f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f7f7f7] text-[#222222]">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f7f7f7] text-neutral-strong">
           <BellIcon />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-[#222222]">
+          <p className="text-sm font-semibold text-neutral-strong">
             Decide qué quieres recibir
           </p>
-          <p className="mt-0.5 text-xs leading-5 text-[#717171]">
+          <p className="mt-0.5 text-xs leading-5 text-neutral-mid">
             Gestiona tus preferencias de notificación.
           </p>
         </div>
@@ -224,11 +224,11 @@ function NotificationCard({
           <span className={cn("text-sm leading-5 text-brand-dark", wasUnread ? "font-bold" : "font-semibold")}>
             {notification.title}
           </span>
-          <time className="shrink-0 text-[11px] font-medium text-[#717171]">
+          <time className="shrink-0 text-[11px] font-medium text-neutral-mid">
             {formatNotificationDate(notification.created_at)}
           </time>
         </span>
-        <span className="mt-1 block text-xs leading-5 text-[#717171]">
+        <span className="mt-1 block text-xs leading-5 text-neutral-mid">
           {notification.message}
         </span>
         {notification.link && (

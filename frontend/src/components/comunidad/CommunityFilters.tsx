@@ -85,11 +85,11 @@ export default function CommunityFilters({
         </FilterSection>
 
         <FilterSection label="Urgencia de entrada">
-          <div className="grid grid-cols-4 gap-1 rounded-2xl bg-[#f0f3f2] p-1">{URGENCY_OPTIONS.map(option => <button key={option.value} type="button" onClick={() => update({ urgency: option.value })} className={`rounded-xl px-1 py-2.5 text-[11px] font-bold transition ${filters.urgency === option.value ? "bg-[#4e675b] text-white shadow-[0_2px_8px_rgba(78,103,91,.3)]" : "text-[#727974] hover:bg-white/70"}`}>{option.label}</button>)}</div>
+          <div className="grid grid-cols-4 gap-1 rounded-2xl bg-[#f0f3f2] p-1">{URGENCY_OPTIONS.map(option => <button key={option.value} type="button" onClick={() => update({ urgency: option.value })} className={`rounded-xl px-1 py-2.5 text-[11px] font-bold transition ${filters.urgency === option.value ? "bg-[#4e675b] text-white shadow-soft" : "text-[#727974] hover:bg-white/70"}`}>{option.label}</button>)}</div>
         </FilterSection>
 
         <FilterSection label="Perfil de la comunidad">
-          <div className="flex flex-wrap gap-2"><button type="button" onClick={() => update({ profileType: "ALL" })} className={`rounded-full border px-3.5 py-2 text-xs font-bold transition ${filters.profileType === "ALL" ? "border-[#4e675b] bg-[#4e675b] text-white shadow-[0_2px_8px_rgba(78,103,91,.25)]" : "border-[#e4ebe9] bg-[#fafcfb] text-[#424844] hover:border-[#c9d6d2]"}`}>Todos</button>{COMMUNITY_PROFILE_TYPE_OPTIONS.map(option => <button key={option.value} type="button" onClick={() => update({ profileType: option.value })} className={`rounded-full border px-3.5 py-2 text-xs font-bold transition ${filters.profileType === option.value ? "border-[#4e675b] bg-[#4e675b] text-white shadow-[0_2px_8px_rgba(78,103,91,.25)]" : "border-[#e4ebe9] bg-[#fafcfb] text-[#424844] hover:border-[#c9d6d2]"}`}>{option.label}</button>)}</div>
+          <div className="flex flex-wrap gap-2"><button type="button" onClick={() => update({ profileType: "ALL" })} className={`rounded-full border px-3.5 py-2 text-xs font-bold transition ${filters.profileType === "ALL" ? "border-[#4e675b] bg-[#4e675b] text-white shadow-soft" : "border-[#e4ebe9] bg-[#fafcfb] text-[#424844] hover:border-[#c9d6d2]"}`}>Todos</button>{COMMUNITY_PROFILE_TYPE_OPTIONS.map(option => <button key={option.value} type="button" onClick={() => update({ profileType: option.value })} className={`rounded-full border px-3.5 py-2 text-xs font-bold transition ${filters.profileType === option.value ? "border-[#4e675b] bg-[#4e675b] text-white shadow-soft" : "border-[#e4ebe9] bg-[#fafcfb] text-[#424844] hover:border-[#c9d6d2]"}`}>{option.label}</button>)}</div>
         </FilterSection>
 
         <FilterSection label="Disponibilidad">
@@ -263,16 +263,16 @@ export default function CommunityFilters({
 
 function FilterSection({ label, value, children }: { label: string; value?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-[#eef1f0] bg-white p-4 shadow-[0_1px_3px_rgba(22,29,29,.05)]">
+    <section className="rounded-2xl border border-[#eef1f0] bg-white p-4 shadow-soft">
       <div className="mb-3.5 flex items-baseline justify-between gap-4">
         <h3 className="text-xs font-bold uppercase tracking-[.12em] text-[#727974]">{label}</h3>
-        {value && <span className="rounded-full bg-[#4e675b] px-2.5 py-1 text-[11px] font-bold text-white shadow-[0_2px_6px_rgba(78,103,91,.25)]">{value}</span>}
+        {value && <span className="rounded-full bg-[#4e675b] px-2.5 py-1 text-[11px] font-bold text-white shadow-soft">{value}</span>}
       </div>
       {children}
     </section>
   );
 }
-function ChoiceCard({ active, title, description, icon, onClick }: { active: boolean; title: string; description: string; icon: React.ReactNode; onClick: () => void }) { return <button type="button" onClick={onClick} aria-pressed={active} className={`relative flex min-h-28 flex-col justify-between rounded-2xl border-2 p-3.5 text-left transition active:scale-[.98] ${active ? "border-[#4e675b] bg-[#f4fbfa] shadow-[0_4px_14px_rgba(78,103,91,.16)]" : "border-[#e4ebe9] bg-[#fafcfb] hover:border-[#c9d6d2]"}`}><span className={active ? "text-[#4e675b]" : "text-[#8b928d]"}>{icon}</span>{active && <span className="absolute right-3.5 top-3.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#4e675b] text-white"><CheckIcon /></span>}<span><strong className="block text-[13px] text-[#161d1d]">{title}</strong><span className="mt-0.5 block text-[11px] text-[#727974]">{description}</span></span></button>; }
+function ChoiceCard({ active, title, description, icon, onClick }: { active: boolean; title: string; description: string; icon: React.ReactNode; onClick: () => void }) { return <button type="button" onClick={onClick} aria-pressed={active} className={`relative flex min-h-28 flex-col justify-between rounded-2xl border-2 p-3.5 text-left transition active:scale-[.98] ${active ? "border-[#4e675b] bg-[#f4fbfa] shadow-raised" : "border-[#e4ebe9] bg-[#fafcfb] hover:border-[#c9d6d2]"}`}><span className={active ? "text-[#4e675b]" : "text-[#8b928d]"}>{icon}</span>{active && <span className="absolute right-3.5 top-3.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#4e675b] text-white"><CheckIcon /></span>}<span><strong className="block text-[13px] text-[#161d1d]">{title}</strong><span className="mt-0.5 block text-[11px] text-[#727974]">{description}</span></span></button>; }
 function DoorIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden="true"><path d="M4 21h16M6 21V4h11v17M13 12h.01" /></svg>; }
 function MessageIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden="true"><path d="M20 15a4 4 0 0 1-4 4H8l-4 3V7a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4Z" /></svg>; }
 function PeopleIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>; }

@@ -60,8 +60,8 @@ export default function CommunityHeader({
         }
         actions={
           <>
-            <Link href="/comunidades" transitionTypes={["nav-back"]} aria-label="Volver a comunidades" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#191919] shadow-[0_3px_14px_rgba(0,0,0,0.14)] backdrop-blur"><BackIcon /></Link>
-            {isOwner ? <Link href={`/comunidades/${community.id}/editar`} transitionTypes={["nav-forward"]} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-[0_3px_14px_rgba(0,0,0,0.18)] transition hover:bg-primary-hover">Editar</Link> : <span />}
+            <Link href="/comunidades" transitionTypes={["nav-back"]} aria-label="Volver a comunidades" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-neutral-strong shadow-card backdrop-blur"><BackIcon /></Link>
+            {isOwner ? <Link href={`/comunidades/${community.id}/editar`} transitionTypes={["nav-forward"]} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-raised transition hover:bg-primary-hover">Editar</Link> : <span />}
           </>
         }
       >
@@ -70,7 +70,7 @@ export default function CommunityHeader({
             <span className="rounded-full bg-[#edf1ee] px-2.5 py-1 text-[10px] font-bold text-secondary">{community.join_type === "OPEN" ? "Entrada abierta" : "Acceso con solicitud"}</span>
             {availablePlaces > 0 && <span className="rounded-full bg-[#e5f1ea] px-2.5 py-1 text-[10px] font-bold text-primary-dark">{availablePlaces} {availablePlaces === 1 ? "plaza" : "plazas"}</span>}
           </div>
-          <h1 className="mt-3 text-[34px] font-semibold tracking-[-0.045em] text-[#17392c] sm:text-[46px]">
+          <h1 className="mt-3 text-[34px] font-semibold tracking-[-0.045em] text-brand-dark sm:text-[46px]">
             {community.name}
           </h1>
 
@@ -78,7 +78,7 @@ export default function CommunityHeader({
             {community.description}
           </p>
 
-          <div className="mt-7 grid grid-cols-2 overflow-hidden rounded-[20px] border border-black/[0.07] sm:grid-cols-4 sm:divide-x sm:divide-black/[0.06]">
+          <div className="mt-7 grid grid-cols-2 overflow-hidden rounded-card border border-black/[0.07] sm:grid-cols-4 sm:divide-x sm:divide-black/[0.06]">
             <Fact
               icon={<PeopleIcon />}
               value={
@@ -114,9 +114,9 @@ export default function CommunityHeader({
         className="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_minmax(350px,0.82fr)] xl:items-start"
       >
         <div className="space-y-5">
-          <section className="rounded-[24px] border border-black/[0.07] bg-[#fbfcfa] p-5 sm:p-7">
-            <div className="flex items-end justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">Información práctica</p><h2 className="mt-1 text-xl font-semibold tracking-[-0.025em] text-[#17392c]">Lo esencial antes de decidir</h2></div><span className={`shrink-0 rounded-full px-3 py-1.5 text-[10px] font-bold ${availablePlaces > 0 ? "bg-emerald-50 text-emerald-700" : "bg-[#eef0ed] text-secondary"}`}>{availablePlaces > 0 ? "Disponible" : "Completa"}</span></div>
-            <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-[16px] bg-black/[0.06] sm:grid-cols-4">
+          <section className="rounded-panel border border-black/[0.07] bg-surface-raised p-5 sm:p-7">
+            <div className="flex items-end justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">Información práctica</p><h2 className="mt-1 text-xl font-semibold tracking-[-0.025em] text-brand-dark">Lo esencial antes de decidir</h2></div><span className={`shrink-0 rounded-full px-3 py-1.5 text-[10px] font-bold ${availablePlaces > 0 ? "bg-emerald-50 text-emerald-700" : "bg-[#eef0ed] text-secondary"}`}>{availablePlaces > 0 ? "Disponible" : "Completa"}</span></div>
+            <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-field bg-black/[0.06] sm:grid-cols-4">
               <DecisionFact label="Aportación" value={community.monthly_rent !== null ? `${community.monthly_rent.toLocaleString("es-ES")} €/mes` : "Por acordar"} />
               <DecisionFact label="Depósito" value={community.deposit !== null ? `${community.deposit.toLocaleString("es-ES")} €` : "No indicado"} />
               <DecisionFact label="Entrada" value={formatMoveInDate(community.move_in_date)} />
@@ -125,8 +125,8 @@ export default function CommunityHeader({
             {community.room_description && <p className="mt-4 text-sm leading-6 text-secondary">{community.room_description}</p>}
           </section>
 
-          <section className="rounded-[24px] border border-black/[0.07] bg-[#fbfcfa] p-5 sm:p-7">
-            <h2 className="text-xl font-semibold tracking-[-0.025em] text-[#17392c]">Sobre nosotros</h2>
+          <section className="rounded-panel border border-black/[0.07] bg-surface-raised p-5 sm:p-7">
+            <h2 className="text-xl font-semibold tracking-[-0.025em] text-brand-dark">Sobre nosotros</h2>
             {community.profile_description && (
               <p className="mt-3 whitespace-pre-line text-sm leading-6 text-secondary">
                 {community.profile_description}
@@ -144,10 +144,10 @@ export default function CommunityHeader({
             </ul>
           </section>
 
-          <section className="rounded-[24px] border border-black/[0.07] bg-[#fbfcfa] p-5 sm:p-7">
+          <section className="rounded-panel border border-black/[0.07] bg-surface-raised p-5 sm:p-7">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-semibold tracking-[-0.025em] text-[#17392c]">
+                <h2 className="text-xl font-semibold tracking-[-0.025em] text-brand-dark">
                   Miembros ({community.member_count})
                 </h2>
                 <p className="mt-1 text-sm text-secondary">
@@ -192,7 +192,7 @@ export default function CommunityHeader({
           </section>
         </div>
 
-        <aside id="community-membership-action" className="order-first rounded-[24px] bg-[#183c2d] p-6 text-white shadow-[0_20px_48px_rgba(24,60,45,.16)] sm:p-7 xl:order-none xl:sticky xl:top-24">
+        <aside id="community-membership-action" className="order-first rounded-panel bg-brand-dark p-6 text-white shadow-[0_20px_48px_rgba(24,60,45,.16)] sm:p-7 xl:order-none xl:sticky xl:top-24">
           <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white">
             <JoinIcon />
           </span>
@@ -215,7 +215,7 @@ export default function CommunityHeader({
                   : "Ahora mismo no quedan plazas disponibles, pero puedes guardar esta comunidad para revisarla más adelante."}
           </p>
 
-          <div className="mt-5 [&>a]:!bg-white [&>a]:!text-[#183c2d] [&>button]:!bg-white [&>button]:!text-[#183c2d]">
+          <div className="mt-5 [&>a]:!bg-white [&>a]:!text-brand-dark [&>button]:!bg-white [&>button]:!text-brand-dark">
             <MembershipAction
               community={community}
               isOwner={isOwner}

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import FadeImage from "@/components/ui/FadeImage";
 import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { MOTION_SPRING } from "@/lib/motionTokens";
@@ -57,7 +57,7 @@ export default function CommunityCover({
         transition={MOTION_SPRING.gentle}
         className={cn("relative overflow-hidden", className)}
       >
-        <Image
+        <FadeImage
           src={coverImageUrl}
           alt={name}
           fill
@@ -103,7 +103,7 @@ export default function CommunityCover({
                 imageUrl={member.imageUrl}
                 size={index === centerIndex ? "xl" : "lg"}
                 className={cn(
-                  "border-[3px] border-white shadow-[0_4px_10px_-4px_rgb(0_0_0/0.25)]",
+                  "border-[3px] border-white shadow-raised",
                   index !== 0 && "-ml-5",
                   index === centerIndex && "z-10"
                 )}
@@ -113,7 +113,7 @@ export default function CommunityCover({
             {extra > 0 && (
               <div
                 className={cn(
-                  "-ml-5 flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-[3px] border-white text-sm font-bold shadow-[0_4px_10px_-4px_rgb(0_0_0/0.25)]",
+                  "-ml-5 flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-[3px] border-white text-sm font-bold shadow-raised",
                   dark
                     ? "bg-white/20 text-white"
                     : "bg-white/70 text-foreground"

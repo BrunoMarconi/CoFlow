@@ -340,7 +340,7 @@ export default function MensajesPage() {
 
   if (loading) {
     return (
-      <div className="explore-shell -mx-6 -mt-4 flex min-h-[70vh] flex-col px-6 py-5 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-7xl sm:rounded-[32px] sm:p-7">
+      <div className="explore-shell -mx-6 -mt-4 flex min-h-[70vh] flex-col px-6 py-5 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-7xl sm:rounded-sheet sm:p-7">
         <InboxHeader />
         {Array.from({ length: 6 }).map((_, index) => (
           <div
@@ -362,7 +362,7 @@ export default function MensajesPage() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="explore-shell -mx-6 -mt-4 flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] w-[calc(100%+3rem)] flex-col px-6 pt-4 sm:mx-auto sm:mt-0 sm:h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top)-3rem)] sm:w-full sm:max-w-7xl sm:rounded-[32px] sm:p-4 lg:p-5">
+    <div className="explore-shell -mx-6 -mt-4 flex h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] w-[calc(100%+3rem)] flex-col px-6 pt-4 sm:mx-auto sm:mt-0 sm:h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top)-3rem)] sm:w-full sm:max-w-7xl sm:rounded-sheet sm:p-4 lg:p-5">
       {/* Móvil: solo lista, cada fila navega al hilo a pantalla completa ya existente. */}
       <ViewTransition enter={NAV_TRANSITION} exit={NAV_TRANSITION} default="none">
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto pb-4 sm:hidden">
@@ -386,7 +386,7 @@ export default function MensajesPage() {
             animate="show"
             whileTap={{ scale: 0.985 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="mb-0.5 flex min-h-20 items-center gap-3.5 rounded-[16px] border-b border-black/[0.045] px-2 py-3.5 transition-colors duration-200 active:bg-mint-50"
+            className="mb-0.5 flex min-h-20 items-center gap-3.5 rounded-field border-b border-black/[0.045] px-2 py-3.5 transition-colors duration-200 active:bg-mint-50"
           >
             <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
             <ConversationPreview
@@ -450,7 +450,7 @@ export default function MensajesPage() {
                   delay: Math.min(index, 8) * 0.02,
                 }}
                 whileTap={{ scale: 0.985 }}
-                className="mb-0.5 flex min-h-20 items-center gap-3.5 rounded-[16px] border-b border-black/[0.045] px-2 py-3.5 transition-colors duration-200 active:bg-mint-50"
+                className="mb-0.5 flex min-h-20 items-center gap-3.5 rounded-field border-b border-black/[0.045] px-2 py-3.5 transition-colors duration-200 active:bg-mint-50"
               >
                 <ConversationAvatar
                   initials={initialsOf(other.first_name, other.last_name)}
@@ -473,7 +473,7 @@ export default function MensajesPage() {
 
         <Link
           href="/usuarios"
-          className="mt-3 flex min-h-18 items-center gap-3.5 rounded-[18px] bg-brand-dark px-3 py-3 text-white shadow-[0_10px_24px_rgba(20,55,41,.14)] transition-colors duration-200 active:bg-primary-dark"
+          className="mt-3 flex min-h-18 items-center gap-3.5 rounded-card bg-brand-dark px-3 py-3 text-white shadow-[0_10px_24px_rgba(20,55,41,.14)] transition-colors duration-200 active:bg-primary-dark"
         >
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-white">
             <ComposeIcon />
@@ -491,7 +491,7 @@ export default function MensajesPage() {
       </ViewTransition>
 
       {/* Escritorio/tablet: bandeja de dos columnas, selección en el sitio. */}
-      <div className="hidden min-h-0 flex-1 overflow-hidden rounded-[26px] bg-surface shadow-sm sm:grid sm:grid-cols-[340px_1fr] lg:grid-cols-[370px_1fr]">
+      <div className="hidden min-h-0 flex-1 overflow-hidden rounded-panel bg-surface shadow-sm sm:grid sm:grid-cols-[340px_1fr] lg:grid-cols-[370px_1fr]">
         <div className="flex min-h-0 flex-col overflow-y-auto border-r border-border/60 p-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <InboxHeader />
           <InboxSearchAndTabs

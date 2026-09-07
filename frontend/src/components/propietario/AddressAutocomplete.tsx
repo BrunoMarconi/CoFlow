@@ -171,7 +171,7 @@ export default function AddressAutocomplete({
       <label className="sr-only" htmlFor="property-address-search">
         ¿Dónde está tu vivienda?
       </label>
-      <div className="flex h-16 items-center gap-3 rounded-full border border-[#c9c9c9] bg-white px-5 shadow-[0_8px_24px_rgba(0,0,0,0.07)] transition focus-within:border-black focus-within:ring-1 focus-within:ring-black sm:h-17">
+      <div className="flex h-16 items-center gap-3 rounded-full border border-[#c9c9c9] bg-white px-5 shadow-card transition focus-within:border-black focus-within:ring-1 focus-within:ring-black sm:h-17">
         <SearchIcon />
         <input
           id="property-address-search"
@@ -190,7 +190,7 @@ export default function AddressAutocomplete({
           }}
           placeholder="¿Dónde está tu vivienda?"
           autoComplete="street-address"
-          className="min-w-0 flex-1 bg-transparent text-[1.05rem] font-medium text-[#191919] outline-none placeholder:text-[#717171] sm:text-lg"
+          className="min-w-0 flex-1 bg-transparent text-[1.05rem] font-medium text-neutral-strong outline-none placeholder:text-neutral-mid sm:text-lg"
         />
         {loading ? <SpinnerIcon /> : null}
       </div>
@@ -218,7 +218,7 @@ export default function AddressAutocomplete({
                     <PinIcon />
                   </span>
                   <span className="min-w-0">
-                    <span className="block truncate text-base font-semibold text-[#191919]">
+                    <span className="block truncate text-base font-semibold text-neutral-strong">
                       {label.primary}
                     </span>
                     <span className="mt-0.5 block truncate text-sm text-secondary">

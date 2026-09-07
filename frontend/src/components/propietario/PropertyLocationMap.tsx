@@ -151,7 +151,7 @@ export default function PropertyLocationMap({
   }
 
   return (
-    <div className="relative h-full min-h-0 overflow-hidden rounded-[1.5rem] border border-[#dddddd] bg-[#ece9e5] shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
+    <div className="relative h-full min-h-0 overflow-hidden rounded-[1.5rem] border border-hairline bg-[#ece9e5] shadow-card">
       <div
         role="application"
         aria-label="Mapa para confirmar la ubicación de la vivienda"
@@ -181,20 +181,20 @@ export default function PropertyLocationMap({
         <div className="pointer-events-none absolute inset-0 bg-white/3" />
 
         <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full">
-          <div className={`relative flex h-14 w-14 items-center justify-center rounded-full bg-black text-white shadow-[0_12px_28px_rgba(0,0,0,0.25)] transition ${dragging ? "-translate-y-2 scale-105" : ""}`}>
+          <div className={`relative flex h-14 w-14 items-center justify-center rounded-full bg-black text-white shadow-overlay transition ${dragging ? "-translate-y-2 scale-105" : ""}`}>
             <Home className="h-6 w-6" strokeWidth={2} />
             <span className="absolute -bottom-1 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 rounded-br-sm bg-black" />
           </div>
         </div>
 
         <div className="pointer-events-none absolute inset-x-4 top-4 flex justify-center sm:top-5">
-          <div className="flex max-w-[92%] items-center gap-3 rounded-full border border-white/80 bg-white/95 px-4 py-3 text-sm font-semibold text-[#191919] shadow-[0_10px_28px_rgba(0,0,0,0.12)] backdrop-blur sm:px-5 sm:text-base">
+          <div className="flex max-w-[92%] items-center gap-3 rounded-full border border-white/80 bg-white/95 px-4 py-3 text-sm font-semibold text-neutral-strong shadow-raised backdrop-blur sm:px-5 sm:text-base">
             <span className="truncate">{address}</span>
             {resolving ? <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" /> : null}
           </div>
         </div>
 
-        <div className="absolute bottom-12 right-4 grid overflow-hidden rounded-xl border border-[#dddddd] bg-white shadow">
+        <div className="absolute bottom-12 right-4 grid overflow-hidden rounded-xl border border-hairline bg-white shadow">
           <button
             type="button"
             aria-label="Acercar mapa"
@@ -203,7 +203,7 @@ export default function PropertyLocationMap({
               changeZoom(zoom + 1);
             }}
             onPointerDown={(event) => event.stopPropagation()}
-            className="flex h-11 w-11 items-center justify-center border-b border-[#dddddd] text-[#191919] transition hover:bg-[#f5f5f5]"
+            className="flex h-11 w-11 items-center justify-center border-b border-hairline text-neutral-strong transition hover:bg-[#f5f5f5]"
           >
             <Plus className="h-5 w-5" />
           </button>
@@ -215,7 +215,7 @@ export default function PropertyLocationMap({
               changeZoom(zoom - 1);
             }}
             onPointerDown={(event) => event.stopPropagation()}
-            className="flex h-11 w-11 items-center justify-center text-[#191919] transition hover:bg-[#f5f5f5]"
+            className="flex h-11 w-11 items-center justify-center text-neutral-strong transition hover:bg-[#f5f5f5]"
           >
             <Minus className="h-5 w-5" />
           </button>

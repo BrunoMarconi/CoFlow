@@ -35,14 +35,14 @@ export default function EditarPerfilPage() {
         >
           <ArrowLeftIcon />
         </button>
-        <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6a756f]">Tu identidad</p><h1 className="mt-1 text-[34px] font-semibold tracking-[-0.05em] text-[#17392c]">
+        <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6a756f]">Tu identidad</p><h1 className="mt-1 text-[34px] font-semibold tracking-[-0.05em] text-brand-dark">
           Editar perfil
         </h1></div>
       </header>
 
-      <section className="mt-6 overflow-hidden rounded-[26px] bg-[#183c2d] p-5 text-white shadow-[0_22px_55px_rgba(24,60,45,.15)] sm:p-7">
+      <section className="mt-6 overflow-hidden rounded-panel bg-brand-dark p-5 text-white shadow-[0_22px_55px_rgba(24,60,45,.15)] sm:p-7">
         <div className="flex items-center gap-5">
-          <div className="relative shrink-0 rounded-full border-4 border-white/20 shadow-[0_10px_28px_rgba(0,0,0,.16)]">
+          <div className="relative shrink-0 rounded-full border-4 border-white/20 shadow-raised">
             <Avatar
               name={`${user.first_name} ${user.last_name}`}
               imageUrl={user.avatar_url}

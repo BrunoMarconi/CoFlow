@@ -46,7 +46,7 @@ export default function InvitationsPage() {
         </div>
       </header>
 
-      <div className="mt-7 grid grid-cols-2 rounded-[18px] border border-black/[0.06] bg-[#f1f3f1] p-1" role="tablist" aria-label="Tipo de solicitudes e invitaciones">
+      <div className="mt-7 grid grid-cols-2 rounded-card border border-black/[0.06] bg-[#f1f3f1] p-1" role="tablist" aria-label="Tipo de solicitudes e invitaciones">
         <TabButton active={tab === "RECEIVED"} onClick={() => setTab("RECEIVED")} icon={<Inbox className="h-4 w-4" />} label="Para ti" />
         <TabButton active={tab === "SENT"} onClick={() => setTab("SENT")} icon={<Send className="h-4 w-4" />} label="Enviadas" />
       </div>
@@ -117,14 +117,14 @@ function ReceivedInvitations() {
       {items.map((item) => {
         const remaining = Math.max(item.community.max_members - item.community.member_count, 0);
         return (
-          <Link key={item.id} href={`/invitaciones/${item.token}`} className="group flex min-h-48 flex-col rounded-2xl border border-[#dddddd] bg-white p-5 transition hover:-translate-y-0.5 hover:border-[#b0b0b0] hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)] focus:outline-none focus-visible:ring-2 focus-visible:ring-black">
+          <Link key={item.id} href={`/invitaciones/${item.token}`} className="group flex min-h-48 flex-col rounded-2xl border border-hairline bg-white p-5 transition hover:-translate-y-0.5 hover:border-[#b0b0b0] hover:shadow-card focus:outline-none focus-visible:ring-2 focus-visible:ring-black">
             <div className="flex items-start justify-between gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f7f7f7]"><Users className="h-5 w-5" /></span>
-              <ChevronRight className="h-5 w-5 text-[#717171] transition group-hover:translate-x-0.5" />
+              <ChevronRight className="h-5 w-5 text-neutral-mid transition group-hover:translate-x-0.5" />
             </div>
-            <h3 className="mt-5 text-lg font-semibold tracking-[-0.02em] text-[#222222]">{item.community.name}</h3>
-            <p className="mt-1 flex items-center gap-1.5 text-sm text-[#717171]"><MapPin className="h-4 w-4" />{item.community.city}</p>
-            <p className="mt-auto pt-5 text-sm font-medium text-[#222222]">{item.community.member_count} miembros · {remaining} {remaining === 1 ? "plaza" : "plazas"}</p>
+            <h3 className="mt-5 text-lg font-semibold tracking-[-0.02em] text-neutral-strong">{item.community.name}</h3>
+            <p className="mt-1 flex items-center gap-1.5 text-sm text-neutral-mid"><MapPin className="h-4 w-4" />{item.community.city}</p>
+            <p className="mt-auto pt-5 text-sm font-medium text-neutral-strong">{item.community.member_count} miembros · {remaining} {remaining === 1 ? "plaza" : "plazas"}</p>
           </Link>
         );
       })}
@@ -133,15 +133,15 @@ function ReceivedInvitations() {
 }
 
 function TabButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: ReactNode; label: string }) {
-  return <button type="button" role="tab" aria-selected={active} onClick={onClick} className={cn("flex min-h-11 items-center justify-center gap-2 rounded-[14px] px-3 text-sm font-semibold transition", active ? "bg-white text-brand-dark shadow-sm" : "text-secondary hover:text-brand-dark")}>{icon}{label}</button>;
+  return <button type="button" role="tab" aria-selected={active} onClick={onClick} className={cn("flex min-h-11 items-center justify-center gap-2 rounded-control px-3 text-sm font-semibold transition", active ? "bg-white text-brand-dark shadow-sm" : "text-secondary hover:text-brand-dark")}>{icon}{label}</button>;
 }
 
 function SectionHeading({ title, description }: { title: string; description: string }) {
-  return <div><h2 className="text-xl font-semibold tracking-[-0.025em] text-[#222222]">{title}</h2><p className="mt-1 text-sm leading-6 text-[#717171]">{description}</p></div>;
+  return <div><h2 className="text-xl font-semibold tracking-[-0.025em] text-neutral-strong">{title}</h2><p className="mt-1 text-sm leading-6 text-neutral-mid">{description}</p></div>;
 }
 
 function EmptyState({ icon, text }: { icon: ReactNode; text: string }) {
-  return <div className="flex min-h-36 flex-col items-center justify-center rounded-2xl border border-dashed border-[#b0b0b0] bg-white p-6 text-center"><span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f7f7f7]">{icon}</span><p className="mt-3 max-w-md text-sm leading-6 text-[#717171]">{text}</p></div>;
+  return <div className="flex min-h-36 flex-col items-center justify-center rounded-2xl border border-dashed border-[#b0b0b0] bg-white p-6 text-center"><span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f7f7f7]">{icon}</span><p className="mt-3 max-w-md text-sm leading-6 text-neutral-mid">{text}</p></div>;
 }
 
 function MyApplications() {
@@ -182,7 +182,7 @@ function MyApplications() {
     }
   }
 
-  if (loading) return <div className="rounded-2xl border border-[#dddddd] bg-white p-6 text-center text-sm text-[#717171]">Cargando…</div>;
+  if (loading) return <div className="rounded-2xl border border-hairline bg-white p-6 text-center text-sm text-neutral-mid">Cargando…</div>;
   if (error) return <div className="rounded-2xl border border-red-200 bg-white p-5 text-center text-sm font-medium text-red-600">{error}</div>;
   if (applications.length === 0) return <EmptyState icon={<Send className="h-6 w-6" />} text="Todavía no has enviado solicitudes a ninguna comunidad." />;
 
@@ -196,7 +196,7 @@ function MyApplications() {
     const community = communities[application.community_id];
     const dateLabel = application.status === "PENDING" ? `Enviada el ${formatDate(application.created_at)}` : application.reviewed_at ? `Resuelta el ${formatDate(application.reviewed_at)}` : `Actualizada el ${formatDate(application.cancelled_at ?? application.created_at)}`;
     return (
-    <article key={application.id} className="flex min-h-56 flex-col rounded-[20px] border border-black/[0.06] bg-[#fbfcfa] p-5 shadow-[0_8px_26px_rgba(20,42,32,.045)]">
+    <article key={application.id} className="flex min-h-56 flex-col rounded-card border border-black/[0.06] bg-surface-raised p-5 shadow-card">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0"><p className="truncate text-base font-semibold text-brand-dark">{community?.name ?? "Comunidad"}</p><p className="mt-1 flex items-center gap-1.5 text-xs text-secondary">{community ? <><MapPin className="h-3.5 w-3.5" />{community.city}</> : `Solicitud #${application.id}`}</p></div>
         <Status status={application.status} />
@@ -207,7 +207,7 @@ function MyApplications() {
         <Link href={`/comunidades/${application.community_id}`} className="flex min-h-11 flex-1 items-center justify-center rounded-full bg-brand-dark px-4 text-sm font-semibold text-white">Ver comunidad</Link>
         {application.status === "PENDING" && <button type="button" disabled={busyId !== null} onClick={() => setConfirmingId(application.id)} aria-label="Cancelar solicitud" className="flex h-11 w-11 items-center justify-center rounded-full border border-black/[0.08] bg-white text-secondary hover:bg-red-50 hover:text-red-600 disabled:opacity-50"><X className="h-4 w-4" /></button>}
       </div>
-      {confirmingId === application.id && <div className="mt-3 rounded-[14px] border border-red-100 bg-red-50/70 p-3"><p className="text-xs leading-5 text-red-800">¿Retirar esta solicitud? La comunidad dejará de verla como pendiente.</p><div className="mt-2 flex gap-2"><button type="button" onClick={() => void cancel(application)} disabled={busyId !== null} className="h-9 flex-1 rounded-full bg-red-600 px-3 text-xs font-bold text-white disabled:opacity-50">{busyId === application.id ? "Retirando…" : "Sí, retirar"}</button><button type="button" onClick={() => setConfirmingId(null)} disabled={busyId !== null} className="h-9 flex-1 rounded-full bg-white px-3 text-xs font-bold text-brand-dark">Mantener</button></div></div>}
+      {confirmingId === application.id && <div className="mt-3 rounded-control border border-red-100 bg-red-50/70 p-3"><p className="text-xs leading-5 text-red-800">¿Retirar esta solicitud? La comunidad dejará de verla como pendiente.</p><div className="mt-2 flex gap-2"><button type="button" onClick={() => void cancel(application)} disabled={busyId !== null} className="h-9 flex-1 rounded-full bg-red-600 px-3 text-xs font-bold text-white disabled:opacity-50">{busyId === application.id ? "Retirando…" : "Sí, retirar"}</button><button type="button" onClick={() => setConfirmingId(null)} disabled={busyId !== null} className="h-9 flex-1 rounded-full bg-white px-3 text-xs font-bold text-brand-dark">Mantener</button></div></div>}
     </article>
   );})}</div>;
 }

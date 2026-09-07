@@ -19,7 +19,7 @@ export default function AjustesPage() {
   const { isOwnerMode } = useOwnerMode();
 
   return (
-    <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] space-y-4 px-6 py-6 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-5xl sm:rounded-[32px] sm:p-7 lg:p-8">
+    <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] space-y-4 px-6 py-6 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-5xl sm:rounded-sheet sm:p-7 lg:p-8">
       <header className="px-1 pb-2">
         <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary">{isOwnerMode ? "Espacio de propietario" : "Tu espacio"}</p>
         <h1 className="mt-0.5 font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">
@@ -29,7 +29,7 @@ export default function AjustesPage() {
       </header>
 
       {user && (
-        <section className="relative overflow-hidden rounded-[26px] bg-brand-dark p-5 text-white shadow-[0_16px_40px_rgba(20,55,41,.16)] sm:p-6">
+        <section className="relative overflow-hidden rounded-panel bg-brand-dark p-5 text-white shadow-[0_16px_40px_rgba(20,55,41,.16)] sm:p-6">
           <span className="absolute -right-12 -top-16 h-44 w-44 rounded-full border-[28px] border-white/[0.04]" aria-hidden="true" />
           <div className="relative flex items-center gap-4">
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-bold">{[user.first_name, user.last_name].filter(Boolean).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</span>
@@ -165,7 +165,7 @@ function formatSessionActivity(value: string) {
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-[24px] border border-black/[0.06] bg-[#fbfcfa] p-5 shadow-[0_10px_30px_rgba(20,42,32,.04)] sm:p-6">
+    <section className="rounded-panel border border-black/[0.06] bg-surface-raised p-5 shadow-card sm:p-6">
       <h2 className="font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">{title}</h2>
       <div className="mt-4">{children}</div>
     </section>
@@ -176,7 +176,7 @@ function SettingsGroup({ title, children }: { title: string; children: React.Rea
   return (
     <section>
       <h2 className="mb-2 px-2 text-xs font-bold uppercase tracking-[0.12em] text-muted">{title}</h2>
-      <div className="divide-y divide-border/70 overflow-hidden rounded-[24px] bg-surface shadow-sm">
+      <div className="divide-y divide-border/70 overflow-hidden rounded-panel bg-surface shadow-sm">
         {children}
       </div>
     </section>
@@ -249,9 +249,9 @@ function PasswordSection() {
   }
 
   return (
-    <section className="overflow-hidden rounded-[24px] border border-black/[0.06] bg-[#fbfcfa] shadow-[0_10px_30px_rgba(20,42,32,.04)]">
+    <section className="overflow-hidden rounded-panel border border-black/[0.06] bg-surface-raised shadow-card">
       <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} className="flex min-h-20 w-full items-center gap-3 p-4 text-left transition hover:bg-[#f5f7f4] sm:p-5">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-mint-50 text-primary"><KeyRound className="h-5 w-5" /></span>
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-mint-50 text-primary"><KeyRound className="h-5 w-5" /></span>
         <span className="min-w-0 flex-1"><span className="block text-sm font-bold text-brand-dark">Contraseña</span><span className="mt-0.5 block text-xs leading-5 text-secondary">Actualiza tu clave de acceso de forma segura</span></span>
         <ChevronDown className={`h-4 w-4 text-muted transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
@@ -345,7 +345,7 @@ function DangerSection({ onLogout }: { onLogout: () => void }) {
 
   return (
     <>
-      <section className="rounded-[24px] border border-black/[0.06] bg-[#fbfcfa] p-4 shadow-[0_10px_30px_rgba(20,42,32,.04)] sm:p-5">
+      <section className="rounded-panel border border-black/[0.06] bg-surface-raised p-4 shadow-card sm:p-5">
         <h2 className="font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Sesión y cuenta</h2>
 
         <button

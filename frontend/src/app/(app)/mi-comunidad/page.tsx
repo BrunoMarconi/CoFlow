@@ -221,12 +221,12 @@ function CommunityDashboard({
   }
 
   return (
-    <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] space-y-4 px-6 py-6 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-7xl sm:rounded-[32px] sm:p-7 lg:p-8">
+    <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] space-y-4 px-6 py-6 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-7xl sm:rounded-sheet sm:p-7 lg:p-8">
       <motion.section
         initial="hidden"
         animate="show"
         variants={sectionVariants}
-        className="relative overflow-hidden rounded-[28px] bg-surface p-4 shadow-sm sm:p-6 lg:p-7"
+        className="relative overflow-hidden rounded-panel bg-surface p-4 shadow-sm sm:p-6 lg:p-7"
       >
         <div className="mb-5 flex min-h-12 items-end justify-between gap-3 px-1 sm:mb-6">
           <button
@@ -335,7 +335,7 @@ function CommunityDashboard({
         </div>
       </motion.section>
 
-      <motion.section initial="hidden" animate="show" variants={sectionVariants} className="rounded-[24px] border border-black/[0.06] bg-[#fbfcfa] p-4 shadow-[0_10px_30px_rgba(20,42,32,.04)] sm:p-5">
+      <motion.section initial="hidden" animate="show" variants={sectionVariants} className="rounded-panel border border-black/[0.06] bg-surface-raised p-4 shadow-card sm:p-5">
         <div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">Ahora</p><h2 className="mt-1 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Estado de la comunidad</h2></div><span className="rounded-full bg-[#e9eeea] px-3 py-1.5 text-[10px] font-bold text-primary-dark">{isOwner ? "Vista de administrador" : "Vista de miembro"}</span></div>
         <div className="mt-4 grid gap-2 sm:grid-cols-3">
           {isOwner ? <DashboardAction icon={<ApplicationsIcon className="h-5 w-5" />} value={String(pendingApplications)} label="solicitudes pendientes" detail={pendingApplications > 0 ? "Esperan tu respuesta" : "Todo revisado"} attention={pendingApplications > 0} onClick={() => onOpenPanel("applications")} /> : <DashboardAction icon={<MessageIcon className="h-5 w-5" />} value="Chat" label="de la comunidad" detail="Habla con tus convivientes" onClick={() => onOpenPanel("chat")} />}
@@ -344,7 +344,7 @@ function CommunityDashboard({
         </div>
       </motion.section>
 
-      <motion.section initial="hidden" animate="show" variants={sectionVariants} className="rounded-[28px] bg-surface p-4 shadow-sm sm:p-6">
+      <motion.section initial="hidden" animate="show" variants={sectionVariants} className="rounded-panel bg-surface p-4 shadow-sm sm:p-6">
         <h2 className="mb-4 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Personas y plazas</h2>
 
         <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
@@ -433,7 +433,7 @@ function CommunityDashboard({
         initial="hidden"
         animate="show"
         variants={sectionVariants}
-        className="grid gap-5 rounded-[28px] bg-surface p-4 shadow-sm sm:p-6 md:grid-cols-2"
+        className="grid gap-5 rounded-panel bg-surface p-4 shadow-sm sm:p-6 md:grid-cols-2"
       >
         <section>
           <h2 className="mb-3 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Cómo queréis vivir</h2>
@@ -502,7 +502,7 @@ function CommunityDashboard({
         )}
       </Expandable>
 
-      <motion.section initial="hidden" animate="show" variants={sectionVariants} className="rounded-[28px] bg-surface p-4 shadow-sm sm:p-6">
+      <motion.section initial="hidden" animate="show" variants={sectionVariants} className="rounded-panel bg-surface p-4 shadow-sm sm:p-6">
         <h2 className="mb-3 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Gestionar comunidad</h2>
 
         <SettingsSection label="">
@@ -627,9 +627,9 @@ function NoCommunity() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="explore-shell -mx-6 -mt-4 flex min-h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] w-[calc(100%+3rem)] items-center justify-center px-6 py-10 sm:mx-auto sm:mt-0 sm:min-h-[70dvh] sm:w-full sm:max-w-7xl sm:rounded-[32px]"
+        className="explore-shell -mx-6 -mt-4 flex min-h-[calc(100dvh-var(--mobile-header-height)-var(--safe-top))] w-[calc(100%+3rem)] items-center justify-center px-6 py-10 sm:mx-auto sm:mt-0 sm:min-h-[70dvh] sm:w-full sm:max-w-7xl sm:rounded-sheet"
       >
-        <div className="w-full max-w-xl rounded-[28px] bg-surface p-7 text-center shadow-sm sm:p-10">
+        <div className="w-full max-w-xl rounded-panel bg-surface p-7 text-center shadow-sm sm:p-10">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-mint-50 text-primary-dark">
             <PeopleIcon className="h-7 w-7" />
           </div>
@@ -663,7 +663,7 @@ function HeroStat({ value, label }: { value: string; label: string }) {
 
 function DashboardAction({ icon, value, label, detail, attention = false, onClick }: { icon: ReactNode; value: string; label: string; detail: string; attention?: boolean; onClick?: () => void }) {
   const content = <><span className={`flex h-10 w-10 items-center justify-center rounded-full ${attention ? "bg-amber-100 text-amber-800" : "bg-[#e8eeea] text-primary-dark"}`}>{icon}</span><span className="mt-3 block text-lg font-semibold tracking-[-0.02em] text-brand-dark">{value}</span><span className="block text-xs font-bold text-brand-dark">{label}</span><span className="mt-1 block text-[10px] leading-4 text-secondary">{detail}</span></>;
-  return onClick ? <button type="button" onClick={onClick} className="rounded-[16px] border border-black/[0.055] bg-white p-3.5 text-left transition hover:bg-[#f4f7f4]">{content}</button> : <div className="rounded-[16px] border border-black/[0.055] bg-white p-3.5">{content}</div>;
+  return onClick ? <button type="button" onClick={onClick} className="rounded-field border border-black/[0.055] bg-white p-3.5 text-left transition hover:bg-[#f4f7f4]">{content}</button> : <div className="rounded-field border border-black/[0.055] bg-white p-3.5">{content}</div>;
 }
 
 function Fact({ icon, label }: { icon: React.ReactNode; label: string }) {
