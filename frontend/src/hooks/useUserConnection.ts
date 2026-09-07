@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { actionDone } from "@/components/interaction/ActionFeedback";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import {
   createConnectionRequest,
@@ -93,6 +94,10 @@ export function useUserConnection(profile: UserPublicProfile | null) {
         connection.id
       );
       refreshConnectionQueries(queryClient);
+      actionDone(
+        "Solicitud enviada",
+        `${profile.first_name} recibirá tu petición de conexión.`
+      );
     } catch (error) {
       setConnectionError(
         getCommunityErrorMessage(

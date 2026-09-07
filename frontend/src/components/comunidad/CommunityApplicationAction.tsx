@@ -8,6 +8,7 @@ import {
   createCommunityApplication,
   getMyApplications,
 } from "@/services/applications";
+import { actionDone } from "@/components/interaction/ActionFeedback";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import { getPublicUserProfile } from "@/services/users";
 import type { CommunityApplication } from "@/types/application";
@@ -104,6 +105,10 @@ export default function CommunityApplicationAction({
       setShowForm(false);
       setReviewing(false);
       setMessage("");
+      actionDone(
+        "Solicitud enviada",
+        `Los miembros de ${community.name} la revisarán y te avisaremos.`
+      );
     } catch (submitError) {
       setError(
         getCommunityErrorMessage(

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check, Copy, Link2, Search, Send, UserPlus, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { actionDone } from "@/components/interaction/ActionFeedback";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import {
   cancelCommunityInvitation,
@@ -98,7 +99,22 @@ export default function CommunityInvitationsManager({
         invitedUserId
       );
       setInvitations((current) => [invitation, ...current]);
-      if (!invitedUserId) await copyInvitation(invitation);
+
+      if (invitedUserId) {
+        const invited = people.find((person) => person.id === invitedUserId);
+        actionDone(
+          "Invitación enviada",
+          invited
+            ? `${invited.first_name} recibirá tu invitación a la comunidad.`
+            : "La persona recibirá tu invitación a la comunidad."
+        );
+      } else {
+        await copyInvitation(invitation);
+        actionDone(
+          "Enlace copiado",
+          "Compártelo con quien quieras invitar a la comunidad."
+        );
+      }
     } catch (caught) {
       setError(
         getCommunityErrorMessage(

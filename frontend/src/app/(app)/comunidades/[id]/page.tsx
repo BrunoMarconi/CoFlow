@@ -10,6 +10,7 @@ import { MotionConfig } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 
 import CommunityHeader from "@/components/comunidad/CommunityHeader";
+import { celebrate } from "@/components/interaction/Celebration";
 import CommunityOwnerActions from "@/components/comunidad/CommunityOwnerActions";
 import Spinner from "@/components/ui/Spinner";
 import CompatibilityRadar, { CompatibilityRadarIcon } from "@/components/convivencia/CompatibilityRadar";
@@ -60,6 +61,9 @@ export default function ComunidadDetallePage() {
       queryClient.setQueryData(communityQueryKey, updatedCommunity);
       setJoinSuccess(true);
       await refreshCommunity();
+      // Entrar en una comunidad se celebra igual venga por invitación o
+      // por entrada abierta: para quien entra es el mismo momento.
+      celebrate.community({ name: updatedCommunity.name });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const detail = error.response?.data?.detail;

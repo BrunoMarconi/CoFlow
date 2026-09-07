@@ -8,6 +8,7 @@ import {
   getCommunityApplications,
   rejectApplication,
 } from "@/services/applications";
+import { actionDone } from "@/components/interaction/ActionFeedback";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import type { CommunityApplication } from "@/types/application";
 
@@ -67,6 +68,13 @@ export default function CommunityApplicationsManager({
       );
 
       await refreshCommunity();
+      // El sello y no una celebración a pantalla completa: quien revisa
+      // suele despachar varias solicitudes seguidas, y algo que hubiera
+      // que cerrar cada vez se volvería un peaje.
+      actionDone(
+        `${updated.applicant.first_name} ya es de la comunidad`,
+        "Puede entrar al chat y ver a los demás miembros."
+      );
     } catch (error) {
       setActionError(
         getCommunityErrorMessage(

@@ -17,7 +17,7 @@ import {
   MOTION_DURATION,
   MOTION_EASE,
   MOTION_SPRING,
-  MOTION_STAGGER_TIGHT,
+  MOTION_STAGGER_CHILDREN,
 } from "@/lib/motionTokens";
 
 // Mismo patrón de bottom sheet que PersonPreviewPanel (drag="y" +
@@ -26,19 +26,30 @@ import {
 const DRAG_CLOSE_OFFSET = 120;
 const DRAG_CLOSE_VELOCITY = 600;
 
-const BELL_SHAKE = { rotate: [0, -4, 4, 0] };
+/* Repique de campana: la amplitud decae en cada oscilación, como algo
+ * que se ha golpeado y se va parando. El giro pivota desde arriba (ver
+ * `origin-top` en el icono) porque una campana cuelga de su soporte —
+ * girando desde el centro parecía un icono temblando, no una campana. */
+const BELL_SHAKE = { rotate: [0, -13, 10, -7, 4, -2, 0] };
+const BELL_SHAKE_DURATION = 0.62;
+
+/** Anillo que sale del contador al llegar algo nuevo. */
+const BADGE_PING = { scale: [1, 2.3], opacity: [0.55, 0] };
 
 const listContainer = {
   hidden: {},
-  show: { transition: { staggerChildren: MOTION_STAGGER_TIGHT } },
+  // MOTION_STAGGER_CHILDREN es el token pensado para listas de info
+  // dentro de un panel; el TIGHT que había aquí es para elementos que
+  // nacen de algo en movimiento y apenas llegaba a percibirse.
+  show: { transition: { staggerChildren: MOTION_STAGGER_CHILDREN } },
 };
 
 const listItem = {
-  hidden: { opacity: 0, y: 4 },
+  hidden: { opacity: 0, y: 8 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: MOTION_DURATION.fast, ease: MOTION_EASE.out },
+    transition: { duration: MOTION_DURATION.normal, ease: MOTION_EASE.out },
   },
 };
 
@@ -65,6 +76,7 @@ export default function NotificationBell() {
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const bellControls = useAnimationControls();
+  const pingControls = useAnimationControls();
   const previousUnreadRef = useRef(isOwnerMode ? 0 : unreadCount);
 
   useEffect(() => {
@@ -119,13 +131,20 @@ export default function NotificationBell() {
       !prefersReducedMotion
     ) {
       bellControls.start(BELL_SHAKE, {
-        duration: MOTION_DURATION.slow,
+        duration: BELL_SHAKE_DURATION,
         ease: MOTION_EASE.out,
       });
+      pingControls.start(BADGE_PING, { duration: 0.6, ease: MOTION_EASE.out });
     }
 
     previousUnreadRef.current = visibleUnreadCount;
-  }, [unreadCount, isOwnerMode, prefersReducedMotion, bellControls]);
+  }, [
+    unreadCount,
+    isOwnerMode,
+    prefersReducedMotion,
+    bellControls,
+    pingControls,
+  ]);
 
   function handleTap() {
     const willOpen = !open;
@@ -134,7 +153,7 @@ export default function NotificationBell() {
 
     if (!prefersReducedMotion) {
       bellControls.start(BELL_SHAKE, {
-        duration: MOTION_DURATION.slow,
+        duration: BELL_SHAKE_DURATION,
         ease: MOTION_EASE.out,
       });
     }
@@ -209,7 +228,23 @@ export default function NotificationBell() {
   }
 
   const listContent = notificationsLoading ? (
-    <p className="p-6 text-center text-sm text-muted">Cargando...</p>
+    // Un esqueleto con la forma real de la lista en vez de "Cargando...":
+    // el panel no cambia de alto al llegar los datos, así que no da el
+    // salto que daba antes justo debajo del cursor.
+    <div aria-label="Cargando notificaciones" role="status">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={index}
+          className="flex items-start gap-3 border-b border-black/[0.055] px-4 py-3.5"
+        >
+          <div className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-surface-soft" />
+          <div className="min-w-0 flex-1 space-y-2 py-1">
+            <div className="h-2.5 w-2/5 animate-pulse rounded-full bg-surface-soft" />
+            <div className="h-2 w-4/5 animate-pulse rounded-full bg-surface-soft" />
+          </div>
+        </div>
+      ))}
+    </div>
   ) : error ? (
     <p className="p-6 text-center text-sm font-semibold text-red-600">
       {error}
@@ -234,11 +269,20 @@ export default function NotificationBell() {
             onClick={() => handleOpenNotification(notification)}
             whileTap={{ scale: 0.985 }}
             transition={{ duration: MOTION_DURATION.fast }}
-            className={`relative flex w-full items-start gap-3 border-b border-black/[0.055] px-4 py-3.5 text-left transition-colors duration-300 hover:bg-[#f3f6f3] ${
-              notification.is_read ? "bg-transparent" : "bg-[#f2f7f4]"
+            className={`relative flex w-full items-start gap-3 border-b border-black/5.5 px-4 py-3.5 text-left transition-colors duration-300 hover:bg-surface-soft ${
+              notification.is_read ? "bg-transparent" : "bg-primary/6"
             }`}
           >
-            <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${notification.is_read ? "bg-[#edf0ed] text-primary-dark" : "bg-primary text-white"}`}>
+            {/* Barra lateral en las no leídas: se puede escanear la
+                columna sin leer un solo título. */}
+            <motion.span
+              aria-hidden
+              initial={false}
+              animate={{ opacity: notification.is_read ? 0 : 1 }}
+              transition={{ duration: MOTION_DURATION.slow }}
+              className="absolute inset-y-0 left-0 w-0.5 bg-primary"
+            />
+            <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors duration-300 ${notification.is_read ? "bg-surface-soft text-primary-dark" : "bg-primary text-white"}`}>
               <NotificationTypeIcon type={notification.type} />
             </span>
             <span className="min-w-0 flex-1">
@@ -307,27 +351,58 @@ export default function NotificationBell() {
 
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <div className="flex items-center gap-2">
+            {/* La campana solo "vuela" del botón al panel en escritorio,
+                donde el panel nace justo debajo y el recorrido es de unos
+                pocos píxeles. En móvil el panel es una hoja inferior: el
+                icono cruzaría la pantalla entera y se leería como un
+                elemento perdido, no como continuidad. */}
             <motion.div
-              layoutId={open ? "notification-bell-icon" : undefined}
+              layoutId={open && isDesktop ? "notification-bell-icon" : undefined}
               transition={{ layout: MOTION_SPRING.gentle }}
             >
               <CoFlowBellIcon className="h-5 w-5 text-neutral-strong" />
             </motion.div>
 
-            <div><p id="notification-panel-title" className="text-sm font-bold text-neutral-strong">Notificaciones</p>{visibleUnreadCount > 0 && <p className="text-3xs font-semibold text-muted">{visibleUnreadCount} sin leer</p>}</div>
+            <div>
+              <p id="notification-panel-title" className="text-sm font-bold text-neutral-strong">Notificaciones</p>
+              {/* El recuento entra y sale con su propio alto: al marcar
+                  todas como leídas desaparece sin dar un tirón al título. */}
+              <AnimatePresence initial={false}>
+                {visibleUnreadCount > 0 && (
+                  <motion.p
+                    key="unread-count"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: MOTION_DURATION.fast }}
+                    className="overflow-hidden text-3xs font-semibold text-primary"
+                  >
+                    {visibleUnreadCount} sin leer
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
-          {hasUnread && (
-            <motion.button
-              type="button"
-              onClick={handleMarkAllRead}
-              whileTap={{ scale: 0.96 }}
-              transition={{ duration: MOTION_DURATION.fast }}
-              className="min-h-11 rounded-full px-3 text-xs font-bold text-neutral-strong hover:bg-[#f7f7f7]"
-            >
-              Marcar todas como leídas
-            </motion.button>
-          )}
+          <AnimatePresence initial={false}>
+            {hasUnread && (
+              <motion.button
+                key="mark-all"
+                type="button"
+                onClick={handleMarkAllRead}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                whileTap={{ scale: 0.94 }}
+                transition={MOTION_SPRING.snappy}
+                aria-label="Marcar todas como leídas"
+                title="Marcar todas como leídas"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-secondary transition-colors hover:bg-surface-soft hover:text-primary"
+              >
+                <MarkAllReadIcon />
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="max-h-[calc(75dvh-3.5rem)] overflow-y-auto sm:max-h-96">
@@ -335,10 +410,25 @@ export default function NotificationBell() {
         </div>
 
         {visibleNotifications.length > 0 && (
-          <button type="button" onClick={() => { closePanel({ restoreFocus: false }); router.push("/notificaciones"); }} className="flex min-h-12 w-full items-center justify-center gap-1.5 border-t border-black/[0.06] bg-white/70 px-4 text-xs font-bold text-primary-dark transition hover:bg-[#f3f6f3]">
+          <motion.button
+            type="button"
+            onClick={() => { closePanel({ restoreFocus: false }); router.push("/notificaciones"); }}
+            whileHover="hover"
+            whileTap={{ scale: 0.99 }}
+            transition={MOTION_SPRING.snappy}
+            className="flex min-h-12 w-full items-center justify-center gap-1.5 border-t border-border bg-surface/70 px-4 text-xs font-bold text-primary-dark transition-colors hover:bg-surface-soft"
+          >
             Ver todas las notificaciones
-            <ChevronRightIcon />
-          </button>
+            {/* La flecha avanza al pasar por encima: indica que esto
+                lleva a otra pantalla, no que despliegue más lista. */}
+            <motion.span
+              variants={{ hover: { x: 3 } }}
+              transition={MOTION_SPRING.snappy}
+              className="flex"
+            >
+              <ChevronRightIcon />
+            </motion.span>
+          </motion.button>
         )}
       </motion.div>
     </>
@@ -360,9 +450,11 @@ export default function NotificationBell() {
         className="relative flex h-11 w-11 items-center justify-center rounded-full transition-colors duration-180 hover:bg-surface-soft"
       >
         <motion.div
-          layoutId={open ? undefined : "notification-bell-icon"}
+          layoutId={!open && isDesktop ? "notification-bell-icon" : undefined}
           animate={bellControls}
           transition={{ layout: MOTION_SPRING.gentle }}
+          // Pivote arriba: la campana cuelga, no gira sobre su centro.
+          className="origin-top"
         >
           <CoFlowBellIcon className="h-6 w-6 text-neutral-strong" />
         </motion.div>
@@ -376,6 +468,14 @@ export default function NotificationBell() {
               transition={MOTION_SPRING.snappy}
               className="absolute right-1 top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-3xs font-bold text-white ring-2 ring-white"
             >
+              {/* Onda que sale del contador cuando el número sube. Vive
+                  detrás del propio badge para que no tape la cifra. */}
+              <motion.span
+                aria-hidden
+                initial={{ opacity: 0, scale: 1 }}
+                animate={pingControls}
+                className="absolute inset-0 -z-10 rounded-full bg-primary"
+              />
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.span
                   key={visibleUnreadCount}
@@ -421,6 +521,11 @@ function NotificationTypeIcon({ type }: { type: AppNotification["type"] }) {
   if (type === "PRIVATE_MESSAGE_RECEIVED") return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4.5 w-4.5" aria-hidden="true"><path d="M20 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h9a4 4 0 0 1 4 4Z" strokeLinecap="round" strokeLinejoin="round" /></svg>;
   if (type.includes("APPLICATION") || type.includes("INVITATION")) return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4.5 w-4.5" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" strokeLinecap="round" strokeLinejoin="round" /></svg>;
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4.5 w-4.5" aria-hidden="true"><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0 1 12 0M16 6a3 3 0 0 1 0 6M18 15a5 5 0 0 1 3 5" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+}
+
+/** Doble check: "todo visto", el mismo gesto que usa la mensajería. */
+function MarkAllReadIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5" aria-hidden="true"><path d="m2 13 4 4 8-9" /><path d="m12 15 2 2 8-9" /></svg>;
 }
 
 function ChevronRightIcon() {
