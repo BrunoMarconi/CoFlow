@@ -26,6 +26,7 @@ import {
 } from "@/lib/chatEvents";
 import { MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens";
 import BottomSheet from "@/components/ui/BottomSheet";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import ImageLightbox from "@/components/chat/ImageLightbox";
 
 const LONG_PRESS_MS = 450;
@@ -159,6 +160,12 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
     ? lastReadState.value
     : undefined;
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  /* Mensaje pendiente de confirmar el borrado, y si el borrado está en
+   * curso. Antes era un window.confirm(): el diálogo nativo del
+   * navegador congela la pestaña y aparece descolgado arriba, sin
+   * ninguna relación con la burbuja que vas a borrar. */
+  const [messageToDelete, setMessageToDelete] = useState<TMessage | null>(null);
+  const [deletingMessage, setDeletingMessage] = useState(false);
 
   const prefersReducedMotion = useReducedMotion();
   const sendControls = useAnimationControls();
@@ -631,15 +638,19 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
     void deliverMessage(optimisticMessage);
   }
 
-  async function handleDeleteMessage(message: TMessage) {
-    if (!onDeleteMessage) return;
-    if (!window.confirm("¿Borrar este mensaje?")) return;
+  async function handleDeleteMessage() {
+    const message = messageToDelete;
+    if (!onDeleteMessage || !message) return;
 
+    setDeletingMessage(true);
     try {
       await onDeleteMessage(message.id);
       setMessages((current) => current.filter((item) => item.id !== message.id));
     } catch {
       setLoadError("No hemos podido borrar el mensaje.");
+    } finally {
+      setDeletingMessage(false);
+      setMessageToDelete(null);
     }
   }
 
@@ -998,7 +1009,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
               <button
                 type="button"
                 onClick={() => startReply(menuMessage)}
-                className="flex h-13 w-full items-center gap-3 px-1 text-left text-sm font-semibold text-foreground"
+                className="press-row flex h-13 w-full items-center gap-3 px-1 text-left text-sm font-semibold text-foreground"
               >
                 <ReplyIcon /> Responder
               </button>
@@ -1010,7 +1021,7 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                     void handleLikeMessage(menuMessage);
                     setMenuMessage(null);
                   }}
-                  className="flex h-13 w-full items-center gap-3 px-1 text-left text-sm font-semibold text-foreground"
+                  className="press-row flex h-13 w-full items-center gap-3 px-1 text-left text-sm font-semibold text-foreground"
                 >
                   <HeartIcon filled={menuMessage.liked_by_me ?? false} />
                   {menuMessage.liked_by_me ? "Quitar me gusta" : "Me gusta"}
@@ -1023,9 +1034,9 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
                   onClick={() => {
                     const target = menuMessage;
                     setMenuMessage(null);
-                    void handleDeleteMessage(target);
+                    setMessageToDelete(target);
                   }}
-                  className="flex h-13 w-full items-center gap-3 px-1 text-left text-sm font-semibold text-red-600"
+                  className="press-row flex h-13 w-full items-center gap-3 px-1 text-left text-sm font-semibold text-red-600"
                 >
                   <DeleteIcon /> Borrar mensaje
                 </button>
@@ -1033,6 +1044,18 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
             </div>
           </div>
         </BottomSheet>
+      )}
+
+      {messageToDelete && (
+        <ConfirmDialog
+          title="¿Borrar este mensaje?"
+          description={`Desaparecerá para todos los de la conversación: «${messageToDelete.content.slice(0, 90)}${messageToDelete.content.length > 90 ? "…" : ""}»`}
+          confirmLabel="Borrar"
+          destructive
+          pending={deletingMessage}
+          onConfirm={() => void handleDeleteMessage()}
+          onClose={() => setMessageToDelete(null)}
+        />
       )}
 
       <AnimatePresence>

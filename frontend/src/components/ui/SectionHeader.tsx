@@ -20,13 +20,9 @@ export default function SectionHeader({
       )}
     >
       <div className="min-w-0">
-        <h2 className="font-rounded text-xl font-semibold tracking-[-0.01em] text-foreground">
-          {title}
-        </h2>
+        <h2 className="type-section font-rounded text-foreground">{title}</h2>
 
-        {subtitle && (
-          <p className="mt-1 text-sm text-muted">{subtitle}</p>
-        )}
+        {subtitle && <p className="type-body mt-1 text-muted">{subtitle}</p>}
       </div>
 
       {action && <div className="shrink-0">{action}</div>}

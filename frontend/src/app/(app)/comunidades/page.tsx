@@ -32,8 +32,19 @@ import SkeletonCard from "@/components/ui/SkeletonCard";
 import ErrorState from "@/components/ui/ErrorState";
 import HomeFab from "@/components/explorer/HomeFab";
 import CountUp from "@/components/ui/CountUp";
-import { MOTION_DURATION, MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens";
+import {
+  MOTION_DURATION,
+  MOTION_EASE,
+  MOTION_SPRING,
+  projectMomentum,
+} from "@/lib/motionTokens";
 import { seoCities } from "@/lib/seoCities";
+
+/* El panel de filtros ocupa la pantalla entera, así que su umbral de
+ * cierre no puede ser el mismo que el de un sheet bajito: hay que
+ * proyectar un 30% de la altura del viewport (o llegar ahí con
+ * inercia) para descartarlo. */
+const FILTERS_DISMISS_RATIO = 0.3;
 
 const SEARCH_BAR_LAYOUT_ID = "community-search-bar";
 const SEARCH_ICON_LAYOUT_ID = "community-search-icon";
@@ -457,9 +468,25 @@ export default function ComunidadesPage() {
             drag="y"
             dragListener={false}
             dragControls={filterDragControls}
-            dragConstraints={{ top: 0 }}
-            dragElastic={{ top: 0, bottom: .35 }}
-            onDragEnd={(_, info) => { if (info.offset.y > 90 || info.velocity.y > 650) setFiltersOpen(false); }}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            /* bottom: 1 = el panel sigue al dedo 1:1. Antes cedía un 35%
+               del recorrido, así que el dedo bajaba tres veces más que
+               el panel y el gesto se sentía "pegajoso". */
+            dragElastic={{ top: 0.06, bottom: 1 }}
+            dragMomentum={false}
+            dragTransition={{ bounceStiffness: 438, bounceDamping: 33 }}
+            /* Se decide por dónde IBA el gesto, no por dónde se soltó.
+               Antes bastaban 90px de recorrido — un 11% de la pantalla —
+               para cerrar un panel a pantalla completa: se cerraba solo
+               al intentar hacer scroll dentro de él. Ahora hay que
+               proyectar un 30% de su alto, o traer inercia suficiente
+               para llegar ahí. */
+            onDragEnd={(_, info) => {
+              const projected = info.offset.y + projectMomentum(info.velocity.y);
+              if (projected > window.innerHeight * FILTERS_DISMISS_RATIO) {
+                setFiltersOpen(false);
+              }
+            }}
             onClick={(event) => event.stopPropagation()}
             role="dialog"
             aria-modal="true"

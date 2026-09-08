@@ -58,7 +58,7 @@ export default function DesktopLanding() {
         <div className="mx-auto grid min-h-[680px] max-w-[1440px] grid-cols-[.92fr_1.08fr] items-center gap-16 px-10 py-16 xl:px-14">
           <div className="max-w-[690px]">
             <DesktopEyebrow>Compañeros de piso en Málaga</DesktopEyebrow>
-            <h1 className="mt-6 text-[clamp(60px,5.35vw,86px)] font-semibold leading-[.92] tracking-[-.065em]">Conoce cómo se vive.<br /><span className="font-normal text-[#718078]">Antes de elegir dónde.</span></h1>
+            <h1 className="optical-display mt-6 text-[clamp(60px,5.35vw,86px)] font-semibold leading-[.92] tracking-[-.065em]">Conoce cómo se vive.<br /><span className="font-normal text-[#718078]">Antes de elegir dónde.</span></h1>
             <p className="mt-7 max-w-[590px] text-lg leading-8 text-[#607068]">Encuentra personas y comunidades compatibles por hábitos, presupuesto y forma de convivir. Menos intuición. Más contexto real.</p>
             <div className="mt-7 flex gap-3">
               <Link className="rounded-full bg-brand-dark px-7 py-4 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(36,70,56,.22)] transition hover:-translate-y-0.5" href="/register">Crear mi perfil gratis <ArrowRight className="ml-1.5 inline" size={14} /></Link>

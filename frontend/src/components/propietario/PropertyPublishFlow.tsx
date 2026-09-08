@@ -10,8 +10,10 @@ import {
   type RefObject,
 } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { MOTION_SPRING } from "@/lib/motionTokens";
 import { useQueryClient } from "@tanstack/react-query";
 import ViewportPortal from "@/components/ui/ViewportPortal";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import {
   Archive,
   ArrowUpDown,
@@ -175,6 +177,11 @@ function PropertyPublishFlowInner({ resumeProperty }: { resumeProperty?: Propert
   );
   const [direction, setDirection] = useState(1);
   const [addressSheetOpen, setAddressSheetOpen] = useState(false);
+  /* Salida del flujo pendiente de confirmar. Antes era un
+   * window.confirm(): en un formulario de trece pantallas, el momento
+   * de avisar de que se pierde el trabajo es justo donde la interfaz
+   * NO puede convertirse de golpe en un cuadro gris del sistema. */
+  const [confirmingExit, setConfirmingExit] = useState(false);
   const [priceSheet, setPriceSheet] = useState<PriceField | null>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
   const [addressLine, setAddressLine] = useState(resumeProperty?.address_line ?? "");
@@ -272,7 +279,10 @@ function PropertyPublishFlowInner({ resumeProperty }: { resumeProperty?: Propert
   }
 
   function closeFlow() {
-    if (hasStarted && !window.confirm("¿Quieres salir de la publicación? Los cambios que aún no se hayan publicado podrían perderse.")) return;
+    if (hasStarted) {
+      setConfirmingExit(true);
+      return;
+    }
     router.push("/propietarios/pisos");
   }
 
@@ -441,6 +451,18 @@ function PropertyPublishFlowInner({ resumeProperty }: { resumeProperty?: Propert
       <FlowFooter screen={screen} progress={progress} publishing={publishing} termsAccepted={termsAccepted} error={error} onBack={goBack} onNext={() => { const validation = validate(nextScreen(screen)); if (validation) setError(validation); }} onPublish={publish} />
       <AddressSheet open={addressSheetOpen} inputRef={addressInputRef} value={addressLine} onChange={setAddressLine} onClose={() => setAddressSheetOpen(false)} onResolved={(address) => { resolveAddress(address); setAddressSheetOpen(false); goTo("map"); }} />
       <PriceSheet field={priceSheet} rent={rent} deposit={deposit} minimumStay={minimumStayMonths} onRent={setRent} onDeposit={setDeposit} onMinimumStay={setMinimumStayMonths} onClose={() => setPriceSheet(null)} />
+
+      {confirmingExit && (
+        <ConfirmDialog
+          title="¿Salir de la publicación?"
+          description="Lo que has rellenado y todavía no se ha publicado se perderá. Si prefieres seguir en otro momento, cierra desde el último paso: ahí se guarda como borrador."
+          confirmLabel="Salir sin guardar"
+          cancelLabel="Seguir aquí"
+          destructive
+          onConfirm={() => router.push("/propietarios/pisos")}
+          onClose={() => setConfirmingExit(false)}
+        />
+      )}
     </div>
   );
 }
@@ -453,7 +475,7 @@ function nextScreen(screen: Screen): Screen {
 function FlowHeader({ onBack, onClose, first, resuming }: { onBack: () => void; onClose: () => void; first: boolean; resuming: boolean }) {
   return (
     <header className="mx-auto flex h-20 w-full max-w-5xl items-center justify-between px-5 sm:h-22 sm:px-8 lg:px-10">
-      <button type="button" onClick={first ? onClose : onBack} aria-label={first ? "Cerrar" : "Atrás"} className="flex h-11 w-11 items-center justify-center rounded-full bg-surface text-brand-dark shadow-soft transition hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+      <button type="button" onClick={first ? onClose : onBack} aria-label={first ? "Cerrar" : "Atrás"} className="flex h-11 w-11 items-center justify-center rounded-full bg-surface text-brand-dark shadow-soft transition hover:bg-black/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
         {first ? <X className="h-7 w-7" /> : <ChevronLeft className="h-7 w-7" />}
       </button>
       <div className="flex items-center gap-2">{resuming && <span role="status" className="hidden rounded-full bg-mint-50 px-3 py-2 text-xs font-bold text-primary-dark sm:inline">Borrador recuperado</span>}<a href="/propietarios/ayuda" className="inline-flex h-11 items-center gap-2 rounded-full bg-surface px-4 text-sm font-bold text-brand-dark shadow-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:px-5"><CircleHelp className="h-4 w-4 text-primary" /> <span className="hidden sm:inline">Ayuda</span></a></div>
@@ -559,7 +581,7 @@ function BasicsScreen(props: { bedrooms: number; bathrooms: number; maxTenants: 
 }
 
 function Counter({ label, value, onChange, minimum = 0, maximum = 20 }: { label: string; value: number; onChange: (value: number) => void; minimum?: number; maximum?: number }) {
-  return <div className="flex min-h-18 items-center gap-3 py-3"><span className="min-w-0 flex-1 text-base font-bold text-brand-dark">{label}</span><button type="button" aria-label={`Restar ${label}`} disabled={value <= minimum} onClick={() => onChange(value - 1)} className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-brand-dark transition hover:bg-mint-50 disabled:opacity-25"><Minus className="h-4 w-4" /></button><span className="w-7 text-center text-lg font-bold tabular-nums text-brand-dark">{value}</span><button type="button" aria-label={`Sumar ${label}`} disabled={value >= maximum} onClick={() => onChange(value + 1)} className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-brand-dark transition hover:bg-mint-50 disabled:opacity-25"><Plus className="h-4 w-4" /></button></div>;
+  return <div className="flex min-h-18 items-center gap-3 py-3"><span className="min-w-0 flex-1 text-base font-bold text-brand-dark">{label}</span><button type="button" aria-label={`Restar ${label}`} disabled={value <= minimum} onClick={() => onChange(value - 1)} className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-brand-dark transition hover:bg-black/[0.035] disabled:opacity-25"><Minus className="h-4 w-4" /></button><span className="w-7 text-center text-lg font-bold tabular-nums text-brand-dark">{value}</span><button type="button" aria-label={`Sumar ${label}`} disabled={value >= maximum} onClick={() => onChange(value + 1)} className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-brand-dark transition hover:bg-black/[0.035] disabled:opacity-25"><Plus className="h-4 w-4" /></button></div>;
 }
 
 function AmenitiesScreen({ selected, onToggle }: { selected: string[]; onToggle: (label: string) => void }) {
@@ -726,11 +748,11 @@ function getStage(screen: Screen) {
 }
 
 function AddressSheet({ open, value, onChange, onResolved, onClose, inputRef }: { open: boolean; value: string; onChange: (value: string) => void; onResolved: (address: ResolvedAddress) => void; onClose: () => void; inputRef: RefObject<HTMLInputElement | null> }) {
-  return <ViewportPortal><AnimatePresence>{open ? <motion.div className="fixed inset-0 z-70 bg-black/28 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section role="dialog" aria-modal="true" aria-label="Indica tu dirección" initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} onClick={(event) => event.stopPropagation()} className="absolute inset-x-0 bottom-0 flex h-[85dvh] flex-col rounded-t-[2rem] bg-white px-5 pb-[calc(1rem+var(--safe-bottom))] pt-5 shadow-modal sm:left-1/2 sm:max-w-2xl sm:-translate-x-1/2 sm:px-7"><div className="mb-7 flex items-center justify-between"><h2 className="text-xl font-semibold text-neutral-strong sm:text-2xl">Indica tu dirección</h2><button type="button" onClick={onClose} aria-label="Cerrar búsqueda" className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-[#f5f5f5]"><X className="h-6 w-6" /></button></div><AddressAutocomplete value={value} onChange={onChange} onResolved={onResolved} inputRef={inputRef} variant="sheet" /></motion.section></motion.div> : null}</AnimatePresence></ViewportPortal>;
+  return <ViewportPortal><AnimatePresence>{open ? <motion.div className="fixed inset-0 z-70 bg-black/28 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section role="dialog" aria-modal="true" aria-label="Indica tu dirección" initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={MOTION_SPRING.sheet} onClick={(event) => event.stopPropagation()} className="absolute inset-x-0 bottom-0 flex h-[85dvh] flex-col rounded-t-[2rem] bg-white px-5 pb-[calc(1rem+var(--safe-bottom))] pt-5 shadow-modal sm:left-1/2 sm:max-w-2xl sm:-translate-x-1/2 sm:px-7"><div className="mb-7 flex items-center justify-between"><h2 className="text-xl font-semibold text-neutral-strong sm:text-2xl">Indica tu dirección</h2><button type="button" onClick={onClose} aria-label="Cerrar búsqueda" className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-[#f5f5f5]"><X className="h-6 w-6" /></button></div><AddressAutocomplete value={value} onChange={onChange} onResolved={onResolved} inputRef={inputRef} variant="sheet" /></motion.section></motion.div> : null}</AnimatePresence></ViewportPortal>;
 }
 
 function PriceSheet({ field, rent, deposit, minimumStay, onRent, onDeposit, onMinimumStay, onClose }: { field: PriceField | null; rent: string; deposit: string; minimumStay: string; onRent: (value: string) => void; onDeposit: (value: string) => void; onMinimumStay: (value: string) => void; onClose: () => void }) {
   if (!field) return null;
   const config = field === "rent" ? { title: "Precio al mes", value: rent, suffix: "€", onChange: onRent } : field === "deposit" ? { title: "Fianza", value: deposit, suffix: "€", onChange: onDeposit } : { title: "Estancia mínima", value: minimumStay, suffix: "meses", onChange: onMinimumStay };
-  return <ViewportPortal><AnimatePresence><motion.div className="fixed inset-0 z-80 bg-black/28 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section role="dialog" aria-modal="true" aria-label={config.title} initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} onClick={(event) => event.stopPropagation()} className="absolute inset-x-0 bottom-0 rounded-t-[2rem] bg-white px-6 pb-[calc(1.25rem+var(--safe-bottom))] pt-5 shadow-modal sm:left-1/2 sm:max-w-xl sm:-translate-x-1/2"><div className="mx-auto h-1.5 w-12 rounded-full bg-[#d7d7d7]" /><div className="mt-6 flex items-center justify-between"><h2 className="text-2xl font-semibold tracking-tight">{config.title}</h2><button type="button" onClick={onClose} aria-label="Cerrar" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f5f5f5]"><X className="h-5 w-5" /></button></div><label className="mt-10 flex items-baseline justify-center gap-3 border-b-2 border-black pb-4"><input autoFocus type="number" inputMode="numeric" min="0" value={config.value} onChange={(event) => config.onChange(event.target.value)} placeholder="0" className="w-44 bg-transparent text-center text-6xl font-semibold tracking-[-0.05em] outline-none placeholder:text-[#c5c5c5]" /><span className="text-xl font-semibold text-neutral-mid">{config.suffix}</span></label><button type="button" onClick={onClose} className="mt-10 h-14 w-full rounded-full bg-black text-base font-semibold text-white">Guardar</button></motion.section></motion.div></AnimatePresence></ViewportPortal>;
+  return <ViewportPortal><AnimatePresence><motion.div className="fixed inset-0 z-80 bg-black/28 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section role="dialog" aria-modal="true" aria-label={config.title} initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={MOTION_SPRING.sheet} onClick={(event) => event.stopPropagation()} className="absolute inset-x-0 bottom-0 rounded-t-[2rem] bg-white px-6 pb-[calc(1.25rem+var(--safe-bottom))] pt-5 shadow-modal sm:left-1/2 sm:max-w-xl sm:-translate-x-1/2"><div className="mx-auto h-1.5 w-12 rounded-full bg-[#d7d7d7]" /><div className="mt-6 flex items-center justify-between"><h2 className="text-2xl font-semibold tracking-tight">{config.title}</h2><button type="button" onClick={onClose} aria-label="Cerrar" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f5f5f5]"><X className="h-5 w-5" /></button></div><label className="mt-10 flex items-baseline justify-center gap-3 border-b-2 border-black pb-4"><input autoFocus type="number" inputMode="numeric" min="0" value={config.value} onChange={(event) => config.onChange(event.target.value)} placeholder="0" className="w-44 bg-transparent text-center text-6xl font-semibold tracking-[-0.05em] outline-none placeholder:text-[#c5c5c5]" /><span className="text-xl font-semibold text-neutral-mid">{config.suffix}</span></label><button type="button" onClick={onClose} className="mt-10 h-14 w-full rounded-full bg-black text-base font-semibold text-white">Guardar</button></motion.section></motion.div></AnimatePresence></ViewportPortal>;
 }

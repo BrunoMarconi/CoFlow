@@ -815,7 +815,7 @@ export default function CreateCommunityWizard({
                   type="button"
                   onClick={handleCopyInvitation}
                   disabled={invitationLoading}
-                  className="flex h-14 items-center justify-center gap-3 rounded-18 border border-border bg-surface px-4 text-sm font-bold text-brand-dark transition hover:border-primary/40 hover:bg-mint-50 disabled:cursor-not-allowed disabled:opacity-60 sm:h-16 sm:px-5 sm:text-base"
+                  className="flex h-14 items-center justify-center gap-3 rounded-18 border border-border bg-surface px-4 text-sm font-bold text-brand-dark transition hover:border-primary/40 hover:bg-black/[0.035] disabled:cursor-not-allowed disabled:opacity-60 sm:h-16 sm:px-5 sm:text-base"
                 >
                   <CopyIcon />
                   Copiar enlace

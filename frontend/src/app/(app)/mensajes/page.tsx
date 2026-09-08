@@ -386,7 +386,7 @@ export default function MensajesPage() {
             animate="show"
             whileTap={{ scale: 0.985 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="mb-0.5 flex min-h-20 items-center gap-3.5 rounded-field border-b border-black/[0.045] px-2 py-3.5 transition-colors duration-200 active:bg-mint-50"
+            className="mb-0.5 flex min-h-20 items-center gap-3.5 rounded-field border-b border-black/[0.045] px-2 py-3.5 transition-colors duration-200 active:bg-black/[0.055]"
           >
             <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
             <ConversationPreview
@@ -450,7 +450,7 @@ export default function MensajesPage() {
                   delay: Math.min(index, 8) * 0.02,
                 }}
                 whileTap={{ scale: 0.985 }}
-                className="mb-0.5 flex min-h-20 items-center gap-3.5 rounded-field border-b border-black/[0.045] px-2 py-3.5 transition-colors duration-200 active:bg-mint-50"
+                className="mb-0.5 flex min-h-20 items-center gap-3.5 rounded-field border-b border-black/[0.045] px-2 py-3.5 transition-colors duration-200 active:bg-black/[0.055]"
               >
                 <ConversationAvatar
                   initials={initialsOf(other.first_name, other.last_name)}
@@ -471,22 +471,35 @@ export default function MensajesPage() {
           })
         )}
 
-        <Link
-          href="/usuarios"
-          className="mt-3 flex min-h-18 items-center gap-3.5 rounded-card bg-brand-dark px-3 py-3 text-white shadow-[0_10px_24px_rgba(20,55,41,.14)] transition-colors duration-200 active:bg-primary-dark"
-        >
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-white">
-            <ComposeIcon />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-bold text-white">
-              Inicia una nueva conversación
+        {/* Esta fila era una tarjeta verde oscuro a todo contraste, y se
+            comía la lista: en una bandeja con una sola conversación, lo
+            más llamativo de la pantalla era un anuncio para salir de
+            ella. Además repetía el botón de redactar que ya vive en la
+            cabecera, y en la bandeja vacía se sumaba como TERCERA vía
+            para lo mismo (el EmptyState ya trae su propia acción).
+
+            Ahora habla el idioma de la lista: misma altura, mismo
+            círculo de avatar, superficie neutra y borde discontinuo —
+            se lee como "una fila más, para empezar otra" y no como una
+            interrupción. Y desaparece cuando la lista está vacía. */}
+        {!isEmpty && (
+          <Link
+            href="/usuarios"
+            className="press-row mt-1 flex min-h-18 items-center gap-3.5 rounded-card border border-dashed border-border px-3 py-3"
+          >
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-surface-soft text-brand-mid">
+              <ComposeIcon />
             </span>
-            <span className="mt-1 block truncate text-sm text-white/65">
-              Conoce a más personas o encuentra tu comunidad ideal.
+            <span className="min-w-0 flex-1">
+              <span className="type-card-title block text-foreground">
+                Inicia una nueva conversación
+              </span>
+              <span className="mt-0.5 block truncate text-xs text-muted">
+                Conoce a más personas o encuentra tu comunidad ideal.
+              </span>
             </span>
-          </span>
-        </Link>
+          </Link>
+        )}
       </div>
       </ViewTransition>
 
@@ -613,7 +626,7 @@ export default function MensajesPage() {
               <button
                 type="button"
                 onClick={() => setChatSettingsOpen(true)}
-                className="m-3 mb-0 flex min-h-16 shrink-0 items-center gap-3 rounded-18 bg-surface px-4 py-3 text-left shadow-sm transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                className="m-3 mb-0 flex min-h-16 shrink-0 items-center gap-3 rounded-18 bg-surface px-4 py-3 text-left shadow-sm transition-colors duration-180 hover:bg-black/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 <CommunityAvatar imageUrl={community.cover_image_url} name={community.name} />
 
@@ -674,7 +687,7 @@ export default function MensajesPage() {
               <button
                 type="button"
                 onClick={() => setChatSettingsOpen(true)}
-                className="m-3 mb-0 flex min-h-16 shrink-0 items-center gap-3 rounded-18 bg-surface px-4 py-3 text-left shadow-sm transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                className="m-3 mb-0 flex min-h-16 shrink-0 items-center gap-3 rounded-18 bg-surface px-4 py-3 text-left shadow-sm transition-colors duration-180 hover:bg-black/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 <ConversationAvatar
                   initials={initialsOf(

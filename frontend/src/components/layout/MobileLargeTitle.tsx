@@ -42,12 +42,8 @@ export default function MobileLargeTitle({
         className="flex origin-left items-end justify-between gap-4"
       >
         <div className="min-w-0">
-          {eyebrow && (
-            <p className="text-3xs font-bold uppercase tracking-[0.18em] text-muted">
-              {eyebrow}
-            </p>
-          )}
-          <h1 className="mt-2 font-rounded text-3xl font-extrabold tracking-[-0.04em] text-brand-dark">
+          {eyebrow && <p className="type-overline text-muted">{eyebrow}</p>}
+          <h1 className="type-display mt-2 font-rounded text-brand-dark">
             {title}
           </h1>
         </div>

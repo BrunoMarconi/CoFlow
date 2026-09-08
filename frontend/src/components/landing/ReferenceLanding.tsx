@@ -75,7 +75,7 @@ export default function ReferenceLanding() {
         <section className="pb-9 pt-8">
           <div className="text-center">
             <Pill>Compañeros de piso en Málaga</Pill>
-            <h1 className="mx-auto mt-4 max-w-[390px] text-[clamp(39px,10.5vw,52px)] font-semibold leading-[0.98] tracking-[-0.055em]">Conoce cómo se vive. <span className="font-normal text-[#66706b]">Antes de elegir dónde.</span></h1>
+            <h1 className="optical-display mx-auto mt-4 max-w-[390px] text-[clamp(39px,10.5vw,52px)] font-semibold leading-[0.98] tracking-[-0.055em]">Conoce cómo se vive. <span className="font-normal text-[#66706b]">Antes de elegir dónde.</span></h1>
             <p className="mx-auto mt-5 max-w-[355px] text-sm leading-6 text-[#727975]">Encuentra personas y comunidades compatibles por hábitos, presupuesto y forma de convivir.</p>
             <Link href="/register" className="mx-auto mt-6 flex h-12 max-w-[420px] items-center justify-center rounded-full bg-brand-mid text-sm font-semibold text-white">Crear mi perfil gratis <ArrowRight className="ml-1.5" size={13} /></Link>
             <Link href="/comunidades" className="mt-4 inline-flex min-h-11 items-center px-4 text-xs font-medium text-[#53645b]">Explorar comunidades <ChevronRight className="ml-1" size={12} /></Link>

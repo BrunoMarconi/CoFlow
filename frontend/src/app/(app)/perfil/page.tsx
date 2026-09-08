@@ -233,7 +233,7 @@ export default function PerfilPage() {
 
         <Link
           href={ownerHref}
-          className="mt-3 grid min-h-28 grid-cols-[7rem_1fr_auto] items-center overflow-hidden rounded-20 bg-surface-soft/70 transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:mt-4 sm:grid-cols-[9rem_1fr_auto]"
+          className="mt-3 grid min-h-28 grid-cols-[7rem_1fr_auto] items-center overflow-hidden rounded-20 bg-surface-soft/70 transition-colors duration-180 hover:bg-black/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:mt-4 sm:grid-cols-[9rem_1fr_auto]"
         >
           <div className="relative h-full min-h-28">
             <Image
@@ -328,7 +328,7 @@ function IllustratedCard({
   return (
     <Link
       href={href}
-      className="overflow-hidden rounded-20 bg-surface-soft/70 text-left transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      className="overflow-hidden rounded-20 bg-surface-soft/70 text-left transition-colors duration-180 hover:bg-black/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
       <div className="relative h-28 sm:h-36">
         <Image

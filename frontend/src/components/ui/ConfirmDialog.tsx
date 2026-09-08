@@ -59,13 +59,26 @@ export default function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={pending}
-            className={`inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-14 px-5 text-sm font-bold text-white shadow-button transition-all duration-150 ease-out hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 ${
+            aria-busy={pending}
+            className={`press-control inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-14 px-5 text-sm font-bold text-white shadow-button ease-out hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 ${
               destructive
                 ? "bg-red-600 hover:bg-red-700"
                 : "bg-primary hover:bg-primary-hover"
             }`}
           >
-            {pending ? "Espera..." : confirmLabel}
+            {/* "Espera..." es un texto, no un estado: no dice si algo se
+                está moviendo ni cuánto queda, y en una conexión lenta
+                deja al usuario sin saber si su toque llegó a registrarse.
+                El indicador girando es la señal de que la acción sigue
+                viva; la etiqueta se mantiene para no perder de vista QUÉ
+                se está confirmando. */}
+            {pending && (
+              <span
+                aria-hidden="true"
+                className="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white"
+              />
+            )}
+            {pending ? "Confirmando..." : confirmLabel}
           </button>
         </div>
       </div>

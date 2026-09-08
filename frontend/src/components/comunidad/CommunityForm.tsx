@@ -943,7 +943,7 @@ export default function CommunityForm({
                               className={`flex min-h-16 items-center justify-between gap-4 rounded-18 border px-4 py-3 text-left text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
                                 active
                                   ? "border-primary bg-mint-50 text-brand-dark shadow-soft"
-                                  : "border-border bg-surface text-secondary hover:border-primary/30 hover:bg-mint-50/40"
+                                  : "border-border bg-surface text-secondary hover:border-primary/30 hover:bg-black/[0.035]/40"
                               }`}
                             >
                               <span>{option}</span>

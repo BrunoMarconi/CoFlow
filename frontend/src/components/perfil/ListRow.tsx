@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { MOTION_HOME_TAP_SCALE } from "@/lib/motionTokens";
 
 /** Fila de lista agrupada (Cuenta/Soporte). Sin `href`, la fila queda
  * inerte (sin ruta real todavía) — se muestra atenuada, sin chevron
@@ -43,14 +41,18 @@ export default function ListRow({
 
   if (!href) return content;
 
+  /* Antes la fila encogía al 94% al pulsarla. En una fila a todo el
+   * ancho dentro de una tarjeta agrupada, ese 6% se ve: la fila se
+   * despega de sus vecinas y los separadores del grupo dejan de
+   * alinearse durante el toque. El realce de fondo dice lo mismo
+   * ("te he oído") sin deformar el grupo — y es lo que hace iOS en
+   * cualquier lista de ajustes. */
   return (
     <Link
       href={href}
-      className="block focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
+      className="press-row block focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
     >
-      <motion.div whileTap={{ scale: MOTION_HOME_TAP_SCALE }}>
-        {content}
-      </motion.div>
+      {content}
     </Link>
   );
 }

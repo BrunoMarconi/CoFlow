@@ -3,7 +3,45 @@ import type { Transition } from "framer-motion";
 /* Tokens de motion para CoFlow — filosofía Airbnb (continuidad,
  * feedback inmediato, transiciones suaves), no su diseño visual.
  * Reutilizar estos valores en vez de números sueltos por componente,
- * para que todo el movimiento de la app se sienta consistente. */
+ * para que todo el movimiento de la app se sienta consistente.
+ *
+ * --- Modelo físico (Apple, "Designing Fluid Interfaces") --------------
+ * Apple describe un muelle con DOS parámetros de diseño en vez de la
+ * tripleta física (masa/rigidez/amortiguación):
+ *
+ *   - damping ratio: 1.0 = crítico (llega y se para, sin rebote).
+ *                    < 1.0 = sobrepasa y oscila. Cuanto más bajo, más rebote.
+ *   - response:      segundos que tarda en "llegar" al destino. No es una
+ *                    duración: un muelle no tiene duración fija, el tiempo
+ *                    de asentamiento emerge de los parámetros.
+ *
+ * Regla de la casa: damping 1.0 por defecto. El rebote solo se gana
+ * cuando el gesto ha traído inercia (un flick, un arrastre soltado).
+ * Un menú que solo aparece no debe sobrepasar; una tarjeta que has
+ * lanzado, sí. */
+
+/** Convierte los dos parámetros de Apple a la tripleta que espera
+ * framer-motion. w0 = 2p/response; k = m*w0^2; c = 2*z*m*w0. */
+export function appleSpring({
+  damping,
+  response,
+  mass = 1,
+}: {
+  /** Damping ratio: 1 = crítico (sin rebote), <1 = rebote. */
+  damping: number;
+  /** Segundos hasta alcanzar el destino. */
+  response: number;
+  mass?: number;
+}): Transition {
+  const omega = (2 * Math.PI) / response;
+
+  return {
+    type: "spring",
+    stiffness: mass * omega * omega,
+    damping: 2 * damping * mass * omega,
+    mass,
+  };
+}
 
 export const MOTION_DURATION = {
   fast: 0.15,
@@ -32,7 +70,76 @@ export const MOTION_SPRING = {
     stiffness: 420,
     damping: 34,
   } as Transition,
+
+  /* --- Los tres siguientes son el modelo de Apple explícito -----------
+   * `gentle` y `snappy` nacieron a ojo y resultan estar en z~0.91 y
+   * z~0.83: los dos rebotan un poco. Van bien donde ya se usan (casi
+   * todo lo que se mueve en la app viene de un tap), pero faltaba un
+   * muelle realmente crítico para lo que aparece SIN que el usuario lo
+   * haya empujado — ahí el sobrepaso se lee como un tic nervioso. */
+
+  /** Por defecto para UI que aparece sola: crítico, no sobrepasa nunca.
+   * z = 1.0, response 0.4s (el valor de "mover/recolocar" de Apple). */
+  standard: appleSpring({ damping: 1, response: 0.4 }),
+
+  /** Igual de crítico pero más corto, para piezas pequeñas (chips,
+   * badges, indicadores) donde 0.4s se siente lento. */
+  quick: appleSpring({ damping: 1, response: 0.28 }),
+
+  /** Con inercia detrás: rebote leve, solo tras un gesto físico
+   * (arrastre soltado, flick). z = 0.8, response 0.35s. */
+  momentum: appleSpring({ damping: 0.8, response: 0.35 }),
+
+  /** Sheets y drawers — los valores exactos que usa iOS. */
+  sheet: appleSpring({ damping: 0.8, response: 0.3 }),
 } as const;
+
+/* --- Física del gesto -------------------------------------------------
+ * Las tres funciones que hacen que un arrastre se sienta real: dónde va
+ * a parar el dedo, cuánta velocidad hereda la animación y cuánto cede
+ * un borde cuando ya no hay más recorrido. */
+
+/** Proyecta dónde acabaría el gesto si se dejase decelerar solo — la
+ * misma curva de desaceleración del scroll. Es lo que convierte un
+ * flick corto en un recorrido largo: la decisión no la toma el punto
+ * donde SE SOLTÓ, sino hacia dónde IBA.
+ *
+ * Ojo: la fórmula de libro (v^2/2a) no es la que usa Apple; la buena es
+ * este decaimiento exponencial (sample code de "Designing Fluid
+ * Interfaces").
+ *
+ * @param velocity px/s en el momento de soltar.
+ * @param decelerationRate 0.998 ~ scroll normal; 0.99 más seco. */
+export function projectMomentum(velocity: number, decelerationRate = 0.998) {
+  return ((velocity / 1000) * decelerationRate) / (1 - decelerationRate);
+}
+
+/** Velocidad relativa (por segundo) para APIs de spring que la esperan
+ * normalizada por la distancia que queda. framer-motion acepta px/s
+ * directos, así que esto solo hace falta al animar un valor normalizado
+ * (un progreso 0→1, por ejemplo). */
+export function relativeVelocity(
+  velocity: number,
+  current: number,
+  target: number
+) {
+  const distance = target - current;
+  return distance === 0 ? 0 : velocity / distance;
+}
+
+/** Resistencia progresiva al pasarse de un límite. Un tope duro se lee
+ * como "se ha colgado"; ceder cada vez menos se lee como "responde,
+ * pero por aquí no hay más". */
+export function rubberband(
+  overshoot: number,
+  dimension: number,
+  constant = 0.55
+) {
+  return (
+    (overshoot * dimension * constant) /
+    (dimension + constant * Math.abs(overshoot))
+  );
+}
 
 /** Stagger muy ligero para listas de info dentro de un panel/modal —
  * nunca debe notarse como una "animación", solo suavizar la entrada. */

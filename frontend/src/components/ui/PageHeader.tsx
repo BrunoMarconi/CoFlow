@@ -27,15 +27,14 @@ export default function PageHeader({
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          {eyebrow && (
-            <p className="text-2xs font-bold uppercase tracking-[0.14em] text-brand">
-              {eyebrow}
-            </p>
-          )}
+          {eyebrow && <p className="type-overline text-brand">{eyebrow}</p>}
 
           <h1
             className={cn(
-              "font-rounded text-2xl font-semibold leading-[1.15] tracking-[-0.02em] text-brand-dark md:text-3xl lg:text-4xl",
+              // El rol trae tamaño, peso, interlineado y tracking como
+              // conjunto; arriba solo se sube de escalón, y el tracking
+              // óptico de cada tamaño lo pone la curva de globals.css.
+              "type-title font-rounded text-brand-dark md:text-3xl lg:text-4xl",
               eyebrow && "mt-1.5"
             )}
           >
@@ -43,7 +42,7 @@ export default function PageHeader({
           </h1>
 
           {subtitle && (
-            <p className="mt-3 max-w-[620px] text-sm leading-[1.55] text-secondary sm:text-base">
+            <p className="type-body mt-3 max-w-[62ch] text-secondary sm:text-base">
               {subtitle}
             </p>
           )}

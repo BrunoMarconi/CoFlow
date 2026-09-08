@@ -83,8 +83,12 @@ export function SettingsRow({
     </>
   );
 
+  // `hover` solo existe con ratón: en móvil, que es donde vive esta
+  // lista, la fila no daba NINGUNA señal de haber recibido el toque.
+  // `.press-row` realza el fondo en el pointer-down, como una fila de
+  // lista agrupada de iOS.
   const className =
-    "flex min-h-14 w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-surface-soft focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand";
+    "press-row flex min-h-14 w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-surface-soft focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand";
 
   if (href) {
     return (

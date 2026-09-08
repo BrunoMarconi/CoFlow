@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, ViewTransition } from "react";
 import { Archive, ArrowRight, BedDouble, CalendarDays, Eye, ImageIcon, KeyRound, LoaderCircle, MapPin, MoreHorizontal, Pause, Pencil, Play, Users } from "lucide-react";
 import PropertyStatusBadge from "./PropertyStatusBadge";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import { detailTransitionName } from "@/lib/detailTransitions";
 import type { PropertyStatus, PropertySummary } from "@/types/property";
@@ -13,6 +14,7 @@ export default function PropertyCard({ property, onPause, onResume, onMarkRented
   const [imageError, setImageError] = useState(false);
   const [actioning, setActioning] = useState(false);
   const [error, setError] = useState("");
+  const [confirmingArchive, setConfirmingArchive] = useState(false);
 
   async function run(action: (id: number) => Promise<void>) {
     if (actioning) return;
@@ -23,8 +25,16 @@ export default function PropertyCard({ property, onPause, onResume, onMarkRented
     finally { setActioning(false); }
   }
 
-  function runArchive() {
-    if (window.confirm(`¿Archivar "${property.title}"? Dejará de estar disponible y se conservará como referencia.`)) void run(onArchive);
+  /* Antes esto era un window.confirm(): un diálogo del navegador, sin
+   * estilo, que congela la pestaña entera y aparece pegado al borde
+   * superior sin ninguna relación espacial con lo que has pulsado. Es
+   * la interrupción más brusca que puede dar una interfaz, y justo en
+   * el momento en que hace falta que el usuario entienda qué va a
+   * pasar. ConfirmDialog nace de la pantalla, se puede descartar
+   * arrastrando y muestra el progreso real del archivado. */
+  async function runArchive() {
+    await run(onArchive);
+    setConfirmingArchive(false);
   }
 
   const location = property.neighborhood ? `${property.neighborhood}, ${property.city}` : property.city;
@@ -52,7 +62,7 @@ export default function PropertyCard({ property, onPause, onResume, onMarkRented
             <p className="flex items-center gap-1.5 text-xs font-semibold text-secondary"><MapPin className="h-3.5 w-3.5 shrink-0 text-primary" /> <span className="truncate">{location}</span></p>
             <h2 className="mt-1.5 line-clamp-2 font-rounded text-xl font-semibold tracking-[-0.03em] text-brand-dark sm:text-2xl">{property.title}</h2>
           </div>
-          <PropertyMenu property={property} actioning={actioning} onPause={() => void run(onPause)} onResume={() => void run(onResume)} onMarkRented={() => void run(onMarkRented)} onArchive={runArchive} />
+          <PropertyMenu property={property} actioning={actioning} onPause={() => void run(onPause)} onResume={() => void run(onResume)} onMarkRented={() => void run(onMarkRented)} onArchive={() => setConfirmingArchive(true)} />
         </div>
 
         <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
@@ -69,9 +79,21 @@ export default function PropertyCard({ property, onPause, onResume, onMarkRented
 
         <div className="mt-auto flex flex-col gap-2 pt-5 sm:flex-row">
           <PrimaryAction property={property} actioning={actioning} onResume={() => void run(onResume)} />
-          <Link href={`/propietarios/pisos/${property.id}/editar`} transitionTypes={["nav-forward"]} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-surface-soft px-4 text-sm font-bold text-brand-dark transition hover:bg-mint-50"><Pencil className="h-4 w-4" />Editar</Link>
+          <Link href={`/propietarios/pisos/${property.id}/editar`} transitionTypes={["nav-forward"]} className="press-control inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-surface-soft px-4 text-sm font-bold text-brand-dark hover:bg-black/[0.035]"><Pencil className="h-4 w-4" />Editar</Link>
         </div>
       </div>
+
+      {confirmingArchive && (
+        <ConfirmDialog
+          title={`¿Archivar "${property.title}"?`}
+          description="Dejará de estar disponible para quien la esté mirando y saldrá de tu cartera activa. La conservamos como referencia, así que podrás consultarla más adelante."
+          confirmLabel="Archivar"
+          destructive
+          pending={actioning}
+          onConfirm={() => void runArchive()}
+          onClose={() => setConfirmingArchive(false)}
+        />
+      )}
     </article>
   );
 }
@@ -83,7 +105,7 @@ function PrimaryAction({ property, actioning, onResume }: { property: PropertySu
 }
 
 function PropertyMenu({ property, actioning, onPause, onResume, onMarkRented, onArchive }: { property: PropertySummary; actioning: boolean; onPause: () => void; onResume: () => void; onMarkRented: () => void; onArchive: () => void }) {
-  return <details className="group/menu relative"><summary aria-label={`Más acciones para ${property.title}`} className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-full bg-surface-soft text-secondary transition hover:bg-mint-50 hover:text-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-details-marker]:hidden">{actioning ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <MoreHorizontal className="h-5 w-5" />}</summary><div className="absolute right-0 top-12 z-20 w-56 overflow-hidden rounded-card border border-border bg-surface p-1.5 shadow-modal">
+  return <details className="group/menu relative"><summary aria-label={`Más acciones para ${property.title}`} className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-full bg-surface-soft text-secondary transition hover:bg-black/[0.035] hover:text-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-details-marker]:hidden">{actioning ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <MoreHorizontal className="h-5 w-5" />}</summary><div className="absolute right-0 top-12 z-20 w-56 overflow-hidden rounded-card border border-border bg-surface p-1.5 shadow-modal">
     {property.status === "READY" && <MenuButton icon={<Pause />} label="Pausar anuncio" onClick={onPause} disabled={actioning} />}
     {property.status === "PAUSED" && <MenuButton icon={<Play />} label="Reactivar anuncio" onClick={onResume} disabled={actioning} />}
     {["READY", "PAUSED"].includes(property.status) && <MenuButton icon={<KeyRound />} label="Marcar como alquilado" onClick={onMarkRented} disabled={actioning} />}

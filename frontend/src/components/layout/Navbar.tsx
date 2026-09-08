@@ -36,7 +36,11 @@ export default function Navbar() {
           ? { duration: 0 }
           : { duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }
       }
-      className="sticky top-0 z-(--z-sticky-header) bg-background/85 pt-(--safe-top) backdrop-blur-xl"
+      /* material-chrome: marcador para que la barra se vuelva sólida con
+         transparencia reducida o contraste alto. scroll-edge: el
+         contenido que pasa por debajo se desvanece contra la barra en
+         vez de cortarse contra una línea. */
+      className="material-chrome scroll-edge sticky top-0 z-(--z-sticky-header) bg-background/85 pt-(--safe-top) backdrop-blur-xl"
     >
       <div className="mx-auto flex h-18 w-full max-w-[1600px] items-center justify-between px-5 sm:px-6 md:pl-72">
         <div className="flex min-w-0 items-center gap-2">

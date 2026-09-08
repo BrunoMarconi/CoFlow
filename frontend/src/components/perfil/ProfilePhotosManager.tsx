@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens";
 import { Camera, ChevronLeft, ChevronRight, Grip, ImageIcon, Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import BottomSheet from "@/components/ui/BottomSheet";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import type { UserPhoto } from "@/types/userPhoto";
 
@@ -23,6 +24,11 @@ export default function ProfilePhotosManager({ photos, onUpload, onDelete, onReo
   const [showSourceSheet, setShowSourceSheet] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [busyPhotoId, setBusyPhotoId] = useState<number | null>(null);
+  /* Foto pendiente de confirmar el borrado. Sustituye al window.confirm
+   * que había aquí: un diálogo nativo congela la pestaña, no se puede
+   * cancelar arrastrando y —lo importante en un borrado— no enseña QUÉ
+   * foto vas a perder. El sheet la muestra. */
+  const [photoToDelete, setPhotoToDelete] = useState<UserPhoto | null>(null);
   const [pendingUploads, setPendingUploads] = useState<
     Array<{ id: string; url: string }>
   >([]);
@@ -78,14 +84,23 @@ export default function ProfilePhotosManager({ photos, onUpload, onDelete, onReo
     if (cameraInputRef.current) cameraInputRef.current.value = "";
   }
 
-  async function removePhoto(photo: UserPhoto) {
-    if (busyPhotoId !== null || !window.confirm("¿Quieres eliminar esta foto de tu perfil?")) return;
+  function removePhoto(photo: UserPhoto) {
+    if (busyPhotoId !== null) return;
+    setPhotoToDelete(photo);
+  }
+
+  async function confirmRemovePhoto() {
+    const photo = photoToDelete;
+    if (!photo) return;
+
     setBusyPhotoId(photo.id);
     setError("");
     try {
       await onDelete(photo.id);
+      setPhotoToDelete(null);
     } catch {
       setError("No pudimos eliminar la foto.");
+      setPhotoToDelete(null);
     } finally {
       setBusyPhotoId(null);
     }
@@ -293,6 +308,19 @@ export default function ProfilePhotosManager({ photos, onUpload, onDelete, onReo
               <button type="button" onClick={() => setShowSourceSheet(false)} className="mt-4 h-12 w-full rounded-14 border border-border bg-surface text-sm font-bold text-foreground shadow-soft">Cancelar</button>
             </div>
           </BottomSheet>
+        )}
+
+        {photoToDelete && (
+          <ConfirmDialog
+            key="delete-photo"
+            title="¿Eliminar esta foto?"
+            description="Desaparecerá de tu perfil y de cualquier sitio donde se esté mostrando. No se puede recuperar."
+            confirmLabel="Eliminar"
+            destructive
+            pending={busyPhotoId !== null}
+            onConfirm={() => void confirmRemovePhoto()}
+            onClose={() => setPhotoToDelete(null)}
+          />
         )}
       </AnimatePresence>
     </>

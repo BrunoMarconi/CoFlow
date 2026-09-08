@@ -249,7 +249,7 @@ function CommunityDashboard({
             href={`/comunidades/${community.id}`}
             aria-label="Ver perfil público"
             title="Ver perfil público"
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-soft text-brand-dark transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-soft text-brand-dark transition-colors duration-180 hover:bg-black/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <MoreIcon />
           </Link>
@@ -325,7 +325,7 @@ function CommunityDashboard({
               <button
                 type="button"
                 onClick={() => onOpenPanel("members")}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-14 bg-surface px-5 text-sm font-bold text-primary-dark transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-14 bg-surface px-5 text-sm font-bold text-primary-dark transition-colors duration-180 hover:bg-black/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 <MembersIcon className="h-4 w-4" />
                 Ver miembros
@@ -639,7 +639,7 @@ function NoCommunity() {
             Encuentra personas con quienes compartir piso o crea un espacio propio para empezar a organizaros.
           </p>
           <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-center">
-            <Link href="/comunidades" className="flex min-h-11 items-center justify-center rounded-14 bg-surface-soft px-5 text-sm font-bold text-foreground transition-colors duration-180 hover:bg-mint-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">Explorar comunidades</Link>
+            <Link href="/comunidades" className="flex min-h-11 items-center justify-center rounded-14 bg-surface-soft px-5 text-sm font-bold text-foreground transition-colors duration-180 hover:bg-black/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">Explorar comunidades</Link>
             <Link href="/crear/comunidad" className="flex min-h-11 items-center justify-center rounded-14 bg-brand-dark px-5 text-sm font-bold text-white shadow-button transition-colors duration-180 hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">Crear comunidad</Link>
           </div>
         </div>

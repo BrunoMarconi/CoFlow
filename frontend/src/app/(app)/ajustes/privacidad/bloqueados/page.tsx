@@ -83,7 +83,7 @@ function BlockedUserRow({ user, actioning, onUnblock }: { user: BlockedUser; act
         <p className="truncate text-sm font-bold text-brand-dark">{`${user.first_name} ${user.last_name}`.trim()}</p>
         <p className="mt-0.5 text-xs text-secondary">No puede encontrarte ni escribirte</p>
       </div>
-      <button type="button" onClick={onUnblock} disabled={actioning} className="flex h-10 shrink-0 items-center justify-center rounded-full border border-black/[0.12] bg-white px-4 text-xs font-bold text-brand-dark transition hover:border-primary/30 hover:bg-mint-50 disabled:opacity-50">
+      <button type="button" onClick={onUnblock} disabled={actioning} className="flex h-10 shrink-0 items-center justify-center rounded-full border border-black/[0.12] bg-white px-4 text-xs font-bold text-brand-dark transition hover:border-primary/30 hover:bg-black/[0.035] disabled:opacity-50">
         {actioning ? "..." : "Desbloquear"}
       </button>
     </div>

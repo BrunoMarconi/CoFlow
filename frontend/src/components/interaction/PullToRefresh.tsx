@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { MOTION_DURATION, MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens";
+import {
+  MOTION_DURATION,
+  MOTION_EASE,
+  MOTION_SPRING,
+  rubberband,
+} from "@/lib/motionTokens";
 
 /* Pull-to-refresh nativo para las pantallas de listado.
  *
@@ -17,11 +22,24 @@ import { MOTION_DURATION, MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens"
 /** Distancia real que hay que arrastrar para disparar el refresco. */
 const THRESHOLD_PX = 72;
 
-/** Tope del indicador — más allá el gesto deja de crecer. */
-const MAX_PULL_PX = 110;
+/* La resistencia era lineal (delta * 0.55) con un tope duro a 110px:
+ * cada píxel pesaba igual que el anterior y, al llegar al tope, el
+ * indicador se quedaba clavado. Un borde que se congela se lee como
+ * "se ha colgado"; uno que sigue cediendo cada vez menos se lee como
+ * "te responde, pero por aquí ya no hay más". Ahora se usa la curva de
+ * goma: nunca llega a pararse del todo, solo se acerca asintóticamente
+ * a DAMPED_LIMIT_PX.
+ *
+ * Los dos valores están elegidos para que el punto de disparo caiga
+ * exactamente donde caía antes (~131px de dedo = 72px de indicador):
+ * el gesto no se recalibra, solo deja de tener un muro al final. */
 
-/** Cuanto más bajo, más "duro" se siente el arrastre. */
-const RESISTANCE = 0.55;
+/** Asíntota del recorrido: el indicador se acerca sin alcanzarla. */
+const DAMPED_LIMIT_PX = 240;
+
+/** Pendiente inicial de la goma — los primeros píxeles siguen al dedo
+ * casi 1:1, y la resistencia entra después. */
+const RESISTANCE = 0.785;
 
 export default function PullToRefresh({
   onRefresh,
@@ -76,7 +94,7 @@ export default function PullToRefresh({
       // se mueve a saltos.
       if (event.cancelable) event.preventDefault();
 
-      const resisted = Math.min(delta * RESISTANCE, MAX_PULL_PX);
+      const resisted = rubberband(delta, DAMPED_LIMIT_PX, RESISTANCE);
       pullRef.current = resisted;
       setPull(resisted);
 

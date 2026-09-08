@@ -18,13 +18,19 @@ import {
   MOTION_EASE,
   MOTION_SPRING,
   MOTION_STAGGER_CHILDREN,
+  projectMomentum,
 } from "@/lib/motionTokens";
 
-// Mismo patrón de bottom sheet que PersonPreviewPanel (drag="y" +
-// estos mismos umbrales de cierre) — se reutiliza aquí tal cual en
-// vez de inventar uno nuevo para móvil.
-const DRAG_CLOSE_OFFSET = 120;
-const DRAG_CLOSE_VELOCITY = 600;
+/* Mismo bottom sheet que BottomSheet.tsx en móvil, y con la misma
+ * física: el panel sigue al dedo 1:1 hacia abajo, y al soltar se decide
+ * por dónde IBA el gesto (proyección de la inercia), no por dónde se
+ * soltó. Antes eran dos umbrales fijos —120px de recorrido o 600px/s—
+ * que se contradecían entre sí: un flick corto y rápido no llegaba a
+ * los 120px y sí a los 600px/s, así que cerraba; uno igual de corto a
+ * 590px/s no cerraba, aunque para el dedo fueran el mismo gesto. */
+
+/** Fracción del alto del panel que hay que proyectar para cerrar. */
+const DISMISS_PROJECTION_RATIO = 0.5;
 
 /* Repique de campana: la amplitud decae en cada oscilación, como algo
  * que se ha golpeado y se va parando. El giro pivota desde arriba (ver
@@ -219,10 +225,10 @@ export default function NotificationBell() {
     _event: MouseEvent | TouchEvent | PointerEvent,
     info: { offset: { y: number }; velocity: { y: number } }
   ) {
-    if (
-      info.offset.y > DRAG_CLOSE_OFFSET ||
-      info.velocity.y > DRAG_CLOSE_VELOCITY
-    ) {
+    const height = panelRef.current?.offsetHeight ?? 0;
+    const projected = info.offset.y + projectMomentum(info.velocity.y);
+
+    if (height > 0 && projected > height * DISMISS_PROJECTION_RATIO) {
       closePanel();
     }
   }
@@ -335,7 +341,14 @@ export default function NotificationBell() {
         transition={panelTransition}
         drag={canDrag ? "y" : false}
         dragConstraints={{ top: 0, bottom: 0 }}
-        dragElastic={{ top: 0, bottom: 0.6 }}
+        /* bottom: 1 = seguimiento 1:1 en la dirección del gesto; arriba
+           apenas cede, como una goma. Antes cedía un 60% en los dos
+           sentidos y el panel se quedaba a medio camino del dedo. */
+        dragElastic={{ top: 0.06, bottom: 1 }}
+        dragMomentum={false}
+        /* Vuelta a su sitio heredando la velocidad del dedo (valores del
+           drawer de iOS: ζ≈0.8, response≈0.3s). */
+        dragTransition={{ bounceStiffness: 438, bounceDamping: 33 }}
         onDragEnd={handleDragEnd}
         style={{
           willChange: "transform",

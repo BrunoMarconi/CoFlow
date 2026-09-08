@@ -88,14 +88,14 @@ export default function EmptyState({
         )}
       </motion.div>
 
-      <motion.h3 {...enter(0.12)} className="text-lg font-bold text-foreground">
+      <motion.h3 {...enter(0.12)} className="type-card-title text-foreground">
         {title}
       </motion.h3>
 
       {description && (
         <motion.p
           {...enter(0.19)}
-          className="mt-2 max-w-sm text-sm text-secondary"
+          className="type-body mt-2 max-w-[46ch] text-secondary"
         >
           {description}
         </motion.p>

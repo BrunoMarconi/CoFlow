@@ -10,7 +10,7 @@ export default function Hero() {
           <span className="h-1.5 w-1.5 rounded-full bg-brand" />
           Lanzamiento en Málaga
         </div>
-        <h1 className="mt-4 text-[2.55rem] font-semibold leading-[0.98] tracking-[-0.06em] text-brand-dark sm:text-[3.5rem]">Encuentra compañeros de piso compatibles.</h1>
+        <h1 className="optical-display mt-4 text-[2.55rem] font-semibold leading-[0.98] tracking-[-0.06em] text-brand-dark sm:text-[3.5rem]">Encuentra compañeros de piso compatibles.</h1>
         <p className="mt-4 max-w-lg text-sm leading-6 text-secondary">Conoce hábitos, presupuesto y forma de convivir antes de decidir compartir piso.</p>
         <div className="mt-5 grid grid-cols-2 gap-2">
           <Link href="/register" className="inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-xs font-semibold text-brand-dark shadow-sm ring-1 ring-black/5">Crear mi perfil</Link>

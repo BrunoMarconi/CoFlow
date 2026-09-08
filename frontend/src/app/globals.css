@@ -1428,3 +1428,333 @@ summary::-webkit-details-marker {
     padding: 4rem;
   }
 }
+
+/* ======================================================================
+   ACABADO — jerarquía, materiales y feedback
+   ======================================================================
+   Capa transversal que no cambia la identidad de CoFlow (mismos verdes,
+   misma Jakarta, mismos radios): solo afina cómo se leen y cómo
+   responden las piezas que ya existen.
+
+   Casi todo va con `:where(...)` (especificidad 0) a propósito: si un
+   componente ya declara su tracking, su color o su sombra con una
+   utilidad de Tailwind, esa utilidad sigue ganando. Esto solo rellena
+   el hueco de lo que hoy no dice nada.
+   ====================================================================== */
+
+/* --- 1. Tipografía óptica --------------------------------------------
+   El tracking no puede ser un valor único para todos los tamaños: al
+   crecer, las letras se leen demasiado separadas y hay que apretarlas;
+   al encoger, pasa lo contrario y hay que abrirlas. Hasta ahora la app
+   solo apretaba a mano en los sitios donde alguien se acordó — el resto
+   de titulares se quedaban con el tracking neutro de la fuente. */
+
+/* El tracking se liga al TAMAÑO, no a la etiqueta — la curva completa
+   vive en el bloque 6, más abajo. Ligarlo a h1/h2/h3 sería incorrecto:
+   un h2 pintado a 14px necesita el tracking de 14px, no el de titular. */
+
+/* Compensación de espacio entre palabras para los titulares muy
+   apretados de las landings (-0.055em / -0.065em). El tracking negativo
+   encoge TAMBIÉN el carácter de espacio, así que a partir de cierto
+   tamaño las palabras empiezan a pegarse ("Conoce cómose vive"). Esto
+   devuelve solo la separación entre palabras, sin soltar las letras —
+   que es exactamente lo que hace una fuente con tracking óptico real. */
+.optical-display {
+  word-spacing: 0.08em;
+  text-wrap: balance;
+}
+
+/* Texto sobre cristal. Sobre una superficie translúcida el fondo cambia
+   según lo que pase por debajo, y un gris plano se disuelve: hace falta
+   algo más de contraste y un punto de tracking. */
+.vibrant-on-glass {
+  letter-spacing: 0.006em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- 2. Materiales ---------------------------------------------------
+   `.material-chrome` es un MARCADOR, no un estilo: por sí solo no pinta
+   nada, para no pisar el cristal que cada barra ya se ha construido con
+   utilidades. Existe para que las preferencias de accesibilidad de aquí
+   abajo sepan qué superficies son de cristal y cuáles no.
+
+   Hasta ahora la app respetaba prefers-reduced-motion pero no las otras
+   dos preferencias del sistema, y toda su navegación (barra inferior,
+   cabecera) es cristal: con transparencia reducida activada no pasaba
+   absolutamente nada. */
+
+@media (prefers-reduced-transparency: reduce) {
+  .material-chrome {
+    background: var(--surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-color: var(--line) !important;
+  }
+
+  .landing-card,
+  .material-chrome {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .landing-card {
+    background: #fff;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    /* El gris de texto secundario se queda en ~4:1 sobre blanco, justo
+       en el filo. Con contraste alto pedido, se oscurece; el hairline
+       pasa de "insinuado" a "visible". */
+    --muted: oklch(0.45 0.015 110);
+    --secondary: oklch(0.36 0.02 110);
+    --line: oklch(0.74 0.01 150);
+    --hairline: #9a9a9a;
+  }
+
+  .material-chrome {
+    background: var(--surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--brand-dark) !important;
+  }
+
+  :where(a, button, input, textarea, select, summary, [role="button"]):focus-visible {
+    outline: 3px solid var(--brand-dark);
+    outline-offset: 2px;
+  }
+}
+
+/* --- 3. Bordes de scroll, no divisores duros -------------------------
+   Donde el contenido pasa por debajo de una barra flotante, una línea
+   de 1px corta la página en dos. Un degradado corto en el punto de
+   encuentro dice lo mismo — "aquí hay una capa por encima" — sin
+   partir nada. Se dibuja fuera del elemento (top: 100%), así que no
+   ocupa alto ni desplaza el contenido. */
+.scroll-edge {
+  position: relative;
+}
+
+.scroll-edge::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 100%;
+  height: 16px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--background) 78%, transparent),
+    transparent
+  );
+}
+
+/* --- 4. Feedback de pulsación ----------------------------------------
+   La respuesta va en el pointer-down, no al soltar: en cuanto aparece
+   latencia entre el dedo y la interfaz se pierde la sensación de estar
+   tocando algo. 110ms es el techo — por encima ya se percibe como una
+   animación, no como una reacción.
+
+   `.press` para superficies grandes (tarjetas, filas de lista): apenas
+   se hunden, porque una tarjeta ancha escalando un 3% se deforma mucho.
+   `.press-control` para controles pequeños. */
+.press,
+.press-control {
+  /* El transform va a 110ms (reaccion); el resto se queda en los 180ms
+     de la casa. Van juntos en la misma regla porque una `transition`
+     no se fusiona entre reglas: la ultima gana entera, asi que si aqui
+     solo se declarase transform, los colores dejarian de transicionar. */
+  transition:
+    transform 110ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 180ms ease-out,
+    border-color 180ms ease-out,
+    box-shadow 180ms ease-out,
+    color 180ms ease-out;
+}
+
+.press:active {
+  transform: scale(0.985);
+}
+
+.press-control:active {
+  transform: scale(0.96);
+}
+
+/* Filas de lista agrupada. Aquí el hundimiento por escala está mal:
+   una fila a todo el ancho encogiendo se despega visiblemente de sus
+   vecinas y desalinea los separadores del grupo. Lo correcto es lo que
+   hace iOS — realzar el fondo de la fila entera.
+
+   El detalle está en la asimetría: el realce ENTRA en 0ms (es la
+   respuesta al dedo, no puede tener retardo) y SALE en 160ms (es el eco
+   de algo que ya pasó). Simétrico se siente o brusco al soltar o lento
+   al pulsar. */
+.press-row {
+  transition: background-color 160ms ease-out;
+}
+
+/* El realce es negro traslúcido, no un color opaco, y esto no es un
+   detalle: una fila puede estar sobre blanco, sobre --surface-soft o
+   sobre una tarjeta, y un color fijo se vuelve invisible en cuanto
+   coincide con lo que tiene debajo. De hecho es justo lo que pasaba en
+   la app: 17 controles usaban `hover:bg-mint-50` / `active:bg-mint-50`
+   para su estado de pulsación, y --mint-50 es #ffffff por decisión de
+   marca — o sea, blanco sobre blanco: el estado no existía.
+
+   Traslúcido siempre oscurece lo que haya debajo, y al ser neutro no
+   mete verde de fondo, que es lo que la guía reserva para acciones,
+   iconos, texto y bordes activos. */
+.press-row:active {
+  background-color: rgb(0 0 0 / 0.055);
+  transition-duration: 0ms;
+}
+
+/* Mismo realce para hover, un punto más suave: el ratón se pasea por
+   encima sin intención, el dedo no. */
+.hover-row:hover {
+  background-color: rgb(0 0 0 / 0.035);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* La regla global de arriba deja la transición en 0.01ms, que no
+     quita el hundimiento: lo vuelve instantáneo. Aquí se retira. */
+  .press:active,
+  .press-control:active {
+    transform: none;
+  }
+}
+
+/* Barra flotante "Gestionar mis pisos": en móvil ocupa todo el ancho y
+   es fija, así que sin reservarle sitio tapaba para siempre la última
+   fila del perfil. El marcador lo pone el propio componente mientras
+   está montado (OwnerModeToggle), igual que `data-sheet-open`. */
+@media (max-width: 639px) {
+  body[data-owner-toggle] main#main-content {
+    padding-bottom: calc(
+      var(--mobile-bottom-nav-height) + var(--safe-bottom) + 4.75rem
+    );
+  }
+}
+
+/* --- 6. Tracking óptico ligado a la escala de tamaños ----------------
+   El tracking no puede ser un valor suelto por componente. Al crecer,
+   las letras se leen demasiado separadas y hay que apretarlas; al
+   encoger pasa lo contrario y hay que abrirlas. Una fuente con tracking
+   óptico real lo hace sola; Jakarta no, así que se hace aquí.
+
+   Un recuento sobre app/ + components/ antes de este bloque: 34 valores
+   de tracking distintos escritos a mano (-0.065, -0.055, -0.05, -0.045,
+   -0.04, -0.035, -0.03, -0.025, -0.02, -0.01, +0.1, +0.12, +0.13, +0.14,
+   +0.15, +0.16, +0.18, +0.2...) repartidos por 200 archivos. Ninguno
+   era defendible por separado: eran el mismo ojo decidiendo distinto
+   cada martes.
+
+   La curva va sobre las utilidades de tamaño con `:where()`
+   (especificidad 0), así que:
+     - cualquier `tracking-*` explícito sigue ganando (nada se rompe);
+     - todo lo que NO declaraba tracking pasa a tenerlo correcto.
+
+   Se aplica al tamaño y no a la etiqueta (h1/h2/h3) a propósito: un h2
+   pintado a 14px necesita tracking de 14px, no de titular. */
+
+:where(.text-3xs) {
+  letter-spacing: 0.014em;
+}
+:where(.text-2xs) {
+  letter-spacing: 0.012em;
+}
+:where(.text-xs) {
+  letter-spacing: 0.008em;
+}
+:where(.text-sm) {
+  letter-spacing: 0.003em;
+}
+:where(.text-base) {
+  letter-spacing: 0;
+}
+:where(.text-lg) {
+  letter-spacing: -0.006em;
+}
+:where(.text-xl) {
+  letter-spacing: -0.011em;
+}
+:where(.text-2xl) {
+  letter-spacing: -0.017em;
+}
+:where(.text-3xl) {
+  letter-spacing: -0.023em;
+}
+:where(.text-4xl) {
+  letter-spacing: -0.028em;
+}
+:where(.text-5xl) {
+  letter-spacing: -0.034em;
+}
+:where(.text-6xl, .text-7xl, .text-8xl, .text-9xl) {
+  letter-spacing: -0.038em;
+}
+
+/* --- 7. Roles tipográficos -------------------------------------------
+   La jerarquía se construye con tamaño + peso + interlineado + tracking
+   COMO CONJUNTO, no eligiendo un tamaño y dejando el resto al azar.
+   Estos seis roles cubren lo que la app repite en las 45 rutas; los
+   usan las tres cabeceras compartidas (MobileLargeTitle, PageHeader,
+   SectionHeader) para que toda pantalla nueva herede la misma escala
+   sin volver a inventarla.
+
+   El interlineado se aprieta según sube el tamaño y se suelta según
+   baja: un titular con el interlineado del cuerpo se deshilacha, y un
+   párrafo con el del titular se lee apelmazado. */
+
+/* Título grande de pantalla (el que se encoge al hacer scroll en móvil). */
+.type-display {
+  font-size: 1.875rem;
+  font-weight: var(--font-weight-extrabold);
+  line-height: 1.1;
+  letter-spacing: -0.028em;
+}
+
+/* Título de pantalla en escritorio / cabecera de página. */
+.type-title {
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.18;
+  letter-spacing: -0.019em;
+}
+
+/* Cabecera de sección dentro de una pantalla. */
+.type-section {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.25;
+  letter-spacing: -0.013em;
+}
+
+/* Título de tarjeta o de fila destacada. */
+.type-card-title {
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.35;
+  letter-spacing: -0.004em;
+}
+
+/* Texto de lectura continua: descripciones, párrafos de ayuda. */
+.type-body {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  letter-spacing: 0.003em;
+}
+
+/* Antetítulo en versales. Sustituye a los ~78 usos de
+   `text-2xs uppercase tracking-[0.12em|0.13em|0.14em|0.15em|0.16em|0.18em|0.2em]`
+   que hacían exactamente el mismo trabajo con siete valores distintos.
+   En versales el tracking abierto no es decorativo: sin él las
+   mayúsculas se pegan y la palabra deja de leerse de un golpe. */
+.type-overline {
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
