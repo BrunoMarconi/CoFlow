@@ -3,13 +3,12 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
-import AuthBrand from "@/components/auth/AuthBrand";
-import Input from "@/components/ui/Input";
-import Button from "@/components/ui/Button";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import AuthSplit from "@/components/auth/AuthSplit";
 import { login } from "@/services/auth";
 import { setToken } from "@/lib/auth";
 import { useAuth } from "@/hooks/useAuth";
+import s from "@/components/auth/Auth.module.css";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -51,42 +50,68 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-surface px-5 py-[calc(var(--safe-top)+1.25rem)] sm:px-8">
-      <div className="w-full max-w-md">
-        <AuthBrand />
+    <AuthSplit
+      kicker="Bienvenido de vuelta"
+      headline="Tu gente sigue donde la dejaste."
+      text="Entra para seguir hablando con tu comunidad y retomar la búsqueda donde la dejaste."
+      points={["Tus conversaciones y comunidades", "Las personas que guardaste", "Tus preferencias de convivencia"]}
+      foot="Disponible en Málaga"
+    >
+      <h1 className={s.title}>Inicia sesión</h1>
+      <p className={s.subtitle}>Vuelve a tu comunidad CoFlow.</p>
 
-        <div className="mt-8 text-center">
-          <h1 className="text-3xl font-bold tracking-[-0.03em] text-brand-dark">Inicia sesión</h1>
-          <p className="mt-2 text-sm text-secondary">Vuelve a tu comunidad CoFlow.</p>
+      <form onSubmit={submit} className={s.form}>
+        <label className={s.field}>
+          <span className={s.fieldLabel}>Email</span>
+          <input
+            className={s.input}
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="tu@email.com"
+            autoComplete="email"
+            required
+          />
+        </label>
+
+        <div className={s.field}>
+          <div className={s.labelRow}>
+            <label htmlFor="login-password" className={s.fieldLabel}>Contraseña</label>
+            <Link href="/recuperar-password" className={s.inlineLink}>¿La has olvidado?</Link>
+          </div>
+          <input
+            id="login-password"
+            className={`${s.input} ${s.inputWithButton}`}
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Tu contraseña"
+            autoComplete="current-password"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((value) => !value)}
+            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            className={s.reveal}
+          >
+            {showPassword ? <EyeOff /> : <Eye />}
+          </button>
         </div>
 
-        <form onSubmit={submit} className="mt-7 space-y-5">
-          <Input label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="tu@email.com" leftElement={<Mail className="h-5 w-5" />} autoComplete="email" required />
+        {error && <p role="alert" className={s.error}>{error}</p>}
 
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <label htmlFor="login-password" className="text-sm font-semibold text-foreground">Contraseña</label>
-              <Link href="/recuperar-password" className="text-xs font-bold text-primary-dark hover:underline">¿La has olvidado?</Link>
-            </div>
-            <div className="relative">
-              <Input id="login-password" type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Tu contraseña" leftElement={<LockKeyhole className="h-5 w-5" />} autoComplete="current-password" required className="pr-12" />
-              <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"} className="absolute right-3 top-0 flex h-11.5 w-10 items-center justify-center text-muted">
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-            </div>
-          </div>
-
-          {error && <p role="alert" className="rounded-14 border border-red-200 bg-surface px-4 py-3 text-sm font-semibold text-red-600">{error}</p>}
-
-          <Button type="submit" disabled={loading} className="w-full">
+        <div className={s.actions}>
+          <button type="submit" disabled={loading} className={s.submit}>
             {loading ? "Iniciando sesión..." : "Iniciar sesión"}
-          </Button>
-        </form>
+            {!loading && <ArrowRight />}
+          </button>
+        </div>
+      </form>
 
-        <p className="mt-7 border-t border-border pt-6 text-center text-sm text-secondary">
-          ¿No tienes cuenta? <Link href="/register" className="font-bold text-primary-dark underline underline-offset-4">Regístrate</Link>
-        </p>
-      </div>
-    </main>
+      <p className={s.foot}>
+        ¿No tienes cuenta? <Link href="/register">Regístrate</Link>
+      </p>
+    </AuthSplit>
   );
 }

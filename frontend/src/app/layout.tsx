@@ -40,6 +40,26 @@ const geistMono = localFont({
   display: "swap",
 });
 
+// Tipografia de la landing (src/components/landing/Landing.tsx). Se
+// autohospedan por el mismo motivo que las de arriba: next/font/google
+// descarga los .woff2 en build y eso ya rompio un despliegue. Los
+// ficheros salen del subset latin que usaba el proyecto original.
+const dmSans = localFont({
+  src: "../fonts/DMSans.woff2",
+  variable: "--font-body",
+  weight: "100 1000",
+  style: "normal",
+  display: "swap",
+});
+
+const manrope = localFont({
+  src: "../fonts/Manrope.woff2",
+  variable: "--font-display",
+  weight: "200 800",
+  style: "normal",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: {
     default: "Compañeros de piso en Málaga compatibles | CoFlow",
@@ -132,7 +152,7 @@ export default function RootLayout({
     <html
       lang="es"
       data-scroll-behavior="smooth"
-      className={`${plusJakartaSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      className={`${plusJakartaSans.variable} ${geistMono.variable} ${dmSans.variable} ${manrope.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full bg-background font-sans text-brand-dark">
         <script

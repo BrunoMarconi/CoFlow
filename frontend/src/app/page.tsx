@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import ReferenceLanding from "@/components/landing/ReferenceLanding";
+import Landing from "@/components/landing/Landing";
+import { faqs } from "@/components/landing/faqs";
 
 export const metadata: Metadata = {
   title: "Compañeros de piso compatibles en Málaga",
@@ -24,9 +25,10 @@ export default function Home() {
     "@context": "https://schema.org",
     "@graph": [
       { "@type": "WebPage", "@id": "https://coflowapp.es/#webpage", url: "https://coflowapp.es/", name: "Compañeros de piso compatibles en Málaga | CoFlow", description: "Encuentra compañeros de piso y comunidades en Málaga según hábitos, presupuesto y preferencias de convivencia.", inLanguage: "es-ES", isPartOf: { "@id": "https://coflowapp.es/#website" } },
+      { "@type": "FAQPage", "@id": "https://coflowapp.es/#faq", mainEntity: faqs.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) },
       { "@type": "Service", name: "CoFlow", serviceType: "Plataforma para encontrar compañeros de piso compatibles", areaServed: { "@type": "City", name: "Málaga" }, provider: { "@id": "https://coflowapp.es/#organization" }, offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" } },
     ],
   };
 
-  return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /><ReferenceLanding /></>;
+  return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /><Landing /></>;
 }
