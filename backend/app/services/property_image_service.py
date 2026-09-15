@@ -30,7 +30,22 @@ class PropertyImageService:
         property_obj = property_service.get_my_property(
             db, current_user, property_id,
         )
+        self._ensure_editable(property_obj)
+        return property_obj
 
+    def _get_property_admin(
+        self,
+        db: Session,
+        property_id: int,
+    ) -> Property:
+        # Sin exigir que current_user sea el propietario: pensado para
+        # rutas ya protegidas por require_team_member (alta asistida y
+        # panel del equipo), donde quien gestiona las fotos es el equipo.
+        property_obj = property_service.get_property_by_id(db, property_id)
+        self._ensure_editable(property_obj)
+        return property_obj
+
+    def _ensure_editable(self, property_obj: Property) -> None:
         # Mismo conjunto de estados que update_property — sin esto, las
         # fotos de un piso ya alquilado o archivado se podían seguir
         # añadiendo/borrando/reordenando aunque el resto de campos ya
@@ -40,8 +55,6 @@ class PropertyImageService:
                 status_code=409,
                 detail="This property's photos cannot be edited in its current status",
             )
-
-        return property_obj
 
     async def upload_images(
         self,
@@ -60,17 +73,7 @@ class PropertyImageService:
         property_id: int,
         files: list[UploadFile],
     ) -> Property:
-        # Igual que upload_images pero sin exigir que current_user sea el
-        # propietario: pensado para rutas ya protegidas por require_admin
-        # (alta asistida), donde quien sube las fotos es el equipo.
-        property_obj = property_service.get_property_by_id(db, property_id)
-
-        if property_obj.status not in EDITABLE_STATUSES:
-            raise HTTPException(
-                status_code=409,
-                detail="This property's photos cannot be edited in its current status",
-            )
-
+        property_obj = self._get_property_admin(db, property_id)
         await self._upload_images_to(db, property_obj, files)
         return property_service.get_property_by_id(db, property_obj.id)
 
@@ -159,7 +162,27 @@ class PropertyImageService:
         image_id: int,
     ) -> Property:
         property_obj = self._get_owned_property(db, current_user, property_id)
+        self._delete_image_from(db, property_obj, image_id)
+        return property_service.get_my_property(
+            db, current_user, property_obj.id,
+        )
 
+    def delete_image_admin(
+        self,
+        db: Session,
+        property_id: int,
+        image_id: int,
+    ) -> Property:
+        property_obj = self._get_property_admin(db, property_id)
+        self._delete_image_from(db, property_obj, image_id)
+        return property_service.get_property_by_id(db, property_obj.id)
+
+    def _delete_image_from(
+        self,
+        db: Session,
+        property_obj: Property,
+        image_id: int,
+    ) -> None:
         image = (
             db.query(PropertyImage)
             .filter(
@@ -198,10 +221,6 @@ class PropertyImageService:
 
         storage_service.delete_file(storage_key, PROPERTY_IMAGE_SUBFOLDER)
 
-        return property_service.get_my_property(
-            db, current_user, property_obj.id,
-        )
-
     def set_cover(
         self,
         db: Session,
@@ -210,7 +229,27 @@ class PropertyImageService:
         image_id: int,
     ) -> Property:
         property_obj = self._get_owned_property(db, current_user, property_id)
+        self._set_cover_on(db, property_obj, image_id)
+        return property_service.get_my_property(
+            db, current_user, property_obj.id,
+        )
 
+    def set_cover_admin(
+        self,
+        db: Session,
+        property_id: int,
+        image_id: int,
+    ) -> Property:
+        property_obj = self._get_property_admin(db, property_id)
+        self._set_cover_on(db, property_obj, image_id)
+        return property_service.get_property_by_id(db, property_obj.id)
+
+    def _set_cover_on(
+        self,
+        db: Session,
+        property_obj: Property,
+        image_id: int,
+    ) -> None:
         target = (
             db.query(PropertyImage)
             .filter(
@@ -236,10 +275,6 @@ class PropertyImageService:
             db.rollback()
             raise
 
-        return property_service.get_my_property(
-            db, current_user, property_obj.id,
-        )
-
     def reorder_images(
         self,
         db: Session,
@@ -248,7 +283,27 @@ class PropertyImageService:
         image_ids: list[int],
     ) -> Property:
         property_obj = self._get_owned_property(db, current_user, property_id)
+        self._reorder_images_of(db, property_obj, image_ids)
+        return property_service.get_my_property(
+            db, current_user, property_obj.id,
+        )
 
+    def reorder_images_admin(
+        self,
+        db: Session,
+        property_id: int,
+        image_ids: list[int],
+    ) -> Property:
+        property_obj = self._get_property_admin(db, property_id)
+        self._reorder_images_of(db, property_obj, image_ids)
+        return property_service.get_property_by_id(db, property_obj.id)
+
+    def _reorder_images_of(
+        self,
+        db: Session,
+        property_obj: Property,
+        image_ids: list[int],
+    ) -> None:
         images = (
             db.query(PropertyImage)
             .filter(PropertyImage.property_id == property_obj.id)
@@ -272,7 +327,3 @@ class PropertyImageService:
         except Exception:
             db.rollback()
             raise
-
-        return property_service.get_my_property(
-            db, current_user, property_obj.id,
-        )

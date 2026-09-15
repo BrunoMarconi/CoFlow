@@ -33,6 +33,7 @@ from app.api.routes import (
     owner_properties,
     owners,
     property_amenities,
+    team,
     users,
 )
 from app.core.config import (
@@ -144,6 +145,11 @@ app.include_router(
     property_amenities.router,
     prefix="/property-amenities",
     tags=["Property Amenities"],
+)
+app.include_router(
+    team.router,
+    prefix="/team",
+    tags=["Team"],
 )
 if BANKING_FEATURE_ENABLED:
     app.include_router(

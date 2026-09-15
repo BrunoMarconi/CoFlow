@@ -1,7 +1,8 @@
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, computed_field, field_validator
 
+from app.core import team
 from app.database.models.user import ProfileVisibility
 from app.schemas.storage_media import StorageBackedAvatarResponse
 from app.schemas.user_photo import UserPhotoResponse
@@ -69,3 +70,10 @@ class UserResponse(StorageBackedAvatarResponse):
     # No es un campo del modelo: se rellena en la ruta a partir de la
     # feature flag EMAIL_VERIFICATION_ENABLED.
     email_verification_enabled: bool = True
+
+    # Solo decide qué enlaces pinta el frontend; la protección real está
+    # en require_team_member, en cada ruta /team y /assisted-listings.
+    @computed_field
+    @property
+    def is_team_member(self) -> bool:
+        return team.is_team_member(self.role, self.email)

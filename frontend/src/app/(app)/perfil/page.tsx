@@ -273,8 +273,15 @@ export default function PerfilPage() {
         <section className="space-y-2 rounded-panel bg-surface p-4 shadow-sm sm:p-5">
           <h2 className="px-2 font-rounded text-lg font-semibold text-brand-dark">Cuenta</h2>
           <div className="divide-y divide-border">
-            {user.role === "ADMIN" ? (
-              <ProfileMenuRow href="/equipo/alta-asistida" icon={<HomeIcon />} label="Alta asistida de viviendas" />
+            {user.is_team_member ? (
+              <>
+                <ProfileMenuRow
+                  href="/equipo/viviendas"
+                  icon={<MenuIcon path={<><path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3 13 9 5 9-5" /></>} />}
+                  label="Todas las viviendas · Equipo"
+                />
+                <ProfileMenuRow href="/equipo/alta-asistida" icon={<HomeIcon />} label="Alta asistida de viviendas" />
+              </>
             ) : null}
             <ProfileMenuRow href="/notificaciones" icon={<BellIcon />} label="Notificaciones" />
             <ProfileMenuRow href="/invitaciones" icon={<InvitationIcon />} label="Invitaciones" />

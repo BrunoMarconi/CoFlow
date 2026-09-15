@@ -141,6 +141,11 @@ const FIELD_LABELS: Record<string, string> = {
   pets: "la preferencia de mascotas",
   rules: "la preferencia de reglas",
   lifestyle: "la preferencia de convivencia",
+  email: "el email",
+  phone: "el teléfono",
+  company_name: "el nombre de la empresa",
+  title: "el título",
+  postal_code: "el código postal",
 };
 
 function describeValidationField(loc: unknown): string | null {

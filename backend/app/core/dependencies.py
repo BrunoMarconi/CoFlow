@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import EMAIL_VERIFICATION_ENABLED
 from app.core.jwt import decode_access_token
+from app.core.team import is_team_member
 from app.database.models.user import User
 from app.database.models.auth_session import AuthSession
 from app.database.session import get_db
@@ -100,4 +101,12 @@ def require_admin(current_user: User = Depends(get_current_user)) -> User:
     """Restringe herramientas internas a cuentas del equipo."""
     if current_user.role != "ADMIN":
         raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
+
+
+def require_team_member(current_user: User = Depends(get_current_user)) -> User:
+    """Alta asistida y panel de todas las viviendas: solo el equipo
+    fundador (rol ADMIN + email en TEAM_MEMBER_EMAILS, ver app/core/team.py)."""
+    if not is_team_member(current_user.role, current_user.email):
+        raise HTTPException(status_code=403, detail="Team access required")
     return current_user

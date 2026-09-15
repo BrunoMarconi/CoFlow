@@ -9,12 +9,31 @@ from app.database.models.property import Property, PropertyStatus
 from app.database.models.property_amenity import PropertyAmenity
 from app.database.models.user import User
 from app.schemas.property import PropertyCreate, PropertyUpdate
+from app.schemas.team import TeamPropertyUpdate
 from app.services import billing_service
 
 EDITABLE_STATUSES = {
     PropertyStatus.DRAFT,
     PropertyStatus.READY,
     PropertyStatus.PAUSED,
+}
+
+# Columnas NOT NULL de properties que TeamPropertyUpdate puede recibir
+# como None: ahí None significa "no tocar", nunca "vaciar".
+NON_NULLABLE_FIELDS = {
+    "title",
+    "description",
+    "property_type",
+    "address_line",
+    "city",
+    "province",
+    "postal_code",
+    "bedrooms",
+    "bathrooms",
+    "max_tenants",
+    "has_elevator",
+    "furnished",
+    "utilities_included",
 }
 
 
@@ -204,31 +223,63 @@ class PropertyService:
     ) -> Property:
         property_obj = self._get_own_property(db, current_user, property_id)
 
+        update_data = data.model_dump(
+            exclude_unset=True,
+            exclude={"amenity_ids"},
+        )
+        self._apply_changes(db, property_obj, update_data, data.amenity_ids)
+
+        return self.get_my_property(db, current_user, property_obj.id)
+
+    def update_property_admin(
+        self,
+        db: Session,
+        property_id: int,
+        data: TeamPropertyUpdate,
+    ) -> Property:
+        # Edición desde el panel del equipo: sin filtro de ownership (la
+        # ruta ya exige require_team_member) y con validación relajada,
+        # porque el equipo guarda borradores a medias.
+        property_obj = self.get_property_by_id(db, property_id)
+
+        update_data = {}
+        for field, value in data.model_dump(
+            exclude_unset=True,
+            exclude={"amenity_ids"},
+        ).items():
+            if value is None and field in NON_NULLABLE_FIELDS:
+                continue
+            update_data[field] = value.strip() if isinstance(value, str) else value
+
+        self._apply_changes(db, property_obj, update_data, data.amenity_ids)
+
+        return self.get_property_by_id(db, property_obj.id)
+
+    def _apply_changes(
+        self,
+        db: Session,
+        property_obj: Property,
+        update_data: dict,
+        amenity_ids: list[int] | None,
+    ) -> None:
         if property_obj.status not in EDITABLE_STATUSES:
             raise HTTPException(
                 status_code=409,
                 detail="This property cannot be edited in its current status",
             )
 
-        update_data = data.model_dump(
-            exclude_unset=True,
-            exclude={"amenity_ids"},
-        )
-
         for field, value in update_data.items():
             setattr(property_obj, field, value)
 
         try:
-            if data.amenity_ids is not None:
-                self._set_amenities(db, property_obj, data.amenity_ids)
+            if amenity_ids is not None:
+                self._set_amenities(db, property_obj, amenity_ids)
 
             db.commit()
 
         except Exception:
             db.rollback()
             raise
-
-        return self.get_my_property(db, current_user, property_obj.id)
 
     def _missing_ready_fields(self, property_obj: Property) -> list[str]:
         missing: list[str] = []

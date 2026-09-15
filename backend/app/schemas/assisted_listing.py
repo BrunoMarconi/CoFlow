@@ -1,7 +1,8 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
+from app.database.models.owner_profile import OwnerType
 from app.database.models.property import PropertyType
 
 
@@ -14,6 +15,20 @@ class AssistedOwnerCreate(BaseModel):
     last_name: str | None = Field(default=None, max_length=100)
     email: EmailStr | None = None
     phone: str | None = Field(default=None, max_length=30)
+    # Inmobiliarias y empresas agrupan todos sus pisos bajo una sola
+    # cuenta: company_name pasa a ser el nombre visible del cliente.
+    owner_type: OwnerType = OwnerType.INDIVIDUAL
+    company_name: str | None = Field(default=None, max_length=150)
+
+    @model_validator(mode="after")
+    def require_company_name_for_business_types(self) -> "AssistedOwnerCreate":
+        if self.owner_type != OwnerType.INDIVIDUAL and not (
+            self.company_name and self.company_name.strip()
+        ):
+            raise ValueError(
+                "Indica el nombre de la inmobiliaria o empresa."
+            )
+        return self
 
 
 class AssistedPropertyCreate(BaseModel):
@@ -59,7 +74,11 @@ class AssistedPropertyCreate(BaseModel):
 
 
 class AssistedListingCreate(BaseModel):
-    owner: AssistedOwnerCreate
+    # Exactamente uno de los dos: un cliente nuevo (owner) o uno que ya
+    # existe en CoFlow (owner_profile_id) — p. ej. la inmobiliaria con la
+    # que colaboramos, para que todos sus pisos queden en su cuenta.
+    owner: AssistedOwnerCreate | None = None
+    owner_profile_id: int | None = None
     property: AssistedPropertyCreate
     owner_consent: bool
 
@@ -70,11 +89,23 @@ class AssistedListingCreate(BaseModel):
             raise ValueError("El propietario debe autorizar el alta asistida.")
         return value
 
+    @model_validator(mode="after")
+    def require_single_owner_source(self) -> "AssistedListingCreate":
+        if (self.owner is None) == (self.owner_profile_id is None):
+            raise ValueError(
+                "Elige un cliente existente o crea uno nuevo, no ambos."
+            )
+        return self
+
 
 class AssistedListingResponse(BaseModel):
     property_id: int
+    owner_profile_id: int
+    owner_display_name: str
     owner_email: str
-    claim_url: str
+    is_new_owner: bool
+    # Solo para clientes nuevos: enlace personal para activar su cuenta.
+    claim_url: str | None = None
 
 
 class OwnerClaimPreview(BaseModel):

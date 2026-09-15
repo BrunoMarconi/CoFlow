@@ -53,6 +53,10 @@ export interface User {
   bio: string | null;
   interests: string[];
   profile_visibility: "PUBLIC" | "CONNECTIONS";
+  /** Equipo fundador (rol ADMIN + email autorizado): ve el alta asistida
+   * y todas las viviendas. Solo decide qué enlaces se pintan; el backend
+   * protege cada ruta por su cuenta. */
+  is_team_member?: boolean;
 }
 
 export interface RegisterResponse {

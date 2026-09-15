@@ -18,6 +18,20 @@ CURRENT_OWNER_TERMS_VERSION = "1.0"
 # Edad mínima para registrarse en CoFlow (Política de Privacidad, Términos).
 MINIMUM_REGISTRATION_AGE = 14
 
+# Equipo fundador con acceso a las herramientas internas de vivienda:
+# alta asistida y panel con TODAS las viviendas de la plataforma. El
+# email por sí solo no basta — también se exige role=ADMIN (ver
+# app/core/team.py), que solo se puede asignar desde la base de datos.
+# Separados por comas; se comparan en minúsculas.
+TEAM_MEMBER_EMAILS = frozenset(
+    email.strip().lower()
+    for email in os.getenv(
+        "TEAM_MEMBER_EMAILS",
+        "bmarconi2009@gmail.com,dsegadovizcaino@gmail.com",
+    ).split(",")
+    if email.strip()
+)
+
 # Client ID de Google Cloud (OAuth "Web application") usado para
 # verificar el id_token que manda el botón de "Iniciar sesión con
 # Google" del frontend — ver app/services/auth_service.py::login_with_google.

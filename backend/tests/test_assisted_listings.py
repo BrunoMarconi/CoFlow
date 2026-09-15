@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
-from app.core.dependencies import require_admin
+from app.core.dependencies import require_team_member
 from app.database.models.property import PropertyStatus
 from app.database.models.user import User
 from app.database.session import get_db
@@ -16,7 +16,7 @@ def test_admin_can_create_draft_and_owner_can_claim(db_session, make_user):
     db_session.commit()
 
     app.dependency_overrides[get_db] = lambda: db_session
-    app.dependency_overrides[require_admin] = lambda: admin
+    app.dependency_overrides[require_team_member] = lambda: admin
     client = TestClient(app)
 
     payload = {

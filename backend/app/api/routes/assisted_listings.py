@@ -5,17 +5,17 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.config import CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION, FRONTEND_URL, MINIMUM_REGISTRATION_AGE
-from app.core.dependencies import require_admin
+from app.core.dependencies import require_team_member
 from app.core.security import hash_password
 from app.database.models.owner_claim_token import OwnerClaimToken
 from app.database.models.owner_profile import OwnerProfile, OwnerType
 from app.database.models.property import Property, PropertyStatus, PropertyType
 from app.database.models.user import User
 from app.database.session import get_db
-from app.schemas.assisted_listing import AssistedListingCreate, AssistedListingResponse, OwnerClaimPreview, OwnerClaimRequest
+from app.schemas.assisted_listing import AssistedListingCreate, AssistedListingResponse, AssistedOwnerCreate, OwnerClaimPreview, OwnerClaimRequest
 from app.schemas.property import PropertyResponse
 from app.services.property_image_service import PropertyImageService
 from app.services.property_service import PropertyService
@@ -38,43 +38,81 @@ def _active_claim(db: Session, raw_token: str) -> OwnerClaimToken:
     return claim
 
 
+def _existing_owner_profile(db: Session, owner_profile_id: int) -> OwnerProfile:
+    profile = db.query(OwnerProfile).options(selectinload(OwnerProfile.user)).filter(OwnerProfile.id == owner_profile_id).first()
+    if profile is None:
+        raise HTTPException(status_code=404, detail="No hemos encontrado ese cliente.")
+    return profile
+
+
+def _create_owner(db: Session, data: AssistedOwnerCreate, email: str) -> OwnerProfile:
+    owner = User(
+        first_name=(data.first_name or "Propietario").strip(),
+        last_name=(data.last_name or "").strip(),
+        email=email,
+        phone=(data.phone or "").strip() or None,
+        password_hash=None,
+        role="OWNER",
+        is_email_verified=False,
+        onboarding_completed=False,
+        is_looking_for_roommates=False,
+    )
+    db.add(owner)
+    db.flush()
+    company_name = (data.company_name or "").strip() or None
+    person_name = f"{owner.first_name} {owner.last_name}".strip()
+    profile = OwnerProfile(
+        user_id=owner.id,
+        owner_type=data.owner_type,
+        display_name=(company_name if data.owner_type != OwnerType.INDIVIDUAL and company_name else person_name)[:120],
+        company_name=company_name if data.owner_type != OwnerType.INDIVIDUAL else None,
+        phone=owner.phone or "",
+        contact_email=email,
+    )
+    db.add(profile)
+    db.flush()
+    return profile
+
+
 @router.post("", response_model=AssistedListingResponse)
-def create_assisted_listing(data: AssistedListingCreate, background_tasks: BackgroundTasks, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
-    # Alta asistida: nada es obligatorio en el formulario, el admin
-    # rellena lo que le ha dado tiempo a anotar en la llamada. Lo que la
-    # base de datos exige de verdad (email único, nombre, ciudad,
-    # tipo...) se completa aquí con valores por defecto; el resto se
-    # termina de rellenar antes de publicar (ver mark_ready_admin).
-    raw_email = (data.owner.email or "").strip().lower()
-
-    if raw_email:
-        if db.query(User).filter(func.lower(User.email) == raw_email).first():
-            raise HTTPException(status_code=409, detail="Ya existe una cuenta con este correo. El propietario debe entrar en su cuenta.")
-        email = raw_email
-    else:
-        email = f"sin-email-{uuid.uuid4().hex}@coflow.pending"
-
+def create_assisted_listing(data: AssistedListingCreate, background_tasks: BackgroundTasks, admin: User = Depends(require_team_member), db: Session = Depends(get_db)):
+    # Alta asistida: nada es obligatorio en el formulario, el equipo
+    # rellena lo que le ha dado tiempo a anotar. Lo que la base de datos
+    # exige de verdad (email único, nombre, ciudad, tipo...) se completa
+    # aquí con valores por defecto; el resto se termina de rellenar antes
+    # de publicar (ver mark_ready_admin).
     city = (data.property.city or "Málaga").strip()
     if city.casefold() not in {"málaga", "malaga"}:
         raise HTTPException(status_code=422, detail="El lanzamiento asistido está limitado a Málaga.")
 
+    raw_email = ""
+    if data.owner_profile_id is None:
+        raw_email = (data.owner.email or "").strip().lower()
+        if raw_email:
+            existing = db.query(User).filter(func.lower(User.email) == raw_email).first()
+            if existing is not None:
+                existing_profile = db.query(OwnerProfile).filter(OwnerProfile.user_id == existing.id).first()
+                if existing_profile is not None:
+                    # El caso típico: segundo piso de un cliente que ya
+                    # dimos de alta. El frontend ofrece añadirlo a su cuenta.
+                    raise HTTPException(
+                        status_code=409,
+                        detail={
+                            "code": "OWNER_EXISTS",
+                            "message": "Este correo ya es de un cliente de CoFlow. Añade la vivienda a su cuenta.",
+                            "owner_profile_id": existing_profile.id,
+                            "display_name": existing_profile.display_name,
+                        },
+                    )
+                raise HTTPException(status_code=409, detail="Ya existe una cuenta con este correo. El propietario debe entrar en su cuenta.")
+
     try:
-        owner = User(
-            first_name=(data.owner.first_name or "Propietario").strip(),
-            last_name=(data.owner.last_name or "").strip(),
-            email=email,
-            phone=(data.owner.phone or "").strip() or None,
-            password_hash=None,
-            role="OWNER",
-            is_email_verified=False,
-            onboarding_completed=False,
-            is_looking_for_roommates=False,
-        )
-        db.add(owner)
-        db.flush()
-        profile = OwnerProfile(user_id=owner.id, owner_type=OwnerType.INDIVIDUAL, display_name=f"{owner.first_name} {owner.last_name}".strip(), phone=owner.phone or "", contact_email=email)
-        db.add(profile)
-        db.flush()
+        if data.owner_profile_id is not None:
+            profile = _existing_owner_profile(db, data.owner_profile_id)
+        else:
+            profile = _create_owner(db, data.owner, raw_email or f"sin-email-{uuid.uuid4().hex}@coflow.pending")
+        owner = profile.user if data.owner_profile_id is not None else db.query(User).filter(User.id == profile.user_id).one()
+
         prop_data = data.property
         property_obj = Property(
             owner_profile_id=profile.id,
@@ -111,45 +149,55 @@ def create_assisted_listing(data: AssistedListingCreate, background_tasks: Backg
         db.add(property_obj)
         db.flush()
         property_service._set_amenities(db, property_obj, prop_data.amenity_ids)
-        raw_token = secrets.token_urlsafe(32)
-        db.add(
-            OwnerClaimToken(
-                user_id=owner.id,
-                property_id=property_obj.id,
-                created_by_id=admin.id,
-                token_hash=_hash_token(raw_token),
-                expires_at=datetime.now(timezone.utc) + timedelta(days=7),
+
+        # Solo un cliente nuevo necesita enlace para activar su cuenta; a
+        # uno existente se le añade la vivienda sin mandarle nada.
+        raw_token = None
+        if data.owner_profile_id is None:
+            raw_token = secrets.token_urlsafe(32)
+            db.add(
+                OwnerClaimToken(
+                    user_id=owner.id,
+                    property_id=property_obj.id,
+                    created_by_id=admin.id,
+                    token_hash=_hash_token(raw_token),
+                    expires_at=datetime.now(timezone.utc) + timedelta(days=7),
+                )
             )
-        )
         db.commit()
     except Exception:
         db.rollback()
         raise
 
-    frontend_url = FRONTEND_URL.rstrip("/") or "http://localhost:3000"
-    claim_url = f"{frontend_url}/activar-propietario/{raw_token}"
-    if raw_email:
-        background_tasks.add_task(
-            send_owner_claim_email,
-            to_email=raw_email,
-            first_name=owner.first_name,
-            claim_url=claim_url,
-            property_title=property_obj.title,
-        )
+    claim_url = None
+    if raw_token:
+        frontend_url = FRONTEND_URL.rstrip("/") or "http://localhost:3000"
+        claim_url = f"{frontend_url}/activar-propietario/{raw_token}"
+        if raw_email:
+            background_tasks.add_task(
+                send_owner_claim_email,
+                to_email=raw_email,
+                first_name=owner.first_name,
+                claim_url=claim_url,
+                property_title=property_obj.title,
+            )
     return AssistedListingResponse(
         property_id=property_obj.id,
-        owner_email=raw_email or "(sin email)",
+        owner_profile_id=profile.id,
+        owner_display_name=profile.display_name,
+        owner_email=raw_email or ("(sin email)" if owner.email.endswith("@coflow.pending") else owner.email),
+        is_new_owner=data.owner_profile_id is None,
         claim_url=claim_url,
     )
 
 
 @router.post("/{property_id}/images", response_model=PropertyResponse)
-async def upload_assisted_listing_images(property_id: int, files: list[UploadFile] = File(...), admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+async def upload_assisted_listing_images(property_id: int, files: list[UploadFile] = File(...), admin: User = Depends(require_team_member), db: Session = Depends(get_db)):
     return await property_image_service.upload_images_admin(db=db, property_id=property_id, files=files)
 
 
 @router.post("/{property_id}/ready", response_model=PropertyResponse)
-def mark_assisted_listing_ready(property_id: int, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+def mark_assisted_listing_ready(property_id: int, admin: User = Depends(require_team_member), db: Session = Depends(get_db)):
     return property_service.mark_ready_admin(db=db, property_id=property_id)
 
 

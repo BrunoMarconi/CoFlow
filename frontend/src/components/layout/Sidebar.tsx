@@ -159,6 +159,22 @@ export default function Sidebar() {
           ))}
         </NavGroup>
 
+        {user?.is_team_member ? (
+          <NavGroup label="Equipo">
+            {[
+              { href: "/equipo/viviendas", label: "Todas las viviendas", icon: HomeIcon },
+              { href: "/equipo/alta-asistida", label: "Alta asistida", icon: KeyIcon },
+            ].map((link) => (
+              <SidebarLink
+                key={link.href}
+                link={link}
+                active={isActive(link.href)}
+                transitionTypes={getTabTransitionTypes(pathname, link.href)}
+              />
+            ))}
+          </NavGroup>
+        ) : null}
+
         <NavGroup label="Cuenta">
           {accountLinks.map((link) => (
             <SidebarLink
