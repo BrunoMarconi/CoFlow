@@ -128,6 +128,19 @@ export const EMPTY_DRAFT: ListingDraft = {
   description: "",
 };
 
+/* Misma regla que el backend (assisted_listings.py): el alta asistida
+   admite toda la provincia de Málaga, no solo la capital. Manda el código
+   postal (los de la provincia empiezan por 29); si no hay, el nombre de
+   provincia; sin ninguno no se bloquea, porque la dirección puede
+   completarse después. */
+export function isInMalagaProvince(draft: Pick<ListingDraft, "province" | "postalCode">): boolean {
+  const postal = draft.postalCode.trim();
+  if (postal) return postal.startsWith("29");
+  const province = draft.province.trim().toLowerCase();
+  if (province) return province === "málaga" || province === "malaga";
+  return true;
+}
+
 export const EMPTY_NEW_OWNER: NewOwnerInput = {
   first_name: "",
   last_name: "",
@@ -314,14 +327,16 @@ export function suggestTitle(draft: ListingDraft): string {
       ? ` de ${plural(draft.bedrooms, "habitación", "habitaciones")}`
       : "";
   const furnished = draft.furnished ? (feminine ? " amueblada" : " amueblado") : "";
-  const place = draft.neighborhood.trim() || "Málaga";
+  const place = draft.neighborhood.trim() || draft.city.trim() || "Málaga";
 
   return capitalize(`${noun}${rooms}${furnished} en ${place}`).slice(0, 150);
 }
 
 export function buildDescription(draft: ListingDraft, amenities: Amenity[]): string {
   const { noun, feminine } = TYPE_NOUNS[draft.propertyType ?? "APARTMENT"];
-  const place = draft.neighborhood.trim() ? `en ${draft.neighborhood.trim()}, Málaga` : "en Málaga";
+  const city = draft.city.trim() || "Málaga";
+  const neighborhood = draft.neighborhood.trim();
+  const place = neighborhood && neighborhood.toLowerCase() !== city.toLowerCase() ? `en ${neighborhood}, ${city}` : `en ${city}`;
   const spaces = [
     draft.propertyType !== "STUDIO" ? plural(draft.bedrooms, "habitación", "habitaciones") : null,
     plural(draft.bathrooms, "baño", "baños"),

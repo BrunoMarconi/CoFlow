@@ -74,6 +74,25 @@ def _create_owner(db: Session, data: AssistedOwnerCreate, email: str) -> OwnerPr
     return profile
 
 
+# El alta asistida cubre toda la provincia de Málaga, no solo la capital.
+# Manda el código postal: sus dos primeros dígitos son el código INE de
+# provincia (29 = Málaga). Es más fiable que el nombre de provincia, que
+# el geocodificador a veces devuelve como la comunidad ("Andalucía").
+MALAGA_POSTAL_PREFIX = "29"
+
+
+def _in_malaga_province(province: str | None, postal_code: str | None) -> bool:
+    postal = (postal_code or "").strip()
+    if postal:
+        return postal.startswith(MALAGA_POSTAL_PREFIX)
+    name = (province or "").strip().casefold()
+    if name:
+        return name in {"málaga", "malaga"}
+    # Sin ubicación todavía: aquí nada es obligatorio y la dirección se
+    # completa antes de publicar.
+    return True
+
+
 @router.post("", response_model=AssistedListingResponse)
 def create_assisted_listing(data: AssistedListingCreate, background_tasks: BackgroundTasks, admin: User = Depends(require_team_member), db: Session = Depends(get_db)):
     # Alta asistida: nada es obligatorio en el formulario, el equipo
@@ -82,8 +101,8 @@ def create_assisted_listing(data: AssistedListingCreate, background_tasks: Backg
     # aquí con valores por defecto; el resto se termina de rellenar antes
     # de publicar (ver mark_ready_admin).
     city = (data.property.city or "Málaga").strip()
-    if city.casefold() not in {"málaga", "malaga"}:
-        raise HTTPException(status_code=422, detail="El lanzamiento asistido está limitado a Málaga.")
+    if not _in_malaga_province(data.property.province, data.property.postal_code):
+        raise HTTPException(status_code=422, detail="El alta asistida solo admite viviendas de la provincia de Málaga.")
 
     raw_email = ""
     if data.owner_profile_id is None:

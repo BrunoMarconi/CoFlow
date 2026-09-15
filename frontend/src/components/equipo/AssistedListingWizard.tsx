@@ -70,6 +70,7 @@ import {
   type ListingDraft,
   type OwnerMode,
   type WizardStep,
+  isInMalagaProvince,
 } from "@/lib/teamListing";
 import { cn } from "@/lib/utils";
 import type { Amenity, PropertyType } from "@/types/property";
@@ -168,8 +169,7 @@ export default function AssistedListingWizard({
     (ownerMode === "existing"
       ? selectedOwner?.display_name ?? null
       : (newOwner.owner_type !== "INDIVIDUAL" ? newOwner.company_name : newOwner.first_name)?.trim() || null);
-  const outsideMalaga =
-    propertyId === null && draft.city.trim() !== "" && !["málaga", "malaga"].includes(draft.city.trim().toLowerCase());
+  const outsideMalaga = propertyId === null && !isInMalagaProvince(draft);
 
   // Copia local del alta mientras aún no existe en el servidor.
   useEffect(() => {
@@ -525,7 +525,7 @@ export default function AssistedListingWizard({
                   {outsideMalaga ? (
                     <p className="mt-3 flex items-center gap-2 rounded-field bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
                       <CircleAlert className="h-4 w-4 shrink-0" />
-                      Esta dirección está en {draft.city}. De momento el alta asistida solo admite Málaga capital.
+                      Esta dirección no parece estar en la provincia de Málaga{draft.city ? ` (${draft.city})` : ""}. El alta asistida admite toda la provincia: revisa el código postal (empieza por 29).
                     </p>
                   ) : null}
                   {draft.latitude !== null && draft.longitude !== null ? (
