@@ -25,7 +25,7 @@ export default function SolicitudesPropietarioPage() {
   return (
     <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] px-6 pb-10 pt-5 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-7xl sm:rounded-sheet sm:p-7 lg:p-8">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div><p className="text-2xs font-bold uppercase tracking-[0.15em] text-primary">Panel de propietario</p><h1 className="mt-1 font-rounded text-3xl font-semibold tracking-[-0.045em] text-brand-dark sm:text-4xl">Solicitudes</h1><p className="mt-2 text-sm leading-6 text-secondary">Revisa y organiza el interés por cada vivienda.</p></div>
+        <div><p className="type-overline text-muted">Panel de propietario</p><h1 className="mt-2 font-rounded text-3xl font-semibold tracking-[-0.045em] text-brand-dark sm:text-4xl">Solicitudes</h1><p className="mt-2 text-sm leading-6 text-secondary">Revisa y organiza el interés por cada vivienda.</p></div>
         <Link href="/propietarios/pisos" className="inline-flex min-h-11 items-center gap-2 self-start rounded-full bg-surface px-4 text-sm font-bold text-brand-dark shadow-soft sm:self-auto"><Building2 className="h-4 w-4" /> Ver viviendas</Link>
       </header>
 

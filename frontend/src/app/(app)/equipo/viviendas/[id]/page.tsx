@@ -5,15 +5,10 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Bath,
-  BedDouble,
   Building2,
-  CalendarDays,
   ChevronLeft,
   CircleAlert,
   CircleCheck,
-  Clock3,
-  Euro,
   Layers,
   LoaderCircle,
   Mail,
@@ -22,16 +17,19 @@ import {
   Pencil,
   Phone,
   Plus,
-  Ruler,
-  Sofa,
   UserRound,
-  Users,
-  WalletCards,
 } from "lucide-react";
 import ErrorState from "@/components/ui/ErrorState";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import PhotoDetailShell from "@/components/ui/PhotoDetailShell";
 import PhotoGallery from "@/components/ui/PhotoGallery";
+import {
+  DataRow,
+  DetailSection,
+  SidePanel,
+  StatusDot,
+  statusTone,
+} from "@/components/propietario/DetailPrimitives";
 import { getTeamProperty, markTeamPropertyReady } from "@/services/team";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import { detailTransitionName } from "@/lib/detailTransitions";
@@ -98,6 +96,10 @@ export default function TeamPropertyDetailPage() {
     <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] px-4 pb-28 pt-4 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-6xl sm:rounded-sheet sm:p-7 lg:p-8">
       <PhotoDetailShell
         transitionName={detailTransitionName("property", property.id)}
+        /* Ficha de gestión, no escaparate: la portada sigue abriendo la
+         * pantalla, pero a media altura se llega a los datos sin un
+         * scroll de por medio — que es a lo que se entra aquí. */
+        mediaClassName="h-[38svh] min-h-[15rem] sm:h-[26rem]"
         media={
           <PhotoGallery
             images={images.map((image, index) => ({ id: image.id, src: image.image_url, alt: `${property.title}, foto ${index + 1}` }))}
@@ -118,178 +120,185 @@ export default function TeamPropertyDetailPage() {
           </>
         }
       >
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-surface-soft px-2.5 py-1 text-xs font-bold text-brand-dark">{TEAM_STATUS_LABELS[property.status]}</span>
-          <span className="text-xs font-medium text-neutral-mid">{PROPERTY_TYPE_LABELS[property.property_type]}</span>
-          <span className="text-xs font-medium text-neutral-mid">· Actualizada {formatRelative(property.updated_at)}</span>
+        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs font-medium text-neutral-mid">
+          <StatusDot tone={statusTone(property.status)} label={TEAM_STATUS_LABELS[property.status]} />
+          <span aria-hidden="true">·</span>
+          <span>{PROPERTY_TYPE_LABELS[property.property_type]}</span>
+          <span aria-hidden="true">·</span>
+          <span>Actualizada {formatRelative(property.updated_at)}</span>
         </div>
-        <h1 className="mt-3 font-rounded text-4xl font-semibold tracking-[-0.045em] text-brand-dark sm:text-5xl">{property.title || "Sin título"}</h1>
+        <h1 className="mt-3 font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">{property.title || "Sin título"}</h1>
         <p className="mt-2 flex items-start gap-2 text-sm text-secondary">
           <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
           {address || "Dirección pendiente"}
         </p>
 
-        <div className="mt-7 grid grid-cols-2 overflow-hidden rounded-card border border-border bg-surface sm:grid-cols-4 sm:divide-x sm:divide-border">
-          <Stat icon={<WalletCards />} label="Al mes" value={formatEuros(property.total_monthly_rent)} />
-          <Stat icon={<BedDouble />} label="Habitaciones" value={String(property.bedrooms)} />
-          <Stat icon={<Bath />} label="Baños" value={String(property.bathrooms)} />
-          <Stat icon={<Users />} label="Plazas" value={String(property.max_tenants)} />
-        </div>
+        <div className="mt-8 grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_18rem] xl:gap-10">
+          <div className="@container min-w-0">
+            <DetailSection title="Resumen" first>
+              <dl className="grid gap-x-8 @lg:grid-cols-2">
+                <DataRow label="Tipo" value={PROPERTY_TYPE_LABELS[property.property_type]} />
+                <DataRow label="Superficie" value={property.surface_m2 ? `${property.surface_m2} m²` : null} />
+                <DataRow label="Habitaciones" value={String(property.bedrooms)} />
+                <DataRow label="Baños" value={String(property.bathrooms)} />
+                <DataRow label="Plazas" value={`${property.max_tenants} ${property.max_tenants === 1 ? "persona" : "personas"}`} />
+                <DataRow label="Planta" value={[property.floor, property.has_elevator ? "con ascensor" : "sin ascensor"].filter(Boolean).join(" · ")} />
+                <DataRow label="Amueblada" value={property.furnished ? "Sí" : "No"} />
+                <DataRow label="Gastos" value={property.utilities_included ? "Incluidos" : "No incluidos"} />
+              </dl>
+            </DetailSection>
 
-        <div className="mt-9 grid gap-3 border-t border-black/[0.07] pt-8 sm:grid-cols-[190px_1fr]">
-          <h2 className="text-sm font-semibold uppercase tracking-[.12em] text-secondary">Descripción</h2>
-          <p className="whitespace-pre-line text-sm leading-7 text-secondary">{property.description || "Sin descripción todavía."}</p>
-        </div>
-        {property.amenities.length ? (
-          <div className="mt-8 grid gap-3 border-t border-black/[0.07] pt-8 sm:grid-cols-[190px_1fr]">
-            <h2 className="text-sm font-semibold uppercase tracking-[.12em] text-secondary">Equipamiento</h2>
-            <div className="flex flex-wrap gap-2">
-              {property.amenities.map((amenity) => (
-                <span key={amenity.id} className="rounded-full bg-surface-soft px-3 py-2 text-xs font-semibold text-brand-mid">{amenity.label}</span>
-              ))}
-            </div>
-          </div>
-        ) : null}
-      </PhotoDetailShell>
+            <DetailSection title="Descripción">
+              <p className="whitespace-pre-line text-sm leading-7 text-secondary">{property.description || "Sin descripción todavía."}</p>
+            </DetailSection>
 
-      {actionError ? <p role="alert" className="mt-4 rounded-field bg-red-50 p-4 text-sm font-semibold text-red-700">{actionError}</p> : null}
-
-      <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_.9fr]">
-        <section className="rounded-panel bg-surface p-5 shadow-soft sm:p-6">
-          <p className="type-overline text-muted">Publicación</p>
-          <h2 className="mt-1 font-rounded text-xl font-semibold text-brand-dark">
-            {property.missing_fields.length ? "Faltan datos para publicar" : property.status === "READY" ? "Publicada y completa" : "Lista para publicar"}
-          </h2>
-          {property.missing_fields.length ? (
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-              {property.missing_fields.map((field) => (
-                <li key={field} className="flex items-center gap-2 text-sm font-semibold text-secondary first-letter:uppercase">
-                  <CircleAlert className="h-4 w-4 shrink-0 text-amber-600" /> {field}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-3 flex items-center gap-2 text-sm font-semibold text-primary-dark">
-              <CircleCheck className="h-4 w-4" /> Toda la información esencial está completa.
-            </p>
-          )}
-          <div className="mt-5 flex flex-wrap gap-2">
-            {canPublish && property.missing_fields.length === 0 ? (
-              <button
-                type="button"
-                onClick={() => void publish()}
-                disabled={publishing}
-                className="press-control inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-dark px-5 text-sm font-bold text-white shadow-button disabled:opacity-50"
-              >
-                {publishing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <CircleCheck className="h-4 w-4" />} Publicar
-              </button>
+            {property.amenities.length ? (
+              <DetailSection title="Equipamiento">
+                <div className="flex flex-wrap gap-2">
+                  {property.amenities.map((amenity) => (
+                    <span key={amenity.id} className="rounded-full bg-surface-soft px-3 py-2 text-xs font-semibold text-brand-mid">{amenity.label}</span>
+                  ))}
+                </div>
+              </DetailSection>
             ) : null}
-            {editable ? (
-              <Link
-                href={`/equipo/alta-asistida?vivienda=${property.id}`}
-                className="press-control inline-flex min-h-11 items-center gap-2 rounded-full bg-surface-soft px-5 text-sm font-bold text-brand-dark"
-              >
-                <Pencil className="h-4 w-4" /> {property.missing_fields.length ? "Completar en el alta" : "Editar"}
-              </Link>
-            ) : null}
-          </div>
-        </section>
 
-        <section className="rounded-panel bg-brand-dark p-5 text-white shadow-[0_16px_40px_rgba(20,55,41,.14)] sm:p-6">
-          <p className="type-overline text-white/50">Cliente</p>
-          <div className="mt-3 flex items-start gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10">
-              <OwnerIcon className="h-5 w-5" />
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-base font-bold">{owner.display_name}</p>
-              <p className="mt-0.5 text-xs text-white/60">
-                {OWNER_TYPE_LABELS[owner.owner_type]}
-                {contactName && contactName !== owner.display_name ? ` · ${contactName}` : ""}
+            <DetailSection title="Disponibilidad y condiciones">
+              <dl className="grid gap-x-8 @lg:grid-cols-2">
+                <DataRow label="Disponible desde" value={property.available_from ? formatDate(property.available_from) : null} />
+                <DataRow label="Estancia mínima" value={property.minimum_stay_months ? `${property.minimum_stay_months} ${property.minimum_stay_months === 1 ? "mes" : "meses"}` : "Sin mínimo"} />
+                <DataRow label="Fianza" value={property.deposit === null ? null : property.deposit === 0 ? "Sin fianza" : formatEuros(property.deposit)} />
+                <DataRow label="Alta en CoFlow" value={formatDate(property.created_at)} />
+              </dl>
+            </DetailSection>
+
+            <DetailSection title="Normas de la vivienda">
+              <dl className="grid gap-x-8 @lg:grid-cols-2">
+                <DataRow label="Mascotas" value={ruleValue(property.pets_allowed)} tone={ruleTone(property.pets_allowed)} />
+                <DataRow label="Parejas" value={ruleValue(property.couples_allowed)} tone={ruleTone(property.couples_allowed)} />
+                <DataRow label="Estudiantes" value={ruleValue(property.students_allowed)} tone={ruleTone(property.students_allowed)} />
+                <DataRow label="Empadronamiento" value={ruleValue(property.registration_allowed)} tone={ruleTone(property.registration_allowed)} />
+                <DataRow label="Fumar" value={ruleValue(property.smoking_allowed)} tone={ruleTone(property.smoking_allowed)} />
+              </dl>
+            </DetailSection>
+          </div>
+
+          {/* En móvil sube justo debajo del título: el precio, lo que falta
+           * y a quién llamar es a lo que se entra. En escritorio se queda
+           * fijo mientras se recorre el resto de la ficha. */}
+          <aside className="order-first grid gap-3 xl:order-0 xl:sticky xl:top-[calc(var(--mobile-header-height)+var(--safe-top)+1.25rem)]">
+            <SidePanel>
+              <p className="type-overline text-muted">Alquiler</p>
+              <p className="mt-1.5 flex items-baseline gap-1.5">
+                <strong className="font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark">{formatEuros(property.total_monthly_rent)}</strong>
+                {property.total_monthly_rent === null ? null : <span className="text-sm font-semibold text-secondary">/ mes</span>}
               </p>
-              <span className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-2xs font-bold ${owner.account_activated ? "bg-white/15 text-white" : "bg-amber-400/20 text-amber-100"}`}>
-                <span className={`h-1.5 w-1.5 rounded-full ${owner.account_activated ? "bg-emerald-300" : "bg-amber-300"}`} />
-                {owner.account_activated ? "Cuenta activada" : "Cuenta pendiente de activar"}
-              </span>
-            </div>
-          </div>
+              <p className="mt-1 text-xs text-secondary">
+                {property.utilities_included ? "Gastos incluidos" : "Gastos no incluidos"}
+                {property.deposit ? ` · Fianza ${formatEuros(property.deposit)}` : ""}
+              </p>
 
-          <div className="mt-5 grid gap-2">
-            {owner.email ? <ContactRow icon={<Mail />} href={`mailto:${owner.email}`} label={owner.email} /> : null}
-            {owner.phone ? <ContactRow icon={<Phone />} href={`tel:${owner.phone.replace(/\s/g, "")}`} label={owner.phone} /> : null}
-            {owner.phone ? (
-              <ContactRow
-                icon={<MessageCircle />}
-                href={whatsappHref(owner.phone, `Hola, te escribimos de CoFlow sobre la vivienda «${property.title}».`)}
-                label="Escribir por WhatsApp"
-                external
-              />
-            ) : null}
-            {!owner.email && !owner.phone ? <p className="text-xs text-white/60">Sin datos de contacto.</p> : null}
-          </div>
+              <div className="mt-4 border-t border-border pt-4">
+                {property.missing_fields.length ? (
+                  <>
+                    <p className="flex items-center gap-2 text-sm font-bold text-brand-dark">
+                      <CircleAlert className="h-4 w-4 shrink-0 text-amber-600" /> Faltan datos para publicar
+                    </p>
+                    <ul className="mt-2.5 grid gap-1.5">
+                      {property.missing_fields.map((field) => (
+                        <li key={field} className="flex gap-2 text-xs font-semibold text-secondary first-letter:uppercase">
+                          <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-500" />
+                          {field}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p className="flex items-center gap-2 text-sm font-bold text-primary-dark">
+                    <CircleCheck className="h-4 w-4 shrink-0" /> Ficha completa
+                  </p>
+                )}
 
-          <div className="mt-5 flex flex-wrap gap-2 border-t border-white/10 pt-5">
-            <Link href={`/equipo/viviendas?cliente=${owner.owner_profile_id}`} className="press-control inline-flex min-h-10 items-center gap-2 rounded-full bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/15">
-              <Layers className="h-4 w-4" /> {owner.property_count ?? 0} {owner.property_count === 1 ? "vivienda" : "viviendas"}
-            </Link>
-            <Link href={`/equipo/alta-asistida?cliente=${owner.owner_profile_id}`} className="press-control inline-flex min-h-10 items-center gap-2 rounded-full bg-white px-4 text-sm font-bold text-brand-dark">
-              <Plus className="h-4 w-4" /> Añadir otra
-            </Link>
-          </div>
-        </section>
-      </div>
+                {canPublish && property.missing_fields.length === 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => void publish()}
+                    disabled={publishing}
+                    className="press-control mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-brand-dark px-5 text-sm font-bold text-white shadow-button disabled:opacity-50"
+                  >
+                    {publishing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <CircleCheck className="h-4 w-4" />} Publicar
+                  </button>
+                ) : null}
+                {editable ? (
+                  <Link
+                    href={`/equipo/alta-asistida?vivienda=${property.id}`}
+                    className="press-control mt-2 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-surface-soft px-5 text-sm font-bold text-brand-dark"
+                  >
+                    <Pencil className="h-4 w-4" /> {property.missing_fields.length ? "Completar en el alta" : "Editar ficha"}
+                  </Link>
+                ) : null}
+                {actionError ? <p role="alert" className="mt-3 rounded-10 bg-red-50 p-3 text-xs font-semibold text-red-700">{actionError}</p> : null}
+              </div>
+            </SidePanel>
 
-      <section className="mt-4 rounded-panel bg-surface p-5 shadow-soft sm:p-6">
-        <p className="type-overline text-muted">Ficha</p>
-        <h2 className="mt-1 font-rounded text-xl font-semibold text-brand-dark">Condiciones y disponibilidad</h2>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Fact icon={<CalendarDays />} label="Disponible desde" value={property.available_from ? formatDate(property.available_from) : "Sin indicar"} />
-          <Fact icon={<Euro />} label="Fianza" value={property.deposit === null ? "Sin indicar" : property.deposit === 0 ? "Sin fianza" : formatEuros(property.deposit)} />
-          <Fact icon={<Clock3 />} label="Estancia mínima" value={property.minimum_stay_months ? `${property.minimum_stay_months} ${property.minimum_stay_months === 1 ? "mes" : "meses"}` : "Sin mínimo"} />
-          <Fact icon={<Ruler />} label="Superficie" value={property.surface_m2 ? `${property.surface_m2} m²` : "Sin indicar"} />
-          <Fact icon={<Building2 />} label="Planta" value={[property.floor, property.has_elevator ? "con ascensor" : "sin ascensor"].filter(Boolean).join(" · ")} />
-          <Fact icon={<Sofa />} label="Amueblada" value={property.furnished ? "Sí" : "No"} />
-          <Fact icon={<WalletCards />} label="Gastos" value={property.utilities_included ? "Incluidos" : "No incluidos"} />
-          <Fact icon={<Clock3 />} label="Alta" value={formatDate(property.created_at)} />
+            <SidePanel>
+              <p className="type-overline text-muted">Cliente</p>
+              <div className="mt-3 flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary">
+                  <OwnerIcon className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-brand-dark">{owner.display_name}</p>
+                  <p className="mt-0.5 text-xs text-secondary">
+                    {OWNER_TYPE_LABELS[owner.owner_type]}
+                    {contactName && contactName !== owner.display_name ? ` · ${contactName}` : ""}
+                  </p>
+                  <p className="mt-1.5">
+                    <StatusDot
+                      tone={owner.account_activated ? "positive" : "pending"}
+                      label={owner.account_activated ? "Cuenta activada" : "Cuenta sin activar"}
+                    />
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-3 border-t border-border pt-2">
+                {owner.email ? <ContactRow icon={<Mail />} href={`mailto:${owner.email}`} label={owner.email} /> : null}
+                {owner.phone ? <ContactRow icon={<Phone />} href={`tel:${owner.phone.replace(/\s/g, "")}`} label={owner.phone} /> : null}
+                {owner.phone ? (
+                  <ContactRow
+                    icon={<MessageCircle />}
+                    href={whatsappHref(owner.phone, `Hola, te escribimos de CoFlow sobre la vivienda «${property.title}».`)}
+                    label="Escribir por WhatsApp"
+                    external
+                  />
+                ) : null}
+                {!owner.email && !owner.phone ? <p className="py-2 text-xs text-muted">Sin datos de contacto.</p> : null}
+              </div>
+
+              <div className="mt-2 flex flex-wrap gap-2 border-t border-border pt-3">
+                <Link href={`/equipo/viviendas?cliente=${owner.owner_profile_id}`} className="press-control inline-flex min-h-10 items-center gap-1.5 rounded-full bg-surface-soft px-3.5 text-xs font-bold text-brand-dark">
+                  <Layers className="h-3.5 w-3.5" /> {owner.property_count ?? 0} {owner.property_count === 1 ? "vivienda" : "viviendas"}
+                </Link>
+                <Link href={`/equipo/alta-asistida?cliente=${owner.owner_profile_id}`} className="press-control inline-flex min-h-10 items-center gap-1.5 rounded-full bg-surface-soft px-3.5 text-xs font-bold text-brand-dark">
+                  <Plus className="h-3.5 w-3.5" /> Añadir otra
+                </Link>
+              </div>
+            </SidePanel>
+          </aside>
         </div>
-        <div className="mt-5 flex flex-wrap gap-2 border-t border-border pt-5">
-          <Rule label="Mascotas" value={property.pets_allowed} />
-          <Rule label="Parejas" value={property.couples_allowed} />
-          <Rule label="Estudiantes" value={property.students_allowed} />
-          <Rule label="Empadronamiento" value={property.registration_allowed} />
-          <Rule label="Fumar" value={property.smoking_allowed} />
-        </div>
-      </section>
+      </PhotoDetailShell>
     </div>
   );
 }
 
-function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="border-b border-border p-4 text-center sm:border-b-0">
-      <span className="mx-auto block w-fit text-primary [&>svg]:h-5 [&>svg]:w-5">{icon}</span>
-      <strong className="mt-2 block font-rounded text-lg text-brand-dark">{value}</strong>
-      <span className="mt-1 block text-xs text-secondary">{label}</span>
-    </div>
-  );
+function ruleValue(value: boolean | null) {
+  if (value === true) return "Sí";
+  if (value === false) return "No";
+  return null;
 }
 
-function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="rounded-card bg-surface-soft p-4">
-      <span className="text-primary [&>svg]:h-4.5 [&>svg]:w-4.5">{icon}</span>
-      <p className="mt-3 text-2xs font-bold uppercase tracking-[0.08em] text-muted">{label}</p>
-      <p className="mt-1 text-sm font-bold text-brand-dark">{value}</p>
-    </div>
-  );
-}
-
-function Rule({ label, value }: { label: string; value: boolean | null }) {
-  return (
-    <span className={`inline-flex min-h-9 items-center rounded-full px-3 text-xs font-bold ${value === true ? "bg-primary/[0.08] text-primary-dark" : value === false ? "bg-surface-soft text-secondary" : "border border-border text-muted"}`}>
-      {label}: {value === true ? "Sí" : value === false ? "No" : "Sin definir"}
-    </span>
-  );
+function ruleTone(value: boolean | null) {
+  return value === true ? ("positive" as const) : undefined;
 }
 
 function ContactRow({ icon, href, label, external = false }: { icon: React.ReactNode; href: string; label: string; external?: boolean }) {
@@ -298,7 +307,7 @@ function ContactRow({ icon, href, label, external = false }: { icon: React.React
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
-      className="flex min-h-11 items-center gap-3 rounded-14 bg-white/[0.06] px-3 text-sm font-semibold text-white transition-colors hover:bg-white/10 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:shrink-0 [&>svg]:text-white/60"
+      className="-mx-2 flex min-h-11 items-center gap-2.5 rounded-10 px-2 text-sm font-semibold text-brand-dark transition-colors hover:bg-surface-soft [&>svg]:h-4 [&>svg]:w-4 [&>svg]:shrink-0 [&>svg]:text-primary"
     >
       {icon}
       <span className="truncate">{label}</span>

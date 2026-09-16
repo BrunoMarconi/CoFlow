@@ -4,18 +4,33 @@ import { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bath, BedDouble, CalendarDays, CheckCircle2, ChevronLeft, CircleAlert, Clock3, Eye, Home, LoaderCircle, MapPin, Pencil, Ruler, Sofa, Users, WalletCards } from "lucide-react";
+import { CheckCircle2, ChevronLeft, CircleAlert, KeyRound, LoaderCircle, MapPin, Pause, Pencil, Play } from "lucide-react";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import ErrorState from "@/components/ui/ErrorState";
 import PhotoDetailShell from "@/components/ui/PhotoDetailShell";
 import PhotoGallery from "@/components/ui/PhotoGallery";
-import PropertyStatusBadge from "@/components/propietario/PropertyStatusBadge";
+import {
+  DataRow,
+  DetailSection,
+  SidePanel,
+  StatusDot,
+  statusTone,
+} from "@/components/propietario/DetailPrimitives";
 import { getMyProperty, markPropertyRented, pauseProperty, resumeProperty } from "@/services/properties";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import { detailTransitionName } from "@/lib/detailTransitions";
 import type { Property } from "@/types/property";
 
 const TYPE_LABELS: Record<string, string> = { APARTMENT: "Piso", HOUSE: "Casa", STUDIO: "Estudio", SHARED_APARTMENT: "Piso compartido", OTHER: "Vivienda" };
+
+const STATUS_LABELS: Record<Property["status"], string> = {
+  DRAFT: "Borrador",
+  READY: "Preparada",
+  PAUSED: "Pausada",
+  PUBLISHED: "Publicada",
+  RENTED: "Alquilada",
+  ARCHIVED: "Archivada",
+};
 
 export default function PropertyDetailPage() {
   const router = useRouter();
@@ -51,56 +66,154 @@ export default function PropertyDetailPage() {
   });
   const missingItems = getMissingItems(property);
   const completeness = Math.round(((6 - missingItems.length) / 6) * 100);
+  const address = [property.address_line, property.postal_code, property.neighborhood, property.city].filter(Boolean).join(" · ");
 
   return (
     <div className="explore-shell -mx-6 -mt-4 w-[calc(100%+3rem)] px-4 pb-28 pt-4 sm:mx-auto sm:mt-0 sm:w-full sm:max-w-6xl sm:rounded-sheet sm:p-7 lg:p-8">
       <PhotoDetailShell
         transitionName={detailTransitionName("property", property.id)}
+        mediaClassName="h-[38svh] min-h-[15rem] sm:h-[26rem]"
         media={<PhotoGallery images={orderedImages.map((image, index) => ({ id: image.id, src: image.image_url, alt: `${property.title}, foto ${index + 1}` }))} priority empty={<div className="flex h-full items-center justify-center px-6 text-center text-sm font-medium text-neutral-mid">Añade una foto de portada</div>} />}
         actions={<><button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-brand-dark shadow-card backdrop-blur"><ChevronLeft className="h-5 w-5" /></button><Link href={`/propietarios/pisos/${property.id}/editar`} transitionTypes={["nav-forward"]} className="inline-flex h-11 items-center gap-2 rounded-full bg-brand-dark px-5 text-sm font-bold text-white shadow-raised"><Pencil className="h-4 w-4" />Editar</Link></>}
       >
-        <div className="flex flex-wrap items-center gap-2"><PropertyStatusBadge status={property.status} /><span className="text-xs font-medium text-neutral-mid">{TYPE_LABELS[property.property_type]}</span></div>
-        <h1 className="mt-3 font-rounded text-4xl font-semibold tracking-[-0.045em] text-brand-dark sm:text-5xl">{property.title}</h1>
-        <p className="mt-2 flex items-center gap-2 text-sm text-secondary"><MapPin className="h-4 w-4 text-primary" />{property.city}{property.neighborhood ? ` · ${property.neighborhood}` : ""}</p>
-        <div className="mt-7 grid grid-cols-2 overflow-hidden rounded-card border border-border bg-surface sm:grid-cols-4 sm:divide-x sm:divide-border"><Stat icon={<WalletCards />} label="Al mes" value={property.total_monthly_rent === null ? "Sin definir" : `${property.total_monthly_rent.toLocaleString("es-ES")} €`} /><Stat icon={<BedDouble />} label="Habitaciones" value={String(property.bedrooms)} /><Stat icon={<Bath />} label="Baños" value={String(property.bathrooms)} /><Stat icon={<Users />} label="Plazas" value={String(property.max_tenants)} /></div>
-        <div className="mt-9 grid gap-3 border-t border-black/[0.07] pt-8 sm:grid-cols-[190px_1fr]"><h2 className="text-sm font-semibold uppercase tracking-[.12em] text-[#4f5f56]">Sobre la vivienda</h2><p className="whitespace-pre-line text-sm leading-7 text-[#66736d]">{property.description}</p></div>
-        {property.amenities.length ? <div className="mt-8 grid gap-3 border-t border-black/[0.07] pt-8 sm:grid-cols-[190px_1fr]"><h2 className="text-sm font-semibold uppercase tracking-[.12em] text-[#4f5f56]">Lo que ofrece</h2><div className="flex flex-wrap gap-2">{property.amenities.map((amenity) => <span key={amenity.id} className="rounded-full bg-[#eaf0ec] px-3 py-2 text-xs font-semibold text-brand-mid">{amenity.label}</span>)}</div></div> : null}
-      </PhotoDetailShell>
-      {actionError ? <p role="alert" className="mt-4 rounded-[1rem] bg-red-50 p-4 text-sm font-semibold text-red-700">{actionError}</p> : null}
-
-      <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_.8fr]">
-        <section className="rounded-panel border border-black/[0.05] bg-surface p-5 shadow-soft sm:p-6">
-          <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.13em] text-muted">Calidad del anuncio</p><h2 className="mt-1 font-rounded text-xl font-semibold text-brand-dark">{missingItems.length ? "Hay detalles por completar" : "Anuncio preparado"}</h2></div><span className="flex h-11 min-w-11 items-center justify-center rounded-full bg-mint-50 px-2 text-sm font-bold text-primary-dark">{completeness}%</span></div>
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-surface-soft"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${completeness}%` }} /></div>
-          {missingItems.length ? <ul className="mt-4 grid gap-2 sm:grid-cols-2">{missingItems.map((item) => <li key={item} className="flex items-center gap-2 text-xs font-semibold text-secondary"><CircleAlert className="h-4 w-4 shrink-0 text-amber-600" />{item}</li>)}</ul> : <p className="mt-4 flex items-center gap-2 text-sm font-semibold text-primary-dark"><CheckCircle2 className="h-4 w-4" /> La información esencial está completa.</p>}
-          <Link href={`/propietarios/pisos/${property.id}/editar`} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-dark px-4 text-sm font-bold text-white"><Pencil className="h-4 w-4" /> {missingItems.length ? "Completar información" : "Revisar anuncio"}</Link>
-        </section>
-
-        <section className="rounded-panel border border-black/[0.05] bg-brand-dark p-5 text-white shadow-[0_16px_40px_rgba(20,55,41,.14)] sm:p-6"><p className="text-xs font-bold uppercase tracking-[0.13em] text-white/50">Siguiente paso</p><div className="mt-3 flex items-start gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10"><Eye className="h-5 w-5" /></span><div><p className="text-sm font-bold">{statusTitle(property.status)}</p><p className="mt-1 text-xs leading-5 text-white/60">{statusDescription(property.status)}</p><p className="mt-2 text-2xs font-semibold text-white/45">Actualizado {formatRelativeDate(property.updated_at)}</p></div></div>
-          <div className="mt-5 flex flex-wrap gap-2">{property.status === "READY" ? <button type="button" disabled={actioning} onClick={() => run(() => pauseProperty(property.id))} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white/10 px-4 text-sm font-bold text-white disabled:opacity-50">{actioning && <LoaderCircle className="h-4 w-4 animate-spin" />}Pausar</button> : null}{property.status === "PAUSED" ? <button type="button" disabled={actioning} onClick={() => run(() => resumeProperty(property.id))} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-4 text-sm font-bold text-brand-dark disabled:opacity-50">{actioning && <LoaderCircle className="h-4 w-4 animate-spin" />}Reactivar</button> : null}{["READY", "PAUSED"].includes(property.status) ? <button type="button" disabled={actioning} onClick={() => run(() => markPropertyRented(property.id))} className="min-h-11 rounded-full bg-white/10 px-4 text-sm font-bold text-white disabled:opacity-50">Marcar alquilada</button> : null}</div>
-        </section>
-      </div>
-
-      <section className="mt-4 rounded-panel bg-surface p-5 shadow-soft sm:p-6">
-        <div className="flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.13em] text-muted">Ficha operativa</p><h2 className="mt-1 font-rounded text-xl font-semibold text-brand-dark">Disponibilidad y condiciones</h2></div><Home className="h-5 w-5 text-primary" /></div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Fact icon={<CalendarDays />} label="Disponible desde" value={property.available_from ? formatDate(property.available_from) : "Sin indicar"} />
-          <Fact icon={<Clock3 />} label="Estancia mínima" value={property.minimum_stay_months ? `${property.minimum_stay_months} ${property.minimum_stay_months === 1 ? "mes" : "meses"}` : "Sin indicar"} />
-          <Fact icon={<Ruler />} label="Superficie" value={property.surface_m2 ? `${property.surface_m2} m²` : "Sin indicar"} />
-          <Fact icon={<Sofa />} label="Equipamiento" value={property.furnished ? "Amueblada" : "Sin amueblar"} />
+        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs font-medium text-neutral-mid">
+          <StatusDot tone={statusTone(property.status)} label={STATUS_LABELS[property.status]} />
+          <span aria-hidden="true">·</span>
+          <span>{TYPE_LABELS[property.property_type]}</span>
+          <span aria-hidden="true">·</span>
+          <span>Actualizada {formatRelativeDate(property.updated_at)}</span>
         </div>
-        <div className="mt-5 border-t border-border pt-5"><p className="text-xs font-bold uppercase tracking-[0.12em] text-muted">Condiciones</p><div className="mt-3 flex flex-wrap gap-2"><Rule label="Mascotas" value={property.pets_allowed} /><Rule label="Fumar" value={property.smoking_allowed} /><Rule label="Parejas" value={property.couples_allowed} /><Rule label="Estudiantes" value={property.students_allowed} /><Rule label="Empadronamiento" value={property.registration_allowed} /><Rule label="Gastos incluidos" value={property.utilities_included} /></div></div>
-      </section>
+        <h1 className="mt-3 font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark sm:text-4xl">{property.title}</h1>
+        <p className="mt-2 flex items-start gap-2 text-sm text-secondary">
+          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          {address || "Dirección pendiente"}
+        </p>
 
+        <div className="mt-8 grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_18rem] xl:gap-10">
+          <div className="@container min-w-0">
+            <DetailSection title="Resumen" first>
+              <dl className="grid gap-x-8 @lg:grid-cols-2">
+                <DataRow label="Tipo" value={TYPE_LABELS[property.property_type]} />
+                <DataRow label="Superficie" value={property.surface_m2 ? `${property.surface_m2} m²` : null} />
+                <DataRow label="Habitaciones" value={String(property.bedrooms)} />
+                <DataRow label="Baños" value={String(property.bathrooms)} />
+                <DataRow label="Plazas" value={`${property.max_tenants} ${property.max_tenants === 1 ? "persona" : "personas"}`} />
+                <DataRow label="Planta" value={[property.floor, property.has_elevator ? "con ascensor" : "sin ascensor"].filter(Boolean).join(" · ")} />
+                <DataRow label="Amueblada" value={property.furnished ? "Sí" : "No"} />
+                <DataRow label="Gastos" value={property.utilities_included ? "Incluidos" : "No incluidos"} />
+              </dl>
+            </DetailSection>
+
+            <DetailSection title="Sobre la vivienda">
+              <p className="whitespace-pre-line text-sm leading-7 text-secondary">{property.description || "Sin descripción todavía."}</p>
+            </DetailSection>
+
+            {property.amenities.length ? (
+              <DetailSection title="Lo que ofrece">
+                <div className="flex flex-wrap gap-2">
+                  {property.amenities.map((amenity) => <span key={amenity.id} className="rounded-full bg-surface-soft px-3 py-2 text-xs font-semibold text-brand-mid">{amenity.label}</span>)}
+                </div>
+              </DetailSection>
+            ) : null}
+
+            <DetailSection title="Disponibilidad y condiciones">
+              <dl className="grid gap-x-8 @lg:grid-cols-2">
+                <DataRow label="Disponible desde" value={property.available_from ? formatDate(property.available_from) : null} />
+                <DataRow label="Estancia mínima" value={property.minimum_stay_months ? `${property.minimum_stay_months} ${property.minimum_stay_months === 1 ? "mes" : "meses"}` : "Sin mínimo"} />
+                <DataRow label="Fianza" value={property.deposit === null ? null : property.deposit === 0 ? "Sin fianza" : `${property.deposit.toLocaleString("es-ES")} €`} />
+                <DataRow label="Alta en CoFlow" value={formatDate(property.created_at)} />
+              </dl>
+            </DetailSection>
+
+            <DetailSection title="Normas de la vivienda">
+              <dl className="grid gap-x-8 @lg:grid-cols-2">
+                <DataRow label="Mascotas" value={ruleValue(property.pets_allowed)} tone={ruleTone(property.pets_allowed)} />
+                <DataRow label="Parejas" value={ruleValue(property.couples_allowed)} tone={ruleTone(property.couples_allowed)} />
+                <DataRow label="Estudiantes" value={ruleValue(property.students_allowed)} tone={ruleTone(property.students_allowed)} />
+                <DataRow label="Empadronamiento" value={ruleValue(property.registration_allowed)} tone={ruleTone(property.registration_allowed)} />
+                <DataRow label="Fumar" value={ruleValue(property.smoking_allowed)} tone={ruleTone(property.smoking_allowed)} />
+              </dl>
+            </DetailSection>
+          </div>
+
+          <aside className="order-first grid gap-3 xl:order-0 xl:sticky xl:top-[calc(var(--mobile-header-height)+var(--safe-top)+1.25rem)]">
+            <SidePanel>
+              <p className="type-overline text-muted">Alquiler</p>
+              <p className="mt-1.5 flex items-baseline gap-1.5">
+                <strong className="font-rounded text-3xl font-semibold tracking-[-0.04em] text-brand-dark">{property.total_monthly_rent === null ? "Sin definir" : `${property.total_monthly_rent.toLocaleString("es-ES")} €`}</strong>
+                {property.total_monthly_rent === null ? null : <span className="text-sm font-semibold text-secondary">/ mes</span>}
+              </p>
+              <p className="mt-1 text-xs text-secondary">{property.utilities_included ? "Gastos incluidos" : "Gastos no incluidos"}</p>
+
+              <div className="mt-4 border-t border-border pt-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="text-sm font-bold text-brand-dark">{missingItems.length ? "Detalles por completar" : "Anuncio preparado"}</p>
+                  <span className="text-sm font-bold tabular-nums text-primary-dark">{completeness}%</span>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-soft" role="progressbar" aria-valuenow={completeness} aria-valuemin={0} aria-valuemax={100} aria-label="Calidad del anuncio">
+                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${completeness}%` }} />
+                </div>
+                {missingItems.length ? (
+                  <ul className="mt-3 grid gap-1.5">
+                    {missingItems.map((item) => (
+                      <li key={item} className="flex gap-2 text-xs font-semibold text-secondary">
+                        <CircleAlert className="mt-px h-3.5 w-3.5 shrink-0 text-amber-600" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-primary-dark">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" /> La información esencial está completa.
+                  </p>
+                )}
+
+                <Link href={`/propietarios/pisos/${property.id}/editar`} transitionTypes={["nav-forward"]} className="press-control mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-brand-dark px-4 text-sm font-bold text-white shadow-button">
+                  <Pencil className="h-4 w-4" /> {missingItems.length ? "Completar información" : "Editar anuncio"}
+                </Link>
+              </div>
+            </SidePanel>
+
+            <SidePanel>
+              <p className="type-overline text-muted">Estado</p>
+              <p className="mt-1.5 text-sm font-bold text-brand-dark">{statusTitle(property.status)}</p>
+              <p className="mt-1 text-xs leading-5 text-secondary">{statusDescription(property.status)}</p>
+
+              {["READY", "PAUSED"].includes(property.status) ? (
+                <div className="mt-4 grid gap-2 border-t border-border pt-4">
+                  {property.status === "READY" ? (
+                    <button type="button" disabled={actioning} onClick={() => run(() => pauseProperty(property.id))} className="press-control inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-surface-soft px-4 text-sm font-bold text-brand-dark disabled:opacity-50">
+                      {actioning ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Pause className="h-4 w-4" />} Pausar anuncio
+                    </button>
+                  ) : (
+                    <button type="button" disabled={actioning} onClick={() => run(() => resumeProperty(property.id))} className="press-control inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-surface-soft px-4 text-sm font-bold text-brand-dark disabled:opacity-50">
+                      {actioning ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Reactivar anuncio
+                    </button>
+                  )}
+                  <button type="button" disabled={actioning} onClick={() => run(() => markPropertyRented(property.id))} className="press-control inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-surface-soft px-4 text-sm font-bold text-brand-dark disabled:opacity-50">
+                    <KeyRound className="h-4 w-4" /> Marcar alquilada
+                  </button>
+                </div>
+              ) : null}
+
+              {actionError ? <p role="alert" className="mt-3 rounded-10 bg-red-50 p-3 text-xs font-semibold text-red-700">{actionError}</p> : null}
+            </SidePanel>
+          </aside>
+        </div>
+      </PhotoDetailShell>
     </div>
   );
 }
 
-function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="border-b border-border p-4 text-center sm:border-b-0"><span className="mx-auto block w-fit text-primary [&>svg]:h-5 [&>svg]:w-5">{icon}</span><strong className="mt-2 block font-rounded text-lg text-brand-dark">{value}</strong><span className="mt-1 block text-xs text-secondary">{label}</span></div>; }
+function ruleValue(value: boolean | null) {
+  if (value === true) return "Sí";
+  if (value === false) return "No";
+  return null;
+}
 
-function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="rounded-card bg-surface-soft p-4"><span className="text-primary [&>svg]:h-4.5 [&>svg]:w-4.5">{icon}</span><p className="mt-3 text-2xs font-bold uppercase tracking-[0.08em] text-muted">{label}</p><p className="mt-1 text-sm font-bold text-brand-dark">{value}</p></div>; }
-
-function Rule({ label, value }: { label: string; value: boolean | null }) { return <span className={`inline-flex min-h-9 items-center rounded-full px-3 text-xs font-bold ${value === true ? "bg-mint-50 text-primary-dark" : value === false ? "bg-surface-soft text-secondary" : "border border-border text-muted"}`}>{label}: {value === true ? "Sí" : value === false ? "No" : "Sin indicar"}</span>; }
+function ruleTone(value: boolean | null) {
+  return value === true ? ("positive" as const) : undefined;
+}
 
 function getMissingItems(property: Property) {
   return [
@@ -123,7 +236,7 @@ function formatRelativeDate(value: string) {
 }
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${value}T00:00:00`));
+  return new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${value.slice(0, 10)}T00:00:00`));
 }
 
 function statusTitle(status: Property["status"]) {

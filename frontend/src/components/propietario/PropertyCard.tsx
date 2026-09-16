@@ -3,8 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, ViewTransition } from "react";
-import { Archive, ArrowRight, BedDouble, CalendarDays, Eye, ImageIcon, KeyRound, LoaderCircle, MapPin, MoreHorizontal, Pause, Pencil, Play, Users } from "lucide-react";
-import PropertyStatusBadge from "./PropertyStatusBadge";
+import { Archive, ArrowRight, BedDouble, Eye, ImageIcon, KeyRound, LoaderCircle, MapPin, MoreHorizontal, Pause, Pencil, Play, Users } from "lucide-react";
+import { OWNER_STATUS_LABELS, StatusDot, statusTone } from "./DetailPrimitives";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import { detailTransitionName } from "@/lib/detailTransitions";
@@ -42,42 +42,47 @@ export default function PropertyCard({ property, onPause, onResume, onMarkRented
   const guidance = getGuidance(property.status);
 
   return (
-    <article className="group overflow-hidden rounded-panel border border-black/[0.045] bg-surface shadow-soft transition-shadow duration-200 hover:shadow-overlay sm:grid sm:grid-cols-[18rem_1fr]">
-      <Link href={`/propietarios/pisos/${property.id}`} transitionTypes={["nav-forward"]} className="relative block aspect-[16/10] overflow-hidden bg-surface-soft sm:aspect-auto sm:min-h-64" aria-label={`Abrir ${property.title}`}>
+    <article className="group overflow-hidden rounded-panel border border-black/[0.045] bg-surface shadow-soft transition-shadow duration-200 hover:shadow-overlay sm:grid sm:grid-cols-[15rem_1fr]">
+      <Link href={`/propietarios/pisos/${property.id}`} transitionTypes={["nav-forward"]} className="relative block aspect-[16/10] overflow-hidden bg-surface-soft sm:aspect-auto sm:min-h-52" aria-label={`Abrir ${property.title}`}>
         <ViewTransition name={detailTransitionName("property", property.id)} share="coflow-detail-morph">
           <div className="relative h-full w-full overflow-hidden">
             {property.cover_image_url && !imageError ? (
-              <Image src={property.cover_image_url} alt="" fill unoptimized onError={() => setImageError(true)} sizes="(min-width: 640px) 288px, 100vw" className="object-cover transition-transform duration-300 group-hover:scale-[1.015]" />
+              <Image src={property.cover_image_url} alt="" fill unoptimized onError={() => setImageError(true)} sizes="(min-width: 640px) 240px, 100vw" className="object-cover transition-transform duration-300 group-hover:scale-[1.015]" />
             ) : (
               <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center text-secondary"><span className="flex h-11 w-11 items-center justify-center rounded-full bg-surface text-primary shadow-soft"><ImageIcon className="h-5 w-5" /></span><span className="text-xs font-bold">Añade una foto de portada</span></div>
             )}
           </div>
         </ViewTransition>
-        <span className="absolute left-3 top-3"><PropertyStatusBadge status={property.status} /></span>
       </Link>
 
-      <div className="flex min-w-0 flex-col p-5 sm:p-6">
+      <div className="flex min-w-0 flex-col p-4 sm:p-5">
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1">
-            <p className="flex items-center gap-1.5 text-xs font-semibold text-secondary"><MapPin className="h-3.5 w-3.5 shrink-0 text-primary" /> <span className="truncate">{location}</span></p>
-            <h2 className="mt-1.5 line-clamp-2 font-rounded text-xl font-semibold tracking-[-0.03em] text-brand-dark sm:text-2xl">{property.title}</h2>
+            {/* El estado va con el resto del texto, no como pastilla sobre
+             * la foto: encima de una portada clara el badge se perdía, y
+             * encima de una oscura tapaba justo la parte que se mira. */}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <StatusDot tone={statusTone(property.status)} label={OWNER_STATUS_LABELS[property.status]} />
+              <span aria-hidden="true" className="text-xs text-muted">·</span>
+              <p className="flex min-w-0 items-center gap-1 text-xs font-semibold text-secondary"><MapPin className="h-3.5 w-3.5 shrink-0 text-primary" /> <span className="truncate">{location}</span></p>
+            </div>
+            <h2 className="mt-1.5 line-clamp-2 font-rounded text-lg font-semibold tracking-[-0.03em] text-brand-dark sm:text-xl">{property.title}</h2>
           </div>
           <PropertyMenu property={property} actioning={actioning} onPause={() => void run(onPause)} onResume={() => void run(onResume)} onMarkRented={() => void run(onMarkRented)} onArchive={() => setConfirmingArchive(true)} />
         </div>
 
-        <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
-          <div><strong className="font-rounded text-2xl font-semibold tracking-[-0.03em] text-brand-dark">{rent}</strong>{property.total_monthly_rent !== null && <span className="ml-1 text-xs font-semibold text-secondary">/ mes</span>}</div>
+        <div className="mt-3 flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+          <div><strong className="font-rounded text-xl font-semibold tracking-[-0.03em] text-brand-dark sm:text-2xl">{rent}</strong>{property.total_monthly_rent !== null && <span className="ml-1 text-xs font-semibold text-secondary">/ mes</span>}</div>
           <div className="flex items-center gap-3 text-xs font-semibold text-secondary"><span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4" />{property.bedrooms}</span><span className="flex items-center gap-1.5"><Users className="h-4 w-4" />{property.max_tenants} plazas</span></div>
         </div>
 
-        <div className="mt-4 flex items-start gap-3 rounded-card bg-surface-soft p-3.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface text-primary shadow-soft">{guidance.icon}</span>
-          <div className="min-w-0"><p className="text-xs font-bold text-brand-dark">{guidance.title}</p><p className="mt-0.5 text-xs leading-5 text-secondary">{guidance.text}</p></div>
-        </div>
+        <p className="mt-3 border-t border-black/[0.05] pt-3 text-xs leading-5 text-secondary">
+          <span className="font-bold text-brand-dark">{guidance.title}.</span> {guidance.text}
+        </p>
 
         {error && <p role="alert" className="mt-3 text-xs font-semibold text-red-600">{error}</p>}
 
-        <div className="mt-auto flex flex-col gap-2 pt-5 sm:flex-row">
+        <div className="mt-auto flex flex-col gap-2 pt-4 sm:flex-row">
           <PrimaryAction property={property} actioning={actioning} onResume={() => void run(onResume)} />
           <Link href={`/propietarios/pisos/${property.id}/editar`} transitionTypes={["nav-forward"]} className="press-control inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-surface-soft px-4 text-sm font-bold text-brand-dark hover:bg-black/[0.035]"><Pencil className="h-4 w-4" />Editar</Link>
         </div>
@@ -99,9 +104,9 @@ export default function PropertyCard({ property, onPause, onResume, onMarkRented
 }
 
 function PrimaryAction({ property, actioning, onResume }: { property: PropertySummary; actioning: boolean; onResume: () => void }) {
-  if (property.status === "DRAFT") return <Link href={`/propietarios/pisos/nuevo?draft=${property.id}`} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-brand-dark px-5 text-sm font-bold text-white shadow-button">Continuar anuncio <ArrowRight className="h-4 w-4" /></Link>;
-  if (property.status === "PAUSED") return <button type="button" disabled={actioning} onClick={onResume} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-brand-dark px-5 text-sm font-bold text-white shadow-button disabled:opacity-50">{actioning ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}Reactivar anuncio</button>;
-  return <Link href={`/propietarios/pisos/${property.id}`} transitionTypes={["nav-forward"]} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-brand-dark px-5 text-sm font-bold text-white shadow-button"><Eye className="h-4 w-4" />Ver vivienda</Link>;
+  if (property.status === "DRAFT") return <Link href={`/propietarios/pisos/nuevo?draft=${property.id}`} className="press-control inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-brand-dark px-5 text-sm font-bold text-white shadow-button">Continuar anuncio <ArrowRight className="h-4 w-4" /></Link>;
+  if (property.status === "PAUSED") return <button type="button" disabled={actioning} onClick={onResume} className="press-control inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-brand-dark px-5 text-sm font-bold text-white shadow-button disabled:opacity-50">{actioning ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}Reactivar anuncio</button>;
+  return <Link href={`/propietarios/pisos/${property.id}`} transitionTypes={["nav-forward"]} className="press-control inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-brand-dark px-5 text-sm font-bold text-white shadow-button"><Eye className="h-4 w-4" />Ver vivienda</Link>;
 }
 
 function PropertyMenu({ property, actioning, onPause, onResume, onMarkRented, onArchive }: { property: PropertySummary; actioning: boolean; onPause: () => void; onResume: () => void; onMarkRented: () => void; onArchive: () => void }) {
@@ -118,13 +123,13 @@ function MenuButton({ icon, label, onClick, disabled, danger = false }: { icon: 
 }
 
 function getGuidance(status: PropertyStatus) {
-  const map: Record<PropertyStatus, { title: string; text: string; icon: React.ReactNode }> = {
-    DRAFT: { title: "Termina la publicación", text: "Completa la información pendiente para dejarla preparada.", icon: <ArrowRight className="h-4 w-4" /> },
-    READY: { title: "Preparada para el lanzamiento", text: "La vivienda está completa y guardada para la futura publicación.", icon: <CalendarDays className="h-4 w-4" /> },
-    PUBLISHED: { title: "Anuncio visible", text: "La vivienda está publicada y puede recibir interés.", icon: <Eye className="h-4 w-4" /> },
-    PAUSED: { title: "Visibilidad detenida", text: "Reactívala cuando quieras volver a recibir interés.", icon: <Pause className="h-4 w-4" /> },
-    RENTED: { title: "Vivienda alquilada", text: "Conservamos el anuncio y su contexto en tu cartera.", icon: <KeyRound className="h-4 w-4" /> },
-    ARCHIVED: { title: "Fuera de la cartera activa", text: "El anuncio se conserva como referencia, sin actividad.", icon: <Archive className="h-4 w-4" /> },
+  const map: Record<PropertyStatus, { title: string; text: string }> = {
+    DRAFT: { title: "Termina la publicación", text: "Completa la información pendiente para dejarla preparada." },
+    READY: { title: "Preparada para el lanzamiento", text: "La vivienda está completa y guardada para la futura publicación." },
+    PUBLISHED: { title: "Anuncio visible", text: "La vivienda está publicada y puede recibir interés." },
+    PAUSED: { title: "Visibilidad detenida", text: "Reactívala cuando quieras volver a recibir interés." },
+    RENTED: { title: "Vivienda alquilada", text: "Conservamos el anuncio y su contexto en tu cartera." },
+    ARCHIVED: { title: "Fuera de la cartera activa", text: "El anuncio se conserva como referencia, sin actividad." },
   };
   return map[status];
 }
