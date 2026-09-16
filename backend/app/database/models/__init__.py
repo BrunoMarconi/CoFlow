@@ -6,10 +6,12 @@ from app.database.models.property import Property
 from app.database.models.property_image import PropertyImage
 from app.database.models.amenity import Amenity
 from app.database.models.property_amenity import PropertyAmenity
+from app.database.models.property_billing_consent import PropertyBillingConsent
 from app.database.models.community import Community
 from app.database.models.community_preferences import CommunityPreferences
 from app.database.models.community_member import CommunityMember
 from app.database.models.community_message import CommunityMessage
+from app.database.models.community_message_read import CommunityMessageRead
 from app.database.models.community_invitation import CommunityInvitation
 from app.database.models.community_application import CommunityApplication
 from app.database.models.saved_user_profile import SavedUserProfile
@@ -18,6 +20,7 @@ from app.database.models.user_connection import UserConnection
 from app.database.models.user_block import UserBlock
 from app.database.models.user_report import UserReport
 from app.database.models.private_message import PrivateMessage
+from app.database.models.private_message_read import PrivateMessageRead
 from app.database.models.notification import Notification
 from app.database.models.bank_auth_state import BankAuthState
 from app.database.models.bank_connection import BankConnection
@@ -31,3 +34,4 @@ from app.database.models.auth_session import AuthSession
 from app.database.models.owner_claim_token import OwnerClaimToken
 from app.database.models.legal_report import LegalReport
 from app.database.models.product_event import ProductEvent
+from app.database.models.admin_match_review import AdminMatchReview

@@ -28,6 +28,32 @@ ANSWER_FIELDS = [
 ]
 
 
+def _missing_profile_requirements(user: User) -> list[str]:
+    """Datos de perfil sin los que no se da por terminado el onboarding.
+
+    El frontend ya no deja avanzar sin ellos, pero completar el onboarding
+    es lo que abre comunidades y el perfil público: la comprobación vive
+    también aquí para que nadie llegue ahí con la ficha a medias llamando
+    directamente al endpoint.
+    """
+    missing: list[str] = []
+
+    if user.age is None:
+        missing.append("tu edad")
+    if not (user.occupation or "").strip():
+        missing.append("tu ocupación")
+    if not (user.avatar_storage_key or user.avatar_url):
+        missing.append("una foto o un avatar de CoFlow")
+
+    return missing
+
+
+def _join_in_spanish(items: list[str]) -> str:
+    if len(items) == 1:
+        return items[0]
+    return f"{', '.join(items[:-1])} y {items[-1]}"
+
+
 class OnboardingService:
 
     def save_or_update_profile(
@@ -36,6 +62,16 @@ class OnboardingService:
         user: User,
         data: OnboardingCreate
     ):
+
+        missing = _missing_profile_requirements(user)
+        if missing:
+            raise HTTPException(
+                status_code=422,
+                detail=(
+                    "Para terminar tu perfil necesitamos "
+                    f"{_join_in_spanish(missing)}."
+                ),
+            )
 
         profile = (
             db.query(CompatibilityProfile)

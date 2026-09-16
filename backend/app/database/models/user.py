@@ -14,6 +14,16 @@ class ProfileVisibility(str, enum.Enum):
     CONNECTIONS = "CONNECTIONS"
 
 
+class UserAdminStatus(str, enum.Enum):
+    NEW = "NEW"
+    INCOMPLETE = "INCOMPLETE"
+    LOOKING = "LOOKING"
+    MATCH_FOUND = "MATCH_FOUND"
+    CONTACTED = "CONTACTED"
+    IN_COMMUNITY = "IN_COMMUNITY"
+    PAUSED = "PAUSED"
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -79,6 +89,12 @@ class User(Base):
         Boolean,
         nullable=False,
         default=False
+    )
+    admin_status: Mapped[UserAdminStatus] = mapped_column(
+        Enum(UserAdminStatus, name="user_admin_status"),
+        nullable=False,
+        default=UserAdminStatus.NEW,
+        index=True,
     )
     rental_budget: Mapped[int | None] = mapped_column(
         Integer,

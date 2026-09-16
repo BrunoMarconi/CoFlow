@@ -1,8 +1,10 @@
+from datetime import date
 from uuid import UUID
 
 from pydantic import BaseModel, Field, computed_field, field_validator
 
 from app.core import team
+from app.core.config import MINIMUM_REGISTRATION_AGE
 from app.database.models.user import ProfileVisibility
 from app.schemas.storage_media import StorageBackedAvatarResponse
 from app.schemas.user_photo import UserPhotoResponse
@@ -18,7 +20,7 @@ class UpdateProfileRequest(BaseModel):
         le=20000,
     )
     is_looking_for_roommates: bool = True
-    age: int | None = Field(default=None, ge=18, le=99)
+    age: int | None = Field(default=None, ge=MINIMUM_REGISTRATION_AGE, le=99)
     occupation: str | None = Field(default=None, max_length=100)
     bio: str | None = Field(default=None, max_length=160)
     interests: list[str] | None = Field(default=None, max_length=12)
@@ -70,6 +72,26 @@ class UserResponse(StorageBackedAvatarResponse):
     # No es un campo del modelo: se rellena en la ruta a partir de la
     # feature flag EMAIL_VERIFICATION_ENABLED.
     email_verification_enabled: bool = True
+    # Se lee del modelo pero nunca se serializa: la fecha de nacimiento
+    # es el dato sensible, la edad derivada es lo único que sale de aquí
+    # (ver age_from_birth_date).
+    birth_date: date | None = Field(default=None, exclude=True)
+
+    # El onboarding pregunta la edad, pero quien se registró con email ya
+    # nos dio su fecha de nacimiento: esto permite proponerle la edad ya
+    # calculada en vez de pedirle el mismo dato dos veces. Es None para
+    # las cuentas de Google, que entran sin fecha de nacimiento.
+    @computed_field
+    @property
+    def age_from_birth_date(self) -> int | None:
+        if self.birth_date is None:
+            return None
+        today = date.today()
+        return (
+            today.year
+            - self.birth_date.year
+            - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
+        )
 
     # Solo decide qué enlaces pinta el frontend; la protección real está
     # en require_team_member, en cada ruta /team y /assisted-listings.

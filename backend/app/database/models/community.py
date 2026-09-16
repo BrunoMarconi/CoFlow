@@ -40,6 +40,11 @@ class CommunityProfileType(str, enum.Enum):
     OTHER = "OTHER"
 
 
+class CommunityFormationStatus(str, enum.Enum):
+    FORMING = "FORMING"
+    FORMED = "FORMED"
+
+
 class Community(Base):
     __tablename__ = "communities"
 
@@ -153,6 +158,12 @@ class Community(Base):
         Boolean,
         nullable=False,
         default=True,
+    )
+    formation_status: Mapped[CommunityFormationStatus] = mapped_column(
+        Enum(CommunityFormationStatus, name="community_formation_status"),
+        nullable=False,
+        default=CommunityFormationStatus.FORMING,
+        index=True,
     )
 
     # Portada de la comunidad. Por defecto (cover_image_url=None) se
