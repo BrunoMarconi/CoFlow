@@ -5,35 +5,12 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import { deleteAvatar, uploadAvatar } from "@/services/users";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
+import {
+  AVATAR_ACCEPTED_TYPES,
+  AVATAR_PRESETS,
+  avatarPresetToFile,
+} from "@/lib/avatarPresets";
 
-const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-
-const AVATAR_PRESETS = [
-  {
-    id: "olivo",
-    name: "Olivo",
-    description: "Cálido y natural",
-    src: "/images/avatar-presets/avatar-olivo.webp",
-  },
-  {
-    id: "terracota",
-    name: "Terracota",
-    description: "Creativa y alegre",
-    src: "/images/avatar-presets/avatar-terracota.webp",
-  },
-  {
-    id: "marino",
-    name: "Marino",
-    description: "Sereno y moderno",
-    src: "/images/avatar-presets/avatar-marino.webp",
-  },
-  {
-    id: "cielo",
-    name: "Cielo",
-    description: "Suave y luminoso",
-    src: "/images/avatar-presets/avatar-cielo.webp",
-  },
-] as const;
 
 export default function AvatarUploader({
   hasAvatar,
@@ -69,7 +46,7 @@ export default function AvatarUploader({
     const file = fileList?.[0];
     if (!file) return;
 
-    if (!ACCEPTED_TYPES.includes(file.type)) {
+    if (!AVATAR_ACCEPTED_TYPES.includes(file.type)) {
       setError("Solo se aceptan imágenes en formato JPEG, PNG o WebP.");
       if (inputRef.current) inputRef.current.value = "";
       return;
@@ -103,15 +80,7 @@ export default function AvatarUploader({
     setError("");
 
     try {
-      const response = await fetch(preset.src);
-      if (!response.ok) throw new Error("No se pudo cargar el avatar");
-
-      const blob = await response.blob();
-      const file = new File([blob], `avatar-coflow-${preset.id}.webp`, {
-        type: "image/webp",
-      });
-
-      await uploadAvatar(file);
+      await uploadAvatar(await avatarPresetToFile(preset));
       await onUpdated();
       setChooserOpen(false);
     } catch (error) {
@@ -152,7 +121,7 @@ export default function AvatarUploader({
       <input
         ref={inputRef}
         type="file"
-        accept={ACCEPTED_TYPES.join(",")}
+        accept={AVATAR_ACCEPTED_TYPES.join(",")}
         onChange={(event) => handleFileSelected(event.target.files)}
         disabled={busy}
         className="hidden"

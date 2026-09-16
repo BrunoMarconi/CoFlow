@@ -162,6 +162,8 @@ export default function Sidebar() {
         {user?.is_team_member ? (
           <NavGroup label="Equipo">
             {[
+              { href: "/admin/users", label: "Personas y matches", icon: UsersIcon },
+              { href: "/admin/communities", label: "Comunidades internas", icon: HomeIcon },
               { href: "/equipo/viviendas", label: "Todas las viviendas", icon: HomeIcon },
               { href: "/equipo/alta-asistida", label: "Alta asistida", icon: KeyIcon },
             ].map((link) => (

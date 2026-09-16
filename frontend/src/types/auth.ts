@@ -49,6 +49,10 @@ export interface User {
   avatar_url: string | null;
   photos: UserPhoto[];
   age: number | null;
+  /** Edad derivada de la fecha de nacimiento del registro. Null en las
+   * cuentas de Google, que entran sin ella. El onboarding la usa para
+   * proponer la edad ya calculada en vez de pedir el dato dos veces. */
+  age_from_birth_date: number | null;
   occupation: string | null;
   bio: string | null;
   interests: string[];
