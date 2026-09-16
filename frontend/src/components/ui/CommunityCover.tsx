@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import FadeImage from "@/components/ui/FadeImage";
 import { motion } from "framer-motion";
 import UserAvatar from "@/components/ui/UserAvatar";
@@ -50,7 +53,12 @@ export default function CommunityCover({
    * el resto de casos (solo pasa este prop quien lo necesite). */
   layoutId?: string;
 }) {
-  if (coverImageUrl) {
+  // Si la portada subida no carga, la comunidad cae en la portada
+  // automática de abajo. Antes la decisión se tomaba solo con "¿hay
+  // URL?" y una imagen rota dejaba la tarjeta en blanco, sin salida.
+  const [coverFailed, setCoverFailed] = useState(false);
+
+  if (coverImageUrl && !coverFailed) {
     return (
       <motion.div
         layoutId={layoutId}
@@ -63,6 +71,7 @@ export default function CommunityCover({
           fill
           unoptimized
           className="object-cover"
+          onError={() => setCoverFailed(true)}
         />
         {isOwn && (
           <span className="absolute left-3 top-3 inline-flex h-6.5 items-center rounded-full bg-white/95 px-3 text-xs font-bold text-primary-dark shadow-soft backdrop-blur">

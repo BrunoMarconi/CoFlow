@@ -301,8 +301,14 @@ function DiscoveryRow({
  * dato real disponible: con foto, la imagen protagoniza; sin foto, no
  * reservamos una superficie enorme vacía — card mucho más compacta. */
 function ExplorePersonCard({ person }: { person: UserPublicProfile }) {
-  return person.avatar_url ? (
-    <PersonPhotoCard person={person} />
+  /* Tener URL de avatar no es lo mismo que tener foto: si el archivo no
+   * carga, la tarjeta se queda en un rectángulo vacío. Al llevar el
+   * fallo a estado, esa persona pasa a la tarjeta sin foto —con sus
+   * iniciales— en vez de desaparecer de la fila. */
+  const [photoFailed, setPhotoFailed] = useState(false);
+
+  return person.avatar_url && !photoFailed ? (
+    <PersonPhotoCard person={person} onPhotoError={() => setPhotoFailed(true)} />
   ) : (
     <PersonNoPhotoCard person={person} />
   );
@@ -316,7 +322,7 @@ function personSubtitle(person: UserPublicProfile) {
       : "Busca comunidad";
 }
 
-function PersonPhotoCard({ person }: { person: UserPublicProfile }) {
+function PersonPhotoCard({ person, onPhotoError }: { person: UserPublicProfile; onPhotoError: () => void }) {
   const fullName = `${person.first_name} ${person.last_name}`.trim();
   const subtitle = personSubtitle(person);
 
@@ -340,6 +346,7 @@ function PersonPhotoCard({ person }: { person: UserPublicProfile }) {
             unoptimized
             sizes="224px"
             className="object-cover"
+            onError={onPhotoError}
           />
 
           {person.is_verified && (
@@ -427,6 +434,9 @@ function ExploreCommunityCard({
   isOwn: boolean;
 }) {
   const visibleMembers = item.members.slice(0, 3);
+  // Mismo criterio que en la tarjeta de persona: si la portada no
+  // carga, se enseña la composición de avatares en vez de un hueco.
+  const [coverFailed, setCoverFailed] = useState(false);
 
   return (
     <Link
@@ -441,7 +451,7 @@ function ExploreCommunityCard({
         className="explore-card overflow-hidden rounded-18"
       >
         <div className="relative h-32 bg-surface-muted">
-          {item.cover_image_url ? (
+          {item.cover_image_url && !coverFailed ? (
             <Image
               src={item.cover_image_url}
               alt=""
@@ -449,6 +459,7 @@ function ExploreCommunityCard({
               unoptimized
               sizes="272px"
               className="object-cover"
+              onError={() => setCoverFailed(true)}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center -space-x-3">
