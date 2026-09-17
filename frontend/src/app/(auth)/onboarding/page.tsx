@@ -15,6 +15,7 @@ import { getMyOnboarding, saveOnboarding } from "@/services/onboarding";
 import { updateProfile, uploadAvatar } from "@/services/users";
 import type { User } from "@/types/auth";
 import type { OnboardingAnswers } from "@/types/onboarding";
+import styles from "./Onboarding.module.css";
 
 const DRAFT_KEY = "coflow_onboarding_v3";
 /* La misma que acepta el registro (MINIMUM_REGISTRATION_AGE en el
@@ -225,17 +226,17 @@ export default function OnboardingPage() {
 
   if (initializing) return <main className="flex min-h-dvh items-center justify-center bg-surface"><Spinner /></main>;
 
-  return <main className="min-h-dvh bg-surface px-5 pb-8 pt-[calc(var(--safe-top)+1.5rem)] sm:px-8">
-    <div className="mx-auto w-full max-w-3xl">
-      <header className="flex items-center justify-between">
-        <button type="button" onClick={back} aria-label="Volver" className="flex h-11 w-11 items-center justify-start text-brand-dark"><ArrowLeft className="h-6 w-6" /></button>
+  return <main className={styles.shell}>
+    <div className={styles.frame}>
+      <header className={styles.topbar}>
+        <button type="button" onClick={back} aria-label="Volver" className="flex h-11 w-11 items-center justify-center rounded-full text-brand-dark transition hover:bg-black/5 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/30"><ArrowLeft className="h-6 w-6" /></button>
         <div className="flex items-center gap-2"><Logo size="sm" /><span className="text-xl font-bold text-brand-dark">CoFlow</span></div>
         <span className="min-w-16 text-right text-sm font-semibold text-secondary">{stage + 1} de {STAGES.length}</span>
       </header>
       {/* Cada segmento se rellena desde la izquierda en vez de cambiar de
           color de golpe: el progreso se ve avanzar, que es lo único que
           sostiene al que va por el paso 5 de 9. */}
-      <div className="mt-5 grid gap-2" style={{ gridTemplateColumns: `repeat(${STAGES.length}, minmax(0, 1fr))` }} aria-label={`Paso ${stage + 1} de ${STAGES.length}`}>
+      <div className={styles.progress} style={{ gridTemplateColumns: `repeat(${STAGES.length}, minmax(0, 1fr))` }} aria-label={`Paso ${stage + 1} de ${STAGES.length}`}>
         {STAGES.map((_, index) => (
           <span key={index} className="h-1.5 overflow-hidden rounded-full bg-border">
             <motion.span
@@ -248,17 +249,27 @@ export default function OnboardingPage() {
         ))}
       </div>
 
-      <AnimatePresence mode="wait" custom={direction} initial={false}>
-      <motion.section
-        key={stage}
-        custom={direction}
-        variants={STAGE_VARIANTS}
-        initial="enter"
-        animate="center"
-        exit="exit"
-        transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
-        className="mt-9"
-      >
+      <div className={styles.layout}>
+        <aside className={styles.contextCard} aria-label="Sobre este paso">
+          <span className={styles.stageIcon}>{current.icon}</span>
+          <p className={styles.contextEyebrow}>Perfil de convivencia</p>
+          <h2 className={styles.contextTitle}>Encuentra personas con las que vivir encaje de verdad.</h2>
+          <p className={styles.contextText}>No hay respuestas correctas. Cuanto más sincero seas, más útiles serán tus compatibilidades.</p>
+          <p className={styles.contextMeta}>Paso {stage + 1} de {STAGES.length} · borrador guardado</p>
+        </aside>
+
+        <div className={styles.stage}>
+        <AnimatePresence mode="wait" custom={direction} initial={false}>
+        <motion.section
+          key={stage}
+          custom={direction}
+          variants={STAGE_VARIANTS}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+          className={styles.stagePanel}
+        >
         <p className="text-sm font-bold uppercase tracking-[0.12em] text-primary">{current.eyebrow}</p>
         <h1 className="mt-2 text-3xl font-bold tracking-[-0.03em] text-brand-dark sm:text-5xl">{current.title}</h1>
         <p className="mt-3 max-w-xl text-base leading-7 text-secondary">{current.description}</p>
@@ -309,10 +320,12 @@ export default function OnboardingPage() {
         </div>}
 
         {error && <p role="alert" className="mt-5 rounded-14 border border-red-200 bg-surface px-4 py-3 text-sm font-semibold text-red-600">{error}</p>}
-        <button type="button" onClick={next} disabled={submitting || !stageComplete} className="mt-7 flex h-14 w-full items-center justify-center gap-2 rounded-14 bg-primary px-6 text-base font-bold text-white shadow-button transition hover:bg-primary-hover disabled:opacity-45">{submitting ? "Guardando..." : isLastStage ? (isEditing ? "Guardar cambios" : "Terminar") : "Continuar"}<ArrowRight className="h-5 w-5" /></button>
+        <button type="button" onClick={next} disabled={submitting || !stageComplete} className="mt-7 flex h-14 w-full items-center justify-center gap-2 rounded-14 bg-primary px-6 text-base font-bold text-white shadow-button transition hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-primary/30 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-45">{submitting ? "Guardando..." : isLastStage ? (isEditing ? "Guardar cambios" : "Terminar") : "Continuar"}<ArrowRight className="h-5 w-5" /></button>
         {!isLastStage && <p className="mt-4 text-center text-xs text-muted">Tus respuestas se guardan mientras avanzas</p>}
       </motion.section>
       </AnimatePresence>
+      </div>
+      </div>
     </div>
   </main>;
 }

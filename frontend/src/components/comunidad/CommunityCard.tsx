@@ -30,13 +30,13 @@ export default function CommunityCard({ community, isOwn = false }: { community:
 
   return (
     <div className="relative h-full">
-      <Link href={`/comunidades/${community.id}`} transitionTypes={["nav-forward"]} className="group block h-full">
+      <Link href={`/comunidades/${community.id}`} transitionTypes={["nav-forward"]} className="group block h-full rounded-card outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-3">
         <ViewTransition name={detailTransitionName("community", community.id)} share="coflow-detail-morph">
           <motion.article whileHover={{ y: -2 }} whileTap={{ scale: .965 }} transition={MOTION_SPRING.snappy} className={`flex h-full flex-col overflow-hidden rounded-card border border-black/[0.055] bg-surface p-[7px] shadow-card transition-shadow hover:shadow-raised ${available ? "" : "opacity-85"}`}>
             <div className="relative aspect-[1.72] overflow-hidden rounded-[17px]">
               <CommunityCover name={community.name} coverColor={community.cover_color} coverImageUrl={community.cover_image_url} members={members.map(({ user }) => ({ id: user.id, firstName: user.first_name, lastName: user.last_name, imageUrl: user.avatar_url }))} memberCount={community.member_count} isOwn={isOwn} className={`h-full w-full ${available ? "" : "grayscale"}`} />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/5" />
-              {affinity !== null && <Overlay className="left-2.5 top-2.5 bg-brand-dark/85 text-white">✦ {affinity}% afinidad</Overlay>}
+              {affinity !== null && <Overlay className="left-2.5 top-2.5 bg-brand-dark/85 text-white"><AffinityIcon />{affinity}% afinidad</Overlay>}
               <Overlay className="bottom-2.5 left-2.5 max-w-[64%] truncate bg-black/65 text-white"><PinIcon />{location}</Overlay>
               {community.monthly_rent !== null && <Overlay className="bottom-2.5 right-2.5 bg-white/95 text-brand-dark">{community.monthly_rent.toLocaleString("es-ES")} €/mes</Overlay>}
             </div>
@@ -84,7 +84,7 @@ export default function CommunityCard({ community, isOwn = false }: { community:
           </motion.article>
         </ViewTransition>
       </Link>
-      {!isOwn && <SaveHeartButton saved={saved} saving={savingToggle} onToggle={toggleSave} className="absolute right-3 top-3 left-auto z-10 h-8 w-8 bg-white/90 shadow-sm backdrop-blur" />}
+      {!isOwn && <SaveHeartButton saved={saved} saving={savingToggle} onToggle={toggleSave} className="absolute right-3 top-3 left-auto z-10 h-11 w-11 bg-white/90 shadow-sm backdrop-blur" />}
     </div>
   );
 }
@@ -96,3 +96,4 @@ function PinIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="current
 function VerifiedIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m8 12 2.5 2.5L16 9" /></svg>; }
 function ProfileIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3" aria-hidden="true"><circle cx="12" cy="8" r="3" /><path d="M5 20a7 7 0 0 1 14 0" /></svg>; }
 function HomeIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3 shrink-0" aria-hidden="true"><path d="m3 11 9-7 9 7v9H3Z" /></svg>; }
+function AffinityIcon() { return <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-3 w-3 shrink-0" aria-hidden="true"><path d="M8 1.5 9.4 6.6 14.5 8l-5.1 1.4L8 14.5 6.6 9.4 1.5 8l5.1-1.4L8 1.5Z" /></svg>; }

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Clock3, Home, Users2 } from "lucide-react";
 
 import s from "./Auth.module.css";
 
@@ -46,6 +47,20 @@ export default function AuthSplit({
               <li key={point}>{point}</li>
             ))}
           </ul>
+
+          <div className={s.compatibilityPreview} aria-hidden="true">
+            <div className={s.previewHeader}>
+              <span>Tu perfil de convivencia</span>
+              <i />
+            </div>
+            <div className={s.previewFlow}>
+              <span><Clock3 /> Ritmo</span>
+              <b />
+              <span><Home /> Hogar</span>
+              <b />
+              <span><Users2 /> Comunidad</span>
+            </div>
+          </div>
         </div>
         <p className={s.asideFoot}>{foot}</p>
       </aside>

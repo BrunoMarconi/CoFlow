@@ -10,6 +10,7 @@ import Logo from "@/components/ui/Logo";
 import CompatibilityRadar, { CompatibilityRadarIcon } from "@/components/convivencia/CompatibilityRadar";
 import { getMyCompatibilityScore } from "@/services/users";
 import type { CompatibilityScore } from "@/types/compatibilityScore";
+import styles from "../Onboarding.module.css";
 
 export default function OnboardingResultadoPage() {
   const router = useRouter();
@@ -36,16 +37,19 @@ export default function OnboardingResultadoPage() {
   }
 
   return (
-    <main className="min-h-dvh bg-surface px-5 pb-10 pt-[calc(var(--safe-top)+1.5rem)] sm:px-8">
-      <div className="mx-auto w-full max-w-lg">
-        <div className="flex justify-center"><Logo size="sm" /></div>
+    <main className={styles.shell}>
+      <div className={styles.resultFrame}>
+        <div className={styles.resultTopbar}>
+          <div className={styles.resultBrand}><Logo size="sm" /><span>CoFlow</span></div>
+          <span className={styles.resultStatus}>Perfil listo</span>
+        </div>
 
-        <div className="mt-6 animate-fade-in-up">
+        <div className={`${styles.resultPanel} animate-fade-in-up`}>
           <CompatibilityRadar
             categories={score.categories}
             icon={<CompatibilityRadarIcon />}
-            title="¡Tu Perfil de Convivencia!"
-            subtitle="Así te ven tus futuros compañeros"
+            title="Tu perfil de convivencia"
+            subtitle="Así podrán conocerte tus futuros compañeros"
             actionsCaption="Ahora puedes explorar comunidades: grupos de personas que ya buscan compañero de piso."
             actions={
               <>

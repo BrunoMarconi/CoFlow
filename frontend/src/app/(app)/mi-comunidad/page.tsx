@@ -249,9 +249,10 @@ function CommunityDashboard({
             href={`/comunidades/${community.id}`}
             aria-label="Ver perfil público"
             title="Ver perfil público"
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-soft text-brand-dark transition-colors duration-180 hover:bg-black/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="flex h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-surface-soft px-3.5 text-brand-dark transition-colors duration-180 hover:bg-black/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-auto"
           >
-            <MoreIcon />
+            <PublicIcon className="h-5 w-5" />
+            <span className="hidden text-xs font-bold sm:inline">Perfil público</span>
           </Link>
         </div>
 
@@ -336,7 +337,7 @@ function CommunityDashboard({
       </motion.section>
 
       <motion.section initial="hidden" animate="show" variants={sectionVariants} className="rounded-panel border border-black/[0.06] bg-surface-raised p-4 shadow-card sm:p-5">
-        <div className="flex items-center justify-between gap-3"><div><p className="text-3xs font-bold uppercase tracking-[0.14em] text-primary">Ahora</p><h2 className="mt-1 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Estado de la comunidad</h2></div><span className="rounded-full bg-[#e9eeea] px-3 py-1.5 text-3xs font-bold text-primary-dark">{isOwner ? "Vista de administrador" : "Vista de miembro"}</span></div>
+        <div className="flex items-center justify-between gap-3"><div><p className="text-3xs font-bold uppercase tracking-[0.14em] text-primary">Ahora</p><h2 className="mt-1 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Estado de la comunidad</h2></div><span className="rounded-full bg-surface-soft px-3 py-1.5 text-3xs font-bold text-primary-dark">{isOwner ? "Vista de administrador" : "Vista de miembro"}</span></div>
         <div className="mt-4 grid gap-2 sm:grid-cols-3">
           {isOwner ? <DashboardAction icon={<ApplicationsIcon className="h-5 w-5" />} value={String(pendingApplications)} label="solicitudes pendientes" detail={pendingApplications > 0 ? "Esperan tu respuesta" : "Todo revisado"} attention={pendingApplications > 0} onClick={() => onOpenPanel("applications")} /> : <DashboardAction icon={<MessageIcon className="h-5 w-5" />} value="Chat" label="de la comunidad" detail="Habla con tus convivientes" onClick={() => onOpenPanel("chat")} />}
           <DashboardAction icon={<SpotsIcon className="h-5 w-5" />} value={String(availablePlaces)} label="plazas disponibles" detail={availablePlaces > 0 ? "La comunidad puede crecer" : "Comunidad completa"} onClick={() => isOwner ? toggle("spots") : onOpenPanel("members")} />
@@ -713,7 +714,6 @@ function BaseIcon({ children, className = "h-5 w-5" }: { children: React.ReactNo
 function ArrowLeftIcon() { return <BaseIcon className="h-6 w-6"><path d="M19 12H5M11 18l-6-6 6-6" /></BaseIcon>; }
 function ArrowRightIcon() { return <BaseIcon className="h-4 w-4"><path d="M5 12h14M13 6l6 6-6 6" /></BaseIcon>; }
 function ChevronIcon() { return <BaseIcon className="h-4 w-4 text-muted"><path d="m9 6 6 6-6 6" /></BaseIcon>; }
-function MoreIcon() { return <BaseIcon className="h-6 w-6"><circle cx="5" cy="12" r="1" fill="currentColor" /><circle cx="12" cy="12" r="1" fill="currentColor" /><circle cx="19" cy="12" r="1" fill="currentColor" /></BaseIcon>; }
 function LocationIcon() { return <BaseIcon className="h-4 w-4"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></BaseIcon>; }
 function PeopleIcon({ className }: IconProps) { return <BaseIcon className={className ?? "h-6 w-6"}><circle cx="9" cy="7" r="4" /><path d="M2 21a7 7 0 0 1 14 0M17 7a3 3 0 0 1 0 6M22 21a5 5 0 0 0-5-5" /></BaseIcon>; }
 function MoneyIcon() { return <BaseIcon><circle cx="12" cy="12" r="9" /><path d="M15 8.5a4 4 0 1 0 0 7M7 11h7M7 14h7" /></BaseIcon>; }

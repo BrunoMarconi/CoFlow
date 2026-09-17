@@ -11,7 +11,6 @@ import { useCommunities } from "@/hooks/useCommunities";
 import { useAuth } from "@/hooks/useAuth";
 import CommunityGrid from "@/components/comunidad/CommunityGrid";
 import PullToRefresh from "@/components/interaction/PullToRefresh";
-import MobileLargeTitle from "@/components/layout/MobileLargeTitle";
 import CommunityFilters, {
   JOIN_TYPE_OPTIONS,
   URGENCY_OPTIONS,
@@ -26,7 +25,6 @@ import ActiveFilterChips, {
   type ActiveChip,
 } from "@/components/explorer/ActiveFilterChips";
 import SectionHeader from "@/components/ui/SectionHeader";
-import PrimaryButton from "@/components/ui/PrimaryButton";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import ErrorState from "@/components/ui/ErrorState";
@@ -66,10 +64,7 @@ export default function ComunidadesPage() {
   const searchParams = useSearchParams();
   const justLeft = searchParams.get("left") === "1";
 
-  const {
-    community: myCommunity,
-    communityLoading: loadingMyCommunity,
-  } = useAuth();
+  const { community: myCommunity } = useAuth();
 
   const {
     communities,
@@ -109,8 +104,7 @@ export default function ComunidadesPage() {
   const hasQuery = search.trim().length > 0;
   const showFiltersPanel = filtersOpen;
   const resultCount = visibleCommunities.length;
-  const featuredCity =
-    seoCities.find((city) => city.name === cityFilter) ?? seoCities[0];
+  const activeCityLabel = cityFilter === "Todas" ? "Málaga" : cityFilter;
 
   const activeChips = useMemo<ActiveChip[]>(() => {
     const chips: ActiveChip[] = [];
@@ -303,56 +297,27 @@ export default function ComunidadesPage() {
     <MotionConfig reducedMotion="user">
     <div className="community-discovery-page -mx-2 min-h-dvh bg-white px-2 sm:-mx-8 sm:px-8 md:mx-0 md:min-h-0 md:bg-transparent md:px-0">
       {!searchOpen && (
-        <>
-          <MobileLargeTitle
-            eyebrow="Descubre"
-            title="Comunidades"
-            className="mb-4 mt-2"
-          />
-          <header className="mb-4 hidden items-end justify-between gap-4 md:flex">
-            <div>
-              <p className="text-3xs font-bold uppercase tracking-[0.18em] text-muted">Descubre</p>
-              <h1 className="mt-2 font-rounded text-3xl font-extrabold tracking-[-0.04em] text-brand-dark sm:text-4xl">Comunidades</h1>
-            </div>
-          </header>
-        </>
+        <motion.header
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+          className="mt-6 flex items-end justify-between gap-6 border-b border-black/[0.07] pb-6 sm:mt-8 sm:pb-8"
+        >
+          <div>
+            <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-[#66736c]">
+              Comunidades · {activeCityLabel}
+            </p>
+            <h1 className="mt-2 max-w-2xl font-rounded text-4xl font-semibold leading-[1.02] tracking-[-0.05em] text-brand-dark sm:text-5xl">
+              Encuentra un grupo en el que empezar a sentirte en casa.
+            </h1>
+          </div>
+          <p className="hidden max-w-xs text-right text-sm leading-6 text-[#6b7771] lg:block">
+            Compara ambiente, presupuesto, plazas disponibles y forma de acceso antes de solicitar unirte.
+          </p>
+        </motion.header>
       )}
-      <AnimatePresence initial={false}>
-        {false && (
-          <motion.header
-            key="discovery-hero"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
-            className="relative mt-4 overflow-hidden rounded-24 bg-brand-dark text-white shadow-soft"
-          >
-            <Image
-              src={featuredCity.image}
-              alt=""
-              fill
-              priority
-              sizes="(min-width: 768px) 70vw, 100vw"
-              className="object-cover opacity-35"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-dark via-brand-dark/90 to-brand-dark/20" />
 
-            <div className="relative max-w-2xl px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
-              <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold text-white/90 backdrop-blur-sm">
-                Comunidades CoFlow
-              </span>
-              <h1 className="mt-4 max-w-xl font-rounded text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-4xl">
-                Encuentra personas con las que sentirte en casa
-              </h1>
-              <p className="mt-3 max-w-lg text-sm font-medium leading-6 text-white/78 sm:text-base">
-                Conoce cómo vive cada comunidad, qué ambiente busca y si tiene una plaza para ti.
-              </p>
-            </div>
-          </motion.header>
-        )}
-      </AnimatePresence>
-
-      <div className="sticky top-[calc(var(--safe-top)+.5rem)] z-(--z-sticky-header) rounded-card bg-background/95 py-2 backdrop-blur-xl">
+      <div className="sticky top-[calc(var(--safe-top)+.5rem)] z-(--z-sticky-header) -mx-2 mt-4 rounded-card border border-black/[0.06] bg-[#f8faf8]/95 px-3 pb-3 pt-3 shadow-card backdrop-blur-xl sm:mx-0 sm:px-4">
         <ExplorerSearchBar
           layoutIdBar={SEARCH_BAR_LAYOUT_ID}
           layoutIdIcon={SEARCH_ICON_LAYOUT_ID}
@@ -387,7 +352,7 @@ export default function ComunidadesPage() {
                 type="button"
                 onClick={() => setCityFilter(city)}
                 aria-pressed={active}
-                className={`flex h-8 shrink-0 items-center rounded-full px-3.5 text-xs font-bold transition-colors duration-200 ${
+                className={`flex h-10 shrink-0 items-center rounded-full px-4 text-sm font-bold transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                   active
                     ? "bg-brand-dark text-white"
                     : "bg-flat text-foreground hover:bg-flat-strong"
@@ -399,7 +364,7 @@ export default function ComunidadesPage() {
           })}
           {QUICK_PROFILE_FILTERS.map((profileType) => {
             const active = filters.profileType === profileType;
-            return <button key={profileType} type="button" onClick={() => setFilters((current) => ({ ...current, profileType: active ? "ALL" : profileType }))} aria-pressed={active} className={`flex h-8 shrink-0 items-center rounded-full px-3.5 text-xs font-bold transition-colors ${active ? "bg-brand-dark text-white" : "bg-flat text-foreground hover:bg-flat-strong"}`}>{COMMUNITY_PROFILE_TYPE_LABELS[profileType]}</button>;
+            return <button key={profileType} type="button" onClick={() => setFilters((current) => ({ ...current, profileType: active ? "ALL" : profileType }))} aria-pressed={active} className={`flex h-10 shrink-0 items-center rounded-full px-4 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${active ? "bg-brand-dark text-white" : "bg-flat text-foreground hover:bg-flat-strong"}`}>{COMMUNITY_PROFILE_TYPE_LABELS[profileType]}</button>;
           })}
         </div>
 
@@ -418,24 +383,6 @@ export default function ComunidadesPage() {
             transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
             className="mt-4"
           >
-            <header className="hidden items-center justify-between gap-4">
-              <div>
-                <h1 className="font-rounded text-lg font-semibold text-brand-dark">
-                  Comunidades
-                </h1>
-                <p className="mt-0.5 text-xs font-medium text-secondary">
-                  Grupos de personas que ya buscan compañero de piso
-                </p>
-              </div>
-
-              {!loadingMyCommunity && !myCommunity && (
-                <PrimaryButton href="/crear/comunidad" className="hidden shrink-0 sm:inline-flex">
-                  <PlusIcon />
-                  Crear comunidad
-                </PrimaryButton>
-              )}
-            </header>
-
             {justLeft && (
               <p className="mt-5 rounded-14 border border-primary/30 bg-mint-50 px-5 py-4 text-sm font-semibold text-primary-dark">
                 Has abandonado la comunidad correctamente.
@@ -560,7 +507,7 @@ export default function ComunidadesPage() {
           <SectionHeader
             title={searchOpen ? "Resultados" : "Comunidades recomendadas"}
             subtitle={resultsCounter}
-            className={searchOpen ? "mb-5" : "sr-only"}
+            className="mb-5"
           />
 
           {resultsBlock}
@@ -570,7 +517,7 @@ export default function ComunidadesPage() {
           <aside className="mt-8 space-y-4 lg:sticky lg:top-36 lg:mt-0" aria-label="Información útil">
             {myCommunity ? (
               <Link
-                href={`/comunidades/${myCommunity.id}`}
+                href="/mi-comunidad"
                 className="group block rounded-24 border border-primary/20 bg-mint-50 p-5 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:border-primary/35"
               >
                 <div className="flex items-start justify-between gap-4">
@@ -658,23 +605,6 @@ export default function ComunidadesPage() {
       <HomeFab />
     </div>
     </MotionConfig>
-  );
-}
-
-function PlusIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      className="h-5 w-5"
-      aria-hidden="true"
-    >
-      <path d="M12 5v14" />
-      <path d="M5 12h14" />
-    </svg>
   );
 }
 

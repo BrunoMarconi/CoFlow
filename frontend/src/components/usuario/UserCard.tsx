@@ -140,7 +140,7 @@ export default function UserCard({
                 disabled={savingToggle}
                 aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
                 aria-pressed={saved}
-                className="absolute right-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-white text-primary shadow-soft disabled:opacity-60"
+                className="absolute right-2.5 top-2.5 flex h-11 w-11 items-center justify-center rounded-full bg-white text-primary shadow-soft transition-colors hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
               >
                 <HeartIcon filled={saved} />
               </button>
@@ -167,7 +167,7 @@ export default function UserCard({
             </div>
           </div>
         ) : (
-          <div className="flex min-h-24 items-center gap-3 rounded-card border border-black/[0.06] bg-surface-raised p-3 shadow-card">
+          <div className="flex min-h-28 items-center gap-3 rounded-card border border-black/[0.06] bg-surface-raised p-3 shadow-card">
             <div className="relative shrink-0">
               <UserAvatar
                 firstName={user.first_name}
@@ -235,7 +235,7 @@ export default function UserCard({
             disabled={savingToggle}
             aria-label={saved ? "Quitar de favoritos" : "Guardar en favoritos"}
             aria-pressed={saved}
-            className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-primary shadow-soft disabled:opacity-60"
+            className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full bg-white text-primary shadow-soft transition-colors hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
           >
             <HeartIcon filled={saved} />
           </button>
@@ -284,7 +284,7 @@ export default function UserCard({
               type="button"
               onClick={handlePrimaryAction}
               disabled={connecting || connectionStatus === "PENDING_SENT"}
-              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-control bg-brand-dark px-4 text-sm font-semibold text-white shadow-none disabled:opacity-60"
+              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-control bg-brand-dark px-4 text-sm font-semibold text-white shadow-none transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
             >
               <MessageIcon />
               {connectionStatus === "ACCEPTED"

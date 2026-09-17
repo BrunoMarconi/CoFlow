@@ -151,6 +151,7 @@ export default function RegisterPage() {
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Mínimo 8 caracteres"
                 autoComplete="new-password"
+                aria-describedby="register-password-help"
                 minLength={8}
                 required
               />
@@ -158,6 +159,8 @@ export default function RegisterPage() {
                 {showPassword ? <EyeOff /> : <Eye />}
               </button>
             </div>
+
+            <p id="register-password-help" className={s.formNote}>Usa al menos 8 caracteres. Podrás completar tu perfil de convivencia después.</p>
 
             {error && <p role="alert" className={s.error}>{error}</p>}
 

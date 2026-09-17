@@ -101,6 +101,8 @@ export default function LoginPage() {
 
         {error && <p role="alert" className={s.error}>{error}</p>}
 
+        <p className={s.formNote}>Retoma tu búsqueda y tus conversaciones exactamente donde las dejaste.</p>
+
         <div className={s.actions}>
           <button type="submit" disabled={loading} className={s.submit}>
             {loading ? "Iniciando sesión..." : "Iniciar sesión"}
