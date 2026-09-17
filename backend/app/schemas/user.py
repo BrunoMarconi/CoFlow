@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field, computed_field, field_validator
@@ -46,6 +47,10 @@ class UpdateProfileRequest(BaseModel):
 
 class ProfilePrivacyUpdateRequest(BaseModel):
     profile_visibility: ProfileVisibility
+
+
+class AvatarPresetRequest(BaseModel):
+    preset_id: Literal["olivo", "terracota", "marino", "cielo"]
 
 
 class ProfilePrivacyResponse(BaseModel):

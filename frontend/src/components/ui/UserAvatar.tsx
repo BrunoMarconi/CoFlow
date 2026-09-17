@@ -52,7 +52,7 @@ export default function UserAvatar({
   size?: UserAvatarSize;
   className?: string;
 }) {
-  const [imageError, setImageError] = useState(false);
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
 
   const initials = [firstName, lastName]
     .filter(Boolean)
@@ -61,7 +61,7 @@ export default function UserAvatar({
     .join("")
     .toUpperCase();
 
-  if (imageUrl && !imageError) {
+  if (imageUrl && imageUrl !== failedImageUrl) {
     return (
       <Image
         src={imageUrl}
@@ -69,7 +69,7 @@ export default function UserAvatar({
         width={SIZE_PX[size]}
         height={SIZE_PX[size]}
         unoptimized
-        onError={() => setImageError(true)}
+        onError={() => setFailedImageUrl(imageUrl)}
         className={cn(
           "shrink-0 rounded-full border border-white/40 object-cover shadow-sm",
           SIZES[size],

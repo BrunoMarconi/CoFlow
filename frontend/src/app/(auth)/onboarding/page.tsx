@@ -9,10 +9,10 @@ import Logo from "@/components/ui/Logo";
 import { MOTION_DURATION, MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens";
 import Spinner from "@/components/ui/Spinner";
 import { useAuth } from "@/hooks/useAuth";
-import { AVATAR_ACCEPTED_TYPES, AVATAR_MAX_SIZE_BYTES, AVATAR_PRESETS, avatarPresetToFile } from "@/lib/avatarPresets";
+import { AVATAR_ACCEPTED_TYPES, AVATAR_MAX_SIZE_BYTES, AVATAR_PRESETS } from "@/lib/avatarPresets";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import { getMyOnboarding, saveOnboarding } from "@/services/onboarding";
-import { updateProfile, uploadAvatar } from "@/services/users";
+import { selectAvatarPreset, updateProfile, uploadAvatar } from "@/services/users";
 import type { User } from "@/types/auth";
 import type { OnboardingAnswers } from "@/types/onboarding";
 import styles from "./Onboarding.module.css";
@@ -200,8 +200,7 @@ export default function OnboardingPage() {
       });
       if (avatarFile) await uploadAvatar(avatarFile);
       else if (presetId) {
-        const preset = AVATAR_PRESETS.find((item) => item.id === presetId);
-        if (preset) await uploadAvatar(await avatarPresetToFile(preset));
+        await selectAvatarPreset(presetId);
       }
       await saveOnboarding(answers as OnboardingAnswers);
       window.localStorage.removeItem(DRAFT_KEY);

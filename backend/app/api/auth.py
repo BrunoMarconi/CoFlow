@@ -53,7 +53,7 @@ from app.core.config import (
 )
 from app.core.dependencies import get_current_user
 from app.database.models.user import User
-from app.schemas.user import UpdateProfileRequest, UserResponse
+from app.schemas.user import AvatarPresetRequest, UpdateProfileRequest, UserResponse
 from app.schemas.user_photo import UserPhotoOrderUpdate
 
 
@@ -231,6 +231,20 @@ async def upload_avatar(
 ):
     user = await user_photo_service.upload_avatar(
         db=db, current_user=current_user, file=file,
+    )
+    return _to_user_response(user)
+
+
+@router.put("/me/avatar/preset", response_model=UserResponse)
+def select_avatar_preset(
+    payload: AvatarPresetRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    user = user_photo_service.select_avatar_preset(
+        db=db,
+        current_user=current_user,
+        preset_id=payload.preset_id,
     )
     return _to_user_response(user)
 

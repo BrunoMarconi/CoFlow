@@ -115,6 +115,14 @@ export async function uploadAvatar(file: File) {
   return data;
 }
 
+export async function selectAvatarPreset(presetId: string) {
+  const { data } = await api.put<User>("/auth/me/avatar/preset", {
+    preset_id: presetId,
+  });
+
+  return data;
+}
+
 export async function deleteAvatar() {
   const { data } = await api.delete<User>("/auth/me/avatar");
   return data;

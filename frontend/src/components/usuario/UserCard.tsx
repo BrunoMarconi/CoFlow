@@ -173,7 +173,7 @@ export default function UserCard({
                 firstName={user.first_name}
                 lastName={user.last_name}
                 userId={user.id}
-                imageUrl={isGenericCoflowAvatar(user.avatar_url) ? null : user.avatar_url}
+                imageUrl={user.avatar_url}
                 size="lg"
               />
               {user.is_online && <OnlineDot className="bottom-0 right-0" />}
@@ -329,12 +329,6 @@ function ProfileIdentityCover({ user, habitChips, compact = false }: { user: Use
       <span className="absolute bottom-2.5 left-3 text-3xs font-semibold uppercase tracking-[.13em] opacity-60">Perfil CoFlow</span>
     </div>
   );
-}
-
-function isGenericCoflowAvatar(url: string | null): boolean {
-  if (!url) return false;
-  const normalized = url.toLowerCase();
-  return normalized.includes("logo-coflow") || normalized.includes("default-avatar") || normalized.includes("coflow-avatar");
 }
 
 function LocationIcon() {

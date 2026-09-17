@@ -3,12 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { deleteAvatar, uploadAvatar } from "@/services/users";
+import { deleteAvatar, selectAvatarPreset, uploadAvatar } from "@/services/users";
 import { getCommunityErrorMessage } from "@/lib/communityErrors";
 import {
   AVATAR_ACCEPTED_TYPES,
   AVATAR_PRESETS,
-  avatarPresetToFile,
 } from "@/lib/avatarPresets";
 
 
@@ -80,7 +79,7 @@ export default function AvatarUploader({
     setError("");
 
     try {
-      await uploadAvatar(await avatarPresetToFile(preset));
+      await selectAvatarPreset(preset.id);
       await onUpdated();
       setChooserOpen(false);
     } catch (error) {

@@ -39,17 +39,3 @@ export const AVATAR_PRESETS: readonly AvatarPreset[] = [
 
 export const AVATAR_ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const AVATAR_MAX_SIZE_BYTES = 5 * 1024 * 1024;
-
-/* El backend solo sabe de archivos subidos: elegir un personaje no es un
- * caso aparte, es subir su .webp como si fuera una foto tuya. Así el
- * avatar acaba en el mismo storage y no hace falta una segunda ruta ni
- * una columna "preset_id" que mantener en sincronía. */
-export async function avatarPresetToFile(preset: AvatarPreset): Promise<File> {
-  const response = await fetch(preset.src);
-  if (!response.ok) throw new Error("No se pudo cargar el avatar");
-
-  const blob = await response.blob();
-  return new File([blob], `avatar-coflow-${preset.id}.webp`, {
-    type: "image/webp",
-  });
-}

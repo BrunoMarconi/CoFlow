@@ -15,6 +15,12 @@ MAX_PHOTO_SIZE_BYTES = MAX_IMAGE_SIZE_BYTES
 
 AVATAR_SUBFOLDER = "avatars"
 PHOTO_SUBFOLDER = "user_photos"
+AVATAR_PRESET_URLS = {
+    "olivo": "/images/avatar-presets/avatar-olivo.webp",
+    "terracota": "/images/avatar-presets/avatar-terracota.webp",
+    "marino": "/images/avatar-presets/avatar-marino.webp",
+    "cielo": "/images/avatar-presets/avatar-cielo.webp",
+}
 
 
 def _reload_user(db: Session, current_user: User) -> User:
@@ -27,6 +33,29 @@ def _reload_user(db: Session, current_user: User) -> User:
 
 
 class UserPhotoService:
+
+    def select_avatar_preset(
+        self,
+        db: Session,
+        current_user: User,
+        preset_id: str,
+    ) -> User:
+        """Guarda un personaje de CoFlow como recurso interno estable."""
+        preset_url = AVATAR_PRESET_URLS[preset_id]
+        previous_storage_key = current_user.avatar_storage_key
+
+        try:
+            current_user.avatar_url = preset_url
+            current_user.avatar_storage_key = None
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+
+        if previous_storage_key:
+            storage_service.delete_file(previous_storage_key, AVATAR_SUBFOLDER)
+
+        return _reload_user(db, current_user)
 
     async def upload_avatar(
         self,

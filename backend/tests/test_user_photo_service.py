@@ -83,6 +83,15 @@ def test_delete_avatar_clears_fields(db_session, make_user):
     assert updated.avatar_storage_key is None
 
 
+def test_select_avatar_preset_uses_stable_frontend_asset(db_session, make_user):
+    user = make_user("avatar-preset")
+
+    updated = service.select_avatar_preset(db_session, user, "olivo")
+
+    assert updated.avatar_url == "/images/avatar-presets/avatar-olivo.webp"
+    assert updated.avatar_storage_key is None
+
+
 def test_upload_photos_appends_with_incrementing_position(db_session, make_user):
     user = make_user("photos-upload")
 

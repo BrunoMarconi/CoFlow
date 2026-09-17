@@ -10,7 +10,7 @@ interface AvatarProps {
 }
 
 export default function Avatar({ name, imageUrl, size = 40 }: AvatarProps) {
-  const [imageError, setImageError] = useState(false);
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
 
   const initials = name
     .split(" ")
@@ -19,7 +19,7 @@ export default function Avatar({ name, imageUrl, size = 40 }: AvatarProps) {
     .map((part) => part[0]?.toUpperCase())
     .join("");
 
-  if (imageUrl && !imageError) {
+  if (imageUrl && imageUrl !== failedImageUrl) {
     return (
       <Image
         src={imageUrl}
@@ -27,7 +27,7 @@ export default function Avatar({ name, imageUrl, size = 40 }: AvatarProps) {
         width={size}
         height={size}
         unoptimized
-        onError={() => setImageError(true)}
+        onError={() => setFailedImageUrl(imageUrl)}
         className="rounded-full object-cover"
         style={{ width: size, height: size }}
       />
