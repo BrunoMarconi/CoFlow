@@ -49,10 +49,10 @@ export default function ExplorarPage() {
   }
 
   const ctaHref = community ? "/perfil" : "/crear/comunidad";
-  const ctaTitle = community ? "Completa tu perfil" : "Crea tu comunidad";
+  const ctaTitle = community ? "Revisa tu perfil" : "Crea tu comunidad";
   const ctaDescription = community
-    ? "Genera más confianza entre quienes lo ven."
-    : "Empieza tu espacio en CoFlow.";
+    ? "Mantén al día cómo eres y qué buscas."
+    : "Empieza un grupo con tu forma de convivir.";
 
   function handleSearchOpen() {
     router.push(segment === "communities" ? "/comunidades" : "/usuarios");
@@ -74,18 +74,19 @@ export default function ExplorarPage() {
     ? { opacity: 0 }
     : { opacity: 0, y: -distance };
 
-  const heroPeople = users.slice(0, 3);
-
   return (
-    <div className="explore-shell -mx-5 -mt-3 min-h-[calc(100dvh-var(--mobile-header-height))] px-5 pb-8 pt-3 sm:-mx-6 sm:px-6 md:mx-auto md:-mt-2 md:max-w-6xl md:rounded-sheet md:px-8 md:pb-10 md:pt-7">
+    <div className="explore-shell -mx-5 -mt-3 min-h-[calc(100dvh-var(--mobile-header-height))] [--explore-background:#f7f9f7] [--explore-card:#fff] px-5 pb-8 pt-3 sm:-mx-6 sm:px-6 md:mx-auto md:-mt-2 md:max-w-6xl md:rounded-sheet md:px-8 md:pb-10 md:pt-7">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-bold text-secondary">Hola, {user.first_name}</p>
-          <h1 className="mt-0.5 font-rounded text-3xl font-semibold leading-none tracking-[-0.04em] text-brand-dark sm:text-4xl">
+          <p className="text-xs font-semibold text-secondary">Hola, {user.first_name}</p>
+          <h1 className="mt-1 font-rounded text-3xl font-semibold leading-none tracking-[-0.04em] text-brand-dark sm:text-4xl">
             Explorar
           </h1>
+          <p className="mt-2 max-w-md text-sm leading-5 text-secondary">
+            Personas y comunidades que pueden encajar contigo.
+          </p>
         </div>
-        <span className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-white px-3 text-xs font-bold text-primary-dark shadow-soft">
+        <span className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-black/[0.05] bg-white px-3 text-xs font-bold text-primary-dark shadow-soft">
           <LocationPinIcon /> Málaga
         </span>
       </header>
@@ -100,7 +101,7 @@ export default function ExplorarPage() {
           value=""
           onChange={() => {}}
           onClear={() => {}}
-          collapsedPlaceholder="Personas, comunidades, barrios…"
+          collapsedPlaceholder={segment === "communities" ? "Buscar comunidades…" : "Buscar personas…"}
           placeholder=""
         />
       </div>
@@ -111,32 +112,14 @@ export default function ExplorarPage() {
         <SegmentPill active={segment === "communities"} onClick={() => setSegment("communities")}>Comunidades</SegmentPill>
       </div>
 
-      <section className="mt-5 grid gap-3 sm:grid-cols-[1.35fr_0.65fr]">
-        <Link href="/usuarios" className="group relative min-h-44 overflow-hidden rounded-24 bg-brand-dark p-5 text-white shadow-modal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
-          <div className="relative z-10 max-w-[24rem]">
-            <p className="text-2xs font-bold uppercase tracking-[0.12em] text-white/60">Selección para ti</p>
-            <h2 className="mt-2 font-rounded text-2xl font-semibold leading-tight tracking-[-0.03em]">Encuentra personas con las que encajar de verdad.</h2>
-            <p className="mt-2 text-sm leading-5 text-white/70">Compara hábitos, presupuesto y forma de convivir antes de escribir.</p>
-          </div>
-          <div className="relative z-10 mt-5 flex items-center justify-between">
-            <span className="inline-flex items-center gap-1 text-sm font-bold">Ver personas <ChevronIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /></span>
-            {heroPeople.length > 0 && <AvatarStack people={heroPeople} />}
-          </div>
-          <span aria-hidden="true" className="absolute -right-12 -top-16 h-48 w-48 rounded-full border border-white/10" />
-          <span aria-hidden="true" className="absolute -bottom-20 right-12 h-40 w-40 rounded-full bg-white/[0.035]" />
-        </Link>
-
-        <Link href={ctaHref} className="group flex min-h-36 flex-col justify-between rounded-24 border border-black/[0.04] bg-white p-5 shadow-overlay focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:min-h-44">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/[0.045] text-primary"><SparkleIcon /></span>
-          <div className="mt-5">
-            <p className="text-2xs font-bold uppercase tracking-[0.1em] text-muted">Siguiente paso</p>
-            <div className="mt-1 flex items-end justify-between gap-3">
-              <div><h2 className="font-rounded text-lg font-semibold text-brand-dark">{ctaTitle}</h2><p className="mt-0.5 text-xs leading-5 text-secondary">{ctaDescription}</p></div>
-              <ChevronIcon className="mb-1 h-4 w-4 shrink-0 text-muted transition-transform group-hover:translate-x-0.5" />
-            </div>
-          </div>
-        </Link>
-      </section>
+      <Link href={ctaHref} className="group mt-4 flex min-h-16 items-center gap-3 rounded-18 border border-black/[0.05] bg-white p-3 shadow-soft transition-colors hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:max-w-xl">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary"><SparkleIcon /></span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-bold text-brand-dark">{ctaTitle}</span>
+          <span className="mt-0.5 block text-xs leading-5 text-secondary">{ctaDescription}</span>
+        </span>
+        <ChevronIcon className="h-4 w-4 shrink-0 text-primary-dark transition-transform group-hover:translate-x-0.5" />
+      </Link>
 
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
@@ -145,11 +128,11 @@ export default function ExplorarPage() {
           animate={{ opacity: 1, y: 0 }}
           exit={contentExit}
           transition={{ duration, ease: MOTION_EASE.out }}
-          className="mt-6 space-y-4"
+          className="mt-5 space-y-4"
         >
           {segment !== "communities" && (
             <DiscoveryRow
-              title="Personas para conocer"
+              title="Personas para ti"
               viewAllHref="/usuarios"
               loading={usersLoading}
               error={usersError}
@@ -172,7 +155,7 @@ export default function ExplorarPage() {
 
           {segment !== "people" && (
             <DiscoveryRow
-              title="Comunidades"
+              title="Comunidades para ti"
               viewAllHref="/comunidades"
               loading={communitiesLoading}
               error={communitiesError}
@@ -218,7 +201,7 @@ function SegmentPill({
       role="tab"
       aria-selected={active}
       onClick={onClick}
-      className={cn("relative min-h-9 rounded-[10px] px-2 text-xs font-bold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-brand", active ? "text-brand-dark" : "text-secondary")}
+      className={cn("relative min-h-11 rounded-[10px] px-2 text-xs font-bold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-brand", active ? "text-brand-dark" : "text-secondary")}
     >
       {active && <motion.span layoutId="explore-segment" className="absolute inset-0 rounded-[10px] bg-white shadow-soft" transition={{ type: "spring", stiffness: 450, damping: 36 }} />}
       <span className="relative z-10">{children}</span>
@@ -531,24 +514,6 @@ function SparkleIcon() {
       <path d="m12 3 1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6Z" />
       <path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8Z" />
     </svg>
-  );
-}
-
-function AvatarStack({ people }: { people: UserPublicProfile[] }) {
-  return (
-    <span className="flex -space-x-2" aria-label={`${people.length} personas disponibles`}>
-      {people.map((person) => (
-        <UserAvatar
-          key={person.id}
-          firstName={person.first_name}
-          lastName={person.last_name}
-          userId={person.id}
-          imageUrl={person.avatar_url}
-          size="sm"
-          className="border-2 border-brand-dark"
-        />
-      ))}
-    </span>
   );
 }
 
