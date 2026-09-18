@@ -29,6 +29,7 @@ import type { UserPublicProfile } from "@/types/userPublic";
 import type { Community } from "@/types/community";
 
 type Segment = "all" | "people" | "communities";
+type PeopleFilter = "best" | "verified" | "budget";
 
 const PREVIEW_COUNT_MIXED = 8;
 const PREVIEW_COUNT_FOCUSED = 12;
@@ -40,6 +41,7 @@ export default function ExplorarPage() {
   const isDesktop = useMediaQuery("(min-width: 640px)");
 
   const [segment, setSegment] = useState<Segment>("all");
+  const [peopleFilter, setPeopleFilter] = useState<PeopleFilter>("best");
 
   const { users, loading: usersLoading, error: usersError, refetch: refetchUsers } = useUsers();
   const { communities, loading: communitiesLoading, error: communitiesError, refetch: refetchCommunities } = useCommunities();
@@ -47,6 +49,20 @@ export default function ExplorarPage() {
   if (loading || !user) {
     return <PageSkeleton />;
   }
+
+  const rankedUsers = [...users].sort((a, b) => {
+    const scoreDifference = (b.match_score ?? -1) - (a.match_score ?? -1);
+    if (scoreDifference !== 0) return scoreDifference;
+    return Number(b.is_verified) - Number(a.is_verified);
+  });
+  const filteredUsers = rankedUsers.filter((person) => {
+    if (peopleFilter === "verified") return person.is_verified;
+    if (peopleFilter === "budget") return person.rental_budget !== null;
+    return true;
+  });
+  const bestMatch = rankedUsers.find((person) => person.match_score !== null) ?? null;
+  const hasMatchData = bestMatch !== null;
+  const showBestMatch = Boolean(bestMatch) && (segment === "all" || peopleFilter === "best");
 
   const ctaHref = community ? "/perfil" : "/crear/comunidad";
   const ctaTitle = community ? "Revisa tu perfil" : "Crea tu comunidad";
@@ -78,12 +94,12 @@ export default function ExplorarPage() {
     <div className="explore-shell -mx-5 -mt-3 min-h-[calc(100dvh-var(--mobile-header-height))] [--explore-background:#f7f9f7] [--explore-card:#fff] px-5 pb-8 pt-3 sm:-mx-6 sm:px-6 md:mx-auto md:-mt-2 md:max-w-6xl md:rounded-sheet md:px-8 md:pb-10 md:pt-7">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold text-secondary">Hola, {user.first_name}</p>
+          <p className="text-xs font-semibold text-primary-dark">Hola, {user.first_name}</p>
           <h1 className="mt-1 font-rounded text-3xl font-semibold leading-none tracking-[-0.04em] text-brand-dark sm:text-4xl">
-            Explorar
+            Encuentra a tu gente
           </h1>
           <p className="mt-2 max-w-md text-sm leading-5 text-secondary">
-            Personas y comunidades que pueden encajar contigo.
+            Compara cómo sería convivir antes de dar el primer paso.
           </p>
         </div>
         <span className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-black/[0.05] bg-white px-3 text-xs font-bold text-primary-dark shadow-soft">
@@ -112,14 +128,16 @@ export default function ExplorarPage() {
         <SegmentPill active={segment === "communities"} onClick={() => setSegment("communities")}>Comunidades</SegmentPill>
       </div>
 
-      <Link href={ctaHref} className="group mt-4 flex min-h-16 items-center gap-3 rounded-18 border border-black/[0.05] bg-white p-3 shadow-soft transition-colors hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:max-w-xl">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary"><SparkleIcon /></span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm font-bold text-brand-dark">{ctaTitle}</span>
-          <span className="mt-0.5 block text-xs leading-5 text-secondary">{ctaDescription}</span>
-        </span>
-        <ChevronIcon className="h-4 w-4 shrink-0 text-primary-dark transition-transform group-hover:translate-x-0.5" />
-      </Link>
+      {!hasMatchData && segment !== "communities" && (
+        <Link href={ctaHref} className="group mt-4 flex min-h-16 items-center gap-3 rounded-18 border border-primary/15 bg-mint-50 p-3 transition-colors hover:bg-primary/[0.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:max-w-xl">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-soft"><SparkleIcon /></span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-bold text-brand-dark">{ctaTitle}</span>
+            <span className="mt-0.5 block text-xs leading-5 text-secondary">{ctaDescription}</span>
+          </span>
+          <ChevronIcon className="h-4 w-4 shrink-0 text-primary-dark transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      )}
 
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
@@ -131,31 +149,45 @@ export default function ExplorarPage() {
           className="mt-5 space-y-4"
         >
           {segment !== "communities" && (
-            <DiscoveryRow
-              title="Personas para ti"
-              viewAllHref="/usuarios"
-              loading={usersLoading}
-              error={usersError}
-              onRetry={refetchUsers}
-              isEmpty={users.length === 0}
-              emptyMessage="Todavía no hay personas para mostrar."
-              skeletonWidth="w-56"
-              skeletonHeight="h-52"
-            >
-              {users
-                .slice(
-                  0,
-                  segment === "all" ? PREVIEW_COUNT_MIXED : PREVIEW_COUNT_FOCUSED
-                )
-                .map((person) => (
-                  <ExplorePersonCard key={person.id} person={person} />
-                ))}
-            </DiscoveryRow>
+            <div className="space-y-4">
+              {!usersLoading && !usersError && bestMatch && showBestMatch && (
+                <BestMatchCard person={bestMatch} />
+              )}
+
+              <DiscoveryRow
+                title={showBestMatch ? "Más personas para ti" : "Personas para ti"}
+                description="Ordenadas para ayudarte a decidir, no para hacerte deslizar sin fin."
+                viewAllHref="/usuarios"
+                loading={usersLoading}
+                error={usersError}
+                onRetry={refetchUsers}
+                isEmpty={filteredUsers.filter((person) => !showBestMatch || person.id !== bestMatch?.id).length === 0}
+                emptyMessage={peopleFilter === "best" ? "Todavía no hay personas para mostrar." : "No hay perfiles con este filtro por ahora."}
+                skeletonWidth="w-64"
+                skeletonHeight="h-28"
+                controls={
+                  segment === "people" ? (
+                    <PeopleFilterBar value={peopleFilter} onChange={setPeopleFilter} />
+                  ) : undefined
+                }
+              >
+                {filteredUsers
+                  .filter((person) => !showBestMatch || person.id !== bestMatch?.id)
+                  .slice(
+                    0,
+                    segment === "all" ? PREVIEW_COUNT_MIXED : PREVIEW_COUNT_FOCUSED
+                  )
+                  .map((person) => (
+                    <ExplorePersonCard key={person.id} person={person} />
+                  ))}
+              </DiscoveryRow>
+            </div>
           )}
 
           {segment !== "people" && (
             <DiscoveryRow
               title="Comunidades para ti"
+              description="Grupos con plazas disponibles y una forma de convivir definida."
               viewAllHref="/comunidades"
               loading={communitiesLoading}
               error={communitiesError}
@@ -211,6 +243,7 @@ function SegmentPill({
 
 function DiscoveryRow({
   title,
+  description,
   viewAllHref,
   loading,
   error,
@@ -219,9 +252,11 @@ function DiscoveryRow({
   emptyMessage,
   skeletonWidth,
   skeletonHeight,
+  controls,
   children,
 }: {
   title: string;
+  description?: string;
   viewAllHref: string;
   loading: boolean;
   error?: string;
@@ -230,14 +265,18 @@ function DiscoveryRow({
   emptyMessage: string;
   skeletonWidth: string;
   skeletonHeight: string;
+  controls?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <section className="overflow-hidden rounded-24 border border-black/[0.04] bg-white py-4 shadow-overlay sm:py-5">
-      <div className="mb-3 flex items-center justify-between gap-3 px-4 sm:px-5">
-        <h2 className="whitespace-nowrap font-rounded text-lg font-semibold tracking-[-0.025em] text-brand-dark">
-          {title}
-        </h2>
+      <div className="mb-3 flex items-start justify-between gap-3 px-4 sm:px-5">
+        <div className="min-w-0">
+          <h2 className="font-rounded text-lg font-semibold tracking-[-0.025em] text-brand-dark">
+            {title}
+          </h2>
+          {description && <p className="mt-0.5 max-w-lg text-xs leading-5 text-secondary">{description}</p>}
+        </div>
 
         <Link
           href={viewAllHref}
@@ -246,6 +285,8 @@ function DiscoveryRow({
           Ver todas
         </Link>
       </div>
+
+      {controls && <div className="mb-3 px-4 sm:px-5">{controls}</div>}
 
       {loading ? (
         <div className="flex gap-3 overflow-x-auto px-4 pb-1 sm:px-5">
@@ -279,21 +320,32 @@ function DiscoveryRow({
   );
 }
 
-/** Preview compacto para el Home — no es la ficha de búsqueda
- * profunda (esa vive en /usuarios vía UserCard). Dos variantes según
- * dato real disponible: con foto, la imagen protagoniza; sin foto, no
- * reservamos una superficie enorme vacía — card mucho más compacta. */
-function ExplorePersonCard({ person }: { person: UserPublicProfile }) {
-  /* Tener URL de avatar no es lo mismo que tener foto: si el archivo no
-   * carga, la tarjeta se queda en un rectángulo vacío. Al llevar el
-   * fallo a estado, esa persona pasa a la tarjeta sin foto —con sus
-   * iniciales— en vez de desaparecer de la fila. */
-  const [photoFailed, setPhotoFailed] = useState(false);
+function PeopleFilterBar({ value, onChange }: { value: PeopleFilter; onChange: (value: PeopleFilter) => void }) {
+  const options: { value: PeopleFilter; label: string }[] = [
+    { value: "best", label: "Mejor encaje" },
+    { value: "verified", label: "Verificados" },
+    { value: "budget", label: "Con presupuesto" },
+  ];
 
-  return person.avatar_url && !photoFailed ? (
-    <PersonPhotoCard person={person} onPhotoError={() => setPhotoFailed(true)} />
-  ) : (
-    <PersonNoPhotoCard person={person} />
+  return (
+    <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Filtrar personas">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          aria-pressed={value === option.value}
+          onClick={() => onChange(option.value)}
+          className={cn(
+            "min-h-11 shrink-0 rounded-full border px-4 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+            value === option.value
+              ? "border-brand-dark bg-brand-dark text-white"
+              : "border-black/[0.07] bg-white text-secondary hover:bg-surface-soft"
+          )}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -305,101 +357,121 @@ function personSubtitle(person: UserPublicProfile) {
       : "Busca comunidad";
 }
 
-function PersonPhotoCard({ person, onPhotoError }: { person: UserPublicProfile; onPhotoError: () => void }) {
-  const fullName = `${person.first_name} ${person.last_name}`.trim();
-  const subtitle = personSubtitle(person);
-
-  return (
-    <Link
-      href={`/personas/${person.id}`}
-      transitionTypes={["nav-forward"]}
-      className="block w-48 shrink-0 snap-start rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-52"
-    >
-      <ViewTransition name={detailTransitionName("person", person.id)} share="coflow-detail-morph">
-      <motion.div
-        whileTap={{ scale: 0.97 }}
-        transition={{ duration: MOTION_DURATION.fast }}
-        className="explore-card overflow-hidden rounded-18"
-      >
-        <div className="relative h-48 bg-surface-muted sm:h-52">
-          <Image
-            src={person.avatar_url!}
-            alt=""
-            fill
-            unoptimized
-            sizes="224px"
-            className="object-cover"
-            onError={onPhotoError}
-          />
-
-          {person.is_verified && (
-            <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-primary shadow-soft">
-              <VerifiedIcon className="h-3.5 w-3.5" />
-            </span>
-          )}
-          {person.match_score !== null && (
-            <MatchScoreBadge score={person.match_score} size="sm" className="absolute bottom-2 left-2 border-0 bg-white/95" />
-          )}
-        </div>
-
-        <div className="p-3">
-          <p className="truncate text-sm font-bold text-brand-dark">
-            {fullName || "Persona de CoFlow"}
-            {person.age !== null && (
-              <span className="font-medium text-secondary">, {person.age}</span>
-            )}
-          </p>
-
-          {subtitle && (
-            <p className="truncate text-xs text-muted">{subtitle}</p>
-          )}
-        </div>
-      </motion.div>
-      </ViewTransition>
-    </Link>
-  );
+function personImage(person: UserPublicProfile) {
+  return [...person.photos].sort((a, b) => a.position - b.position)[0]?.image_url ?? person.avatar_url;
 }
 
-/** Sin foto: card compacta propia, no una versión vacía de la de
- * foto. Nada de superficie gigante ni avatar flotando en el vacío. */
-function PersonNoPhotoCard({ person }: { person: UserPublicProfile }) {
+function strongestMatchLabels(person: UserPublicProfile, limit = 1) {
+  return [...(person.match_breakdown?.categories ?? [])]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((category) => category.label);
+}
+
+function formatBudget(budget: number | null) {
+  return budget === null ? "Presupuesto por completar" : `${budget.toLocaleString("es-ES")} € / mes`;
+}
+
+function BestMatchCard({ person }: { person: UserPublicProfile }) {
   const fullName = `${person.first_name} ${person.last_name}`.trim();
   const subtitle = personSubtitle(person);
+  const strengths = strongestMatchLabels(person, 2);
+  const explanation = strengths.length > 0
+    ? `Coincidís especialmente en ${strengths.join(" y ").toLowerCase()}.`
+    : "Vuestros perfiles de convivencia tienen una afinidad alta.";
 
   return (
-    <Link
-      href={`/personas/${person.id}`}
-      transitionTypes={["nav-forward"]}
-      className="block w-44 shrink-0 snap-start rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-48"
-    >
-      <ViewTransition name={detailTransitionName("person", person.id)} share="coflow-detail-morph">
-      <motion.div
-        whileTap={{ scale: 0.97 }}
-        transition={{ duration: MOTION_DURATION.fast }}
-        className="explore-card relative flex h-52 flex-col items-center justify-center gap-2 overflow-hidden rounded-18 p-4 text-center"
-      >
-        <ChevronIcon className="absolute right-3 top-3 h-4 w-4 text-border" />
-
+    <section className="overflow-hidden rounded-24 border border-primary/15 bg-mint-50 p-4 shadow-soft sm:p-5" aria-labelledby="best-match-title">
+      <p className="text-2xs font-bold uppercase tracking-[0.12em] text-primary">Mejor coincidencia ahora</p>
+      <div className="mt-3 flex items-start gap-3 sm:gap-4">
         <UserAvatar
           firstName={person.first_name}
           lastName={person.last_name}
           userId={person.id}
-          size="lg"
+          imageUrl={personImage(person)}
+          size="xl"
+          className="ring-4 ring-white"
         />
-        {person.match_score !== null && <MatchScoreBadge score={person.match_score} size="sm" />}
 
-        <div className="min-w-0">
-          <p className="truncate text-sm font-bold text-brand-dark">
-            {fullName || "Persona de CoFlow"}
-            {person.age !== null && (
-              <span className="font-medium text-secondary">, {person.age}</span>
-            )}
-          </p>
-
-          {subtitle && (
-            <p className="truncate text-xs text-muted">{subtitle}</p>
-          )}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 id="best-match-title" className="truncate font-rounded text-xl font-semibold tracking-[-0.025em] text-brand-dark sm:text-2xl">
+              {fullName || "Persona de CoFlow"}{person.age !== null ? `, ${person.age}` : ""}
+            </h2>
+            {person.match_score !== null && <MatchScoreBadge score={person.match_score} size="sm" />}
+          </div>
+          <p className="mt-1 text-xs font-semibold text-secondary">{subtitle}</p>
+          <p className="mt-2 max-w-xl text-sm leading-5 text-brand-mid">{explanation}</p>
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-secondary">
+            <span>{formatBudget(person.rental_budget)}</span>
+            {person.is_verified && <span className="inline-flex items-center gap-1 font-semibold text-primary-dark"><VerifiedIcon className="h-3.5 w-3.5" /> Perfil verificado</span>}
+          </div>
         </div>
+      </div>
+
+      <Link
+        href={`/personas/${person.id}`}
+        transitionTypes={["nav-forward"]}
+        className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-control bg-brand-dark px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-auto"
+      >
+        Ver por qué encajáis <ChevronIcon className="h-4 w-4" />
+      </Link>
+    </section>
+  );
+}
+
+function ExplorePersonCard({ person }: { person: UserPublicProfile }) {
+  const fullName = `${person.first_name} ${person.last_name}`.trim();
+  const subtitle = personSubtitle(person);
+  const [strongestMatch] = strongestMatchLabels(person);
+
+  return (
+    <Link
+      href={`/personas/${person.id}`}
+      transitionTypes={["nav-forward"]}
+      className="block w-64 shrink-0 snap-start rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-72"
+    >
+      <ViewTransition name={detailTransitionName("person", person.id)} share="coflow-detail-morph">
+      <motion.div
+        whileTap={{ scale: 0.97 }}
+        transition={{ duration: MOTION_DURATION.fast }}
+        className="explore-card flex min-h-52 flex-col rounded-18 p-4"
+      >
+        <div className="flex items-start gap-3">
+          <UserAvatar
+            firstName={person.first_name}
+            lastName={person.last_name}
+            userId={person.id}
+            imageUrl={personImage(person)}
+            size="lg"
+          />
+          <div className="min-w-0 flex-1 pt-0.5">
+            <div className="flex items-center gap-1">
+              <h3 className="truncate text-sm font-bold text-brand-dark">
+                {fullName || "Persona de CoFlow"}{person.age !== null ? `, ${person.age}` : ""}
+              </h3>
+              {person.is_verified && <VerifiedIcon className="h-3.5 w-3.5 shrink-0 text-primary" />}
+            </div>
+            <p className="mt-0.5 truncate text-xs text-secondary">{subtitle}</p>
+            {person.match_score !== null && <MatchScoreBadge score={person.match_score} size="sm" className="mt-2" />}
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-2 border-t border-black/[0.06] pt-3">
+          {strongestMatch && (
+            <p className="rounded-10 bg-mint-50 px-2.5 py-2 text-xs font-semibold text-primary-dark">
+              Coincidís en {strongestMatch.toLowerCase()}
+            </p>
+          )}
+          <div className="flex items-center justify-between gap-3 text-xs">
+            <span className="text-secondary">Presupuesto</span>
+            <span className="truncate font-bold text-brand-dark">{formatBudget(person.rental_budget)}</span>
+          </div>
+        </div>
+
+        <span className="mt-auto flex items-center justify-between pt-4 text-xs font-bold text-primary-dark">
+          Ver compatibilidad <ChevronIcon className="h-4 w-4" />
+        </span>
       </motion.div>
       </ViewTransition>
     </Link>
