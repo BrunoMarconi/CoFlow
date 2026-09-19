@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -23,7 +23,7 @@ function mapErrorCode(code: string | undefined): Status {
   return "error";
 }
 
-export default function VerificarEmailPage() {
+function VerificarEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const ranRef = useRef(false);
@@ -113,5 +113,17 @@ export default function VerificarEmailPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// useSearchParams() necesita un límite de Suspense para que Next pueda
+// prerenderizar la página (si no, el build falla). Antes lo ponía el
+// app/loading.tsx global, que se quitó para que la landing no enseñara
+// un spinner al cargar; el fallback es el mismo que tenía aquel.
+export default function VerificarEmailPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-dvh items-center justify-center"><Spinner /></div>}>
+      <VerificarEmailContent />
+    </Suspense>
   );
 }

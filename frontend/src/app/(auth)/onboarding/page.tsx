@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Camera, Check, Clock3, Coins, Home, Leaf, MessageCircle, Sparkles, UserRound, Users } from "lucide-react";
@@ -80,7 +80,7 @@ const STAGES: Stage[] = [
   { kind: "photo", eyebrow: "Tu perfil", title: "Ponle cara a tu perfil", description: "Sube una foto tuya o elige un personaje de CoFlow. Sin una de las dos cosas tu perfil no se publica.", icon: <Camera />, questions: [] },
 ];
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isEditing = searchParams.get("edit") === "true";
@@ -421,4 +421,16 @@ function PhotoStage({ avatarUrl, presetId, hasOwnPhoto, inputRef, onFiles, onPre
       })}
     </div>
   </div>;
+}
+
+// useSearchParams() necesita un límite de Suspense para que Next pueda
+// prerenderizar la página (si no, el build falla). Antes lo ponía el
+// app/loading.tsx global, que se quitó para que la landing no enseñara
+// un spinner al cargar; el fallback es el mismo que tenía aquel.
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-dvh items-center justify-center"><Spinner /></div>}>
+      <OnboardingContent />
+    </Suspense>
+  );
 }
