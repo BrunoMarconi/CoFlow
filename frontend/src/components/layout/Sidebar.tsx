@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { MOTION_HOME_TAP_SCALE } from "@/lib/motionTokens";
+import { MOTION_HOME_TAP_SCALE, MOTION_SPRING } from "@/lib/motionTokens";
 import { useAuth } from "@/hooks/useAuth";
 import { useOwnerMode } from "@/hooks/useOwnerMode";
 import Avatar from "@/components/ui/Avatar";
@@ -22,6 +23,7 @@ import {
   HomeIcon,
   type IconProps,
 } from "@/components/layout/NavIcons";
+import { navIconMotion } from "@/components/layout/navIconMotion";
 import { getTabTransitionTypes } from "@/lib/navTransition";
 
 type NavLink = {
@@ -276,31 +278,72 @@ function SidebarLink({
   isHomeLink?: boolean;
 }) {
   const Icon = link.icon;
+  const prefersReducedMotion = useReducedMotion();
+  const [hovered, setHovered] = useState(false);
+  const iconMotion = navIconMotion(link.icon);
+
+  // El activo hace su gesto entero una vez; el resto, un eco a media
+  // intensidad cuando el ratón pasa por la fila (no solo por el icono).
+  const iconState = prefersReducedMotion
+    ? "idle"
+    : active
+      ? "active"
+      : hovered
+        ? "hover"
+        : "idle";
 
   return (
     <Link
       href={link.href}
       aria-current={active ? "page" : undefined}
       transitionTypes={transitionTypes}
+      onPointerEnter={(event) => {
+        if (event.pointerType === "mouse") setHovered(true);
+      }}
+      onPointerLeave={() => setHovered(false)}
       className={cn(
-        "flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+        "relative flex items-center gap-3 rounded-10 px-4 py-2.5 text-sm font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
         active
-          ? "bg-mint-50 text-primary-dark"
-          : "text-muted hover:bg-surface-soft hover:text-foreground"
+          ? "text-primary-dark"
+          : "text-muted hover:bg-black/[0.035] hover:text-foreground"
       )}
     >
+      {/* Indicador compartido entre todas las filas: al cambiar de
+          sección se desliza de una a otra en vez de apagarse aquí y
+          encenderse allí. Antes el activo era bg-mint-50, que por
+          decisión de marca es #fff: blanco sobre blanco, no se veía.
+          Fondo neutro traslúcido (el verde no va de fondo) y el acento
+          de marca en la barrita, que sí es un "borde activo". */}
+      {active && (
+        <motion.span
+          layoutId="sidebar-active"
+          aria-hidden
+          transition={prefersReducedMotion ? { duration: 0 } : MOTION_SPRING.snappy}
+          className="absolute inset-0 rounded-10 bg-black/[0.05]"
+        >
+          <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-primary" />
+        </motion.span>
+      )}
       <motion.span
         whileTap={isHomeLink ? { scale: MOTION_HOME_TAP_SCALE } : undefined}
-        className="inline-flex shrink-0"
+        className="relative inline-flex shrink-0"
       >
-        <Icon
-          className={cn(
-            "h-5 w-5 shrink-0",
-            active ? "text-primary" : "text-muted"
-          )}
-        />
+        <motion.span
+          className="inline-flex"
+          style={{ transformOrigin: iconMotion.origin }}
+          variants={iconMotion.variants}
+          animate={iconState}
+        >
+          <Icon
+            filled={active}
+            className={cn(
+              "h-5 w-5 shrink-0",
+              active ? "text-primary" : "text-muted"
+            )}
+          />
+        </motion.span>
       </motion.span>
-      <span className="truncate">{link.label}</span>
+      <span className="relative truncate">{link.label}</span>
     </Link>
   );
 }

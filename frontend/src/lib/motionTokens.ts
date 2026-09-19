@@ -43,6 +43,45 @@ export function appleSpring({
   };
 }
 
+/** El mismo muelle, pero como curva `linear()` de CSS: sirve para
+ * transiciones CSS y para la Web Animations API, que no entienden de
+ * muelles. Solo para damping < 1 (con rebote): el crítico ya lo cubre
+ * cualquier ease-out. La duración es lo que tarda en asentarse hasta
+ * `precision` del destino, y la curva puede pasar de 1: ese exceso es el
+ * rebote. */
+export function springEasing({
+  damping,
+  response,
+  precision = 0.004,
+  samples = 36,
+}: {
+  damping: number;
+  response: number;
+  precision?: number;
+  samples?: number;
+}) {
+  const omega = (2 * Math.PI) / response;
+  const decay = damping * omega;
+  const dampedOmega = omega * Math.sqrt(1 - damping * damping);
+  const duration = Math.log(1 / precision) / decay;
+  const points: number[] = [];
+
+  for (let index = 0; index <= samples; index++) {
+    const t = (index / samples) * duration;
+    const envelope = Math.exp(-decay * t);
+    const value =
+      1 - envelope * (Math.cos(dampedOmega * t) + (decay / dampedOmega) * Math.sin(dampedOmega * t));
+    points.push(Number(value.toFixed(4)));
+  }
+  points[samples] = 1;
+
+  return {
+    easing: `linear(${points.join(", ")})`,
+    /** Milisegundos. */
+    duration: Math.round(duration * 1000),
+  };
+}
+
 export const MOTION_DURATION = {
   fast: 0.15,
   normal: 0.2,
@@ -140,6 +179,35 @@ export function rubberband(
     (dimension + constant * Math.abs(overshoot))
   );
 }
+
+/* --- Pulsación (PressFeedback) -----------------------------------------
+ * Un único lenguaje para todo lo que se toca. Entra en seco (es la
+ * respuesta al dedo) y sale con un rebote leve (es el material cediendo
+ * y recuperándose): esa asimetría es la que da carácter sin frenar nada.
+ *
+ * La profundidad no es una escala fija: un botón de icono y una tarjeta
+ * a todo el ancho no pueden hundirse el mismo porcentaje, porque la
+ * tarjeta se deformaría. Se busca que el borde retroceda unos
+ * `depthPx`, con topes para que ni un icono diminuto ni una tarjeta
+ * enorme se salgan de rango. */
+export const MOTION_PRESS = {
+  depthPx: 6,
+  minDepth: 0.012,
+  maxDepth: 0.05,
+  /** ms que tarda en hundirse. Por encima de ~110 se lee como animación,
+   * no como reacción. */
+  inDuration: 90,
+  inEasing: "cubic-bezier(0.2, 0.8, 0.2, 1)",
+  /** Recuperación: z = 0.5 rebota una vez, apenas un 0.8% en un botón. */
+  release: springEasing({ damping: 0.5, response: 0.32 }),
+  /** En táctil se espera un instante antes de hundir: si en ese tiempo
+   * el dedo empieza a desplazarse es un scroll, no un toque, y la
+   * tarjeta que había debajo no debe parpadear. Es lo que hace iOS en
+   * las listas. */
+  touchDelay: 70,
+  /** px que puede moverse el dedo antes de dejar de contar como toque. */
+  slop: 8,
+} as const;
 
 /** Stagger muy ligero para listas de info dentro de un panel/modal —
  * nunca debe notarse como una "animación", solo suavizar la entrada. */

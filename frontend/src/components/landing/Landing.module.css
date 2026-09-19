@@ -624,3 +624,250 @@
 .root :global(.hero-cover-shade.is-strong) {background: linear-gradient(180deg, rgba(8, 19, 13, .66), rgba(8, 19, 13, .52) 45%, rgba(8, 19, 13, .7));}
 .root :global(.hero-cover.is-bright .hero-center > p) {color: #fff; text-shadow: 0 2px 14px rgba(0, 0, 0, .55);}
 .root :global(.hero-cover.is-bright .hero-center > span) {text-shadow: 0 2px 10px rgba(0, 0, 0, .5);}
+
+/* ===================================================================
+   Intro de marca (ver LandingIntro.tsx). data-intro del <main>:
+   "on" tapa la página y oculta lo que va a entrar, "flight" cede el
+   control a las animaciones de JS y "off" retira la capa.
+   La marca de la intro es un calco a escala de la de la cabecera
+   (logo 1.7em, hueco .5em) para que el vuelo encaje al píxel.
+   =================================================================== */
+.root :global(.hero-cover-media) {position: absolute; inset: 0; overflow: hidden;}
+.root :global(.hero-word) {display: inline-block;}
+
+.root :global(.intro) {display: none;}
+.root[data-intro="on"] :global(.intro),
+.root[data-intro="flight"] :global(.intro) {position: fixed; z-index: 1000; inset: 0; display: block; color: var(--ink); font-family: var(--font-display), sans-serif; font-size: clamp(44px, 9vw, 84px); font-weight: 800; letter-spacing: -.05em;}
+.root[data-intro="flight"] :global(.intro) {pointer-events: none;}
+.root :global(.intro-sheet) {position: absolute; inset: 0; background: var(--paper);}
+.root :global(.intro-lockup) {position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: .5em;}
+/* Copia en blanco bajo la hoja: asoma a medida que la hoja se recoge. */
+.root :global(.intro-lockup.is-light) {color: white;}
+.root :global(.intro-lockup.is-light .intro-mark) {visibility: hidden;}
+
+/* Los dos círculos del logo, medidos sobre logo-coflow.png (528x473,
+   centrado en una caja cuadrada como hace object-fit: contain). */
+.root :global(.intro-mark) {position: relative; flex: none; width: 1.7em; height: 1.7em;}
+.root :global(.intro-mark i) {position: absolute; top: 30.78%; left: 20.08%; width: 38.07%; aspect-ratio: 1; border-radius: 50%; animation: intro-from-left .95s .05s cubic-bezier(.34, 1.3, .64, 1) both;}
+.root :global(.intro-mark .is-a) {background: #048356;}
+.root :global(.intro-mark .is-b) {left: 41.48%; background: #22473f; animation-name: intro-from-right;}
+/* El solape: un círculo oscuro recortado por el verde, que se mueve con
+   el verde mientras su contenido se mueve con el oscuro. */
+.root :global(.intro-mark .is-lens) {overflow: hidden;}
+.root :global(.intro-mark .is-lens > i) {top: 0; left: 56.22%; width: 100%; background: linear-gradient(155deg, #0c7a56 12%, #0f5d4b 44%, #10403a 72%, #032f28); animation-name: intro-lens;}
+.root :global(.intro-mark .intro-ring) {left: 30.97%; border: max(1px, .025em) solid rgba(33, 181, 111, .55); animation: intro-ring .9s .6s cubic-bezier(.22, 1, .36, 1) both;}
+
+.root :global(.intro-word) {display: inline-flex; line-height: normal; clip-path: inset(-.5em -.5em 0 -.5em);}
+.root :global(.intro-word > span) {display: inline-block; animation: intro-letter .6s calc(.26s + var(--i) * 40ms) cubic-bezier(.16, 1, .3, 1) both;}
+
+.root[data-intro="on"] :global(.site-header .brand),
+.root[data-intro="on"] :global([data-reveal]) {opacity: 0; animation: intro-failsafe-in .4s 6s forwards;}
+.root[data-intro="on"] :global(.hero-cover-image) {scale: 1.12;}
+/* Si JS no llega a hidratar, la capa se retira sola. */
+.root[data-intro="on"] :global(.intro) {animation: intro-failsafe .4s 6s forwards;}
+
+@keyframes intro-from-left {from {opacity: 0; transform: translateX(-60%);} 40% {opacity: 1;} to {opacity: 1; transform: none;}}
+@keyframes intro-from-right {from {opacity: 0; transform: translateX(60%);} 40% {opacity: 1;} to {opacity: 1; transform: none;}}
+@keyframes intro-lens {from {transform: translateX(120%);} to {transform: none;}}
+@keyframes intro-ring {from {opacity: 0; transform: scale(.55);} 30% {opacity: 1;} to {opacity: 0; transform: scale(2.4);}}
+@keyframes intro-letter {from {opacity: 0; transform: translateY(.45em);} to {opacity: 1; transform: none;}}
+@keyframes intro-failsafe {to {opacity: 0; visibility: hidden;}}
+@keyframes intro-failsafe-in {to {opacity: 1;}}
+
+@media (prefers-reduced-motion: reduce) {
+  .root :global(.intro) {display: none !important;}
+  .root[data-intro="on"] :global(.site-header .brand),
+  .root[data-intro="on"] :global([data-reveal]) {opacity: 1; animation: none;}
+  .root[data-intro="on"] :global(.hero-cover-image) {scale: none;}
+}
+
+/* ===================================================================
+   Movimiento por debajo del hero (ver landingMotion.tsx).
+   =================================================================== */
+/* Muelle con un rebote leve (z = 0.6), el mismo que --ease-spring de la
+   app: aquí se redeclara porque el módulo no ve las variables de @theme. */
+.root {--spring: linear(0, 0.0294, 0.1054, 0.2113, 0.3335, 0.4606, 0.5844, 0.6987, 0.7997, 0.8852, 0.9546, 1.0081, 1.0471, 1.0731, 1.0882, 1.0944, 1.0936, 1.0878, 1.0786, 1.0675, 1.0555, 1.0436, 1.0324, 1.0223, 1.0136, 1.0065, 1.0009, 0.9967, 0.9938, 0.992, 0.9912, 0.991, 0.9914, 0.9922, 0.9932, 0.9943, 1); --settle: cubic-bezier(.2, .8, .2, 1);}
+
+/* Entradas al hacer scroll. Solo se esconde lo pendiente, y solo cuando
+   el script ha marcado data-sr-ready: sin JS todo se ve desde el inicio. */
+.root[data-sr-ready] :global([data-sr]:not([data-sr-in])) {opacity: 0;}
+.root[data-sr-ready] :global([data-sr="words"]:not([data-sr-in])) {opacity: 1;}
+.root[data-sr-ready] :global([data-sr="words"]:not([data-sr-in]) .sr-word) {opacity: 0;}
+.root :global(.sr-word) {display: inline-block;}
+
+/* Los enlaces del menú saltan a secciones: que no queden bajo la
+   cabecera fija. */
+.root :global(section[id]) {scroll-margin-top: 84px;}
+
+/* Cabecera: transparente sobre la foto; al bajar se recoge en una
+   píldora de cristal (data-floating). Cada propiedad que cambia tiene su
+   punto de partida explícito para que la transición no salte. */
+.root :global(.site-header) {border-radius: 0; background-color: transparent; transition: top .55s var(--settle), width .55s var(--settle), min-height .55s var(--settle), padding .55s var(--settle), border-radius .55s var(--settle), border-color .4s ease, background-color .4s ease, box-shadow .4s ease, color .3s ease, -webkit-backdrop-filter .4s ease, backdrop-filter .4s ease;}
+/* Solo se fija cuando el script está: sin JS nunca llegaría a ser
+   píldora y quedaría texto blanco flotando sobre secciones claras. */
+.root :global(.site-header[data-fixed]) {position: fixed;}
+.root :global(.site-header[data-floating]) {top: calc(10px + env(safe-area-inset-top, 0px)); width: min(880px, calc(100% - 24px)); min-height: 58px; padding: 0 8px 0 10px; border: 1px solid rgba(23,32,25,.08); border-radius: 30px; background-color: rgba(255,254,249,.8); -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6); box-shadow: 0 12px 32px -14px rgba(16,31,23,.35), 0 1px 2px rgba(16,31,23,.06); color: var(--ink);}
+/* Sobre cristal claro el logo ya no necesita su pastilla blanca. */
+.root :global(.site-header .brand-logo) {transition: background-color .4s ease, box-shadow .4s ease;}
+.root :global(.site-header[data-floating] .brand-logo) {background-color: transparent; box-shadow: none;}
+.root :global(.site-header[data-floating] nav a:hover), .root :global(.site-header[data-floating] nav a[data-current]) {color: var(--green-dark);}
+.root :global(.header-cta) {transition: background-color .3s ease, border-color .3s ease, color .3s ease;}
+.root :global(.site-header[data-floating] .header-cta) {border-color: var(--ink); background: var(--ink); color: white;}
+.root :global(.site-header[data-floating] .header-cta:hover) {background: #0d1712; color: white;}
+
+/* Scrollspy: una píldora que se desliza bajo la sección que lees. */
+.root :global(.site-header nav) {position: relative; z-index: 0;}
+.root :global(.nav-indicator) {position: absolute; z-index: -1; top: 50%; left: 0; width: var(--ind-w, 0px); height: 34px; border-radius: 999px; background: rgba(23,32,25,.07); opacity: 0; translate: var(--ind-x, 0px) -50%; transition: translate .6s var(--spring), width .6s var(--spring), opacity .25s ease; pointer-events: none;}
+.root :global(.site-header[data-floating] nav[data-active] .nav-indicator) {opacity: 1;}
+
+@media (max-width: 560px) {
+  .root :global(.site-header[data-floating]) {width: calc(100% - 20px); min-height: 56px; padding: 0 6px 0 8px;}
+}
+
+/* ===================================================================
+   "Cómo funciona" contado con scroll (PathScene.tsx + usePathStory).
+   Escritorio: columna izquierda fija (texto + escena) y los tres pasos a
+   la derecha, cada uno alto para que avanzar por ellos lleve su tiempo.
+   Móvil: la escena se queda pegada arriba y los pasos pasan por debajo.
+   =================================================================== */
+.root :global(.path-aside) {align-self: start; position: sticky; top: 92px;}
+.root :global(.path-aside .path-intro) {position: static;}
+.root :global(.path-aside .path-intro h2) {font-size: clamp(44px, 4.4vw, 64px);}
+.root :global(.path-section[data-story] .path-card) {min-height: 44vh;}
+/* El paso que lees, entero; los demás, atenuados. Va en los hijos y no en
+   la tarjeta porque la tarjeta ya anima su opacidad al entrar. */
+.root :global(.path-section[data-story] .path-card > *) {opacity: .32; transition: opacity .5s ease;}
+.root :global(.path-section[data-story] .path-card[data-current] > *) {opacity: 1;}
+
+.root :global(.path-scene) {width: min(100%, 380px, 55vh); margin-top: 34px;}
+.root :global(.path-stage) {position: relative; aspect-ratio: 5 / 4; container-type: size; border-radius: 28px; background: radial-gradient(circle at 50% 46%, rgba(217,246,231,.7), rgba(217,246,231,0) 68%);}
+
+/* Personas: centradas en la escena y movidas con translate en cqw, que
+   se escala con el contenedor y no provoca layout. */
+.root :global(.path-person) {position: absolute; top: 50%; left: 50%; width: 15cqw; height: 15cqw; margin: -7.5cqw 0 0 -7.5cqw; opacity: var(--o0, 1); translate: calc(var(--x0) * 1cqw) calc(var(--y0) * 1cqw); transition: translate 1s var(--spring) var(--d), opacity .6s ease var(--d), scale .8s var(--spring) var(--d);}
+.root :global(.path-scene[data-step="1"] .path-person) {opacity: var(--o1, 1); translate: calc(var(--x1) * 1cqw) calc(var(--y1) * 1cqw);}
+.root :global(.path-scene[data-step="2"] .path-person) {opacity: var(--o2, 1); translate: calc(var(--x2) * 1cqw) calc(var(--y2) * 1cqw); scale: .94;}
+.root :global(.path-person i) {display: block; width: 100%; height: 100%; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 .8cqw var(--paper), 0 1.8cqw 3.4cqw -1.2cqw rgba(20,41,31,.4); animation: path-float var(--float) ease-in-out var(--d) infinite alternate;}
+
+/* Comunidad: una órbita punteada que gira alrededor del grupo. */
+.root :global(.path-ring) {position: absolute; top: 50%; left: 50%; width: 44cqw; height: 44cqw; margin: -22cqw 0 0 -22cqw; border: 1.5px dashed rgba(12,112,67,.45); border-radius: 50%; opacity: 0; scale: .5; transition: opacity .5s ease, scale .9s var(--spring); animation: path-orbit 22s linear infinite;}
+.root :global(.path-scene[data-step="1"] .path-ring) {opacity: 1; scale: 1;}
+.root :global(.path-scene[data-step="2"] .path-ring) {scale: 1.35;}
+
+/* Hogar: la casa se dibuja alrededor del grupo y se enciende por dentro. */
+.root :global(.path-house) {position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible;}
+.root :global(.path-house-line) {fill: none; stroke: var(--ink); stroke-width: .6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .5s cubic-bezier(.65,0,.35,1);}
+.root :global(.path-scene[data-step="2"] .path-house-line) {stroke-dashoffset: 0; transition-duration: 1.1s; transition-delay: .2s;}
+.root :global(.path-house-glow) {fill: var(--mint); opacity: 0; transition: opacity .4s ease;}
+.root :global(.path-scene[data-step="2"] .path-house-glow) {opacity: 1; transition-duration: .9s; transition-delay: .7s;}
+
+.root :global(.path-scene-steps) {display: flex; justify-content: center; gap: 4px; margin: 16px 0 0; padding: 0; list-style: none;}
+.root :global(.path-scene-steps li) {padding: 7px 13px; border-radius: 999px; color: var(--ink-soft); font-size: 12px; font-weight: 750; transition: background-color .4s ease, color .4s ease;}
+.root :global(.path-scene[data-step="0"] .path-scene-steps li:nth-child(1)),
+.root :global(.path-scene[data-step="1"] .path-scene-steps li:nth-child(2)),
+.root :global(.path-scene[data-step="2"] .path-scene-steps li:nth-child(3)) {background: var(--ink); color: white;}
+
+@keyframes path-float {from {translate: 0 -.9cqw;} to {translate: 0 .9cqw;}}
+@keyframes path-orbit {to {rotate: 1turn;}}
+
+@media (max-width: 900px) {
+  .root :global(.path-aside) {display: contents;}
+  .root :global(.path-aside .path-intro h2) {font-size: 49px;}
+  /* La escena se queda arriba, bajo la cabecera flotante, con un velo que
+     funde los pasos que pasan por debajo. */
+  .root :global(.path-scene) {position: sticky; z-index: 2; top: 72px; width: auto; margin: 0 -16px; padding: 10px 16px 22px; background: linear-gradient(var(--paper) 84%, rgba(245,243,236,0));}
+  .root :global(.path-stage) {width: min(100%, 260px); margin: 0 auto;}
+  .root :global(.path-section[data-story] .path-card) {min-height: 40vh;}
+}
+
+/* ===================================================================
+   Mazo de compatibilidad táctil (CompatibilityDeck en Landing.tsx).
+   =================================================================== */
+/* Al avanzar, el mazo se recoloca con un muelle y no con un ease plano. */
+.root :global(.compatibility-card) {transition: transform .62s var(--spring), opacity .3s ease, box-shadow .2s ease;}
+.root :global(.compatibility-card.is-active) {cursor: grab;}
+.root :global(.compatibility-card.is-active:active) {cursor: grabbing;}
+.root :global(.compatibility-deck) {transition: transform .6s var(--settle);}
+
+/* La carta que queda delante cobra vida. Solo una vez el mazo ha entrado
+   (data-sr-in): antes no lo ve nadie, y sin JS todo queda quieto y
+   visible. Cada visual tiene su gesto; --n escalona las piezas. */
+.root :global(.deck-score i:nth-child(2)), .root :global(.deck-habits > span:nth-child(2)), .root :global(.deck-budget i:nth-child(2)), .root :global(.deck-priorities span:nth-child(2)), .root :global(.deck-avatars i:nth-child(2)) {--n: 1;}
+.root :global(.deck-score i:nth-child(3)), .root :global(.deck-habits > span:nth-child(3)), .root :global(.deck-budget i:nth-child(3)), .root :global(.deck-priorities span:nth-child(3)), .root :global(.deck-avatars i:nth-child(3)) {--n: 2;}
+.root :global(.deck-score i:nth-child(4)), .root :global(.deck-avatars i:nth-child(4)) {--n: 3;}
+.root :global(.deck-score i:nth-child(5)) {--n: 4;}
+
+.root :global(.compatibility-deck[data-sr-in] .is-active .deck-score i) {transform-origin: left; animation: deck-bar .7s var(--spring) calc(260ms + var(--n, 0) * 80ms) both;}
+.root :global(.compatibility-deck[data-sr-in] .is-active .deck-habits > span) {animation: deck-slide .6s var(--settle) calc(240ms + var(--n, 0) * 100ms) both;}
+.root :global(.compatibility-deck[data-sr-in] .is-active .deck-budget i) {animation: deck-pop .6s var(--spring) calc(260ms + var(--n, 0) * 80ms) both;}
+.root :global(.compatibility-deck[data-sr-in] .is-active .deck-social > i b) {animation: deck-thumb 1s var(--spring) .3s both;}
+.root :global(.compatibility-deck[data-sr-in] .is-active .deck-social .is-selected) {animation: deck-choose .35s ease .75s both;}
+.root :global(.compatibility-deck[data-sr-in] .is-active .deck-priorities span) {animation: deck-rise .55s var(--settle) calc(240ms + var(--n, 0) * 90ms) both;}
+.root :global(.compatibility-deck[data-sr-in] .is-active .deck-priorities i) {animation: deck-pop .5s var(--spring) calc(380ms + var(--n, 0) * 90ms) both;}
+.root :global(.compatibility-deck[data-sr-in] .is-active .deck-avatars i) {animation: deck-pop .6s var(--spring) calc(260ms + var(--n, 0) * 110ms) both;}
+.root :global(.compatibility-deck[data-sr-in] .is-active .deck-result a) {animation: deck-rise .5s var(--settle) .8s both;}
+
+@keyframes deck-bar {from {scale: 0 1;}}
+@keyframes deck-slide {from {opacity: 0; translate: 26px 0;}}
+@keyframes deck-rise {from {opacity: 0; translate: 0 12px;}}
+@keyframes deck-pop {from {opacity: 0; scale: .4;}}
+@keyframes deck-thumb {from {left: 8%;}}
+@keyframes deck-choose {from {background: transparent; color: var(--ink);}}
+
+/* ===================================================================
+   Detalles: parallax del hero, recorrido de la tarjeta y preguntas.
+   =================================================================== */
+/* Al bajar, la foto se queda un poco atrás y el texto se despide. Va con
+   scroll-driven animations de CSS: sin JS y en el compositor. Donde no
+   hay soporte (Firefox) la página sigue igual, sin más. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .root :global(.hero-cover) {view-timeline: --hero block;}
+    .root :global(.hero-cover-image) {animation: hero-drift linear both; animation-timeline: --hero; animation-range: exit 0% exit 100%;}
+    .root :global(.hero-center) {animation: hero-lift linear both; animation-timeline: --hero; animation-range: exit 0% exit 75%;}
+  }
+}
+@keyframes hero-drift {to {translate: 0 18%;}}
+@keyframes hero-lift {to {opacity: 0; translate: 0 -48px; scale: .97;}}
+
+/* Una línea recorre 01 → 02 → 03 en cuanto la página queda a la vista. */
+.root :global(.hero-route)::after {content: ""; position: absolute; right: 76px; bottom: 11px; left: 24px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--green), rgba(33,181,111,.15)); transform-origin: left;}
+.root[data-intro="off"] :global(.hero-route)::after {animation: route-line 1.6s var(--settle) .35s both;}
+@keyframes route-line {from {scale: 0 1;}}
+@media (max-width: 560px) {
+  .root :global(.hero-route)::after {top: 16px; right: auto; bottom: 16px; left: 12px; width: 2px; height: auto; background: linear-gradient(180deg, var(--green), rgba(33,181,111,.15)); transform-origin: top;}
+  @keyframes route-line-y {from {scale: 1 0;}}
+  .root[data-intro="off"] :global(.hero-route)::after {animation-name: route-line-y;}
+}
+
+/* Preguntas: el + gira a − en cuanto empiezas a cerrar, no al final. */
+.root :global(.faq-list details[data-closing] summary i)::after {transform: rotate(90deg);}
+
+/* ===================================================================
+   Cierre circular: los círculos del logo se juntan con el scroll.
+   Blanco y tinta sobre el verde de la sección, con el solape oscuro.
+   =================================================================== */
+/* clip y no hidden: hidden la convertiría en contenedor de scroll y la
+   línea de tiempo de los círculos se mediría dentro de ella (no avanzaría). */
+.root :global(.final-section) {position: relative; overflow-x: clip;}
+.root :global(.final-mark) {--d: clamp(56px, 8vw, 104px); position: absolute; top: clamp(40px, 7vw, 100px); right: max(24px, calc((100% - 1180px) / 2)); width: calc(var(--d) * 1.56); height: var(--d); view-timeline: --final-meet block;}
+.root :global(.final-mark > i) {position: absolute; top: 0; left: 0; width: var(--d); height: var(--d); border-radius: 50%;}
+.root :global(.final-mark .is-a) {background: var(--white);}
+.root :global(.final-mark .is-b) {left: calc(var(--d) * .56); background: #092016;}
+.root :global(.final-mark .is-lens) {overflow: hidden;}
+.root :global(.final-mark .is-lens > i) {position: absolute; top: 0; left: 56%; width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(155deg, #0c7043, #073b22);}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .root :global(.final-mark .is-a), .root :global(.final-mark .is-lens) {animation: final-left var(--settle) both; animation-timeline: --final-meet; animation-range: entry 0% cover 55%;}
+    .root :global(.final-mark .is-b) {animation: final-right var(--settle) both; animation-timeline: --final-meet; animation-range: entry 0% cover 55%;}
+    .root :global(.final-mark .is-lens > i) {animation: final-lens var(--settle) both; animation-timeline: --final-meet; animation-range: entry 0% cover 55%;}
+  }
+}
+@keyframes final-left {from {translate: -70% 0;}}
+@keyframes final-right {from {translate: 70% 0;}}
+@keyframes final-lens {from {translate: 140% 0;}}
+@media (max-width: 900px) {
+  /* En una columna el titular ocupa todo el ancho: los círculos van en
+     el margen de arriba, por encima de "Disponible en Málaga". */
+  .root :global(.final-mark) {--d: 48px; top: 16px; right: max(20px, calc((100% - 720px) / 2));}
+}

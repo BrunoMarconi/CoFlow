@@ -10,8 +10,9 @@ import {
   useReducedMotion,
   useSpring,
   useTransform,
+  useVelocity,
 } from "framer-motion";
-import { MOTION_DURATION, MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens";
+import { MOTION_SPRING } from "@/lib/motionTokens";
 import { cn } from "@/lib/utils";
 import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import { useKeyboardVisible } from "@/hooks/useKeyboardVisible";
@@ -26,6 +27,7 @@ import {
   KeyIcon,
   type IconProps,
 } from "@/components/layout/NavIcons";
+import { navIconMotion } from "@/components/layout/navIconMotion";
 
 type NavigationLink = {
   href: string;
@@ -103,6 +105,14 @@ const PILL_INSET_X = 3;
 const PILL_INSET_Y = 5;
 /** Radio de la píldora, también compartido con el recorte. */
 const PILL_RADIUS = 19;
+/** Velocidad (% del ancho por segundo) a la que la píldora se estiraría
+ * un 100% extra. Un salto de una pestaña ronda los 250%/s en su pico: se
+ * alarga alrededor de un 15%. */
+const PILL_STRETCH_VELOCITY = 1600;
+/** Tope del estirón, para los saltos de tres pestañas. */
+const PILL_MAX_STRETCH = 0.35;
+/** px que se afina por arriba y por abajo en el estirón máximo. */
+const PILL_THIN_Y = 3;
 
 export default function BottomNavigation() {
   const pathname = usePathname();
@@ -136,16 +146,35 @@ export default function BottomNavigation() {
     targetLeft.set(next);
   }, [activeIndex, widthPct, prefersReducedMotion, targetLeft, left]);
 
-  const leftCss = useTransform(left, (value) => `${value}%`);
+  /* Estirón líquido: mientras viaja, la píldora se alarga en proporción a
+   * su velocidad y se afina un poco, como una gota que se desplaza. Se
+   * calcula como ancho y márgenes (no como scaleX) para que el radio siga
+   * siendo redondo, y sale de la velocidad del propio muelle: en reposo
+   * es exactamente la píldora de siempre. */
+  const velocity = useVelocity(left);
+  const stretch = useTransform(velocity, (value) =>
+    Math.min(Math.abs(value) / PILL_STRETCH_VELOCITY, PILL_MAX_STRETCH)
+  );
+  const pillLeft = useTransform(
+    () => left.get() - (widthPct * stretch.get()) / 2
+  );
+  const pillWidth = useTransform(() => widthPct * (1 + stretch.get()));
+  const pillInsetY = useTransform(
+    stretch,
+    (value) => PILL_INSET_Y + (value / PILL_MAX_STRETCH) * PILL_THIN_Y
+  );
+
+  const leftCss = useTransform(pillLeft, (value) => `${value}%`);
+  const widthCss = useTransform(pillWidth, (value) => `${value}%`);
 
   /* El recorte describe la misma píldora: lo que quede dentro muestra los
    * iconos en verde de marca, lo de fuera se descarta. Al desplazarse, va
    * "revelando" el color del icono por el que pasa. */
-  const clipPath = useTransform(
-    left,
-    (value) =>
-      `inset(${PILL_INSET_Y}px calc(${100 - value - widthPct}% + ${PILL_INSET_X}px) ${PILL_INSET_Y}px calc(${value}% + ${PILL_INSET_X}px) round ${PILL_RADIUS}px)`
-  );
+  const clipPath = useTransform(() => {
+    const from = pillLeft.get();
+    const insetY = pillInsetY.get();
+    return `inset(${insetY}px calc(${100 - from - pillWidth.get()}% + ${PILL_INSET_X}px) ${insetY}px calc(${from}% + ${PILL_INSET_X}px) round ${PILL_RADIUS}px)`;
+  });
 
   // Nunca debe competir con el compositor de un chat activo ni con el
   // teclado virtual abierto en cualquier formulario.
@@ -157,6 +186,9 @@ export default function BottomNavigation() {
        debajo, que es lo que hace que el cristal se lea como cristal. */
     <nav
       aria-label="Navegación principal"
+      // La pulsación la coordina la barra para sus dos capas (ver
+      // BottomNavLink): la global de PressFeedback partiría el icono.
+      data-press="off"
       className="pointer-events-none fixed inset-x-0 bottom-0 z-(--z-bottom-nav) px-4 pb-[calc(var(--safe-bottom)+0.625rem)] md:hidden"
     >
       <div className="pointer-events-auto mx-auto max-w-sm">
@@ -180,12 +212,15 @@ export default function BottomNavigation() {
             {activeIndex >= 0 && (
               <motion.div
                 aria-hidden
-                style={{ left: leftCss, width: `${widthPct}%` }}
+                style={{ left: leftCss, width: widthCss }}
                 className="pointer-events-none absolute top-0 h-full"
               >
-                <div
+                <motion.div
                   style={{
-                    inset: `${PILL_INSET_Y}px ${PILL_INSET_X}px`,
+                    top: pillInsetY,
+                    bottom: pillInsetY,
+                    left: PILL_INSET_X,
+                    right: PILL_INSET_X,
                     borderRadius: PILL_RADIUS,
                   }}
                   // La opacidad no es libre: por debajo queda el mismo
@@ -244,15 +279,6 @@ export default function BottomNavigation() {
   );
 }
 
-/* El icono de la pestaña recién activada da un saltito. Va como
- * variants (y no como `animate` con keyframes sueltos) para que solo se
- * dispare cuando cambia el nombre de la variante — con un array literal
- * volvería a saltar en cada render del layout. */
-const ICON_VARIANTS = {
-  idle: { scale: 1 },
-  active: { scale: [1, 1.14, 1] },
-};
-
 /* Geometría compartida por las dos capas. Cualquier diferencia de
  * tamaño, peso de fuente o espaciado entre ellas se vería como un
  * fantasma desalineado al pasar la píldora, así que solo puede cambiar
@@ -283,6 +309,11 @@ function BottomNavLink({
 }) {
   const Icon = link.icon;
   const prefersReducedMotion = useReducedMotion();
+  // Cada icono tiene su gesto al activarse (navIconMotion). Va como
+  // variants, no como `animate` con keyframes sueltos, para que solo se
+  // dispare cuando cambia el nombre de la variante: con un array literal
+  // volvería a moverse en cada render del layout.
+  const iconMotion = navIconMotion(link.icon);
 
   const content = (
     <motion.span
@@ -292,9 +323,9 @@ function BottomNavLink({
     >
       <motion.span
         className="relative"
-        variants={ICON_VARIANTS}
+        style={{ transformOrigin: iconMotion.origin }}
+        variants={iconMotion.variants}
         animate={active && !prefersReducedMotion ? "active" : "idle"}
-        transition={{ duration: MOTION_DURATION.slow, ease: MOTION_EASE.out }}
       >
         {/* La capa teñida va rellena y la base en trazo: la píldora, al
             pasar, no solo colorea el icono — también lo "rellena", que
@@ -317,7 +348,18 @@ function BottomNavLink({
               exit={{ scale: 0, opacity: 0 }}
               transition={MOTION_SPRING.snappy}
               className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary ring-2 ring-white/80"
-            />
+            >
+              {/* Una sola onda al llegar: avisa sin quedarse latiendo. */}
+              {!prefersReducedMotion && (
+                <motion.span
+                  aria-hidden
+                  initial={{ scale: 1, opacity: 0.55 }}
+                  animate={{ scale: 3.2, opacity: 0 }}
+                  transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1], delay: 0.1 }}
+                  className="absolute inset-0 rounded-full bg-primary"
+                />
+              )}
+            </motion.span>
           )}
         </AnimatePresence>
       </motion.span>

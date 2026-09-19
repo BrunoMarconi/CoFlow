@@ -76,6 +76,23 @@
 }
 
 @theme inline {
+  /* --- Movimiento ------------------------------------------------------
+     La curva y la duración de la casa pasan a ser las de TODAS las
+     utilidades `transition`, `transition-colors`... (casi 500 usos), que
+     hasta ahora iban con el 150ms genérico de Tailwind mientras el CSS
+     propio usaba 180ms y otra curva: dos ritmos distintos en la misma
+     pantalla. */
+  --default-transition-duration: 180ms;
+  --default-transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* `ease-snappy`: la misma curva, para quien fije su propia duración. */
+  --ease-snappy: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* `ease-spring`: muelle con un rebote leve (z = 0.6, response 0.4s,
+     generado con springEasing() de lib/motionTokens.ts). Pide unos
+     ~580ms de duración (`duration-[580ms]`) para que se vea entero. Solo
+     para lo que el usuario acaba de provocar, nunca para lo que aparece
+     solo. */
+  --ease-spring: linear(0, 0.0294, 0.1054, 0.2113, 0.3335, 0.4606, 0.5844, 0.6987, 0.7997, 0.8852, 0.9546, 1.0081, 1.0471, 1.0731, 1.0882, 1.0944, 1.0936, 1.0878, 1.0786, 1.0675, 1.0555, 1.0436, 1.0324, 1.0223, 1.0136, 1.0065, 1.0009, 0.9967, 0.9938, 0.992, 0.9912, 0.991, 0.9914, 0.9922, 0.9932, 0.9943, 1);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);

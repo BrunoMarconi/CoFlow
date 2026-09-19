@@ -2,10 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
+
+import { springEasing } from "@/lib/motionTokens";
 
 import { faqs } from "./faqs";
 import s from "./Landing.module.css";
+import { LandingIntro, useLandingIntro } from "./LandingIntro";
+import { SplitWords, useAccordion, useFloatingHeader, usePathStory, useScrollReveal } from "./landingMotion";
+import PathScene from "./PathScene";
 
 // Portado desde el proyecto coflow-landing (app/page.tsx +
 // components/CompatibilityDeck.tsx). El markup se mantiene igual que en
@@ -129,28 +134,129 @@ function CardVisual({ kind }: { kind: Card["kind"] }) {
   );
 }
 
+// Física del mazo. Al soltar se mira hacia dónde IBA la carta (posición +
+// velocidad proyectada), no solo dónde se soltó: un golpe corto y rápido
+// también la lanza. Si no llega, vuelve con un rebote leve.
+const DECK_SETTLE = springEasing({ damping: 0.55, response: 0.38 });
+const DECK_THROW_MS = 420;
+const DECK_PROJECTION_MS = 200;
+
+type DeckDrag = {
+  pointerId: number;
+  x: number;
+  y: number;
+  card: HTMLElement;
+  /** Transform de reposo que puso React, para volver a él. */
+  rest: string;
+  moved: boolean;
+  trail: { x: number; t: number }[];
+};
+
+const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 function CompatibilityDeck() {
   const [active, setActive] = useState(0);
-  const pointerStart = useRef<number | null>(null);
+  const deckRef = useRef<HTMLDivElement>(null);
+  const drag = useRef<DeckDrag | null>(null);
+  const suppressClick = useRef(false);
+
+  function activeCard() {
+    return deckRef.current?.querySelector<HTMLElement>(".compatibility-card.is-active") ?? null;
+  }
+
+  /** Saca la carta de arriba volando y la manda al fondo. El mazo avanza
+   * ya (el contador y la siguiente carta no esperan al vuelo); la carta
+   * lanzada se queda encima solo mientras vuela, gracias a la animación. */
+  function throwCard(card: HTMLElement, from: string, direction: number, lift = 0) {
+    setActive((current) => (current + 1) % cards.length);
+    if (prefersReducedMotion()) return;
+
+    card.style.transition = "none";
+    const to = `translate3d(${direction * card.offsetWidth * 1.2}px, ${lift + 48}px, 0) rotate(${direction * 24}deg)`;
+    const flight = card.animate(
+      [
+        { transform: from, opacity: 1, zIndex: 50 },
+        { transform: to, opacity: 0, zIndex: 50 },
+      ],
+      { duration: DECK_THROW_MS, easing: "cubic-bezier(.25, .7, .35, 1)" },
+    );
+    flight.finished.then(
+      () => requestAnimationFrame(() => card.style.removeProperty("transition")),
+      () => card.style.removeProperty("transition"),
+    );
+  }
+
+  function settle(card: HTMLElement, from: string, rest: string) {
+    card.style.transform = rest;
+    if (prefersReducedMotion()) {
+      card.style.removeProperty("transition");
+      return;
+    }
+    card
+      .animate([{ transform: from }, { transform: rest }], DECK_SETTLE)
+      .finished.then(
+        () => card.style.removeProperty("transition"),
+        () => card.style.removeProperty("transition"),
+      );
+  }
 
   function next() {
-    setActive((current) => (current + 1) % cards.length);
+    const card = activeCard();
+    if (card) throwCard(card, card.style.transform, -1);
   }
 
   function previous() {
     setActive((current) => (current - 1 + cards.length) % cards.length);
   }
 
+  // En escritorio el mazo se inclina hacia el cursor, como un objeto que
+  // tienes delante.
+  function tilt(event: React.PointerEvent<HTMLDivElement>) {
+    if (event.pointerType !== "mouse" || prefersReducedMotion()) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+    event.currentTarget.style.transform = `perspective(1400px) rotateX(${(-y * 7).toFixed(2)}deg) rotateY(${(x * 9).toFixed(2)}deg)`;
+  }
+
+  function resetTilt() {
+    deckRef.current?.style.removeProperty("transform");
+  }
+
+  function release(event: React.PointerEvent<HTMLDivElement>) {
+    const current = drag.current;
+    if (!current || event.pointerId !== current.pointerId) return;
+    drag.current = null;
+    if (!current.moved) return;
+
+    // El click que sigue a un arrastre no debe abrir el enlace de la carta.
+    suppressClick.current = true;
+    window.setTimeout(() => (suppressClick.current = false), 0);
+
+    const dx = event.clientX - current.x;
+    const dy = event.clientY - current.y;
+    const first = current.trail[0];
+    const velocity = (event.clientX - first.x) / Math.max(event.timeStamp - first.t, 1);
+    const projected = dx + velocity * DECK_PROJECTION_MS;
+    const from = current.card.style.transform;
+
+    if (event.type !== "pointercancel" && Math.abs(projected) > current.card.offsetWidth * 0.32) {
+      throwCard(current.card, from, Math.sign(projected), dy * 0.2);
+    } else {
+      settle(current.card, from, current.rest);
+    }
+  }
+
   return (
     <section className="compatibility-section" id="compatibilidad" aria-labelledby="compatibility-title">
       <div className="compatibility-intro">
         <div>
-          <span className="kicker">Compatibilidad real</span>
-          <h2 id="compatibility-title">La compatibilidad se nota en lo cotidiano.</h2>
-          <p>No buscamos una copia de ti. Buscamos personas con las que la convivencia pueda funcionar.</p>
+          <span className="kicker" data-sr>Compatibilidad real</span>
+          <h2 id="compatibility-title" data-sr="words"><SplitWords text="La compatibilidad se nota en lo cotidiano." /></h2>
+          <p data-sr>No buscamos una copia de ti. Buscamos personas con las que la convivencia pueda funcionar.</p>
         </div>
 
-        <div className="deck-controls" aria-label="Controles de las tarjetas">
+        <div className="deck-controls" aria-label="Controles de las tarjetas" data-sr>
           <button type="button" onClick={previous} aria-label="Ver tarjeta anterior"><Arrow direction="left" /></button>
           <button type="button" onClick={next} aria-label="Ver tarjeta siguiente"><Arrow direction="right" /></button>
           <span aria-live="polite">{String(active + 1).padStart(2, "0")} / {String(cards.length).padStart(2, "0")}</span>
@@ -158,7 +264,9 @@ function CompatibilityDeck() {
       </div>
 
       <div
+        ref={deckRef}
         className="compatibility-deck"
+        data-sr
         role="region"
         aria-roledescription="carrusel"
         aria-label="Criterios de compatibilidad"
@@ -167,15 +275,53 @@ function CompatibilityDeck() {
           if (event.key === "ArrowRight") next();
           if (event.key === "ArrowLeft") previous();
         }}
-        onPointerDown={(event) => { pointerStart.current = event.clientX; }}
-        onPointerUp={(event) => {
-          if (pointerStart.current === null) return;
-          const distance = event.clientX - pointerStart.current;
-          if (Math.abs(distance) > 45) {
-            if (distance < 0) next();
-            else previous();
+        onPointerDown={(event) => {
+          if (event.button !== 0) return;
+          const card = activeCard();
+          if (!card || !card.contains(event.target as Node)) return;
+          drag.current = {
+            pointerId: event.pointerId,
+            x: event.clientX,
+            y: event.clientY,
+            card,
+            rest: card.style.transform,
+            moved: false,
+            trail: [{ x: event.clientX, t: event.timeStamp }],
+          };
+        }}
+        onPointerMove={(event) => {
+          const current = drag.current;
+          if (!current || event.pointerId !== current.pointerId) {
+            tilt(event);
+            return;
           }
-          pointerStart.current = null;
+          const dx = event.clientX - current.x;
+          const dy = event.clientY - current.y;
+          if (!current.moved) {
+            if (Math.hypot(dx, dy) < 8) return;
+            // Un gesto vertical es scroll: la carta no se entera.
+            if (Math.abs(dy) > Math.abs(dx)) {
+              drag.current = null;
+              return;
+            }
+            current.moved = true;
+            event.currentTarget.setPointerCapture(event.pointerId);
+            current.card.style.transition = "none";
+            resetTilt();
+          }
+          current.trail.push({ x: event.clientX, t: event.timeStamp });
+          if (current.trail.length > 6) current.trail.shift();
+          // La carta sigue al dedo 1:1 y gira un poco, como si la sujetaras
+          // por abajo.
+          current.card.style.transform = `translate3d(${dx}px, ${dy * 0.2}px, 0) rotate(${dx * 0.05}deg)`;
+        }}
+        onPointerUp={release}
+        onPointerCancel={release}
+        onPointerLeave={resetTilt}
+        onClickCapture={(event) => {
+          if (!suppressClick.current) return;
+          event.preventDefault();
+          event.stopPropagation();
         }}
       >
         {cards.map((card, index) => {
@@ -208,36 +354,54 @@ function CompatibilityDeck() {
   );
 }
 
+const heroTitle = "Tu próxima casa empieza por tu gente.";
+
 export default function Landing() {
+  const rootRef = useRef<HTMLElement>(null);
+  useLandingIntro(rootRef);
+  useScrollReveal(rootRef);
+  useFloatingHeader(rootRef);
+  usePathStory(rootRef);
+  useAccordion(rootRef);
+
   return (
-    <main className={s.root}>
+    // data-intro lo puede cambiar el script de LandingIntro antes de hidratar.
+    <main className={s.root} data-intro="on" ref={rootRef} suppressHydrationWarning>
+      <LandingIntro />
       <header className="site-header">
         <a className="brand" href="#inicio" aria-label="Coflow, volver al inicio">
           <Image className="brand-logo" src="/logo-coflow.png" alt="" aria-hidden="true" width={34} height={34} priority />
-          <span>CoFlow</span>
+          <span className="brand-word">CoFlow</span>
         </a>
-        <nav aria-label="Navegación principal">
+        <nav aria-label="Navegación principal" data-reveal>
+          <span className="nav-indicator" aria-hidden="true" />
           <a href="#como-funciona">Cómo funciona</a>
           <a href="#compatibilidad">Compatibilidad</a>
           <a href="#vivienda">Vivienda</a>
           <Link href="/login">Entrar</Link>
         </nav>
-        <Link className="header-cta" href="/register">Crear perfil <ArrowIcon /></Link>
+        <Link className="header-cta" href="/register" data-reveal>Crear perfil <ArrowIcon /></Link>
       </header>
 
       <section className="hero-cover" id="inicio" aria-labelledby="hero-title">
-        <Image className="hero-cover-image" src="/coflow-hero-life-v2.png" alt="Personas compartiendo una cocina en su hogar" fill priority sizes="100vw" />
+        <div className="hero-cover-media">
+          <Image className="hero-cover-image" src="/coflow-hero-life-v2.png" alt="Personas compartiendo una cocina en su hogar" fill priority sizes="100vw" />
+        </div>
         <div className="hero-cover-shade" />
         <div className="hero-center">
-          <span><i /> Coflow ya está disponible</span>
-          <h1 id="hero-title">Tu próxima casa empieza por tu gente.</h1>
-          <p>Empezamos en Málaga: conoce cómo vive cada persona antes de decidir con quién compartir piso.</p>
-          <div>
+          <span data-reveal><i /> Coflow ya está disponible</span>
+          <h1 id="hero-title">
+            {heroTitle.split(" ").map((word, index) => (
+              <Fragment key={index}>{index > 0 && " "}<span className="hero-word" data-reveal="word">{word}</span></Fragment>
+            ))}
+          </h1>
+          <p data-reveal>Empezamos en Málaga: conoce cómo vive cada persona antes de decidir con quién compartir piso.</p>
+          <div data-reveal>
             <Link className="cover-primary" href="/register">Crear mi perfil</Link>
             <a className="cover-secondary" href="#compatibilidad">Ver compatibilidad</a>
           </div>
         </div>
-        <div className="hero-route" aria-label="El recorrido de Coflow">
+        <div className="hero-route" aria-label="El recorrido de Coflow" data-reveal>
           <span><b>01</b>Encuentra personas compatibles</span>
           <span><b>02</b>Formad una comunidad</span>
           <span><b>03</b>Buscad un hogar</span>
@@ -246,14 +410,17 @@ export default function Landing() {
       </section>
 
       <section className="path-section" id="como-funciona" aria-labelledby="journey-title">
-        <div className="path-intro">
-          <span className="kicker">Cómo funciona</span>
-          <h2 id="journey-title">Primero las personas. Después, la casa.</h2>
-          <p>La mayoría busca piso y luego rellena habitaciones. Aquí el grupo se forma antes, y buscáis con un criterio común.</p>
+        <div className="path-aside">
+          <div className="path-intro">
+            <span className="kicker" data-sr>Cómo funciona</span>
+            <h2 id="journey-title" data-sr="words"><SplitWords text="Primero las personas. Después, la casa." /></h2>
+            <p data-sr>La mayoría busca piso y luego rellena habitaciones. Aquí el grupo se forma antes, y buscáis con un criterio común.</p>
+          </div>
+          <PathScene />
         </div>
         <div className="path-grid">
           {journeySteps.map((step, index) => (
-            <article className="path-card" key={step.title}>
+            <article className="path-card" key={step.title} data-sr>
               <span>{String(index + 1).padStart(2, "0")}</span>
               <h3>{step.title}</h3>
               <p>{step.text}</p>
@@ -266,13 +433,13 @@ export default function Landing() {
 
       <section className="safety-section" id="seguridad" aria-labelledby="safety-title">
         <div className="safety-copy">
-          <span className="kicker kicker-on-dark">Seguridad y confianza</span>
-          <h2 id="safety-title">Conocerse antes, con red de seguridad.</h2>
-          <p>Compartir casa es una decisión grande. Tú decides qué enseñas, con quién hablas y cuándo cortar.</p>
+          <span className="kicker kicker-on-dark" data-sr>Seguridad y confianza</span>
+          <h2 id="safety-title" data-sr="words"><SplitWords text="Conocerse antes, con red de seguridad." /></h2>
+          <p data-sr>Compartir casa es una decisión grande. Tú decides qué enseñas, con quién hablas y cuándo cortar.</p>
         </div>
         <div className="safety-grid">
           {safetyPoints.map((point, index) => (
-            <article key={point.title}>
+            <article key={point.title} data-sr>
               <span>{String(index + 1).padStart(2, "0")}</span>
               <strong>{point.title}</strong>
               <p>{point.text}</p>
@@ -283,34 +450,34 @@ export default function Landing() {
 
       <section className="group-search-section" id="vivienda" aria-labelledby="home-title">
         <div className="group-search-copy">
-          <span className="kicker kicker-light">Una vivienda para el grupo</span>
-          <h2 id="home-title">No basta con que el piso te encaje a ti.</h2>
-          <p>Coflow tiene en cuenta el presupuesto conjunto, las habitaciones, la ubicación y las preferencias de todos.</p>
+          <span className="kicker kicker-light" data-sr>Una vivienda para el grupo</span>
+          <h2 id="home-title" data-sr="words"><SplitWords text="No basta con que el piso te encaje a ti." /></h2>
+          <p data-sr>Coflow tiene en cuenta el presupuesto conjunto, las habitaciones, la ubicación y las preferencias de todos.</p>
         </div>
         <div className="group-search-grid">
-          <article><span>01</span><div><strong>Habitaciones necesarias</strong><p>Según las personas del grupo.</p></div></article>
-          <article><span>02</span><div><strong>Presupuesto conjunto</strong><p>Comparado con el precio de la vivienda.</p></div></article>
-          <article><span>03</span><div><strong>Ubicación y fecha</strong><p>Según las preferencias compartidas.</p></div></article>
+          <article data-sr><span>01</span><div><strong>Habitaciones necesarias</strong><p>Según las personas del grupo.</p></div></article>
+          <article data-sr><span>02</span><div><strong>Presupuesto conjunto</strong><p>Comparado con el precio de la vivienda.</p></div></article>
+          <article data-sr><span>03</span><div><strong>Ubicación y fecha</strong><p>Según las preferencias compartidas.</p></div></article>
         </div>
       </section>
 
       <section className="owners-band" id="propietarios" aria-labelledby="owners-title">
         <div className="owners-copy">
-          <span className="kicker kicker-warm">Para propietarios</span>
-          <h2 id="owners-title">¿Tienes un piso para compartir?</h2>
-          <p>Publica tu vivienda y recibe grupos ya formados, con presupuesto y convivencia acordados, en vez de candidatos sueltos.</p>
+          <span className="kicker kicker-warm" data-sr>Para propietarios</span>
+          <h2 id="owners-title" data-sr="words"><SplitWords text="¿Tienes un piso para compartir?" /></h2>
+          <p data-sr>Publica tu vivienda y recibe grupos ya formados, con presupuesto y convivencia acordados, en vez de candidatos sueltos.</p>
         </div>
-        <Link className="owners-cta" href="/para-propietarios">Ver cómo funciona para propietarios <ArrowIcon /></Link>
+        <Link className="owners-cta" href="/para-propietarios" data-sr>Ver cómo funciona para propietarios <ArrowIcon /></Link>
       </section>
 
       <section className="faq-section" id="preguntas" aria-labelledby="faq-title">
         <div className="faq-intro">
-          <span className="kicker">Preguntas frecuentes</span>
-          <h2 id="faq-title">Lo que sueles preguntarte antes de empezar.</h2>
+          <span className="kicker" data-sr>Preguntas frecuentes</span>
+          <h2 id="faq-title" data-sr="words"><SplitWords text="Lo que sueles preguntarte antes de empezar." /></h2>
         </div>
         <div className="faq-list">
           {faqs.map(([question, answer]) => (
-            <details key={question}>
+            <details key={question} data-sr>
               <summary>{question}<i aria-hidden="true" /></summary>
               <p>{answer}</p>
             </details>
@@ -319,10 +486,17 @@ export default function Landing() {
       </section>
 
       <section className="final-section" id="disponible" aria-labelledby="final-title">
-        <span className="eyebrow eyebrow-dark"><i /> Disponible en Málaga</span>
-        <h2 id="final-title">Empieza por tu gente.</h2>
-        <p>Crear tu perfil es gratis y te lleva cinco minutos.</p>
-        <Link className="final-link" href="/register">Crear mi perfil gratis <ArrowIcon /></Link>
+        {/* Cierre circular: los dos círculos del logo vuelven a juntarse a
+            medida que llegas al final, como en la intro. */}
+        <div className="final-mark" aria-hidden="true">
+          <i className="is-b" />
+          <i className="is-a" />
+          <i className="is-lens"><i /></i>
+        </div>
+        <span className="eyebrow eyebrow-dark" data-sr><i /> Disponible en Málaga</span>
+        <h2 id="final-title" data-sr="words"><SplitWords text="Empieza por tu gente." /></h2>
+        <p data-sr>Crear tu perfil es gratis y te lleva cinco minutos.</p>
+        <Link className="final-link" href="/register" data-sr>Crear mi perfil gratis <ArrowIcon /></Link>
       </section>
 
       <footer>

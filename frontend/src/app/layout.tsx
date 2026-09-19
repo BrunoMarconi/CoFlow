@@ -7,6 +7,7 @@ import RouteProgressBar from "@/components/layout/RouteProgressBar";
 import NavigationEffects from "@/components/layout/NavigationEffects";
 import CookieBanner from "@/components/layout/CookieBanner";
 import HapticFeedback from "@/components/interaction/HapticFeedback";
+import PressFeedback from "@/components/interaction/PressFeedback";
 
 import "./globals.css";
 
@@ -162,6 +163,7 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>
             <HapticFeedback />
+            <PressFeedback />
             <RouteProgressBar />
             <NavigationEffects />
             {children}
