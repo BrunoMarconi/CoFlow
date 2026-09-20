@@ -3,8 +3,10 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Building2, Eye, EyeOff, Users2 } from "lucide-react";
+import { ArrowLeft, Building2, Eye, EyeOff, Users2 } from "lucide-react";
 import AuthSplit from "@/components/auth/AuthSplit";
+import SubmitButton, { type SubmitState } from "@/components/auth/SubmitButton";
+import { PASSWORD_LABELS, passwordStrength } from "@/components/auth/authMotion";
 import { register } from "@/services/auth";
 import { setToken } from "@/lib/auth";
 import { useAuth } from "@/hooks/useAuth";
@@ -39,7 +41,9 @@ export default function RegisterPage() {
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [state, setState] = useState<SubmitState>("idle");
+  const [shake, setShake] = useState(0);
+  const strength = passwordStrength(password);
 
   function goToDetails(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,10 +55,11 @@ export default function RegisterPage() {
     event.preventDefault();
     if (!termsAccepted) {
       setError("Debes aceptar los Términos y Condiciones para crear una cuenta.");
+      setShake((value) => value + 1);
       return;
     }
     setError("");
-    setLoading(true);
+    setState("loading");
     try {
       const data = await register({
         first_name: firstName,
@@ -66,6 +71,8 @@ export default function RegisterPage() {
         terms_accepted: termsAccepted,
         marketing_consent: marketingConsent,
       });
+      // El visto se queda puesto mientras carga la pantalla siguiente.
+      setState("done");
       setToken(data.access_token);
       applyAuthenticatedUser(data.user);
       if (role === "OWNER") setPostVerificationOwnerIntent();
@@ -85,8 +92,8 @@ export default function RegisterPage() {
             ? firstDetailMessage.replace(/^Value error,\s*/, "")
             : "No pudimos crear tu cuenta. Revisa los datos e inténtalo de nuevo."
       );
-    } finally {
-      setLoading(false);
+      setShake((value) => value + 1);
+      setState("idle");
     }
   }
 
@@ -106,6 +113,8 @@ export default function RegisterPage() {
           ? ["Publicar es gratis y sin permanencia", "Solicitudes con contexto real", "Tú decides a quién respondes"]
           : ["Perfiles con email verificado", "Personas y comunidades en Málaga", "Tú decides qué se ve de tu perfil"]
       }
+      swapKey={step}
+      shake={shake}
     >
       <div className={s.steps}>
         <span>Paso {step} de 2</span>
@@ -126,7 +135,9 @@ export default function RegisterPage() {
 
       {step === 1 ? (
         <>
-          <div className={s.roleGroup} role="group" aria-label="Tipo de cuenta">
+          <div className={`${s.roleGroup} ${isOwner ? s.roleGroupOwner : ""}`} role="group" aria-label="Tipo de cuenta">
+            {/* La píldora se desliza entre las dos opciones. */}
+            <span className={s.roleThumb} aria-hidden="true" />
             <button type="button" onClick={() => setRole("USER")} aria-pressed={!isOwner} className={`${s.roleButton} ${!isOwner ? s.roleButtonOn : ""}`}>
               <Users2 /> Busco piso
             </button>
@@ -160,12 +171,23 @@ export default function RegisterPage() {
               </button>
             </div>
 
-            <p id="register-password-help" className={s.formNote}>Usa al menos 8 caracteres. Podrás completar tu perfil de convivencia después.</p>
+            <div className={s.strengthBlock}>
+              {/* El medidor orienta mientras escribes; el mínimo real (8)
+                  lo sigue validando el propio input. */}
+              <div className={s.strength} data-level={strength} aria-hidden="true">
+                <i /><i /><i /><i />
+              </div>
+              <p id="register-password-help" className={s.strengthLabel} aria-live="polite">
+                {password
+                  ? <>Seguridad: <b>{PASSWORD_LABELS[strength] || "Muy corta"}</b></>
+                  : "Usa al menos 8 caracteres. Podrás completar tu perfil de convivencia después."}
+              </p>
+            </div>
 
             {error && <p role="alert" className={s.error}>{error}</p>}
 
             <div className={s.actions}>
-              <button type="submit" className={s.submit}>Continuar <ArrowRight /></button>
+              <SubmitButton>Continuar</SubmitButton>
             </div>
           </form>
         </>
@@ -203,10 +225,9 @@ export default function RegisterPage() {
           {error && <p role="alert" className={s.error}>{error}</p>}
 
           <div className={s.actions}>
-            <button type="submit" disabled={loading} className={s.submit}>
-              {loading ? "Creando cuenta..." : isOwner ? "Crear cuenta y publicar" : "Crear cuenta"}
-              {!loading && <ArrowRight />}
-            </button>
+            <SubmitButton state={state}>
+              {isOwner ? "Crear cuenta y publicar" : "Crear cuenta"}
+            </SubmitButton>
             <button type="button" onClick={() => { setError(""); setStep(1); }} className={s.back}>
               <ArrowLeft /> Volver
             </button>

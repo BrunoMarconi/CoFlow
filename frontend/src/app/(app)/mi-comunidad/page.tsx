@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
@@ -10,6 +10,7 @@ import { useMobileChrome } from "@/providers/MobileChromeProvider";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import CommunityCover from "@/components/ui/CommunityCover";
 import UserAvatar from "@/components/ui/UserAvatar";
+import CountUp from "@/components/ui/CountUp";
 import CommunityChat from "@/components/comunidad/CommunityChat";
 import CommunityMembersList from "@/components/comunidad/CommunityMembersList";
 import CommunityInvitationsManager from "@/components/comunidad/CommunityInvitationsManager";
@@ -226,7 +227,11 @@ function CommunityDashboard({
         initial="hidden"
         animate="show"
         variants={sectionVariants}
-        className="relative overflow-hidden rounded-panel bg-surface p-4 shadow-sm sm:p-6 lg:p-7"
+        /* @container: con barra lateral, el ancho útil es mucho menor que
+           el de la ventana. Con breakpoints de ventana (lg:) la columna de
+           información se quedaba en 205px y el nombre y las cifras salían
+           cortados en portátiles. */
+        className="@container relative overflow-hidden rounded-panel bg-surface p-4 shadow-sm sm:p-6 lg:p-7"
       >
         <div className="mb-5 flex min-h-12 items-end justify-between gap-3 px-1 sm:mb-6">
           <button
@@ -256,21 +261,21 @@ function CommunityDashboard({
           </Link>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-[240px_1fr] sm:items-stretch lg:grid-cols-[320px_1fr] lg:gap-5">
+        <div className="grid gap-4 @xl:grid-cols-[minmax(200px,280px)_minmax(0,1fr)] @xl:items-stretch @3xl:grid-cols-[minmax(240px,320px)_minmax(0,1fr)] @3xl:gap-5">
           <CommunityCover
             name={community.name}
             coverColor={community.cover_color}
             coverImageUrl={community.cover_image_url}
             members={coverMembers}
             memberCount={community.member_count}
-            className="h-52 w-full rounded-24 shadow-sm sm:h-full sm:min-h-72"
+            className="h-52 w-full rounded-24 shadow-sm @xl:h-full @xl:min-h-72"
           />
 
-          <div className="min-w-0 rounded-24 bg-surface-soft/70 p-4 sm:p-5 lg:p-6">
+          <div className="min-w-0 rounded-24 bg-surface-soft/70 p-4 @xl:p-5 @3xl:p-6">
             <span className="inline-flex rounded-full border border-primary/15 bg-white/75 px-3 py-1 text-xs font-bold text-primary-dark">
               {isOwner ? "Administrador" : "Miembro"}
             </span>
-            <h2 className="mt-3 truncate font-rounded text-3xl font-semibold tracking-[-0.03em] text-brand-dark lg:text-5xl">
+            <h2 className="mt-3 line-clamp-2 font-rounded text-3xl font-semibold tracking-[-0.03em] text-brand-dark @2xl:text-4xl @3xl:text-5xl">
               {community.name}
             </h2>
 
@@ -280,25 +285,32 @@ function CommunityDashboard({
             </p>
 
             <div className="mt-5 grid grid-cols-3 gap-2">
-              <HeroStat value={String(community.member_count)} label="miembros" />
-              <HeroStat value={String(availablePlaces)} label="plazas libres" />
+              <HeroStat count={community.member_count} label="miembros" />
+              <HeroStat count={availablePlaces} label="plazas libres" />
               <HeroStat
-                value={community.monthly_rent !== null ? `${community.monthly_rent.toLocaleString("es-ES")} €` : "—"}
+                count={community.monthly_rent}
+                suffix=" €"
+                fallback="—"
                 label="por persona"
               />
             </div>
 
             <div className="mt-5 flex items-center -space-x-2">
-              {community.members.slice(0, 5).map((member) => (
-                <UserAvatar
+              {community.members.slice(0, 5).map((member, index) => (
+                <span
                   key={member.id}
-                  firstName={member.user.first_name}
-                  lastName={member.user.last_name}
-                  userId={member.user.id}
-                  imageUrl={member.user.avatar_url}
-                  size="md"
-                  className="border-2 border-white"
-                />
+                  className="stagger-in"
+                  style={{ "--i": index + 2 } as CSSProperties}
+                >
+                  <UserAvatar
+                    firstName={member.user.first_name}
+                    lastName={member.user.last_name}
+                    userId={member.user.id}
+                    imageUrl={member.user.avatar_url}
+                    size="md"
+                    className="border-2 border-white"
+                  />
+                </span>
               ))}
 
               {availablePlaces > 0 && isOwner && (
@@ -314,7 +326,7 @@ function CommunityDashboard({
               )}
             </div>
 
-            <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+            <div className="mt-6 flex flex-col gap-2 @lg:flex-row">
               <button
                 type="button"
                 onClick={() => onOpenPanel("chat")}
@@ -339,9 +351,9 @@ function CommunityDashboard({
       <motion.section initial="hidden" animate="show" variants={sectionVariants} className="rounded-panel border border-black/[0.06] bg-surface-raised p-4 shadow-card sm:p-5">
         <div className="flex items-center justify-between gap-3"><div><p className="text-3xs font-bold uppercase tracking-[0.14em] text-primary">Ahora</p><h2 className="mt-1 font-rounded text-xl font-semibold tracking-[-0.02em] text-brand-dark">Estado de la comunidad</h2></div><span className="rounded-full bg-surface-soft px-3 py-1.5 text-3xs font-bold text-primary-dark">{isOwner ? "Vista de administrador" : "Vista de miembro"}</span></div>
         <div className="mt-4 grid gap-2 sm:grid-cols-3">
-          {isOwner ? <DashboardAction icon={<ApplicationsIcon className="h-5 w-5" />} value={String(pendingApplications)} label="solicitudes pendientes" detail={pendingApplications > 0 ? "Esperan tu respuesta" : "Todo revisado"} attention={pendingApplications > 0} onClick={() => onOpenPanel("applications")} /> : <DashboardAction icon={<MessageIcon className="h-5 w-5" />} value="Chat" label="de la comunidad" detail="Habla con tus convivientes" onClick={() => onOpenPanel("chat")} />}
-          <DashboardAction icon={<SpotsIcon className="h-5 w-5" />} value={String(availablePlaces)} label="plazas disponibles" detail={availablePlaces > 0 ? "La comunidad puede crecer" : "Comunidad completa"} onClick={() => isOwner ? toggle("spots") : onOpenPanel("members")} />
-          <DashboardAction icon={<WalletIcon className="h-5 w-5" />} value={community.total_monthly_rent !== null ? `${community.total_monthly_rent.toLocaleString("es-ES")} €` : "Pendiente"} label="alquiler total" detail={community.total_monthly_rent !== null ? "Revisa el reparto mensual" : "Falta definir el reparto"} attention={community.total_monthly_rent === null} onClick={() => isOwner ? toggle("rent") : undefined} />
+          {isOwner ? <DashboardAction index={0} icon={<ApplicationsIcon className="h-5 w-5" />} value={String(pendingApplications)} label="solicitudes pendientes" detail={pendingApplications > 0 ? "Esperan tu respuesta" : "Todo revisado"} attention={pendingApplications > 0} onClick={() => onOpenPanel("applications")} /> : <DashboardAction index={0} icon={<MessageIcon className="h-5 w-5" />} value="Chat" label="de la comunidad" detail="Habla con tus convivientes" onClick={() => onOpenPanel("chat")} />}
+          <DashboardAction index={1} icon={<SpotsIcon className="h-5 w-5" />} value={String(availablePlaces)} label="plazas disponibles" detail={availablePlaces > 0 ? "La comunidad puede crecer" : "Comunidad completa"} onClick={() => isOwner ? toggle("spots") : onOpenPanel("members")} />
+          <DashboardAction index={2} icon={<WalletIcon className="h-5 w-5" />} value={community.total_monthly_rent !== null ? `${community.total_monthly_rent.toLocaleString("es-ES")} €` : "Pendiente"} label="alquiler total" detail={community.total_monthly_rent !== null ? "Revisa el reparto mensual" : "Falta definir el reparto"} attention={community.total_monthly_rent === null} onClick={() => isOwner ? toggle("rent") : undefined} />
         </div>
       </motion.section>
 
@@ -649,22 +661,44 @@ function NoCommunity() {
   );
 }
 
-function HeroStat({ value, label }: { value: string; label: string }) {
+/* La cifra cuenta hasta su valor al entrar en pantalla; la etiqueta ya no
+ * se recorta, porque "plazas libres" cortado no dice nada. */
+function HeroStat({
+  count,
+  label,
+  suffix = "",
+  fallback = "—",
+}: {
+  count: number | null;
+  label: string;
+  suffix?: string;
+  fallback?: string;
+}) {
   return (
     <div className="rounded-14 border border-white/70 bg-white/65 px-3 py-3 backdrop-blur-sm">
-      <p className="truncate font-rounded text-lg font-semibold text-brand-dark sm:text-xl">
-        {value}
+      <p className="font-rounded text-lg font-semibold text-brand-dark sm:text-xl">
+        {count === null ? (
+          fallback
+        ) : (
+          <>
+            <CountUp value={count} durationSeconds={0.9} />
+            {suffix}
+          </>
+        )}
       </p>
-      <p className="mt-0.5 truncate text-2xs font-semibold text-secondary">
+      <p className="mt-0.5 text-2xs font-semibold leading-tight text-secondary">
         {label}
       </p>
     </div>
   );
 }
 
-function DashboardAction({ icon, value, label, detail, attention = false, onClick }: { icon: ReactNode; value: string; label: string; detail: string; attention?: boolean; onClick?: () => void }) {
+function DashboardAction({ icon, value, label, detail, attention = false, index = 0, onClick }: { icon: ReactNode; value: string; label: string; detail: string; attention?: boolean; index?: number; onClick?: () => void }) {
   const content = <><span className={`flex h-10 w-10 items-center justify-center rounded-full ${attention ? "bg-amber-100 text-amber-800" : "bg-[#e8eeea] text-primary-dark"}`}>{icon}</span><span className="mt-3 block text-lg font-semibold tracking-[-0.02em] text-brand-dark">{value}</span><span className="block text-xs font-bold text-brand-dark">{label}</span><span className="mt-1 block text-3xs leading-4 text-secondary">{detail}</span></>;
-  return onClick ? <button type="button" onClick={onClick} className="rounded-field border border-black/[0.055] bg-white p-3.5 text-left transition hover:bg-[#f4f7f4]">{content}</button> : <div className="rounded-field border border-black/[0.055] bg-white p-3.5">{content}</div>;
+  const style = { "--i": index } as CSSProperties;
+  return onClick
+    ? <button type="button" onClick={onClick} style={style} className="stagger-in rounded-field border border-black/[0.055] bg-white p-3.5 text-left transition hover:-translate-y-0.5 hover:bg-[#f4f7f4] hover:shadow-card">{content}</button>
+    : <div style={style} className="stagger-in rounded-field border border-black/[0.055] bg-white p-3.5">{content}</div>;
 }
 
 function Fact({ icon, label }: { icon: React.ReactNode; label: string }) {

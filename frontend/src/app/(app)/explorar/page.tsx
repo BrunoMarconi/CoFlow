@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ViewTransition } from "react";
+import { useState, ViewTransition, type CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -30,6 +30,8 @@ import type { Community } from "@/types/community";
 
 type Segment = "all" | "people" | "communities";
 
+const SEGMENT_ORDER: Segment[] = ["all", "people", "communities"];
+
 const PREVIEW_COUNT_MIXED = 8;
 const PREVIEW_COUNT_FOCUSED = 12;
 
@@ -40,6 +42,14 @@ export default function ExplorarPage() {
   const isDesktop = useMediaQuery("(min-width: 640px)");
 
   const [segment, setSegment] = useState<Segment>("all");
+  // Las pestañas están en orden: al saltar de una a otra, el contenido
+  // entra por el lado del que vienes, no siempre por el mismo.
+  const [direction, setDirection] = useState(1);
+
+  function selectSegment(next: Segment) {
+    setDirection(SEGMENT_ORDER.indexOf(next) >= SEGMENT_ORDER.indexOf(segment) ? 1 : -1);
+    setSegment(next);
+  }
 
   const { users, loading: usersLoading, error: usersError, refetch: refetchUsers } = useUsers();
   const { communities, loading: communitiesLoading, error: communitiesError, refetch: refetchCommunities } = useCommunities();
@@ -68,15 +78,15 @@ export default function ExplorarPage() {
 
   const contentInitial = prefersReducedMotion
     ? { opacity: 0 }
-    : { opacity: 0, y: distance };
+    : { opacity: 0, x: direction * distance };
 
   const contentExit = prefersReducedMotion
     ? { opacity: 0 }
-    : { opacity: 0, y: -distance };
+    : { opacity: 0, x: -direction * distance };
 
   return (
     <div className="explore-shell -mx-5 -mt-3 min-h-[calc(100dvh-var(--mobile-header-height))] [--explore-background:#f7f9f7] [--explore-card:#fff] px-5 pb-8 pt-3 sm:-mx-6 sm:px-6 md:mx-auto md:-mt-2 md:max-w-6xl md:rounded-sheet md:px-8 md:pb-10 md:pt-7">
-      <header className="flex items-end justify-between gap-4">
+      <header className="stagger-in flex items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold text-secondary">Hola, {user.first_name}</p>
           <h1 className="mt-1 font-rounded text-3xl font-semibold leading-none tracking-[-0.04em] text-brand-dark sm:text-4xl">
@@ -91,7 +101,7 @@ export default function ExplorarPage() {
         </span>
       </header>
 
-      <div className="mt-5">
+      <div className="stagger-in mt-5" style={{ "--i": 1 } as CSSProperties}>
         <ExplorerSearchBar
           layoutIdBar="explorar-search-bar"
           layoutIdIcon="explorar-search-icon"
@@ -106,13 +116,13 @@ export default function ExplorarPage() {
         />
       </div>
 
-      <div role="tablist" aria-label="Tipo de contenido a explorar" className="mt-3 grid grid-cols-3 rounded-14 bg-black/[0.055] p-0.5">
-        <SegmentPill active={segment === "all"} onClick={() => setSegment("all")}>Para ti</SegmentPill>
-        <SegmentPill active={segment === "people"} onClick={() => setSegment("people")}>Personas</SegmentPill>
-        <SegmentPill active={segment === "communities"} onClick={() => setSegment("communities")}>Comunidades</SegmentPill>
+      <div role="tablist" aria-label="Tipo de contenido a explorar" className="stagger-in mt-3 grid grid-cols-3 rounded-14 bg-black/[0.055] p-0.5" style={{ "--i": 2 } as CSSProperties}>
+        <SegmentPill active={segment === "all"} onClick={() => selectSegment("all")}>Para ti</SegmentPill>
+        <SegmentPill active={segment === "people"} onClick={() => selectSegment("people")}>Personas</SegmentPill>
+        <SegmentPill active={segment === "communities"} onClick={() => selectSegment("communities")}>Comunidades</SegmentPill>
       </div>
 
-      <Link href={ctaHref} className="group mt-4 flex min-h-16 items-center gap-3 rounded-18 border border-black/[0.05] bg-white p-3 shadow-soft transition-colors hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:max-w-xl">
+      <Link href={ctaHref} style={{ "--i": 3 } as CSSProperties} className="stagger-in group mt-4 flex min-h-16 items-center gap-3 rounded-18 border border-black/[0.05] bg-white p-3 shadow-soft transition-colors hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:max-w-xl">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary"><SparkleIcon /></span>
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-bold text-brand-dark">{ctaTitle}</span>
@@ -125,7 +135,7 @@ export default function ExplorarPage() {
         <motion.div
           key={segment}
           initial={contentInitial}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{ opacity: 1, x: 0 }}
           exit={contentExit}
           transition={{ duration, ease: MOTION_EASE.out }}
           className="mt-5 space-y-4"
@@ -147,8 +157,8 @@ export default function ExplorarPage() {
                   0,
                   segment === "all" ? PREVIEW_COUNT_MIXED : PREVIEW_COUNT_FOCUSED
                 )
-                .map((person) => (
-                  <ExplorePersonCard key={person.id} person={person} />
+                .map((person, index) => (
+                  <ExplorePersonCard key={person.id} person={person} index={index} />
                 ))}
             </DiscoveryRow>
           )}
@@ -170,10 +180,11 @@ export default function ExplorarPage() {
                   0,
                   segment === "all" ? PREVIEW_COUNT_MIXED : PREVIEW_COUNT_FOCUSED
                 )
-                .map((item) => (
+                .map((item, index) => (
                   <ExploreCommunityCard
                     key={item.id}
                     item={item}
+                    index={index}
                     isOwn={item.id === community?.id}
                   />
                 ))}
@@ -248,7 +259,7 @@ function DiscoveryRow({
       </div>
 
       {loading ? (
-        <div className="flex gap-3 overflow-x-auto px-4 pb-1 sm:px-5">
+        <div className="flex gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:px-5 [&::-webkit-scrollbar]:hidden">
           {Array.from({ length: 3 }).map((_, index) => (
             <div key={index} className={cn(skeletonWidth, "shrink-0")}>
               <SkeletonCard
@@ -267,7 +278,7 @@ function DiscoveryRow({
       ) : isEmpty ? (
         <div className="px-4 sm:px-5"><EmptyState title={emptyMessage} /></div>
       ) : (
-        <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 sm:px-5">
+        <div className="scroll-fade-live flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-pl-4 px-4 pb-1 [scrollbar-width:none] sm:scroll-pl-5 sm:px-5 [&::-webkit-scrollbar]:hidden">
           {children}
           <Link href={viewAllHref} className="flex min-h-40 w-28 shrink-0 snap-start flex-col items-center justify-center gap-2 rounded-18 bg-black/[0.035] text-center text-xs font-bold text-primary-dark focus-visible:outline-2 focus-visible:outline-brand">
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-soft"><ChevronIcon className="h-4 w-4" /></span>
@@ -283,7 +294,7 @@ function DiscoveryRow({
  * profunda (esa vive en /usuarios vía UserCard). Dos variantes según
  * dato real disponible: con foto, la imagen protagoniza; sin foto, no
  * reservamos una superficie enorme vacía — card mucho más compacta. */
-function ExplorePersonCard({ person }: { person: UserPublicProfile }) {
+function ExplorePersonCard({ person, index }: { person: UserPublicProfile; index: number }) {
   /* Tener URL de avatar no es lo mismo que tener foto: si el archivo no
    * carga, la tarjeta se queda en un rectángulo vacío. Al llevar el
    * fallo a estado, esa persona pasa a la tarjeta sin foto —con sus
@@ -291,9 +302,9 @@ function ExplorePersonCard({ person }: { person: UserPublicProfile }) {
   const [photoFailed, setPhotoFailed] = useState(false);
 
   return person.avatar_url && !photoFailed ? (
-    <PersonPhotoCard person={person} onPhotoError={() => setPhotoFailed(true)} />
+    <PersonPhotoCard person={person} index={index} onPhotoError={() => setPhotoFailed(true)} />
   ) : (
-    <PersonNoPhotoCard person={person} />
+    <PersonNoPhotoCard person={person} index={index} />
   );
 }
 
@@ -305,7 +316,7 @@ function personSubtitle(person: UserPublicProfile) {
       : "Busca comunidad";
 }
 
-function PersonPhotoCard({ person, onPhotoError }: { person: UserPublicProfile; onPhotoError: () => void }) {
+function PersonPhotoCard({ person, index, onPhotoError }: { person: UserPublicProfile; index: number; onPhotoError: () => void }) {
   const fullName = `${person.first_name} ${person.last_name}`.trim();
   const subtitle = personSubtitle(person);
 
@@ -313,45 +324,52 @@ function PersonPhotoCard({ person, onPhotoError }: { person: UserPublicProfile; 
     <Link
       href={`/personas/${person.id}`}
       transitionTypes={["nav-forward"]}
-      className="block w-48 shrink-0 snap-start rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-52"
+      style={{ "--i": index + 4 } as CSSProperties}
+      className="stagger-in group block w-52 shrink-0 snap-start rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
       <ViewTransition name={detailTransitionName("person", person.id)} share="coflow-detail-morph">
       <motion.div
         whileTap={{ scale: 0.97 }}
         transition={{ duration: MOTION_DURATION.fast }}
-        className="explore-card overflow-hidden rounded-18"
+        className="explore-card relative h-67 overflow-hidden rounded-18 transition-shadow duration-200 group-hover:shadow-raised"
       >
-        <div className="relative h-48 bg-surface-muted sm:h-52">
-          <Image
-            src={person.avatar_url!}
-            alt=""
-            fill
-            unoptimized
-            sizes="224px"
-            className="object-cover"
-            onError={onPhotoError}
-          />
+        <Image
+          src={person.avatar_url!}
+          alt=""
+          fill
+          unoptimized
+          sizes="224px"
+          className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+          onError={onPhotoError}
+        />
 
+        {/* Velo solo en la mitad de abajo: la cara se queda limpia y el
+            nombre se lee sobre la propia foto. */}
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/25 to-transparent" />
+
+        <div className="absolute inset-x-2 top-2 flex items-start justify-between gap-2">
+          {person.match_score !== null ? (
+            <MatchScoreBadge score={person.match_score} size="sm" count className="border-0 bg-white/92 backdrop-blur" />
+          ) : (
+            <span />
+          )}
           {person.is_verified && (
-            <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-primary shadow-soft">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/92 text-primary shadow-soft backdrop-blur">
               <VerifiedIcon className="h-3.5 w-3.5" />
             </span>
           )}
-          {person.match_score !== null && (
-            <MatchScoreBadge score={person.match_score} size="sm" className="absolute bottom-2 left-2 border-0 bg-white/95" />
-          )}
         </div>
 
-        <div className="p-3">
-          <p className="truncate text-sm font-bold text-brand-dark">
+        <div className="absolute inset-x-0 bottom-0 p-3">
+          <p className="truncate text-sm font-bold text-white">
             {fullName || "Persona de CoFlow"}
             {person.age !== null && (
-              <span className="font-medium text-secondary">, {person.age}</span>
+              <span className="font-medium text-white/85">, {person.age}</span>
             )}
           </p>
 
           {subtitle && (
-            <p className="truncate text-xs text-muted">{subtitle}</p>
+            <p className="truncate text-xs text-white/75">{subtitle}</p>
           )}
         </div>
       </motion.div>
@@ -362,7 +380,7 @@ function PersonPhotoCard({ person, onPhotoError }: { person: UserPublicProfile; 
 
 /** Sin foto: card compacta propia, no una versión vacía de la de
  * foto. Nada de superficie gigante ni avatar flotando en el vacío. */
-function PersonNoPhotoCard({ person }: { person: UserPublicProfile }) {
+function PersonNoPhotoCard({ person, index }: { person: UserPublicProfile; index: number }) {
   const fullName = `${person.first_name} ${person.last_name}`.trim();
   const subtitle = personSubtitle(person);
 
@@ -370,23 +388,34 @@ function PersonNoPhotoCard({ person }: { person: UserPublicProfile }) {
     <Link
       href={`/personas/${person.id}`}
       transitionTypes={["nav-forward"]}
-      className="block w-44 shrink-0 snap-start rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-48"
+      style={{ "--i": index + 4 } as CSSProperties}
+      className="stagger-in group block w-52 shrink-0 snap-start rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
       <ViewTransition name={detailTransitionName("person", person.id)} share="coflow-detail-morph">
       <motion.div
         whileTap={{ scale: 0.97 }}
         transition={{ duration: MOTION_DURATION.fast }}
-        className="explore-card relative flex h-52 flex-col items-center justify-center gap-2 overflow-hidden rounded-18 p-4 text-center"
+        /* Mismas medidas que la tarjeta con foto: el carril no se
+           desalinea porque alguien no haya subido una. */
+        className="explore-card relative flex h-67 flex-col items-center justify-center gap-3 overflow-hidden rounded-18 bg-linear-to-b from-[#f1f5f2] to-white p-4 text-center transition-shadow duration-200 group-hover:shadow-raised"
       >
-        <ChevronIcon className="absolute right-3 top-3 h-4 w-4 text-border" />
+        {person.match_score !== null && (
+          <MatchScoreBadge score={person.match_score} size="sm" count className="absolute left-2 top-2 border-0 bg-white/92 shadow-soft backdrop-blur" />
+        )}
+        {person.is_verified && (
+          <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/92 text-primary shadow-soft">
+            <VerifiedIcon className="h-3.5 w-3.5" />
+          </span>
+        )}
 
-        <UserAvatar
-          firstName={person.first_name}
-          lastName={person.last_name}
-          userId={person.id}
-          size="lg"
-        />
-        {person.match_score !== null && <MatchScoreBadge score={person.match_score} size="sm" />}
+        <span className="transition-transform duration-300 ease-out group-hover:-translate-y-0.5">
+          <UserAvatar
+            firstName={person.first_name}
+            lastName={person.last_name}
+            userId={person.id}
+            size="lg"
+          />
+        </span>
 
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-brand-dark">
@@ -411,9 +440,11 @@ function PersonNoPhotoCard({ person }: { person: UserPublicProfile }) {
  * de dos líneas; nada de CTA interno. */
 function ExploreCommunityCard({
   item,
+  index,
   isOwn,
 }: {
   item: Community;
+  index: number;
   isOwn: boolean;
 }) {
   const visibleMembers = item.members.slice(0, 3);
@@ -425,15 +456,16 @@ function ExploreCommunityCard({
     <Link
       href={`/comunidades/${item.id}`}
       transitionTypes={["nav-forward"]}
-      className="block w-60 shrink-0 snap-start rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-64"
+      style={{ "--i": index + 4 } as CSSProperties}
+      className="stagger-in group block w-60 shrink-0 snap-start rounded-18 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-64"
     >
       <ViewTransition name={detailTransitionName("community", item.id)} share="coflow-detail-morph">
       <motion.div
         whileTap={{ scale: 0.97 }}
         transition={{ duration: MOTION_DURATION.fast }}
-        className="explore-card overflow-hidden rounded-18"
+        className="explore-card overflow-hidden rounded-18 transition-shadow duration-200 group-hover:shadow-raised"
       >
-        <div className="relative h-32 bg-surface-muted">
+        <div className="relative h-32 overflow-hidden bg-surface-muted">
           {item.cover_image_url && !coverFailed ? (
             <Image
               src={item.cover_image_url}
@@ -441,7 +473,7 @@ function ExploreCommunityCard({
               fill
               unoptimized
               sizes="272px"
-              className="object-cover"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
               onError={() => setCoverFailed(true)}
             />
           ) : (
@@ -469,6 +501,30 @@ function ExploreCommunityCard({
               )}
             </div>
           )}
+
+          {/* Sobre la portada: quién está ya dentro y si queda sitio.
+              Con la composición de avatares (sin portada) no se repiten. */}
+          {item.cover_image_url && !coverFailed && visibleMembers.length > 0 && (
+            <div className="absolute bottom-2 left-2 flex -space-x-2">
+              {visibleMembers.map((member) => (
+                <UserAvatar
+                  key={member.id}
+                  firstName={member.user.first_name}
+                  lastName={member.user.last_name}
+                  userId={member.user.id}
+                  imageUrl={member.user.avatar_url}
+                  size="sm"
+                  className="border-2 border-white"
+                />
+              ))}
+            </div>
+          )}
+
+          {item.open_spots > 0 && (
+            <span className="absolute right-2 top-2 rounded-full bg-white/92 px-2 py-0.5 text-3xs font-bold text-primary-dark shadow-soft backdrop-blur">
+              {item.open_spots} {item.open_spots === 1 ? "plaza" : "plazas"}
+            </span>
+          )}
         </div>
 
         <div className="p-2.5">
@@ -489,8 +545,6 @@ function ExploreCommunityCard({
             {" · "}
             {item.member_count}{" "}
             {item.member_count === 1 ? "miembro" : "miembros"}
-            {item.open_spots > 0 &&
-              ` · ${item.open_spots} ${item.open_spots === 1 ? "plaza" : "plazas"}`}
           </p>
         </div>
       </motion.div>

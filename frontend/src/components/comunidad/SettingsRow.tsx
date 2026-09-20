@@ -68,7 +68,7 @@ export function SettingsRow({
         </span>
 
         {subtitle && (
-          <span className="mt-0.5 block truncate text-xs leading-4 text-muted">
+          <span className="mt-0.5 block line-clamp-2 text-xs leading-4 text-muted">
             {subtitle}
           </span>
         )}

@@ -1059,6 +1059,59 @@ summary::-webkit-details-marker {
   animation: fade-in-up 0.5s ease-out both;
 }
 
+/* Entrada escalonada: cada elemento lleva su turno en --i (lo pone quien
+   renderiza la lista), así una fila de tarjetas entra en cascada en vez
+   de aparecer en bloque. Solo la primera vez que se monta. */
+@media (prefers-reduced-motion: no-preference) {
+  .stagger-in {
+    animation: fade-in-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 45ms);
+  }
+}
+
+/* Igual que .scroll-fade-x, pero el borde se difumina solo por el lado
+   donde queda contenido por ver: al principio a la derecha, al final a
+   la izquierda. Sin JS, con una animación ligada al propio scroll. Si la
+   fila no desborda, la línea de tiempo no existe y no se difumina nada. */
+@property --fade-l {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --fade-r {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.scroll-fade-live {
+  --fade-l: 0px;
+  --fade-r: 0px;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black var(--fade-l), black calc(100% - var(--fade-r)), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, black var(--fade-l), black calc(100% - var(--fade-r)), transparent 100%);
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-fade-live {
+      animation: scroll-fade-live linear both;
+      animation-timeline: scroll(self inline);
+    }
+  }
+}
+
+@keyframes scroll-fade-live {
+  from {
+    --fade-l: 0px;
+    --fade-r: 24px;
+  }
+  to {
+    --fade-l: 24px;
+    --fade-r: 0px;
+  }
+}
+
 @keyframes skeleton-shimmer {
   0% { opacity: 0.62; }
   50% { opacity: 1; }

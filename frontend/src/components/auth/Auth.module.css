@@ -351,3 +351,160 @@
   .panelInner { padding: 24px 18px; border-radius: 24px; }
   .title { font-size: 27px; }
 }
+
+/* ===================================================================
+   Movimiento (ver authMotion.ts). Todo lo que se puede resolver sin JS
+   está aquí; con "reducir movimiento" no se reproduce nada.
+   =================================================================== */
+.root {
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  /* Muelle con un rebote leve, el mismo que usa el resto de la app. */
+  --spring: linear(0, 0.0294, 0.1054, 0.2113, 0.3335, 0.4606, 0.5844, 0.6987, 0.7997, 0.8852, 0.9546, 1.0081, 1.0471, 1.0731, 1.0882, 1.0944, 1.0936, 1.0878, 1.0786, 1.0675, 1.0555, 1.0436, 1.0324, 1.0223, 1.0136, 1.0065, 1.0009, 0.9967, 0.9938, 0.992, 0.9912, 0.991, 0.9914, 0.9922, 0.9932, 0.9943, 1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Entrada: primero la tarjeta y su texto, después los campos. El
+     formulario en sí no entra (sus campos sí), o el bloque se movería
+     dos veces. */
+  .panelInner > * { animation: auth-rise .62s var(--ease-out) both; }
+  .panelInner > *:nth-child(2) { animation-delay: .05s; }
+  .panelInner > *:nth-child(3) { animation-delay: .1s; }
+  .panelInner > *:nth-child(4) { animation-delay: .15s; }
+  .panelInner > *:nth-child(5) { animation-delay: .2s; }
+  .panelInner > *:nth-child(6) { animation-delay: .25s; }
+  .panelInner > .form { animation: none; }
+  .form > * { animation: auth-rise .55s var(--ease-out) both; }
+  .form > *:nth-child(1) { animation-delay: .22s; }
+  .form > *:nth-child(2) { animation-delay: .27s; }
+  .form > *:nth-child(3) { animation-delay: .32s; }
+  .form > *:nth-child(4) { animation-delay: .37s; }
+  .form > *:nth-child(5) { animation-delay: .42s; }
+  .form > *:nth-child(6) { animation-delay: .47s; }
+
+  /* El panel editorial: el bloque se remonta al cambiar de tipo de
+     cuenta (ver AuthSplit), así que esto también sirve de "cambio". */
+  .asideBody > * { animation: auth-rise .7s var(--ease-out) both; }
+  .asideBody > *:nth-child(2) { animation-delay: .06s; }
+  .asideBody > *:nth-child(3) { animation-delay: .12s; }
+  .asideBody > *:nth-child(4) { animation-delay: .18s; }
+  .asideBody > *:nth-child(5) { animation-delay: .24s; }
+  .points li { animation: auth-rise .6s var(--ease-out) both; }
+  .points li:nth-child(1) { animation-delay: .26s; }
+  .points li:nth-child(2) { animation-delay: .32s; }
+  .points li:nth-child(3) { animation-delay: .38s; }
+
+  /* El anillo decorativo respira muy despacio: da vida sin pedir nada. */
+  .aside::after { animation: auth-ring 26s ease-in-out infinite alternate; }
+
+  /* La vista previa se traza sola: primero los hitos, luego las líneas. */
+  .previewFlow span { animation: auth-pop .5s var(--spring) both; }
+  .previewFlow span:nth-child(1) { animation-delay: .4s; }
+  .previewFlow span:nth-child(3) { animation-delay: .56s; }
+  .previewFlow span:nth-child(5) { animation-delay: .72s; }
+  .previewFlow b { transform-origin: left; animation: auth-line .5s var(--ease-out) both; }
+  .previewFlow b:nth-child(2) { animation-delay: .48s; }
+  .previewFlow b:nth-child(4) { animation-delay: .64s; }
+  .previewHeader i { animation: auth-ping 2.6s ease-out .9s 2; }
+
+  .error { animation: auth-error-in .45s var(--spring) both; }
+}
+
+@keyframes auth-rise { from { opacity: 0; translate: 0 14px; } }
+@keyframes auth-pop { from { opacity: 0; scale: .7; } }
+@keyframes auth-line { from { scale: 0 1; } }
+@keyframes auth-error-in { from { opacity: 0; translate: 0 -7px; scale: .98; } }
+@keyframes auth-ring { to { translate: -26px -18px; scale: 1.06; } }
+@keyframes auth-ping { 0% { box-shadow: 0 0 0 0 rgb(33 181 111 / .5); } 70%, 100% { box-shadow: 0 0 0 12px rgb(33 181 111 / 0); } }
+@keyframes auth-spin { to { rotate: 1turn; } }
+@keyframes auth-check { to { stroke-dashoffset: 0; } }
+
+/* --- Campos --- */
+/* La etiqueta acompaña al foco: el campo activo se lee de un vistazo. */
+.field:focus-within .fieldLabel { color: var(--green-dark); }
+.labelRow:has(+ .input:focus) .fieldLabel { color: var(--green-dark); }
+
+/* Visto bueno del email en cuanto es válido, dibujándose. */
+.field:has(> .input[type="email"]) { position: relative; }
+.field:has(> .input[type="email"]:valid:not(:placeholder-shown))::after {
+  opacity: 1;
+  rotate: -45deg;
+  scale: 1;
+}
+.field:has(> .input[type="email"])::after {
+  content: "";
+  position: absolute;
+  right: 17px;
+  bottom: 21px;
+  width: 15px;
+  height: 8px;
+  border-left: 2px solid var(--green);
+  border-bottom: 2px solid var(--green);
+  border-bottom-left-radius: 2px;
+  opacity: 0;
+  rotate: -45deg;
+  scale: .5;
+  transition: opacity .25s ease, scale .45s var(--spring);
+  pointer-events: none;
+}
+.field:has(> .input[type="email"]:valid:not(:placeholder-shown)) .input { padding-right: 44px; }
+
+/* --- Selector de tipo de cuenta: una píldora que se desliza --- */
+.roleGroup { position: relative; }
+.roleThumb {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  width: calc(50% - 8px);
+  border-radius: 10px;
+  background: var(--ink);
+  transition: translate .55s var(--spring);
+}
+.roleGroupOwner .roleThumb { translate: calc(100% + 6px) 0; }
+.roleButton { position: relative; z-index: 1; }
+.roleButtonOn { background: transparent; color: var(--white); }
+
+/* --- Medidor de contraseña --- */
+/* Vacío no aporta nada: aparece en cuanto empiezas a escribir. */
+.strength { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 2px 0 0; opacity: 0; transition: opacity .3s ease; }
+.strength:not([data-level="0"]) { opacity: 1; }
+.strength i {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+  scale: 1 .55;
+  transition: background-color .35s ease, scale .45s var(--spring);
+}
+.strength[data-level="1"] i:nth-child(-n + 1),
+.strength[data-level="2"] i:nth-child(-n + 2),
+.strength[data-level="3"] i:nth-child(-n + 3),
+.strength[data-level="4"] i { scale: 1 1; }
+.strength[data-level="1"] i:nth-child(-n + 1) { background: #d9534f; }
+.strength[data-level="2"] i:nth-child(-n + 2) { background: #d9822b; }
+.strength[data-level="3"] i:nth-child(-n + 3) { background: #4cc98a; }
+.strength[data-level="4"] i { background: var(--green-dark); }
+.strengthLabel { margin: 7px 0 0; color: #66736b; font-size: 12px; }
+.strengthLabel b { color: var(--ink); font-weight: 700; }
+
+/* --- Paso a paso --- */
+.dot { transition: background-color .4s ease, width .5s var(--spring); }
+.dotOn { width: 30px; }
+
+/* --- Botón: reposo → enviando → hecho --- */
+.submit { position: relative; justify-self: center; overflow: hidden; transition: width .55s var(--spring), background .2s ease, transform .18s ease; }
+.submitLabel { display: inline-flex; align-items: center; gap: 9px; white-space: nowrap; transition: opacity .18s ease, scale .35s var(--spring); }
+.submitState { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0; transition: opacity .25s ease; }
+.submitState svg { width: 22px; height: 22px; }
+.submit[data-state="loading"], .submit[data-state="done"] { width: 52px; padding: 0; pointer-events: none; }
+.submit[data-state="loading"] .submitLabel,
+.submit[data-state="done"] .submitLabel { opacity: 0; scale: .7; }
+.submit[data-state="loading"] .submitSpinner { opacity: 1; }
+.submit[data-state="done"] { background: var(--green-dark); }
+.submit[data-state="done"] .submitCheck { opacity: 1; }
+.submitSpinner svg { animation: auth-spin .9s linear infinite; }
+.submitCheck path { stroke-dasharray: 26; stroke-dashoffset: 26; }
+.submit[data-state="done"] .submitCheck path { animation: auth-check .45s var(--ease-out) .08s forwards; }
+/* Mientras envía no debe verse "apagado": el estado ya lo cuenta el spinner. */
+.submit:disabled:not([data-state="loading"]):not([data-state="done"]) { opacity: .62; }
+.submit:disabled { opacity: 1; }
+.strengthBlock { margin-top: -2px; }

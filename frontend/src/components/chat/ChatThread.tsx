@@ -179,7 +179,9 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
   const messagesRef = useRef<TMessage[]>([]);
   const seenMessageIdsRef = useRef(new Set<number | string>());
   const isNearBottomRef = useRef(true);
-  const requestInFlightRef = useRef(false);
+  // Guarda la petición en vuelo (no un booleano): una carga inicial
+  // necesita poder esperarla y reintentar.
+  const requestInFlightRef = useRef<Promise<void> | null>(null);
   const hasLoadedRef = useRef(false);
   const lastTypingHeartbeatRef = useRef(0);
   const lastMarkedReadIdRef = useRef<TMessage["id"] | null>(null);
@@ -276,10 +278,22 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
     let intervalId: ReturnType<typeof setInterval> | null = null;
 
     async function fetchLatest(showSpinner: boolean) {
-      if (requestInFlightRef.current) return;
-      requestInFlightRef.current = true;
+      const pending = requestInFlightRef.current;
+      if (pending) {
+        // El sondeo se salta el turno, pero una carga inicial espera a
+        // que termine la anterior y lo vuelve a intentar. Antes se
+        // descartaba: si esa petición venía de un efecto ya cancelado
+        // (cambio de conversación, o StrictMode en desarrollo), nadie
+        // apagaba el esqueleto y el hilo se quedaba cargando para
+        // siempre, aunque la API hubiera respondido.
+        if (!showSpinner) return;
+        await pending.catch(() => {});
+        if (!active) return;
+      }
+
       if (showSpinner) setLoading(true);
 
+      const task = (async () => {
       try {
         const data = await fetchMessagesRef.current({ limit: PAGE_SIZE });
         if (!active) return;
@@ -313,9 +327,13 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
           setLoadError("No hemos podido actualizar la conversación.");
         }
       } finally {
-        requestInFlightRef.current = false;
         if (active && showSpinner) setLoading(false);
       }
+      })();
+
+      requestInFlightRef.current = task;
+      await task;
+      if (requestInFlightRef.current === task) requestInFlightRef.current = null;
     }
 
     function startPolling() {
@@ -981,6 +999,9 @@ export default function ChatThread<TMessage extends ChatThreadMessage>({
             type="submit"
             disabled={!content.trim()}
             aria-label="Enviar mensaje"
+            /* Crece al haber algo que enviar: el botón avisa de que ya
+               está listo, en vez de solo cambiar de color. */
+            animate={{ scale: content.trim() ? 1 : 0.9 }}
             whileTap={content.trim() ? { scale: 0.9 } : undefined}
             transition={MOTION_SPRING.snappy}
             className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-dark text-white shadow-raised transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-surface-soft disabled:text-muted disabled:shadow-none"
@@ -1488,10 +1509,18 @@ function DeleteIcon() {
 
 function ReadTicks({ read }: { read: boolean }) {
   return (
-    <svg viewBox="0 0 24 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={cn("h-3 w-4.5 shrink-0", read && "text-sky-500")} aria-hidden="true">
-      <path d="m1 8 4 4 4-8" />
-      <path d="m9 8 4 4 8-11" />
-    </svg>
+    /* Que te lean es un momento: el doble check se tiñe con una
+     * transición y da un pulso, en vez de cambiar de color de golpe. */
+    <motion.span
+      className="flex"
+      animate={read ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
+      <svg viewBox="0 0 24 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={cn("h-3 w-4.5 shrink-0 transition-colors duration-300", read && "text-sky-500")} aria-hidden="true">
+        <path d="m1 8 4 4 4-8" />
+        <path d="m9 8 4 4 8-11" />
+      </svg>
+    </motion.span>
   );
 }
 

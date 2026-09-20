@@ -1,3 +1,4 @@
+import CountUp from "@/components/ui/CountUp";
 import { cn } from "@/lib/utils";
 
 /* Insignia visual del % de compatibilidad real entre el usuario actual
@@ -8,12 +9,20 @@ import { cn } from "@/lib/utils";
 export default function MatchScoreBadge({
   score,
   size = "lg",
+  /* La cifra cuenta hasta su valor al entrar en pantalla. Solo donde la
+   * insignia es un descubrimiento (las tarjetas de Explorar); en una
+   * lista larga de resultados, todas contando a la vez es ruido. */
+  count = false,
   className,
 }: {
   score: number;
   size?: "sm" | "lg";
+  count?: boolean;
   className?: string;
 }) {
+  const value = count
+    ? <CountUp value={score} durationSeconds={0.8} format={(current) => String(Math.round(current))} />
+    : score;
   const tone =
     score >= 75
       ? "text-primary-dark"
@@ -35,7 +44,7 @@ export default function MatchScoreBadge({
         )}
       >
         <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", dot)} />
-        {score}%
+        {value}%
       </span>
     );
   }
@@ -51,7 +60,7 @@ export default function MatchScoreBadge({
       )}
     >
       <span className={cn("h-2 w-2 shrink-0 rounded-full", dot)} />
-      {score}% compatible
+      {value}% compatible
     </span>
   );
 }

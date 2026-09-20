@@ -67,8 +67,8 @@ export default function CompatibilityRadar({
             </span>
           )}
           <div className="min-w-0">
-            {title && <h2 className="truncate font-rounded text-lg font-bold tracking-[-0.02em] text-brand-dark sm:text-xl">{title}</h2>}
-            {subtitle && <p className="truncate text-xs text-secondary">{subtitle}</p>}
+            {title && <h2 className="font-rounded text-lg font-bold leading-tight tracking-[-0.02em] text-brand-dark sm:text-xl">{title}</h2>}
+            {subtitle && <p className="text-xs leading-snug text-secondary">{subtitle}</p>}
           </div>
         </div>
       )}
@@ -145,7 +145,7 @@ export default function CompatibilityRadar({
         <div className="min-w-0 flex-1 space-y-2">
           {categories.map((category, index) => (
             <div key={category.key} className="flex items-center gap-2.5">
-              <span className="w-24 shrink-0 truncate text-2xs font-bold uppercase tracking-[0.03em] text-secondary sm:w-28">
+              <span className="w-24 shrink-0 text-2xs font-bold uppercase leading-tight tracking-[0.03em] text-secondary sm:w-28">
                 {category.label}
               </span>
               <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-soft">

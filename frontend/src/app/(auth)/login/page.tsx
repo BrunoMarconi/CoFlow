@@ -3,8 +3,9 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import AuthSplit from "@/components/auth/AuthSplit";
+import SubmitButton, { type SubmitState } from "@/components/auth/SubmitButton";
 import { login } from "@/services/auth";
 import { setToken } from "@/lib/auth";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,14 +18,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [state, setState] = useState<SubmitState>("idle");
+  // Sube en cada intento fallido: dos veces la misma contraseña mal
+  // también tiene que sacudir la tarjeta.
+  const [shake, setShake] = useState(0);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
-    setLoading(true);
+    setState("loading");
     try {
       const data = await login({ email, password });
+      // El visto se queda puesto mientras carga la pantalla siguiente.
+      setState("done");
       setToken(data.access_token);
       applyAuthenticatedUser(data.user);
       const currentUser = data.user;
@@ -44,8 +50,8 @@ export default function LoginPage() {
     } catch (reason) {
       const status = (reason as { response?: { status?: number } })?.response?.status;
       setError(status === 401 ? "El correo o la contraseña no son correctos." : status ? "No pudimos iniciar sesión ahora mismo. Inténtalo de nuevo." : "No pudimos conectar con el servidor. Revisa tu conexión.");
-    } finally {
-      setLoading(false);
+      setShake((value) => value + 1);
+      setState("idle");
     }
   }
 
@@ -56,6 +62,7 @@ export default function LoginPage() {
       text="Entra para seguir hablando con tu comunidad y retomar la búsqueda donde la dejaste."
       points={["Tus conversaciones y comunidades", "Las personas que guardaste", "Tus preferencias de convivencia"]}
       foot="Disponible en Málaga"
+      shake={shake}
     >
       <h1 className={s.title}>Inicia sesión</h1>
       <p className={s.subtitle}>Vuelve a tu comunidad CoFlow.</p>
@@ -104,10 +111,7 @@ export default function LoginPage() {
         <p className={s.formNote}>Retoma tu búsqueda y tus conversaciones exactamente donde las dejaste.</p>
 
         <div className={s.actions}>
-          <button type="submit" disabled={loading} className={s.submit}>
-            {loading ? "Iniciando sesión..." : "Iniciar sesión"}
-            {!loading && <ArrowRight />}
-          </button>
+          <SubmitButton state={state}>Iniciar sesión</SubmitButton>
         </div>
       </form>
 
