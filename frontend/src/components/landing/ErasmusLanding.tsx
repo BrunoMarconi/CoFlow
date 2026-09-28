@@ -43,8 +43,9 @@ function ArrowIcon() {
 function PastelBrandMark() {
   return (
     <svg className={`brand-logo ${styles.pastelBrandLogo}`} viewBox="0 0 38 28" aria-hidden="true">
-      <circle cx="14" cy="14" r="12.5" fill="#96d5ee" stroke="#fff9f0" strokeWidth="1.2" />
-      <circle cx="24" cy="14" r="12.5" fill="#ec8fc4" stroke="#fff9f0" strokeWidth="1.2" />
+      <circle cx="14" cy="14" r="12.5" fill="#f2d99a" stroke="#fff9f0" strokeWidth="1.2" />
+      <circle cx="24" cy="14" r="12.5" fill="#96d5ee" stroke="#fff9f0" strokeWidth="1.2" />
+      <path d="M19 2.54A12.5 12.5 0 0 1 19 25.46A12.5 12.5 0 0 1 19 2.54Z" fill="#a8ddcb" />
     </svg>
   );
 }

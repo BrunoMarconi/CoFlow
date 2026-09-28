@@ -547,8 +547,9 @@
 .root .finalBand :global(.eyebrow-dark i) { background: var(--esn-blue); box-shadow: 0 0 0 5px rgba(46, 49, 146, .14); }
 .root .finalBand :global(.final-link) { background: var(--esn-blue); color: #fffdf8; box-shadow: 6px 6px 0 #fffdf8; }
 .root .finalBand :global(.final-link:hover) { background: #f7e7a9; color: var(--esn-blue); }
-.finalBand :global(.final-mark .is-a) { background: #f7e7a9; }
-.finalBand :global(.final-mark .is-b) { background: var(--esn-blue); }
+.finalBand :global(.final-mark .is-a) { background: #f2d99a; }
+.finalBand :global(.final-mark .is-b) { background: #96d5ee; }
+.finalBand :global(.final-mark .is-lens > i) { background: #a8ddcb; }
 
 .root .footer {
   border-top-color: rgba(46, 49, 146, .18);
