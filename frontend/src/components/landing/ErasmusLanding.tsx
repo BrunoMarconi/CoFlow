@@ -40,6 +40,15 @@ function ArrowIcon() {
   );
 }
 
+function PastelBrandMark() {
+  return (
+    <svg className={`brand-logo ${styles.pastelBrandLogo}`} viewBox="0 0 38 28" aria-hidden="true">
+      <circle cx="14" cy="14" r="12.5" fill="#96d5ee" stroke="#fff9f0" strokeWidth="1.2" />
+      <circle cx="24" cy="14" r="12.5" fill="#ec8fc4" stroke="#fff9f0" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
 export default function ErasmusLanding() {
   const rootRef = useRef<HTMLElement>(null);
   useScrollReveal(rootRef);
@@ -51,7 +60,7 @@ export default function ErasmusLanding() {
     <main ref={rootRef} className={`${s.root} ${styles.root}`}>
       <header className="site-header">
         <a className="brand" href="#inicio" aria-label="CoFlow, volver al inicio">
-          <Image className="brand-logo" src="/logo-coflow.png" alt="" aria-hidden="true" width={34} height={34} priority />
+          <PastelBrandMark />
           <span>CoFlow</span>
         </a>
         <nav aria-label="Navegación principal">
@@ -69,14 +78,14 @@ export default function ErasmusLanding() {
         <div className={styles.heroPaper} aria-hidden="true" />
         <div className={styles.pastelBackdrop} aria-hidden="true">
           <svg className={styles.pastelFan} viewBox="0 0 1440 860" preserveAspectRatio="none">
-            <path className={`${styles.fanArc} ${styles.arcCoral}`} pathLength="1" d="M760 800 Q710 320 675 -90" />
-            <path className={`${styles.fanArc} ${styles.arcMint}`} pathLength="1" d="M760 800 Q825 300 875 -100" />
-            <path className={`${styles.fanArc} ${styles.arcSky}`} pathLength="1" d="M760 800 Q960 310 1080 -80" />
-            <path className={`${styles.fanArc} ${styles.arcLilac}`} pathLength="1" d="M760 800 Q1100 350 1300 -45" />
-            <path className={`${styles.fanArc} ${styles.arcPeach}`} pathLength="1" d="M760 800 Q1220 430 1530 120" />
-            <path className={`${styles.fanArc} ${styles.arcButter}`} pathLength="1" d="M760 800 Q1250 560 1540 355" />
-            <path className={`${styles.fanArc} ${styles.arcPink}`} pathLength="1" d="M760 800 Q1210 690 1530 590" />
-            <path className={`${styles.fanArc} ${styles.arcAqua}`} pathLength="1" d="M760 800 Q1090 805 1500 820" />
+            <path className={`${styles.fanArc} ${styles.arcCoral}`} pathLength="1" d="M760 800 C585 640 470 150 650 -90" />
+            <path className={`${styles.fanArc} ${styles.arcMint}`} pathLength="1" d="M760 800 C600 620 610 120 850 -100" />
+            <path className={`${styles.fanArc} ${styles.arcSky}`} pathLength="1" d="M760 800 C610 600 760 110 1050 -80" />
+            <path className={`${styles.fanArc} ${styles.arcLilac}`} pathLength="1" d="M760 800 C630 590 900 120 1280 -45" />
+            <path className={`${styles.fanArc} ${styles.arcPeach}`} pathLength="1" d="M760 800 C650 600 1070 190 1530 120" />
+            <path className={`${styles.fanArc} ${styles.arcButter}`} pathLength="1" d="M760 800 C660 620 1170 330 1540 355" />
+            <path className={`${styles.fanArc} ${styles.arcPink}`} pathLength="1" d="M760 800 C680 670 1270 540 1530 590" />
+            <path className={`${styles.fanArc} ${styles.arcAqua}`} pathLength="1" d="M760 800 C700 740 1260 740 1500 820" />
           </svg>
           <span className={styles.originHalo} />
           <span className={styles.originDot} />
@@ -126,7 +135,7 @@ export default function ErasmusLanding() {
             <h2 id="journey-title" data-sr="words"><SplitWords text="Primero las personas. Después, la casa." /></h2>
             <p data-sr>CoFlow cambia el orden: conocéis cómo queréis vivir, formáis vuestro grupo y después buscáis con un criterio común.</p>
           </div>
-          <PathScene />
+          <PathScene palette="pastel" />
         </div>
         <div className="path-grid">
           {journeySteps.map((step, index) => (
@@ -144,6 +153,7 @@ export default function ErasmusLanding() {
       </div>
 
       <section className={styles.malaga} id="malaga" aria-labelledby="malaga-title">
+        <span className={styles.malagaBackdropWord} aria-hidden="true">MÁLAGA</span>
         <div className={styles.malagaCopy}>
           <span data-sr>Málaga será nueva.</span>
           <h2 id="malaga-title" data-sr="words"><SplitWords text="Tu gente no tiene por qué serlo durante mucho tiempo." /></h2>

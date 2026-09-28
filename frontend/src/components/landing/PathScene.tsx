@@ -32,6 +32,8 @@ const PEOPLE: Person[] = [
   { color: "#dde2da", at: [[8, 26], [30, 31], [36, 36]], opacity: [1, 0.3, 0], delay: 180, float: 5.5 },
 ];
 
+const PASTEL_PEOPLE = ["#ec8fc4", "#96d5ee", "#b9dda9", "#f2d99a", "#c5b5e9", "#f4bea2", "#a8ddcb"];
+
 function personStyle(person: Person) {
   const style: Record<string, string | number> = {
     "--c": person.color,
@@ -48,7 +50,7 @@ function personStyle(person: Person) {
   return style as CSSProperties;
 }
 
-export default function PathScene() {
+export default function PathScene({ palette = "default" }: { palette?: "default" | "pastel" }) {
   return (
     <div className="path-scene" data-step="0" data-sr aria-hidden="true">
       <div className="path-stage">
@@ -58,7 +60,11 @@ export default function PathScene() {
         </svg>
         <span className="path-ring" />
         {PEOPLE.map((person, index) => (
-          <span className="path-person" key={index} style={personStyle(person)}>
+          <span
+            className="path-person"
+            key={index}
+            style={personStyle({ ...person, color: palette === "pastel" ? PASTEL_PEOPLE[index] : person.color })}
+          >
             <i />
           </span>
         ))}

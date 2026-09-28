@@ -35,6 +35,11 @@
   color: #27214f;
 }
 
+.pastelBrandLogo {
+  overflow: visible;
+  filter: drop-shadow(0 3px 5px rgba(46, 49, 146, .12));
+}
+
 .hero {
   position: relative;
   min-height: min(900px, 100svh);
@@ -302,6 +307,7 @@
   padding: 132px max(24px, calc((100% - 1180px) / 2));
   overflow: hidden;
   background: #eee8fb;
+  scroll-margin-top: 76px;
 }
 
 .arrival::before {
@@ -376,10 +382,10 @@
   overflow: hidden;
   color: var(--esn-ink);
   background: #f7e7a9;
+  scroll-margin-top: 76px;
 }
 
-.malaga::before {
-  content: "MÁLAGA";
+.malagaBackdropWord {
   position: absolute;
   left: -2vw;
   bottom: -0.21em;
@@ -453,6 +459,7 @@
   border: 0;
   border-radius: 0;
   background: #dff2fb;
+  scroll-margin-top: 76px;
 }
 
 .journeyBand::before {
@@ -471,15 +478,18 @@
 .journeyBand :global(.path-intro h2) { color: var(--esn-blue); }
 .journeyBand :global(.path-intro > p) { color: #536d79; }
 .journeyBand :global(.path-stage) {
-  border: 2px solid var(--esn-blue);
+  border: 2px solid #a994d9;
   background: #fff9f0;
-  box-shadow: 9px 9px 0 var(--esn-blue);
+  box-shadow: 9px 9px 0 #c5b5e9;
 }
 .journeyBand :global(.path-person i) { box-shadow: 0 0 0 .8cqw #fff9f0, 0 1.8cqw 3.4cqw -1.2cqw rgba(46, 49, 146, .28); }
+.journeyBand :global(.path-house-line) { stroke: #8c79c6; }
+.journeyBand :global(.path-house-glow) { fill: #d5ebc8; }
+.journeyBand :global(.path-ring) { border-color: rgba(236, 143, 196, .72); }
 .journeyBand :global(.path-scene-steps li) { color: #615b79; }
-.journeyBand :global(.path-scene[data-step="0"] .path-scene-steps li:nth-child(1)),
-.journeyBand :global(.path-scene[data-step="1"] .path-scene-steps li:nth-child(2)),
-.journeyBand :global(.path-scene[data-step="2"] .path-scene-steps li:nth-child(3)) { background: var(--esn-blue); }
+.journeyBand :global(.path-scene[data-step="0"] .path-scene-steps li:nth-child(1)) { background: #f7c8df; color: var(--esn-ink); }
+.journeyBand :global(.path-scene[data-step="1"] .path-scene-steps li:nth-child(2)) { background: #bfe5f3; color: var(--esn-ink); }
+.journeyBand :global(.path-scene[data-step="2"] .path-scene-steps li:nth-child(3)) { background: #d5ebc8; color: var(--esn-ink); }
 .journeyBand :global(.path-grid) { gap: 18px; align-content: center; }
 .root .journeyBand :global(.path-card),
 .root .journeyBand[data-story] :global(.path-card) {
@@ -500,6 +510,7 @@
   overflow: hidden;
   background: var(--esn-blue);
   color: #fffdf8;
+  scroll-margin-top: 76px;
 }
 
 .safetyBand::before,
@@ -533,6 +544,7 @@
 
 .root .faqBand {
   background: #fff9f0;
+  scroll-margin-top: 76px;
 }
 .faqBand :global(.faq-intro .kicker) { color: #a0447d; }
 .faqBand :global(.faq-intro h2) { color: var(--esn-blue); }
@@ -557,6 +569,7 @@
   overflow: hidden;
   background: #ec8fc4;
   color: var(--esn-ink);
+  scroll-margin-top: 76px;
 }
 .finalBand::before {
   content: "";

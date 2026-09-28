@@ -13,6 +13,7 @@
   background: #fff9f0;
   border: 2px solid var(--esn-blue, #2e3192);
   box-shadow: 12px 12px 0 var(--esn-blue, #2e3192);
+  scroll-margin-top: 84px;
 }
 
 .head {
