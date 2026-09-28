@@ -11,6 +11,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
+      url: `${APP_URL}/erasmus`,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
       url: `${APP_URL}/comunidades`,
       changeFrequency: "daily",
       priority: 0.9,

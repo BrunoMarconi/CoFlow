@@ -21,9 +21,7 @@ export const metadata: Metadata = {
     siteName: "CoFlow",
   },
   twitter: { card: "summary_large_image", title: "CoFlow para tu Erasmus en Málaga", description: "Primero las personas. Después, la casa." },
-  // Mantener fuera del indice hasta validar el contenido final y el uso del
-  // nombre de ESN con el partner. Al aprobarse, se anade tambien al sitemap.
-  robots: { index: false, follow: true },
+  robots: { index: true, follow: true },
 };
 
 export default function ErasmusPage() {
