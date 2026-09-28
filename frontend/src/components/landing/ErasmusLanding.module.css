@@ -96,46 +96,6 @@
 .arcPink { stroke: #eeb0d2; --delay: .48s; }
 .arcAqua { stroke: #a8ddcb; --delay: .54s; }
 
-.originHalo,
-.originDot,
-.originLabel {
-  position: absolute;
-  left: 52.8%;
-  top: 93%;
-  translate: -50% -50%;
-}
-
-.originHalo {
-  width: 122px;
-  height: 122px;
-  border: 1px solid rgba(46, 49, 146, .24);
-  border-radius: 50%;
-  animation: origin-pulse 2.8s 1s ease-out infinite;
-}
-
-.originDot {
-  width: 22px;
-  height: 22px;
-  border: 6px solid #fff9f0;
-  border-radius: 50%;
-  background: #2e3192;
-  box-shadow: 0 0 0 1px rgba(46, 49, 146, .14);
-}
-
-.originLabel {
-  top: calc(93% - 44px);
-  padding: 8px 12px;
-  border: 1px solid rgba(46, 49, 146, .14);
-  border-radius: 999px;
-  background: rgba(255, 253, 248, .86);
-  box-shadow: 0 8px 24px rgba(46, 49, 146, .1);
-  color: #2e3192;
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-
 .heroInner {
   position: relative;
   z-index: 2;
@@ -605,11 +565,6 @@
   to { stroke-dashoffset: 0; }
 }
 
-@keyframes origin-pulse {
-  0% { opacity: .72; transform: scale(.5); }
-  70%, 100% { opacity: 0; transform: scale(1.35); }
-}
-
 @keyframes scroll-line {
   0%, 100% { scale: 1 0; opacity: .2; }
   45% { scale: 1 1; opacity: 1; transform-origin: top; }
@@ -620,7 +575,6 @@
   .hero { min-height: 820px; align-items: start; }
   .heroInner { padding-top: 132px; }
   .heroCopy { width: min(590px, 74%); }
-  .originHalo, .originDot, .originLabel { left: 52.8%; }
   .arrival { grid-template-columns: 1fr; gap: 56px; width: 100%; padding: 96px max(20px, calc((100% - 720px) / 2)); }
   .root .journeyBand { grid-template-columns: 1fr; gap: 56px; padding: 96px max(20px, calc((100% - 720px) / 2)); }
   .journeyBand :global(.path-scene) { background: linear-gradient(#dff2fb 84%, rgba(223, 242, 251, 0)); }
@@ -645,8 +599,6 @@
   .heroCopy > .heroNote { margin-top: 20px; font-size: 10px; }
   .pastelBackdrop { top: 56%; }
   .fanArc { stroke-width: 34; }
-  .originHalo, .originDot, .originLabel { left: 52.8%; top: 93%; }
-  .originLabel { top: calc(93% - 42px); }
   .scrollCue { display: none; }
   .arrival { width: 100%; gap: 42px; padding: 78px 16px; }
   .arrivalLead h2 { font-size: 48px; }
@@ -680,8 +632,6 @@
   .heroActions,
   .heroNote,
   .fanArc,
-  .originHalo,
   .scrollCue i { animation: none; }
   .fanArc { stroke-dashoffset: 0; }
-  .originHalo { opacity: .35; }
 }

@@ -78,18 +78,15 @@ export default function ErasmusLanding() {
         <div className={styles.heroPaper} aria-hidden="true" />
         <div className={styles.pastelBackdrop} aria-hidden="true">
           <svg className={styles.pastelFan} viewBox="0 0 1440 860" preserveAspectRatio="none">
-            <path className={`${styles.fanArc} ${styles.arcCoral}`} pathLength="1" d="M760 800 C585 640 470 150 650 -90" />
-            <path className={`${styles.fanArc} ${styles.arcMint}`} pathLength="1" d="M760 800 C600 620 610 120 850 -100" />
-            <path className={`${styles.fanArc} ${styles.arcSky}`} pathLength="1" d="M760 800 C610 600 760 110 1050 -80" />
-            <path className={`${styles.fanArc} ${styles.arcLilac}`} pathLength="1" d="M760 800 C630 590 900 120 1280 -45" />
-            <path className={`${styles.fanArc} ${styles.arcPeach}`} pathLength="1" d="M760 800 C650 600 1070 190 1530 120" />
-            <path className={`${styles.fanArc} ${styles.arcButter}`} pathLength="1" d="M760 800 C660 620 1170 330 1540 355" />
-            <path className={`${styles.fanArc} ${styles.arcPink}`} pathLength="1" d="M760 800 C680 670 1270 540 1530 590" />
-            <path className={`${styles.fanArc} ${styles.arcAqua}`} pathLength="1" d="M760 800 C700 740 1260 740 1500 820" />
+            <path className={`${styles.fanArc} ${styles.arcCoral}`} pathLength="1" d="M560 880 C450 660 470 150 650 -90" />
+            <path className={`${styles.fanArc} ${styles.arcMint}`} pathLength="1" d="M625 880 C500 640 610 120 850 -100" />
+            <path className={`${styles.fanArc} ${styles.arcSky}`} pathLength="1" d="M690 880 C555 620 760 110 1050 -80" />
+            <path className={`${styles.fanArc} ${styles.arcLilac}`} pathLength="1" d="M755 880 C600 610 900 120 1280 -45" />
+            <path className={`${styles.fanArc} ${styles.arcPeach}`} pathLength="1" d="M820 880 C650 620 1070 190 1530 120" />
+            <path className={`${styles.fanArc} ${styles.arcButter}`} pathLength="1" d="M885 880 C720 650 1170 330 1540 355" />
+            <path className={`${styles.fanArc} ${styles.arcPink}`} pathLength="1" d="M950 880 C800 700 1270 540 1530 590" />
+            <path className={`${styles.fanArc} ${styles.arcAqua}`} pathLength="1" d="M1015 880 C900 790 1260 740 1500 820" />
           </svg>
-          <span className={styles.originHalo} />
-          <span className={styles.originDot} />
-          <span className={styles.originLabel}>Málaga</span>
         </div>
         <div className={styles.heroInner}>
           <div className={styles.heroCopy}>
