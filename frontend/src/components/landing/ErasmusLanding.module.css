@@ -164,6 +164,7 @@
 
 .heroAccent {
   position: relative;
+  margin-top: .1em;
   color: #2e3192;
   text-transform: uppercase;
 }
