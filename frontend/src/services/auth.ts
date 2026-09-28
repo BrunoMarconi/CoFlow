@@ -10,6 +10,7 @@ import {
   User,
   AuthSession,
 } from "@/types/auth";
+import { attributionPayload } from "@/lib/attribution";
 
 export async function register(
   data: RegisterRequest
@@ -56,7 +57,14 @@ export async function login(
 export async function loginWithGoogle(
   idToken: string
 ): Promise<LoginResponse> {
-  const response = await api.post("/auth/google", { id_token: idToken });
+  // La atribucion se manda aqui y no en GoogleAuthButton porque el boton
+  // es el mismo en /login y /register: el backend decide si la cuenta ya
+  // existe o hay que crearla, y solo guarda el origen cuando la crea. En
+  // un inicio de sesion normal estos campos se ignoran.
+  const response = await api.post("/auth/google", {
+    id_token: idToken,
+    ...attributionPayload(),
+  });
   return response.data;
 }
 

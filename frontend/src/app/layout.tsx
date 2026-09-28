@@ -6,6 +6,8 @@ import QueryProvider from "@/providers/QueryProvider";
 import RouteProgressBar from "@/components/layout/RouteProgressBar";
 import NavigationEffects from "@/components/layout/NavigationEffects";
 import CookieBanner from "@/components/layout/CookieBanner";
+import AttributionCapture from "@/components/layout/AttributionCapture";
+import ConsentedAnalytics from "@/components/layout/ConsentedAnalytics";
 import HapticFeedback from "@/components/interaction/HapticFeedback";
 import PressFeedback from "@/components/interaction/PressFeedback";
 
@@ -168,6 +170,8 @@ export default function RootLayout({
             <NavigationEffects />
             {children}
             <CookieBanner />
+            <AttributionCapture />
+            <ConsentedAnalytics />
           </AuthProvider>
         </QueryProvider>
       </body>

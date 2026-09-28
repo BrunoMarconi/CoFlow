@@ -14,7 +14,7 @@ export default function CookiesPage() {
       </Section>
 
       <Section title="2. Uso actual de CoFlow">
-        <p>Actualmente CoFlow no utiliza cookies destinadas a publicidad comportamental ni herramientas externas de analítica como Google Analytics o Meta Pixel.</p>
+        <p>Actualmente CoFlow no utiliza cookies destinadas a publicidad comportamental ni herramientas de seguimiento publicitario como Google Analytics o Meta Pixel. La única herramienta externa que empleamos es Vercel Web Analytics, que mide visitas de forma agregada, sin cookies y sin crear perfiles, y que solo se carga si aceptas la analítica.</p>
         <p>CoFlow puede utilizar cookies o tecnologías similares estrictamente necesarias para:</p>
         <Ul
           items={[
@@ -38,6 +38,7 @@ export default function CookiesPage() {
       <Section title="4. Analítica">
         <p>Con tu consentimiento, CoFlow registra eventos propios y minimizados para entender si recorridos como el registro, onboarding, exploración y contacto se completan correctamente.</p>
         <p>No se guarda el contenido de mensajes, búsquedas, datos financieros ni identificadores de perfiles visitados. Las rutas se normalizan antes de almacenarse y no se comparten con plataformas publicitarias.</p>
+        <p>Si llegas desde una campaña o desde un colaborador (por ejemplo, un enlace de ESN Málaga), guardamos en tu navegador el origen de esa primera visita durante 30 días, para saber cuántas personas llegan por cada vía. Si creas una cuenta, ese origen se guarda asociado a ella. No se usa para publicidad ni para decidir qué ves dentro de CoFlow.</p>
         <p>Esta analítica permanece desactivada hasta que la aceptes y puedes retirarla en cualquier momento.</p>
       </Section>
 

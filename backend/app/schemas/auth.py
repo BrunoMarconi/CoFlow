@@ -8,7 +8,35 @@ from app.core.config import MINIMUM_REGISTRATION_AGE
 from app.schemas.user import UserResponse
 
 
-class RegisterRequest(BaseModel):
+class SignupAttribution(BaseModel):
+    """Origen de adquisicion, tal y como lo guardo el navegador en el
+    primer contacto. Opcional siempre: registrarse nunca puede depender
+    de que la atribucion llegue, ni de que llegue bien formada.
+
+    Por eso la normalizacion es en modo "before" y no lanza nunca: lo que
+    no sea un texto util se convierte en None en vez de devolver un 422
+    que bloquearia el alta. Se recorta a 64 caracteres, que es el ancho
+    de la columna.
+
+    Son datos de marketing. No se usan para permisos ni seguridad.
+    """
+
+    signup_source: str | None = None
+    signup_medium: str | None = None
+    signup_campaign: str | None = None
+
+    @field_validator("signup_source", "signup_medium", "signup_campaign", mode="before")
+    @classmethod
+    def normalize_attribution(cls, value: object) -> str | None:
+        if not isinstance(value, str):
+            return None
+
+        cleaned = value.strip().lower()[:64]
+
+        return cleaned or None
+
+
+class RegisterRequest(SignupAttribution):
     first_name: str = Field(min_length=2, max_length=100)
     last_name: str = Field(min_length=2, max_length=100)
     email: EmailStr
@@ -46,7 +74,7 @@ class LoginRequest(BaseModel):
     password: str
 
 
-class GoogleLoginRequest(BaseModel):
+class GoogleLoginRequest(SignupAttribution):
     # El JWT que devuelve el botón de Google (Google Identity
     # Services) en el navegador — se verifica contra Google en
     # auth_service.login_with_google, nunca se confía en él tal cual.

@@ -245,3 +245,91 @@ def test_update_profile_returns_updated_user_not_500(db_session):
     body = response.json()
     assert body["occupation"] == "Ingeniera"
     assert body["rental_budget"] == 500
+
+
+# --- Atribución de adquisición (signup_source / medium / campaign) -------
+#
+# Datos de marketing: opcionales siempre, y nunca capaces de impedir un
+# alta. Ver app/schemas/auth.py::SignupAttribution.
+
+
+def _registered_user(db_session, email: str):
+    from app.database.models.user import User
+
+    return db_session.query(User).filter(User.email == email).first()
+
+
+def test_register_with_esn_attribution_persists_it(db_session):
+    client = _client(db_session)
+    payload = {
+        **FRONTEND_REGISTER_PAYLOAD,
+        "email": "esn.attribution@example.com",
+        "signup_source": "esn_malaga",
+        "signup_medium": "partner",
+        "signup_campaign": "erasmus_2026",
+    }
+
+    with patch("app.services.auth_service.EMAIL_VERIFICATION_ENABLED", False):
+        response = client.post("/auth/register", json=payload)
+
+    assert response.status_code == 200
+    user = _registered_user(db_session, "esn.attribution@example.com")
+    assert user.signup_source == "esn_malaga"
+    assert user.signup_medium == "partner"
+    assert user.signup_campaign == "erasmus_2026"
+
+
+def test_register_without_attribution_leaves_columns_null(db_session):
+    client = _client(db_session)
+    payload = {**FRONTEND_REGISTER_PAYLOAD, "email": "organic.attribution@example.com"}
+
+    with patch("app.services.auth_service.EMAIL_VERIFICATION_ENABLED", False):
+        response = client.post("/auth/register", json=payload)
+
+    assert response.status_code == 200
+    user = _registered_user(db_session, "organic.attribution@example.com")
+    assert user.signup_source is None
+    assert user.signup_medium is None
+    assert user.signup_campaign is None
+
+
+def test_malformed_attribution_never_blocks_registration(db_session):
+    """Una UTM basura se limpia o se descarta, pero jamás devuelve 422:
+    el alta no puede depender del tracking."""
+    client = _client(db_session)
+    payload = {
+        **FRONTEND_REGISTER_PAYLOAD,
+        "email": "messy.attribution@example.com",
+        "signup_source": "  ESN_Malaga  ",   # se normaliza
+        "signup_medium": "x" * 300,          # se recorta a 64
+        "signup_campaign": "",               # vacío -> None
+    }
+
+    with patch("app.services.auth_service.EMAIL_VERIFICATION_ENABLED", False):
+        response = client.post("/auth/register", json=payload)
+
+    assert response.status_code == 200
+    user = _registered_user(db_session, "messy.attribution@example.com")
+    assert user.signup_source == "esn_malaga"
+    assert len(user.signup_medium) == 64
+    assert user.signup_campaign is None
+
+
+def test_non_string_attribution_is_ignored_not_rejected(db_session):
+    client = _client(db_session)
+    payload = {
+        **FRONTEND_REGISTER_PAYLOAD,
+        "email": "weird.attribution@example.com",
+        "signup_source": 12345,
+        "signup_medium": {"nope": True},
+        "signup_campaign": ["esn"],
+    }
+
+    with patch("app.services.auth_service.EMAIL_VERIFICATION_ENABLED", False):
+        response = client.post("/auth/register", json=payload)
+
+    assert response.status_code == 200
+    user = _registered_user(db_session, "weird.attribution@example.com")
+    assert user.signup_source is None
+    assert user.signup_medium is None
+    assert user.signup_campaign is None

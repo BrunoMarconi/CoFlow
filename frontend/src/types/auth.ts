@@ -9,6 +9,12 @@ export interface RegisterRequest {
   birth_date: string;
   terms_accepted: boolean;
   marketing_consent?: boolean;
+  /* Atribucion de adquisicion, opcional. La rellena attributionPayload()
+   * a partir de lo que se guardo en el primer contacto; si no hay origen
+   * no se envian y la cuenta se crea con esos campos a NULL. */
+  signup_source?: string;
+  signup_medium?: string;
+  signup_campaign?: string;
 }
 
 export interface LoginRequest {

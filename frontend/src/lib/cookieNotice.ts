@@ -15,6 +15,12 @@ export function getCookieConsent(): CookieConsent | null {
 export function saveCookieConsent(options: Pick<CookieConsent, "analytics" | "preferences">) {
   const value: CookieConsent = { version: 1, necessary: true, ...options, decidedAt: new Date().toISOString() };
   localStorage.setItem(KEY, JSON.stringify(value));
-  if (!options.analytics) localStorage.removeItem("coflow:analytics-session");
+  // Rechazar o retirar la analitica borra tambien lo que se guardo bajo
+  // ese consentimiento. Las claves van literales, como la de arriba, para
+  // no crear un import circular: lib/attribution.ts ya importa de aqui.
+  if (!options.analytics) {
+    localStorage.removeItem("coflow:analytics-session");
+    localStorage.removeItem("coflow:attribution");
+  }
   window.dispatchEvent(new CustomEvent("coflow:cookie-consent-changed", { detail: value }));
 }

@@ -77,6 +77,12 @@ class AuthService:
             privacy_version=CURRENT_PRIVACY_VERSION,
             marketing_consent=data.marketing_consent,
             marketing_consent_at=now if data.marketing_consent else None,
+            # Atribucion de adquisicion: opcional, solo marketing. Si el
+            # navegador no guardo ningun origen llegan como None y el alta
+            # sigue igual de valida.
+            signup_source=data.signup_source,
+            signup_medium=data.signup_medium,
+            signup_campaign=data.signup_campaign,
         )
 
         db.add(user)
@@ -229,6 +235,12 @@ class AuthService:
                     terms_version=CURRENT_TERMS_VERSION,
                     terms_accepted_at=now,
                     privacy_version=CURRENT_PRIVACY_VERSION,
+                    # Igual que en register, y solo aqui: en las ramas de
+                    # arriba la cuenta ya existia, asi que su atribucion
+                    # original se respeta.
+                    signup_source=data.signup_source,
+                    signup_medium=data.signup_medium,
+                    signup_campaign=data.signup_campaign,
                 )
                 db.add(user)
                 try:

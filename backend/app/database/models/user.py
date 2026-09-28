@@ -174,6 +174,25 @@ class User(Base):
         DateTime(timezone=True),
         nullable=True,
     )
+    # Atribucion de adquisicion (de donde vino quien se registro). Se
+    # rellena una sola vez, al crear la cuenta, desde los UTM que el
+    # frontend guardo en el primer contacto. Nulos en toda cuenta
+    # anterior a esto y en cualquier alta sin campana asociada.
+    #
+    # Son datos de marketing: nunca deben usarse para permisos,
+    # autenticacion ni ninguna decision de seguridad.
+    signup_source: Mapped[str | None] = mapped_column(
+        String(64),
+        nullable=True,
+    )
+    signup_medium: Mapped[str | None] = mapped_column(
+        String(64),
+        nullable=True,
+    )
+    signup_campaign: Mapped[str | None] = mapped_column(
+        String(64),
+        nullable=True,
+    )
     notification_preferences: Mapped[dict] = mapped_column(
         JSON,
         nullable=False,

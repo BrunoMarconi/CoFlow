@@ -8,6 +8,7 @@ import AuthSplit from "@/components/auth/AuthSplit";
 import SubmitButton, { type SubmitState } from "@/components/auth/SubmitButton";
 import { PASSWORD_LABELS, passwordStrength } from "@/components/auth/authMotion";
 import { register } from "@/services/auth";
+import { attributionPayload } from "@/lib/attribution";
 import { setToken } from "@/lib/auth";
 import { useAuth } from "@/hooks/useAuth";
 import { setPostVerificationOwnerIntent } from "@/lib/postVerificationIntent";
@@ -70,6 +71,9 @@ export default function RegisterPage() {
         birth_date: birthDate,
         terms_accepted: termsAccepted,
         marketing_consent: marketingConsent,
+        // De donde vino esta persona la primera vez que piso CoFlow.
+        // Vacio si no hay origen guardado: el alta no depende de esto.
+        ...attributionPayload(),
       });
       // El visto se queda puesto mientras carga la pantalla siguiente.
       setState("done");

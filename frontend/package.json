@@ -7,11 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:attribution": "node --experimental-strip-types scripts/verify-attribution.mjs"
   },
   "dependencies": {
     "@react-oauth/google": "^0.13.5",
     "@tanstack/react-query": "^5.101.4",
+    "@vercel/analytics": "^2.0.1",
     "axios": "^1.18.1",
     "clsx": "^2.1.1",
     "framer-motion": "^13.1.0",
