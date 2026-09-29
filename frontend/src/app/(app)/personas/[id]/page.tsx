@@ -73,6 +73,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
   const budget = profile.rental_budget !== null
     ? `Hasta ${profile.rental_budget.toLocaleString("es-ES")} € / mes`
     : "Presupuesto no indicado";
+  const showIdentityAvatar = !coverPhoto || Boolean(profile.avatar_url && profile.avatar_url !== coverPhoto);
   const preferenceChips = profile.preferences
     ? HIGHLIGHTED_PREFERENCES.map((item) => ({ ...item, value: profile.preferences![item.key] }))
         .filter((item) => Boolean(item.value))
@@ -80,72 +81,79 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
 
   return (
     <div className="mx-auto w-full max-w-6xl pb-8">
-      <header className="relative hidden h-11 items-center justify-between sm:flex">
-        <button type="button" onClick={() => router.back()} aria-label="Volver" className="flex h-10 w-10 items-center justify-start text-brand-dark"><ArrowLeftIcon /></button>
-        <h1 className="absolute inset-x-12 text-center text-lg font-extrabold text-foreground">Perfil público</h1>
-        <button type="button" onClick={() => setSafetyOpen(true)} aria-label="Más opciones" className="flex h-10 w-10 items-center justify-end text-brand-dark"><MoreIcon /></button>
-      </header>
-
       <PhotoDetailShell
         transitionName={detailTransitionName("person", profile.id)}
+        mediaClassName="h-[18rem] min-h-0 max-h-none sm:h-[22rem] lg:h-[24rem]"
+        contentClassName="sm:mx-6 sm:-mt-10 sm:px-8 sm:pb-8 sm:pt-8 lg:px-10"
         media={<PhotoGallery images={(gallery.length > 0 ? gallery.map((photo, index) => ({ id: photo.id, src: photo.image_url, alt: `${fullName}, foto ${index + 1}` })) : coverPhoto ? [{ id: "avatar", src: coverPhoto, alt: fullName }] : [])} priority empty={<div className="h-full bg-[#f2f2f2]" />} />}
         actions={<><Link href="/usuarios" transitionTypes={["nav-back"]} aria-label="Volver a personas" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-neutral-strong shadow-card backdrop-blur"><ArrowLeftIcon /></Link><button type="button" onClick={() => setSafetyOpen(true)} aria-label="Más opciones" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-neutral-strong shadow-card backdrop-blur"><MoreIcon /></button></>}
       >
-        <div className="relative">
-          <div className="relative -mt-20 mb-5 w-fit rounded-full border-[5px] border-surface-raised bg-surface shadow-raised sm:-mt-24">
-            <UserAvatar
-              firstName={profile.first_name}
-              lastName={profile.last_name}
-              userId={profile.id}
-              imageUrl={profile.avatar_url}
-              size="xl"
-              className="h-32 w-32 sm:h-36 sm:w-36"
-            />
-            {profile.is_online && <OnlineDot size="md" className="bottom-2 right-2" />}
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+            {showIdentityAvatar && (
+              <div className="relative shrink-0 rounded-full border-4 border-surface-raised bg-surface shadow-raised">
+                <UserAvatar
+                  firstName={profile.first_name}
+                  lastName={profile.last_name}
+                  userId={profile.id}
+                  imageUrl={profile.avatar_url}
+                  size="xl"
+                  className="h-20 w-20 sm:h-24 sm:w-24"
+                />
+                {profile.is_online && <OnlineDot className="bottom-1 right-1" />}
+              </div>
+            )}
+
+            <div className="min-w-0">
+              <div className="flex items-start gap-2">
+                <h1 className="text-3xl font-semibold leading-none tracking-[-0.045em] text-brand-dark sm:text-4xl">
+                  {fullName || "Persona de CoFlow"}
+                </h1>
+                {profile.is_verified && <VerifiedIcon />}
+              </div>
+              <p className="mt-2 text-sm text-secondary">
+                {[profile.age !== null ? `${profile.age} años` : null, location].filter(Boolean).join(" · ")}
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center rounded-full bg-[#e8f0eb] px-3 py-1.5 text-xs font-semibold text-brand-mid">
+                  {profile.is_looking_for_roommates ? "Busca compañero de piso" : "No busca compañero actualmente"}
+                </span>
+                {profile.is_online && (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-dark">
+                    <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
+                    En línea
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
 
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="truncate text-4xl font-semibold tracking-[-0.045em] text-brand-dark sm:text-[42px]">{fullName || "Persona de CoFlow"}</h2>
-              {profile.is_verified && <VerifiedIcon />}
-            </div>
-            <p className="mt-1 text-sm text-secondary">
-              {[profile.age !== null ? `${profile.age} años` : null, location].filter(Boolean).join(" · ")}
-            </p>
-            <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#e8f0eb] px-3 py-1.5 text-xs font-semibold text-brand-mid">
-              {profile.is_looking_for_roommates ? "Buscando compañero de piso" : "No busca compañero actualmente"}
-            </p>
+          <div className="hidden w-full max-w-sm grid-cols-[.85fr_1.15fr] gap-2 sm:grid">
+            <SaveButton saved={saved} saving={savingToggle} onToggle={toggleSave} />
+            <PrimaryConnectionAction profile={profile} status={connectionStatus} connectionId={connectionId} connecting={connecting} onConnect={connect} />
           </div>
         </div>
       </PhotoDetailShell>
 
-      {profile.bio && (
-        <section className="mt-6 border-l-2 border-brand-mid py-2 pl-5">
-          <p className="max-w-3xl text-sm leading-7 text-[#58665f]">“{profile.bio}”</p>
-        </section>
+      {profile.match_score !== null && profile.match_breakdown && (
+        <div className="mt-5">
+          <CompatibilityExplanation score={profile.match_score} breakdown={profile.match_breakdown} />
+        </div>
       )}
 
-      {profile.interests.length > 0 && (
-        <section className="mt-7">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-[#6c7771]">Gustos e intereses</h2>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {profile.interests.map((interest) => <span key={interest} className="rounded-full bg-[#edf1ee] px-3 py-2 text-xs font-semibold text-[#31453a]">{interest}</span>)}
-          </div>
-        </section>
-      )}
+      <div className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,.75fr)]">
+        <main className="min-w-0 space-y-5">
+          {profile.bio && (
+            <section className="rounded-card border border-black/[0.07] bg-surface-raised p-5 sm:p-6">
+              <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">Sobre {profile.first_name || "esta persona"}</p>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-[#58665f]">“{profile.bio}”</p>
+            </section>
+          )}
 
-      <section className="mt-7 grid grid-cols-2 overflow-hidden rounded-card border border-black/[0.07] bg-surface-raised sm:grid-cols-4 sm:divide-x sm:divide-black/[0.06]">
-        <QuickFact icon={<WorkIcon />} label={profile.occupation ?? "Ocupación"} value={profile.occupation ? "Ocupación" : "Sin indicar"} reverse />
-        <QuickFact icon={<MoneyIcon />} label="Presupuesto" value={budget} />
-        <QuickFact icon={<HomeIcon />} label="Comunidad" value={profile.community?.name ?? "Sin comunidad"} />
-        <QuickFact icon={<StatusIcon />} label="Disponibilidad" value={profile.is_looking_for_roommates ? "Disponible" : "No disponible"} />
-      </section>
-
-      <div className="mt-7 grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
-        <div className="space-y-5">
           {preferenceChips.length > 0 && (
-            <section className="rounded-card border border-black/[0.07] bg-surface-raised p-5">
+            <section className="rounded-card border border-black/[0.07] bg-surface-raised p-5 sm:p-6">
               <h2 className="text-lg font-semibold tracking-[-0.02em] text-brand-dark">Estilo de convivencia</h2>
+              <p className="mt-1 text-xs leading-5 text-secondary">Lo que valora en el día a día al compartir casa.</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {preferenceChips.map((item) => (
                   <span key={item.key} className="inline-flex items-center gap-1.5 rounded-full bg-[#eaf0ec] px-3 py-2 text-xs font-semibold text-brand-mid">
@@ -157,55 +165,47 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
             </section>
           )}
 
-          <section className="rounded-card border border-black/[0.07] bg-surface-raised p-5">
-            <h2 className="text-lg font-semibold tracking-[-0.02em] text-brand-dark">Información básica</h2>
-            <dl className="mt-3 space-y-3">
-              <InfoRow label="Edad" value={profile.age !== null ? `${profile.age} años` : "No indicada"} />
-              <InfoRow label="Ubicación" value={location} />
-              <InfoRow label="Ocupación" value={profile.occupation ?? "No indicada"} />
-              <InfoRow label="Presupuesto" value={budget} />
-              <InfoRow label="Mascotas" value={profile.preferences?.pets ?? "No indicado"} />
-            </dl>
-          </section>
-        </div>
-
-        <div className="space-y-4">
-          {gallery.length > 0 && (
-            <section className="rounded-card border border-black/[0.07] bg-surface-raised p-5">
-              <h2 className="text-lg font-semibold tracking-[-0.02em] text-brand-dark">Fotos</h2>
-              <PhotoGallery className="mt-3" layout="grid" images={gallery.map((photo, index) => ({ id: photo.id, src: photo.image_url, alt: `${fullName}, foto ${index + 1}` }))} />
+          {profile.interests.length > 0 && (
+            <section className="rounded-card border border-black/[0.07] bg-surface-raised p-5 sm:p-6">
+              <h2 className="text-lg font-semibold tracking-[-0.02em] text-brand-dark">Gustos e intereses</h2>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {profile.interests.map((interest) => <span key={interest} className="rounded-full bg-[#edf1ee] px-3 py-2 text-xs font-semibold text-[#31453a]">{interest}</span>)}
+              </div>
             </section>
           )}
+        </main>
 
-          <section className="rounded-card border border-black/[0.07] bg-surface-raised p-5">
+        <aside className="space-y-5 lg:sticky lg:top-24">
+          <section className="rounded-card border border-black/[0.07] bg-surface-raised p-5 sm:p-6">
+            <h2 className="text-lg font-semibold tracking-[-0.02em] text-brand-dark">Datos prácticos</h2>
+            <dl className="mt-4 divide-y divide-black/[0.06]">
+              <PracticalRow icon={<WorkIcon />} label="Ocupación" value={profile.occupation ?? "No indicada"} />
+              <PracticalRow icon={<MoneyIcon />} label="Presupuesto" value={budget} />
+              <PracticalRow icon={<StatusIcon />} label="Disponibilidad" value={profile.is_looking_for_roommates ? "Disponible" : "No disponible"} />
+              <PracticalRow icon={<PetIcon />} label="Mascotas" value={profile.preferences?.pets ?? "No indicado"} />
+            </dl>
+          </section>
+
+          <section className="rounded-card border border-black/[0.07] bg-[#f4f7f5] p-5">
             {profile.community ? (
-              <Link href={`/comunidades/${profile.community.id}`} className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center text-primary"><PeopleIcon /></span>
+              <Link href={`/comunidades/${profile.community.id}`} className="flex min-h-11 items-center gap-3 rounded-14 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-soft"><PeopleIcon /></span>
                 <span className="min-w-0 flex-1"><span className="block text-sm font-extrabold text-foreground">Pertenece a {profile.community.name}</span><span className="mt-0.5 block text-xs text-secondary">{profile.community.city}</span></span>
                 <ChevronIcon />
               </Link>
             ) : (
               <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center text-primary"><PeopleIcon /></span>
-                <span><span className="block text-sm font-extrabold text-foreground">Actualmente no pertenece a ninguna comunidad</span><span className="mt-1 block text-xs leading-5 text-secondary">Cada persona solo puede pertenecer a una comunidad.</span></span>
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-soft"><PeopleIcon /></span>
+                <span><span className="block text-sm font-extrabold text-foreground">Sin comunidad actualmente</span><span className="mt-1 block text-xs leading-5 text-secondary">Está disponible para encontrar personas afines.</span></span>
               </div>
             )}
           </section>
-        </div>
+        </aside>
       </div>
-
-      {profile.match_score !== null && profile.match_breakdown && (
-        <div className="mt-4">
-          <CompatibilityExplanation
-            score={profile.match_score}
-            breakdown={profile.match_breakdown}
-          />
-        </div>
-      )}
 
       {profile.compatibility && profile.compatibility.categories.length > 0 && (
         <CompatibilityRadar
-          className="mt-4"
+          className="mt-5 !max-w-none"
           categories={profile.compatibility.categories}
           icon={<CompatibilityRadarIcon />}
           title={`Cómo convive ${profile.first_name || "esta persona"}`}
@@ -215,11 +215,8 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
 
       {connectionError && <p className="mt-4 text-center text-sm font-semibold text-red-600">{connectionError}</p>}
 
-      <div className="sticky bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))] z-20 -mx-2 mt-7 grid grid-cols-[.8fr_1.2fr] gap-2 border-t border-black/[0.06] bg-[#f7f8f6]/95 p-3 backdrop-blur-xl sm:static sm:mx-0 sm:ml-auto sm:max-w-md sm:border-0 sm:bg-transparent sm:p-0">
-        <button type="button" onClick={toggleSave} disabled={savingToggle} className="flex h-12 items-center justify-center gap-2 rounded-14 border border-primary bg-surface px-3 text-sm font-bold text-primary-dark shadow-soft disabled:opacity-60">
-          <HeartIcon filled={saved} />
-          {saved ? "Guardado" : "Guardar"}
-        </button>
+      <div className="sticky bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))] z-20 -mx-2 mt-7 grid grid-cols-[.8fr_1.2fr] gap-2 border-t border-black/[0.06] bg-[#f7f8f6]/95 p-3 backdrop-blur-xl sm:hidden">
+        <SaveButton saved={saved} saving={savingToggle} onToggle={toggleSave} />
         <PrimaryConnectionAction profile={profile} status={connectionStatus} connectionId={connectionId} connecting={connecting} onConnect={connect} />
       </div>
 
@@ -239,18 +236,39 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
 }
 
 function PrimaryConnectionAction({ profile, status, connectionId, connecting, onConnect }: { profile: UserPublicProfile; status: UserPublicProfile["connection_status"]; connectionId: number | null; connecting: boolean; onConnect: () => void }) {
-  const base = "flex h-12 items-center justify-center gap-2 rounded-14 bg-primary px-3 text-sm font-bold text-white shadow-button";
+  const base = "flex h-12 items-center justify-center gap-2 rounded-14 bg-primary px-3 text-sm font-bold text-white shadow-button transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
   if (status === "ACCEPTED" && connectionId !== null) return <Link href={`/mensajes/${connectionId}`} className={base}><MessageIcon />Enviar mensaje</Link>;
   if (status === "PENDING_RECEIVED") return <Link href="/conexiones?tab=recibidas" className={base}>Responder solicitud</Link>;
   if (status === "PENDING_SENT") return <span className="flex h-12 items-center justify-center rounded-14 border border-border bg-surface text-sm font-bold text-secondary shadow-soft">Solicitud enviada</span>;
-  return <button type="button" onClick={onConnect} disabled={connecting || !profile.is_looking_for_roommates} className={`${base} disabled:opacity-45`}><ConnectIcon />{connecting ? "Enviando..." : "Conectar"}</button>;
+  return <button type="button" onClick={onConnect} disabled={connecting || !profile.is_looking_for_roommates} className={`${base} disabled:cursor-not-allowed disabled:opacity-45`}><ConnectIcon />{connecting ? "Enviando..." : "Conectar"}</button>;
 }
 
-function QuickFact({ icon, label, value, reverse = false }: { icon: React.ReactNode; label: string; value: string; reverse?: boolean }) {
-  return <div className="flex min-h-24 flex-col items-center justify-center border-b border-black/[0.06] p-3 text-center sm:border-b-0"><span className="text-brand-mid">{icon}</span><span className="mt-2 line-clamp-1 text-xs font-semibold text-brand-dark">{reverse ? value : label}</span><span className="mt-0.5 line-clamp-2 text-3xs leading-4 text-[#748078]">{reverse ? label : value}</span></div>;
+function SaveButton({ saved, saving, onToggle }: { saved: boolean; saving: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      disabled={saving}
+      aria-pressed={saved}
+      className="flex h-12 items-center justify-center gap-2 rounded-14 border border-primary bg-surface px-3 text-sm font-bold text-primary-dark shadow-soft transition-colors hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-wait disabled:opacity-60"
+    >
+      <HeartIcon filled={saved} />
+      {saved ? "Guardado" : "Guardar"}
+    </button>
+  );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) { return <div className="grid grid-cols-[110px_1fr] gap-3 text-xs"><dt className="text-secondary">{label}</dt><dd className="font-semibold text-foreground">{value}</dd></div>; }
+function PracticalRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-3 py-3 first:pt-0 last:pb-0">
+      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#edf3ef] text-brand-mid">{icon}</span>
+      <div className="min-w-0">
+        <dt className="text-2xs font-semibold uppercase tracking-[0.08em] text-muted">{label}</dt>
+        <dd className="mt-0.5 text-sm font-semibold leading-5 text-brand-dark">{value}</dd>
+      </div>
+    </div>
+  );
+}
 
 function BaseIcon({ children, className = "h-4 w-4" }: { children: React.ReactNode; className?: string }) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">{children}</svg>; }
 function ArrowLeftIcon() { return <BaseIcon className="h-6 w-6"><path d="M19 12H5M11 18l-6-6 6-6" /></BaseIcon>; }
@@ -264,7 +282,6 @@ function ClockIcon() { return <BaseIcon><circle cx="12" cy="12" r="9" /><path d=
 function PetIcon() { return <BaseIcon><circle cx="7" cy="8" r="2" /><circle cx="17" cy="8" r="2" /><circle cx="5" cy="13" r="2" /><circle cx="19" cy="13" r="2" /><path d="M9 18c1.5-3 4.5-3 6 0 1 2-1 3-3 3s-4-1-3-3Z" /></BaseIcon>; }
 function WorkIcon() { return <BaseIcon className="h-5 w-5"><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V4h8v3" /></BaseIcon>; }
 function MoneyIcon() { return <BaseIcon className="h-5 w-5"><circle cx="12" cy="12" r="9" /><path d="M15 8.5a4 4 0 1 0 0 7M7 11h7M7 14h7" /></BaseIcon>; }
-function HomeIcon() { return <BaseIcon className="h-5 w-5"><path d="m3 11 9-8 9 8M5 10v11h14V10" /></BaseIcon>; }
 function StatusIcon() { return <BaseIcon className="h-5 w-5"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 10h18" /></BaseIcon>; }
 function PeopleIcon() { return <BaseIcon className="h-7 w-7"><circle cx="9" cy="7" r="4" /><path d="M2 21a7 7 0 0 1 14 0M17 7a3 3 0 0 1 0 6M22 21a5 5 0 0 0-5-5" /></BaseIcon>; }
 function ChevronIcon() { return <BaseIcon className="h-4 w-4 text-muted"><path d="m9 6 6 6-6 6" /></BaseIcon>; }
