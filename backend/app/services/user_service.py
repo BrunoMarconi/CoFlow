@@ -219,6 +219,12 @@ class UserService:
             connection_id=connection_id,
             is_owner=user.owner_profile is not None,
             is_looking_for_roommates=user.is_looking_for_roommates,
+            # Las dos fuentes del avatar, porque no siempre hay clave: quien
+            # elige un personaje de CoFlow guarda una ruta relativa en
+            # avatar_url y se queda sin storage_key. El validador de
+            # StorageBackedAvatarResponse solo pisa avatar_url cuando hay
+            # clave, asi que pasar ambas respeta la precedencia de R2.
+            avatar_url=user.avatar_url,
             avatar_storage_key=user.avatar_storage_key,
             photos=[
                 UserPhotoResponse.model_validate(photo)
