@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
@@ -98,26 +97,28 @@ export default function UsuariosPage() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="mx-auto w-full max-w-7xl">
-        <header className="mt-6 flex items-end justify-between gap-6 border-b border-black/[0.07] pb-6 sm:mt-8 sm:pb-8">
+        <header className="mt-4 flex items-end justify-between gap-6 border-b border-black/[0.07] pb-5 sm:mt-6 sm:pb-6">
           <div>
             <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-[#66736c]">Personas · {featuredCity.name}</p>
-            <h1 className="mt-2 max-w-2xl text-4xl font-semibold leading-[1.02] tracking-[-0.05em] text-brand-dark sm:text-5xl">Encuentra una forma de convivir que encaje contigo.</h1>
+            <h1 className="mt-2 max-w-2xl text-3xl font-semibold leading-[1.04] tracking-[-0.045em] text-brand-dark sm:text-4xl">Encuentra una forma de convivir que encaje contigo.</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-secondary lg:hidden">Hábitos, presupuesto y preferencias visibles antes de conectar.</p>
           </div>
-          <p className="hidden max-w-xs text-right text-sm leading-6 text-[#6b7771] lg:block">Perfiles con hábitos, presupuesto y preferencias visibles antes de conectar.</p>
+          <p className="hidden max-w-xs text-right text-sm leading-6 text-[#6b7771] lg:block">Hábitos, presupuesto y preferencias visibles antes de conectar.</p>
         </header>
 
-        <div className="sticky top-[calc(var(--safe-top)+.5rem)] z-(--z-sticky-header) -mx-2 mt-4 rounded-card border border-black/[0.06] bg-[#f8faf8]/95 px-3 pb-3 pt-3 shadow-card backdrop-blur-xl sm:mx-0 sm:px-4">
-          <div className="flex h-13 items-center rounded-control bg-white px-4 ring-1 ring-black/[0.06] transition focus-within:ring-2 focus-within:ring-brand-mid/25 sm:h-14">
-            <SearchInput
-              bare
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              onClear={() => setSearch("")}
-              placeholder="Buscar por nombre, ciudad o intereses..."
-            />
-          </div>
+        <div className="sticky top-[calc(var(--safe-top)+.5rem)] z-(--z-sticky-header) -mx-2 mt-4 rounded-card border border-black/[0.06] bg-[#f8faf8]/95 p-2.5 shadow-card backdrop-blur-xl sm:mx-0 sm:p-3">
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+            <div className="flex h-13 min-w-0 flex-1 items-center rounded-control bg-white px-4 ring-1 ring-black/[0.06] transition focus-within:ring-2 focus-within:ring-brand-mid/25 sm:h-12">
+              <SearchInput
+                bare
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                onClear={() => setSearch("")}
+                placeholder="Buscar por nombre, ciudad o intereses..."
+              />
+            </div>
 
-          <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="-mx-0.5 flex gap-2 overflow-x-auto px-0.5 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0">
             {CITY_OPTIONS.map((city) => {
               const active = filters.city === city;
 
@@ -127,7 +128,7 @@ export default function UsuariosPage() {
                   type="button"
                   onClick={() => selectCity(city)}
                   aria-pressed={active}
-                  className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
+                  className={`flex h-11 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
                     active
                       ? "bg-brand-dark text-white"
                       : "bg-[#edf1ee] text-[#34463c] hover:bg-[#e4ebe7]"
@@ -143,7 +144,7 @@ export default function UsuariosPage() {
               type="button"
               onClick={() => setFiltersOpen((current) => !current)}
               aria-expanded={filtersOpen}
-              className={`flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
+              className={`flex h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
                 filtersOpen || filters.maxBudget || filters.communityStatus !== "ALL"
                   ? "bg-brand-dark text-white"
                   : "bg-[#edf1ee] text-[#34463c] hover:bg-[#e4ebe7]"
@@ -152,6 +153,7 @@ export default function UsuariosPage() {
               <FilterIcon />
               Más filtros
             </button>
+            </div>
           </div>
         </div>
 
@@ -174,30 +176,8 @@ export default function UsuariosPage() {
           )}
         </AnimatePresence>
 
-        <div className="mt-7 lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start lg:gap-8">
+        <div className="mt-6 lg:grid lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-start lg:gap-7">
         <section className="min-w-0">
-          {(hasQuery || hasActiveFilters) && (
-            <div className="mb-4 flex items-end justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-extrabold text-foreground">Resultados</h2>
-                <p className="text-xs text-secondary">
-                  {resultCount} {resultCount === 1 ? "persona compatible" : "personas compatibles"}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setSearch("");
-                  setFilters(defaultUserFilters);
-                }}
-                className="text-xs font-bold text-primary-dark"
-              >
-                Restablecer
-              </button>
-            </div>
-          )}
-
           {/* El esqueleto y el contenido se funden en vez de
               reemplazarse de golpe: sin esto, cada carga termina con un
               salto brusco. */}
@@ -236,7 +216,7 @@ export default function UsuariosPage() {
               <UserGrid
                 users={visibleUsers}
                 onOpen={(userId) => router.push(`/personas/${userId}`, { transitionTypes: ["nav-forward"] })}
-                showRecommendedHeading={!hasQuery && !hasActiveFilters}
+                heading={hasQuery || hasActiveFilters ? "Resultados" : "Personas compatibles contigo"}
               />
 
               {hasMore && (
@@ -252,66 +232,32 @@ export default function UsuariosPage() {
           </AnimatePresence>
         </section>
 
-        <aside className="mt-8 space-y-4 lg:sticky lg:top-36 lg:mt-0" aria-label="Mejora tu búsqueda">
+        <aside className="mt-8 lg:sticky lg:top-28 lg:mt-0" aria-label="Mejora tu búsqueda">
           {profileIncomplete && (
-            <div className="rounded-card bg-brand-dark p-5 text-white shadow-[0_18px_42px_rgba(24,60,45,.14)]">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-dark text-white">
-                <ProfileIcon />
-              </span>
-              <div className="mt-4 flex items-center justify-between gap-3">
-                <h2 className="text-lg font-semibold text-white">
+            <div className="rounded-card border border-primary/15 bg-[#f2f7f4] p-4 shadow-soft sm:p-5">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-soft">
+                  <ProfileIcon />
+                </span>
+                <h2 className="min-w-0 flex-1 text-base font-semibold text-brand-dark">
                   Mejora tus resultados
                 </h2>
-                <span className="text-sm font-semibold text-white/70">{profileCompletion}%</span>
+                <span className="text-sm font-bold tabular-nums text-primary-dark">{profileCompletion}%</span>
               </div>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-primary/12" aria-hidden="true">
+              <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-primary/12" aria-hidden="true">
                 <div className="h-full rounded-full bg-primary" style={{ width: `${profileCompletion}%` }} />
               </div>
-              <p className="mt-3 text-sm leading-6 text-white/65">
-                Completa tu perfil para que otras personas entiendan mejor cómo sería convivir contigo.
+              <p className="mt-3 text-xs leading-5 text-secondary">
+                Completa la información que falta para recibir coincidencias más precisas.
               </p>
               <Link
                 href="/perfil/editar"
-                className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-control bg-white px-4 text-sm font-semibold text-brand-dark transition-colors hover:bg-[#f0f3f1]"
+                className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-control bg-brand-dark px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 Completar perfil
               </Link>
             </div>
           )}
-
-          <div className="rounded-24 border border-border bg-surface p-5 shadow-soft">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted">
-              Explorar por ciudad
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              {seoCities.slice(0, 4).map((city) => (
-                <button
-                  key={city.slug}
-                  type="button"
-                  onClick={() => selectCity(city.name)}
-                  aria-pressed={filters.city === city.name}
-                  className={`relative min-h-20 overflow-hidden rounded-14 text-left transition duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
-                    filters.city === city.name ? "ring-2 ring-primary ring-offset-2" : ""
-                  }`}
-                >
-                  <Image src={city.image} alt="" fill sizes="150px" className="object-cover" />
-                  <span className="absolute inset-0 bg-gradient-to-t from-black/75 to-black/10" />
-                  <span className="absolute inset-x-0 bottom-0 p-3 text-xs font-bold text-white">
-                    {city.name}
-                  </span>
-                </button>
-              ))}
-            </div>
-            {filters.city && (
-              <button
-                type="button"
-                onClick={() => setFilters((current) => ({ ...current, city: "" }))}
-                className="mt-4 min-h-11 text-sm font-bold text-primary-dark underline decoration-primary/30 underline-offset-4"
-              >
-                Ver todas las ciudades
-              </button>
-            )}
-          </div>
         </aside>
         </div>
 
