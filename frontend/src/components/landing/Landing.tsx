@@ -462,15 +462,27 @@ export default function Landing() {
       </section>
 
       <section className="esn-section" aria-labelledby="esn-title">
-        <div className="esn-logo-slot" data-sr aria-label="Espacio reservado para el logo oficial de ESN Málaga">
-          <span>ESN Málaga</span>
-          <small>Logo oficial</small>
-        </div>
+        <div className="esn-paper" aria-hidden="true" />
+        <svg className="esn-pastel-fan" viewBox="0 0 1440 720" preserveAspectRatio="none" aria-hidden="true">
+          <path className="esn-arc esn-arc-coral" pathLength="1" d="M800 760 C690 575 720 170 860 -80" />
+          <path className="esn-arc esn-arc-mint" pathLength="1" d="M860 760 C735 565 850 130 1035 -90" />
+          <path className="esn-arc esn-arc-sky" pathLength="1" d="M920 760 C790 555 990 125 1205 -65" />
+          <path className="esn-arc esn-arc-lilac" pathLength="1" d="M980 760 C835 560 1120 150 1400 -20" />
+          <path className="esn-arc esn-arc-peach" pathLength="1" d="M1040 760 C900 585 1250 245 1510 185" />
+          <path className="esn-arc esn-arc-butter" pathLength="1" d="M1100 760 C970 630 1300 405 1515 410" />
+          <path className="esn-arc esn-arc-pink" pathLength="1" d="M1160 760 C1050 680 1350 590 1510 610" />
+        </svg>
         <div className="esn-copy">
-          <span className="kicker kicker-esn" data-sr>Comunidad internacional en Málaga</span>
+          <span className="esn-partner-label" data-sr>
+            <i className="esn-color-dots" aria-hidden="true"><b /><b /><b /><b /><b /></i>
+            Comunidad internacional en Málaga
+          </span>
           <h2 id="esn-title" data-sr="words"><SplitWords text="Colaboramos con ESN Málaga para que llegar también sea encontrar tu gente." /></h2>
           <p data-sr>Ayudamos a estudiantes internacionales a conocer personas con hábitos, presupuesto y una forma de convivir compatibles antes de compartir hogar.</p>
           <Link className="esn-cta" href="/erasmus" data-sr>Descubrir CoFlow para Erasmus <ArrowIcon /></Link>
+        </div>
+        <div className="esn-logo-card" data-sr>
+          <Image className="esn-logo" src="/images/partners/esn-malaga.jpg" alt="ESN Málaga, Erasmus Student Network" width={474} height={474} sizes="(max-width: 560px) calc(100vw - 64px), (max-width: 900px) 34vw, 390px" />
         </div>
       </section>
 

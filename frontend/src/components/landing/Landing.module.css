@@ -534,18 +534,35 @@
 .root :global(.owners-cta) {display: inline-flex; align-items: center; gap: 10px; padding: 17px 26px; border-radius: 999px; background: var(--ink); color: var(--white); font-size: 14px; font-weight: 700; white-space: nowrap; transition: transform .18s ease, background .18s ease;}
 .root :global(.owners-cta:hover) {transform: translateY(-2px); background: #0d1712;}
 
-/* --- ESN Malaga: colaboracion editorial, con hueco para el logo oficial --- */
-.root :global(.esn-section) {width: 100%; display: grid; grid-template-columns: minmax(260px, .72fr) minmax(0, 1.28fr); align-items: stretch; gap: clamp(48px, 7vw, 112px); margin: 0; padding: 104px max(24px, calc((100% - 1180px) / 2)); background: #edf1ef;}
-.root :global(.esn-logo-slot) {min-height: 330px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 40px; border: 1px solid rgba(98, 125, 112, .26); border-radius: 28px; background: rgba(255, 254, 249, .72); color: #627d70; text-align: center; box-shadow: 0 24px 60px rgba(47, 70, 59, .08);}
-.root :global(.esn-logo-slot span) {font-family: var(--font-display), sans-serif; font-size: clamp(30px, 3vw, 46px); font-weight: 800; letter-spacing: -.055em;}
-.root :global(.esn-logo-slot small) {font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; opacity: .66;}
-.root :global(.esn-copy) {align-self: center; max-width: 700px;}
-.root :global(.kicker-esn) {color: #526b60;}
-.root :global(.esn-copy h2) {max-width: 700px; margin-top: 18px; font-size: clamp(42px, 4.6vw, 66px); line-height: .97;}
-.root :global(.esn-copy > p) {max-width: 610px; margin: 24px 0 0; color: #526057; font-size: 18px; line-height: 1.58;}
-.root :global(.esn-cta) {min-height: 52px; width: fit-content; display: inline-flex; align-items: center; gap: 12px; margin-top: 30px; padding: 0 22px; border: 1px solid #627d70; border-radius: 13px; background: #526b60; color: var(--white); font-size: 14px; font-weight: 800; transition: transform .18s ease, background .18s ease;}
-.root :global(.esn-cta:hover) {transform: translateY(-2px); background: #41584d;}
-.root :global(.esn-cta:focus-visible) {outline: 3px solid rgba(98, 125, 112, .34); outline-offset: 4px;}
+/* --- ESN Malaga: version compacta del lenguaje visual de /erasmus --- */
+.root :global(.esn-section) {position: relative; isolation: isolate; width: 100%; min-height: 610px; display: grid; grid-template-columns: minmax(0, 1.14fr) minmax(300px, .86fr); align-items: center; gap: clamp(48px, 7vw, 112px); margin: 0; padding: 104px max(24px, calc((100% - 1180px) / 2)); overflow: hidden; background: #fff9f0; color: #27214f;}
+.root :global(.esn-paper) {position: absolute; z-index: -3; inset: 0; opacity: .44; background-image: radial-gradient(circle at 18% 20%, rgba(255,255,255,.9), transparent 28%), repeating-linear-gradient(0deg, rgba(46,49,146,.018) 0 1px, transparent 1px 5px); pointer-events: none;}
+.root :global(.esn-pastel-fan) {position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; pointer-events: none;}
+.root :global(.esn-arc) {fill: none; stroke-width: 34; stroke-linecap: round; opacity: .9;}
+.root :global(.esn-arc-coral) {stroke: #f2a5a1;}
+.root :global(.esn-arc-mint) {stroke: #b9dda9;}
+.root :global(.esn-arc-sky) {stroke: #96d5ee;}
+.root :global(.esn-arc-lilac) {stroke: #c5b5e9;}
+.root :global(.esn-arc-peach) {stroke: #f4bea2;}
+.root :global(.esn-arc-butter) {stroke: #f2d99a;}
+.root :global(.esn-arc-pink) {stroke: #eeb0d2;}
+.root :global(.esn-copy) {position: relative; z-index: 1; align-self: center; max-width: 690px;}
+.root :global(.esn-partner-label) {display: inline-flex; align-items: center; gap: 10px; padding: 8px 13px; border: 1px solid rgba(46,49,146,.15); border-radius: 999px; background: rgba(255,253,248,.78); box-shadow: 0 8px 30px rgba(46,49,146,.06); font-size: 11px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase;}
+.root :global(.esn-color-dots) {display: flex; gap: 3px;}
+.root :global(.esn-color-dots b) {width: 6px; height: 6px; border-radius: 50%;}
+.root :global(.esn-color-dots b:nth-child(1)) {background: #00aeef;}
+.root :global(.esn-color-dots b:nth-child(2)) {background: #ec008c;}
+.root :global(.esn-color-dots b:nth-child(3)) {background: #7ac143;}
+.root :global(.esn-color-dots b:nth-child(4)) {background: #f47b20;}
+.root :global(.esn-color-dots b:nth-child(5)) {background: #2e3192;}
+.root :global(.esn-copy h2) {max-width: 690px; margin-top: 22px; font-size: clamp(46px, 5vw, 72px); line-height: .92; color: #27214f;}
+.root :global(.esn-copy h2 .sr-word:last-child) {position: relative; color: #2e3192;}
+.root :global(.esn-copy > p) {max-width: 610px; margin: 24px 0 0; color: rgba(39,33,79,.74); font-size: 18px; line-height: 1.58;}
+.root :global(.esn-cta) {min-height: 52px; width: fit-content; display: inline-flex; align-items: center; gap: 12px; margin-top: 30px; padding: 0 22px; border: 1px solid #2e3192; border-radius: 13px; background: #2e3192; color: #fffdf8; font-size: 14px; font-weight: 800; transition: transform .18s ease, background .18s ease, border-color .18s ease;}
+.root :global(.esn-cta:hover) {transform: translateY(-2px); border-color: #ec8fc4; background: #ec8fc4; color: #27214f;}
+.root :global(.esn-cta:focus-visible) {outline: 3px solid rgba(46,49,146,.28); outline-offset: 4px;}
+.root :global(.esn-logo-card) {position: relative; z-index: 1; justify-self: end; width: min(100%, 390px); aspect-ratio: 1; display: grid; place-items: center; padding: clamp(20px, 3vw, 34px); border: 1px solid rgba(46,49,146,.13); border-radius: 34px; background: rgba(255,253,248,.9); box-shadow: 0 30px 70px rgba(46,49,146,.13); transform: rotate(1.5deg);}
+.root :global(.esn-logo) {display: block; width: 100%; height: auto; border-radius: 18px; object-fit: contain;}
 
 /* --- FAQ: banda tranquila antes del cierre --- */
 .root :global(.faq-section) {width: 100%; display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(48px, 7vw, 120px); margin: 0; padding: 116px max(24px, calc((100% - 1180px) / 2));background: var(--paper);}
@@ -566,8 +583,9 @@
 .root :global(.faq-list details p) {max-width: 620px; margin: 0; padding: 0 0 30px; color: var(--ink-soft); font-size: 16px; line-height: 1.62;}
 
 @media (max-width: 900px) {
-  .root :global(.esn-section) {grid-template-columns: minmax(210px, .65fr) minmax(0, 1.35fr); gap: 40px; padding: 88px max(24px, calc((100% - 720px) / 2));}
-  .root :global(.esn-logo-slot) {min-height: 280px; padding: 28px;}
+  .root :global(.esn-section) {grid-template-columns: minmax(0, 1.2fr) minmax(240px, .8fr); gap: 40px; padding: 88px max(24px, calc((100% - 720px) / 2));}
+  .root :global(.esn-logo-card) {width: min(100%, 310px); border-radius: 28px;}
+  .root :global(.esn-arc) {stroke-width: 29;}
   .root :global(.safety-section) {grid-template-columns: 1fr; gap: 48px; padding: 96px max(24px, calc((100% - 720px) / 2));}
   .root :global(.safety-copy) {grid-template-columns: 1fr; gap: 16px;}
   .root :global(.safety-copy h2), .root :global(.safety-copy > p) {grid-column: 1 / -1; max-width: none;}
@@ -583,8 +601,10 @@
 }
 
 @media (max-width: 560px) {
-  .root :global(.esn-section) {grid-template-columns: 1fr; gap: 36px; padding: 72px 16px;}
-  .root :global(.esn-logo-slot) {min-height: 210px;}
+  .root :global(.esn-section) {grid-template-columns: 1fr; gap: 42px; padding: 72px 16px;}
+  .root :global(.esn-logo-card) {justify-self: center; width: min(100%, 310px); padding: 20px; transform: rotate(0deg);}
+  .root :global(.esn-pastel-fan) {inset: auto -38% 0 auto; width: 170%; height: 56%;}
+  .root :global(.esn-arc) {stroke-width: 25; opacity: .72;}
   .root :global(.esn-copy h2) {font-size: clamp(38px, 12vw, 50px);}
   .root :global(.esn-copy > p) {font-size: 16px;}
   .root :global(.esn-cta) {width: 100%; justify-content: space-between;}
