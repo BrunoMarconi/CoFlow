@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, ViewTransition } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
@@ -9,8 +10,11 @@ import Spinner from "@/components/ui/Spinner";
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import UserAvatar from "@/components/ui/UserAvatar";
 import UserSafetyActions from "@/components/usuario/UserSafetyActions";
-import CompatibilityRadar, { CompatibilityRadarIcon } from "@/components/convivencia/CompatibilityRadar";
+import ConvivenciaComparison from "@/components/usuario/ConvivenciaComparison";
 import CompatibilityExplanation from "@/components/usuario/CompatibilityExplanation";
+import { getMyCompatibilityScore } from "@/services/users";
+import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 import { detailTransitionName } from "@/lib/detailTransitions";
 import type { PublicUserPreferences, UserPublicProfile } from "@/types/userPublic";
 
@@ -50,7 +54,14 @@ export default function PersonaPublicaPage() {
 
 function PublicProfile({ profile }: { profile: UserPublicProfile }) {
   const router = useRouter();
+  const { user } = useAuth();
   const [safetyOpen, setSafetyOpen] = useState(false);
+  const { data: myCompatibility } = useQuery({
+    queryKey: ["compatibility-score", "me"],
+    queryFn: getMyCompatibilityScore,
+    enabled: Boolean(user?.onboarding_completed),
+    staleTime: 60_000,
+  });
   const {
     saved,
     savingToggle,
@@ -74,15 +85,19 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
       : [];
   const location = profile.community?.city ?? "Ubicación no indicada";
   const budget = profile.rental_budget !== null
-    ? `Hasta ${profile.rental_budget.toLocaleString("es-ES")} € / mes`
+    ? `Hasta ${profile.rental_budget.toLocaleString("es-ES")} €/mes`
     : "Presupuesto no indicado";
+  // La pista solo tiene sentido si hay dos presupuestos que comparar.
+  const budgetHint = budgetComparison(profile.rental_budget, user?.rental_budget ?? null);
+  // Busca gente pero todavía no tiene grupo: es el estado accionable.
+  const isSeekingCommunity = profile.is_looking_for_roommates && !profile.community;
   const preferenceChips = profile.preferences
     ? HIGHLIGHTED_PREFERENCES.map((item) => ({ ...item, value: profile.preferences![item.key] }))
         .filter((item) => Boolean(item.value))
     : [];
 
   return (
-    <div className="mx-auto w-full max-w-6xl pb-8">
+    <div className="mx-auto w-full max-w-6xl pb-[calc(6rem+var(--safe-bottom))] sm:pb-8">
       <div className="relative -mx-6 sm:mx-0">
         <ViewTransition name={detailTransitionName("person", profile.id)} share="coflow-detail-morph">
           <section className="relative h-[27rem] overflow-hidden bg-[#dfe6df] sm:h-[31rem] sm:rounded-[2rem] lg:h-[34rem]" aria-labelledby="profile-name">
@@ -100,13 +115,33 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
 
             <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-5 pt-5 sm:px-7 sm:pt-7">
               <Link href="/usuarios" transitionTypes={["nav-back"]} aria-label="Volver a personas" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-neutral-strong shadow-raised backdrop-blur-md transition hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"><ArrowLeftIcon /></Link>
-              <button type="button" onClick={() => setSafetyOpen(true)} aria-label="Más opciones" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-neutral-strong shadow-raised backdrop-blur-md transition hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"><MoreIcon /></button>
+              <div className="flex items-center gap-2">
+                {/* En móvil, guardar vive aquí: la barra inferior queda
+                    solo para la acción principal. En escritorio sigue
+                    estando junto a "Conectar". */}
+                <button
+                  type="button"
+                  onClick={toggleSave}
+                  disabled={savingToggle}
+                  aria-pressed={saved}
+                  aria-label={saved ? "Quitar de guardados" : "Guardar perfil"}
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-neutral-strong shadow-raised backdrop-blur-md transition hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-wait disabled:opacity-60 sm:hidden"
+                >
+                  <HeartIcon filled={saved} className="h-5 w-5" />
+                </button>
+                <button type="button" onClick={() => setSafetyOpen(true)} aria-label="Más opciones" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-neutral-strong shadow-raised backdrop-blur-md transition hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"><MoreIcon /></button>
+              </div>
             </div>
 
             <div className="absolute inset-x-0 bottom-0 z-10 px-6 pb-20 text-white sm:px-9 sm:pb-24 lg:px-11">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded-full border border-white/25 bg-white/15 px-3 py-1.5 text-xs font-semibold backdrop-blur-md">
-                  {profile.is_looking_for_roommates ? "Busca compañero de piso" : "No busca compañero actualmente"}
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/15 px-3 py-1.5 text-xs font-semibold backdrop-blur-md">
+                  {isSeekingCommunity && <span className="h-2 w-2 rounded-full bg-[#8dd3ad]" aria-hidden="true" />}
+                  {isSeekingCommunity
+                    ? "Buscando comunidad"
+                    : profile.is_looking_for_roommates
+                      ? "Busca compañero de piso"
+                      : "No busca compañero actualmente"}
                 </span>
                 {profile.is_online && (
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/20 px-3 py-1.5 text-xs font-semibold backdrop-blur-md">
@@ -157,92 +192,103 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
         </div>
       </div>
 
+      {/* Una sola rejilla, sin <main> propio: AppShell ya aporta el suyo.
+          El orden del DOM es el de móvil (bio, datos, hábitos,
+          comparación, intereses); en lg el aside se coloca a mano en la
+          columna derecha y el resto se autocoloca en la izquierda. */}
       <div className="mt-12 grid items-start gap-10 sm:mt-14 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14">
-        <main className="min-w-0 space-y-10 sm:space-y-12">
-          {profile.bio && (
-            <section className="relative max-w-3xl pl-6 sm:pl-8">
-              <span className="absolute inset-y-0 left-0 w-1 rounded-full bg-primary" aria-hidden="true" />
-              <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">Sobre {profile.first_name || "esta persona"}</p>
-              <p className="mt-3 text-lg font-medium leading-8 tracking-[-0.018em] text-brand-dark sm:text-xl sm:leading-9">“{profile.bio}”</p>
-            </section>
-          )}
+        {profile.bio && (
+          <section className="relative max-w-3xl pl-6 sm:pl-8">
+            <span className="absolute inset-y-0 left-0 w-1 rounded-full bg-primary" aria-hidden="true" />
+            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">Sobre {profile.first_name || "esta persona"}</p>
+            <p className="mt-3 text-lg font-medium leading-8 tracking-[-0.018em] text-brand-dark sm:text-xl sm:leading-9">“{profile.bio}”</p>
+          </section>
+        )}
 
-          {preferenceChips.length > 0 && (
-            <section className="relative overflow-hidden rounded-[2rem] bg-[#e8f0eb] p-6 sm:p-8">
-              <span className="pointer-events-none absolute -right-14 -top-16 h-44 w-44 rounded-full border-[34px] border-white/35" aria-hidden="true" />
-              <div className="relative max-w-2xl">
-                <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">Convivencia cotidiana</p>
-                <h2 className="mt-1 text-2xl font-semibold tracking-[-0.035em] text-brand-dark">Así le gusta compartir casa</h2>
-                <p className="mt-2 text-sm leading-6 text-secondary">Hábitos y preferencias que ayudan a imaginar el día a día juntos.</p>
-              </div>
-              <div className="relative mt-5 flex flex-wrap gap-2.5">
-                {preferenceChips.map((item) => (
-                  <span key={item.key} className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/80 px-3.5 py-2.5 text-xs font-semibold text-brand-mid shadow-soft backdrop-blur-sm">
-                    {item.icon}
-                    {item.value}
-                  </span>
-                ))}
-              </div>
-            </section>
-          )}
+        <aside className="lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1 lg:row-span-4">
+          <section aria-labelledby="practical-title">
+            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">En resumen</p>
+            <h2 id="practical-title" className="mt-1 text-2xl font-semibold tracking-[-0.035em] text-brand-dark">Datos prácticos</h2>
 
-          {profile.compatibility && profile.compatibility.categories.length > 0 && (
-            <CompatibilityRadar
-              className="!max-w-none !rounded-[2rem] !border-0 !bg-[#f1f3ed] !p-6 shadow-none sm:!p-8"
-              categories={profile.compatibility.categories}
-              icon={<CompatibilityRadarIcon />}
-              title={`Cómo convive ${profile.first_name || "esta persona"}`}
-              subtitle="Su estilo personal, más allá de la comparación contigo"
-            />
-          )}
-
-          {profile.interests.length > 0 && (
-            <section>
-              <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">Fuera de casa</p>
-              <h2 className="mt-1 text-2xl font-semibold tracking-[-0.035em] text-brand-dark">Gustos e intereses</h2>
-              <div className="mt-4 flex flex-wrap gap-x-2 gap-y-2.5">
-                {profile.interests.map((interest) => <span key={interest} className="rounded-full border border-primary/15 bg-surface px-3.5 py-2 text-xs font-semibold text-[#31453a] shadow-soft">{interest}</span>)}
-              </div>
-            </section>
-          )}
-        </main>
-
-        <aside className="lg:sticky lg:top-24">
-          <section className="overflow-hidden rounded-[1.75rem] border border-black/[0.05] bg-surface-raised shadow-raised">
-            <div className="border-b border-black/[0.06] px-5 py-5 sm:px-6">
-              <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">En resumen</p>
-              <h2 className="mt-1 text-xl font-semibold tracking-[-0.025em] text-brand-dark">Datos prácticos</h2>
-            </div>
-            <dl className="mt-4 divide-y divide-black/[0.06]">
-              <PracticalRow icon={<WorkIcon />} label="Ocupación" value={profile.occupation ?? "No indicada"} />
-              <PracticalRow icon={<MoneyIcon />} label="Presupuesto" value={budget} />
-              <PracticalRow icon={<StatusIcon />} label="Disponibilidad" value={profile.is_looking_for_roommates ? "Disponible" : "No disponible"} />
-              <PracticalRow icon={<PetIcon />} label="Mascotas" value={profile.preferences?.pets ?? "No indicado"} />
+            <dl className="mt-4 grid grid-cols-2 gap-3">
+              <PracticalCard icon={<WorkIcon />} label="Ocupación" value={profile.occupation ?? "No indicada"} />
+              <PracticalCard icon={<MoneyIcon />} label="Presupuesto" value={budget} hint={budgetHint} />
+              <PracticalCard
+                icon={<StatusIcon />}
+                label="Disponibilidad"
+                value={profile.is_looking_for_roommates ? "Busca piso ahora" : "No busca ahora"}
+              />
+              <PracticalCard icon={<PetIcon />} label="Mascotas" value={profile.preferences?.pets ?? "No indicado"} />
             </dl>
 
-            <div className="m-3 mt-5 rounded-[1.25rem] bg-[#eef3ef] p-4">
-            {profile.community ? (
-              <Link href={`/comunidades/${profile.community.id}`} className="flex min-h-11 items-center gap-3 rounded-14 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+            {/* Sin comunidad no se pinta nada: una tarjeta que solo dice
+                "no tiene" ocupa sitio sin aportar. */}
+            {profile.community && (
+              <Link
+                href={`/comunidades/${profile.community.id}`}
+                className="mt-3 flex min-h-11 items-center gap-3 rounded-[1.25rem] bg-[#eef3ef] p-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-soft"><PeopleIcon /></span>
                 <span className="min-w-0 flex-1"><span className="block text-sm font-extrabold text-foreground">Pertenece a {profile.community.name}</span><span className="mt-0.5 block text-xs text-secondary">{profile.community.city}</span></span>
                 <ChevronIcon />
               </Link>
-            ) : (
-              <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-soft"><PeopleIcon /></span>
-                <span><span className="block text-sm font-extrabold text-foreground">Sin comunidad actualmente</span><span className="mt-1 block text-xs leading-5 text-secondary">Está disponible para encontrar personas afines.</span></span>
-              </div>
             )}
-            </div>
           </section>
         </aside>
+
+        {preferenceChips.length > 0 && (
+          <section className="relative overflow-hidden rounded-[2rem] bg-[#e8f0eb] p-6 sm:p-8">
+            <span className="pointer-events-none absolute -right-14 -top-16 h-44 w-44 rounded-full border-[34px] border-white/35" aria-hidden="true" />
+            <div className="relative max-w-2xl">
+              <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">Convivencia cotidiana</p>
+              <h2 className="mt-1 text-2xl font-semibold tracking-[-0.035em] text-brand-dark">Así le gusta compartir casa</h2>
+              <p className="mt-2 text-sm leading-6 text-secondary">Hábitos y preferencias que ayudan a imaginar el día a día juntos.</p>
+            </div>
+            <div className="relative mt-5 flex flex-wrap gap-2.5">
+              {preferenceChips.map((item) => (
+                <span key={item.key} className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/80 px-3.5 py-2.5 text-xs font-semibold text-brand-mid shadow-soft backdrop-blur-sm">
+                  {item.icon}
+                  {item.value}
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {profile.compatibility && profile.compatibility.categories.length > 0 && (
+          <ConvivenciaComparison
+            categories={profile.compatibility.categories}
+            mine={myCompatibility?.categories}
+            breakdown={profile.match_breakdown?.categories}
+            firstName={profile.first_name}
+          />
+        )}
+
+        {profile.interests.length > 0 && (
+          <section>
+            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">Fuera de casa</p>
+            <h2 className="mt-1 text-2xl font-semibold tracking-[-0.035em] text-brand-dark">Gustos e intereses</h2>
+            <div className="mt-4 flex flex-wrap gap-x-2 gap-y-2.5">
+              {profile.interests.map((interest) => <span key={interest} className="rounded-full border border-primary/15 bg-surface px-3.5 py-2 text-xs font-semibold text-[#31453a] shadow-soft">{interest}</span>)}
+            </div>
+          </section>
+        )}
       </div>
 
       {connectionError && <p className="mt-4 text-center text-sm font-semibold text-red-600">{connectionError}</p>}
 
-      <div className="sticky bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))] z-20 -mx-2 mt-7 grid grid-cols-[.8fr_1.2fr] gap-2 border-t border-black/[0.06] bg-[#f7f8f6]/95 p-3 backdrop-blur-xl sm:hidden">
-        <SaveButton saved={saved} saving={savingToggle} onToggle={toggleSave} />
-        <PrimaryConnectionAction profile={profile} status={connectionStatus} connectionId={connectionId} connecting={connecting} onConnect={connect} />
+      {/* En esta ruta BottomNavigation se oculta (ver hidesBottomNavigation),
+          así que esta barra es la única fija abajo y puede quedarse pegada
+          al borde respetando el safe area. */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-black/[0.06] bg-[#f7f8f6]/95 px-4 pt-3 pb-[calc(0.75rem+var(--safe-bottom))] backdrop-blur-xl sm:hidden">
+        <PrimaryConnectionAction
+          profile={profile}
+          status={connectionStatus}
+          connectionId={connectionId}
+          connecting={connecting}
+          onConnect={connect}
+          className="h-14 w-full"
+        />
       </div>
 
       {connectionStatus === "ACCEPTED" && (
@@ -260,14 +306,30 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
   );
 }
 
-function PrimaryConnectionAction({ profile, status, connectionId, connecting, onConnect, inverse = false }: { profile: UserPublicProfile; status: UserPublicProfile["connection_status"]; connectionId: number | null; connecting: boolean; onConnect: () => void; inverse?: boolean }) {
-  const base = inverse
-    ? "flex h-12 items-center justify-center gap-2 rounded-14 bg-white px-3 text-sm font-bold text-brand-dark shadow-raised transition hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-    : "flex h-12 items-center justify-center gap-2 rounded-14 bg-primary px-3 text-sm font-bold text-white shadow-button transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+function PrimaryConnectionAction({ profile, status, connectionId, connecting, onConnect, inverse = false, className }: { profile: UserPublicProfile; status: UserPublicProfile["connection_status"]; connectionId: number | null; connecting: boolean; onConnect: () => void; inverse?: boolean; className?: string }) {
+  // cn (tailwind-merge) resuelve los conflictos, así que la barra móvil
+  // puede pedir h-14 y gana sobre el h-12 de base.
+  const base = cn(
+    inverse
+      ? "flex h-12 items-center justify-center gap-2 rounded-14 bg-white px-3 text-sm font-bold text-brand-dark shadow-raised transition hover:bg-[#edf3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      : "flex h-12 items-center justify-center gap-2 rounded-14 bg-primary px-3 text-sm font-bold text-white shadow-button transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+    className
+  );
   if (status === "ACCEPTED" && connectionId !== null) return <Link href={`/mensajes/${connectionId}`} className={base}><MessageIcon />Enviar mensaje</Link>;
   if (status === "PENDING_RECEIVED") return <Link href="/conexiones?tab=recibidas" className={base}>Responder solicitud</Link>;
-  if (status === "PENDING_SENT") return <span className={`flex h-12 items-center justify-center rounded-14 border text-sm font-bold ${inverse ? "border-white/20 bg-white/10 text-white/70" : "border-border bg-surface text-secondary shadow-soft"}`}>Solicitud enviada</span>;
-  return <button type="button" onClick={onConnect} disabled={connecting || !profile.is_looking_for_roommates} className={`${base} disabled:cursor-not-allowed disabled:opacity-45`}><ConnectIcon />{connecting ? "Enviando..." : "Conectar"}</button>;
+  if (status === "PENDING_SENT") return <span className={cn("flex h-12 items-center justify-center rounded-14 border text-sm font-bold", inverse ? "border-white/20 bg-white/10 text-white/70" : "border-border bg-surface text-secondary shadow-soft", className)}>Solicitud enviada</span>;
+  return <button type="button" onClick={onConnect} disabled={connecting || !profile.is_looking_for_roommates} className={cn(base, "disabled:cursor-not-allowed disabled:opacity-45")}><ConnectIcon />{connecting ? "Enviando..." : "Conectar"}</button>;
+}
+
+/** Sitúa su presupuesto respecto al tuyo. Null si falta alguno de los dos. */
+function budgetComparison(theirs: number | null, mine: number | null): string | null {
+  if (theirs === null || mine === null || mine <= 0) return null;
+
+  // Un 20% de margen: por debajo de esa diferencia, dos presupuestos
+  // compiten por los mismos pisos y decir "parecido" es honesto.
+  const tolerance = mine * 0.2;
+  if (Math.abs(theirs - mine) <= tolerance) return "Parecido al tuyo";
+  return theirs < mine ? "Por debajo del tuyo" : "Por encima del tuyo";
 }
 
 function SaveButton({ saved, saving, onToggle, inverse = false }: { saved: boolean; saving: boolean; onToggle: () => void; inverse?: boolean }) {
@@ -285,14 +347,14 @@ function SaveButton({ saved, saving, onToggle, inverse = false }: { saved: boole
   );
 }
 
-function PracticalRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function PracticalCard({ icon, label, value, hint }: { icon: React.ReactNode; label: string; value: string; hint?: string | null }) {
   return (
-    <div className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-3 px-5 py-3 first:pt-0 last:pb-0 sm:px-6">
+    <div className="rounded-[1.25rem] border border-black/[0.05] bg-surface-raised p-4 shadow-soft">
       <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#edf3ef] text-brand-mid">{icon}</span>
-      <div className="min-w-0">
-        <dt className="text-2xs font-semibold uppercase tracking-[0.08em] text-muted">{label}</dt>
-        <dd className="mt-0.5 text-sm font-semibold leading-5 text-brand-dark">{value}</dd>
-      </div>
+      {/* Sin MAYÚSCULAS: son cuatro datos, no cuatro secciones. */}
+      <dt className="mt-3 text-xs text-secondary">{label}</dt>
+      <dd className="mt-0.5 text-sm font-semibold leading-5 text-brand-dark">{value}</dd>
+      {hint && <p className="mt-1 text-2xs font-semibold text-primary">{hint}</p>}
     </div>
   );
 }
@@ -312,6 +374,6 @@ function MoneyIcon() { return <BaseIcon className="h-5 w-5"><circle cx="12" cy="
 function StatusIcon() { return <BaseIcon className="h-5 w-5"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 10h18" /></BaseIcon>; }
 function PeopleIcon() { return <BaseIcon className="h-7 w-7"><circle cx="9" cy="7" r="4" /><path d="M2 21a7 7 0 0 1 14 0M17 7a3 3 0 0 1 0 6M22 21a5 5 0 0 0-5-5" /></BaseIcon>; }
 function ChevronIcon() { return <BaseIcon className="h-4 w-4 text-muted"><path d="m9 6 6 6-6 6" /></BaseIcon>; }
-function HeartIcon({ filled }: { filled: boolean }) { return <svg viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6Z" /></svg>; }
+function HeartIcon({ filled, className = "h-4 w-4" }: { filled: boolean; className?: string }) { return <svg viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6Z" /></svg>; }
 function MessageIcon() { return <BaseIcon><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" /></BaseIcon>; }
 function ConnectIcon() { return <BaseIcon><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0 1 12 0M18 8v6M15 11h6" /></BaseIcon>; }

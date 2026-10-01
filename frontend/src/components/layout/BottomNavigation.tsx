@@ -114,6 +114,16 @@ const PILL_MAX_STRETCH = 0.35;
 /** px que se afina por arriba y por abajo en el estirón máximo. */
 const PILL_THIN_Y = 3;
 
+/* El perfil público de una persona es una pantalla de decisión: en móvil
+ * tiene su propia barra fija con la acción principal (conectar), y dos
+ * barras apiladas abajo competirían entre sí. AppShell usa esta misma
+ * función para no reservar el hueco del menú en esas rutas. */
+const HIDES_BOTTOM_NAVIGATION = /^\/personas\/[^/]+\/?$/;
+
+export function hidesBottomNavigation(pathname: string) {
+  return HIDES_BOTTOM_NAVIGATION.test(pathname);
+}
+
 export default function BottomNavigation() {
   const pathname = usePathname();
   const { isChatActive } = useMobileChrome();
@@ -176,9 +186,9 @@ export default function BottomNavigation() {
     return `inset(${insetY}px calc(${100 - from - pillWidth.get()}% + ${PILL_INSET_X}px) ${insetY}px calc(${from}% + ${PILL_INSET_X}px) round ${PILL_RADIUS}px)`;
   });
 
-  // Nunca debe competir con el compositor de un chat activo ni con el
-  // teclado virtual abierto en cualquier formulario.
-  if (isChatActive || isKeyboardVisible) return null;
+  // Nunca debe competir con el compositor de un chat activo, con el
+  // teclado virtual abierto ni con la barra de acción de un perfil.
+  if (isChatActive || isKeyboardVisible || hidesBottomNavigation(pathname)) return null;
 
   return (
     /* La barra flota: la franja fija no captura toques, solo lo hace la

@@ -534,6 +534,19 @@
 .root :global(.owners-cta) {display: inline-flex; align-items: center; gap: 10px; padding: 17px 26px; border-radius: 999px; background: var(--ink); color: var(--white); font-size: 14px; font-weight: 700; white-space: nowrap; transition: transform .18s ease, background .18s ease;}
 .root :global(.owners-cta:hover) {transform: translateY(-2px); background: #0d1712;}
 
+/* --- ESN Malaga: colaboracion editorial, con hueco para el logo oficial --- */
+.root :global(.esn-section) {width: 100%; display: grid; grid-template-columns: minmax(260px, .72fr) minmax(0, 1.28fr); align-items: stretch; gap: clamp(48px, 7vw, 112px); margin: 0; padding: 104px max(24px, calc((100% - 1180px) / 2)); background: #edf1ef;}
+.root :global(.esn-logo-slot) {min-height: 330px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 40px; border: 1px solid rgba(98, 125, 112, .26); border-radius: 28px; background: rgba(255, 254, 249, .72); color: #627d70; text-align: center; box-shadow: 0 24px 60px rgba(47, 70, 59, .08);}
+.root :global(.esn-logo-slot span) {font-family: var(--font-display), sans-serif; font-size: clamp(30px, 3vw, 46px); font-weight: 800; letter-spacing: -.055em;}
+.root :global(.esn-logo-slot small) {font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; opacity: .66;}
+.root :global(.esn-copy) {align-self: center; max-width: 700px;}
+.root :global(.kicker-esn) {color: #526b60;}
+.root :global(.esn-copy h2) {max-width: 700px; margin-top: 18px; font-size: clamp(42px, 4.6vw, 66px); line-height: .97;}
+.root :global(.esn-copy > p) {max-width: 610px; margin: 24px 0 0; color: #526057; font-size: 18px; line-height: 1.58;}
+.root :global(.esn-cta) {min-height: 52px; width: fit-content; display: inline-flex; align-items: center; gap: 12px; margin-top: 30px; padding: 0 22px; border: 1px solid #627d70; border-radius: 13px; background: #526b60; color: var(--white); font-size: 14px; font-weight: 800; transition: transform .18s ease, background .18s ease;}
+.root :global(.esn-cta:hover) {transform: translateY(-2px); background: #41584d;}
+.root :global(.esn-cta:focus-visible) {outline: 3px solid rgba(98, 125, 112, .34); outline-offset: 4px;}
+
 /* --- FAQ: banda tranquila antes del cierre --- */
 .root :global(.faq-section) {width: 100%; display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(48px, 7vw, 120px); margin: 0; padding: 116px max(24px, calc((100% - 1180px) / 2));background: var(--paper);}
 .root :global(.faq-intro) {align-self: start; position: sticky; top: 32px;}
@@ -553,6 +566,8 @@
 .root :global(.faq-list details p) {max-width: 620px; margin: 0; padding: 0 0 30px; color: var(--ink-soft); font-size: 16px; line-height: 1.62;}
 
 @media (max-width: 900px) {
+  .root :global(.esn-section) {grid-template-columns: minmax(210px, .65fr) minmax(0, 1.35fr); gap: 40px; padding: 88px max(24px, calc((100% - 720px) / 2));}
+  .root :global(.esn-logo-slot) {min-height: 280px; padding: 28px;}
   .root :global(.safety-section) {grid-template-columns: 1fr; gap: 48px; padding: 96px max(24px, calc((100% - 720px) / 2));}
   .root :global(.safety-copy) {grid-template-columns: 1fr; gap: 16px;}
   .root :global(.safety-copy h2), .root :global(.safety-copy > p) {grid-column: 1 / -1; max-width: none;}
@@ -568,6 +583,11 @@
 }
 
 @media (max-width: 560px) {
+  .root :global(.esn-section) {grid-template-columns: 1fr; gap: 36px; padding: 72px 16px;}
+  .root :global(.esn-logo-slot) {min-height: 210px;}
+  .root :global(.esn-copy h2) {font-size: clamp(38px, 12vw, 50px);}
+  .root :global(.esn-copy > p) {font-size: 16px;}
+  .root :global(.esn-cta) {width: 100%; justify-content: space-between;}
   .root :global(.safety-section) {padding: 76px 16px 70px;}
   .root :global(.owners-band) {padding: 56px 16px;}
   .root :global(.owners-cta) {width: 100%; justify-content: center; white-space: normal;}

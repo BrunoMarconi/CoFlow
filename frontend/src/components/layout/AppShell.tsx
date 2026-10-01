@@ -11,7 +11,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, useAnimationControls, useReducedMotion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
-import BottomNavigation from "@/components/layout/BottomNavigation";
+import BottomNavigation, { hidesBottomNavigation } from "@/components/layout/BottomNavigation";
 import EmailVerificationBanner from "@/components/layout/EmailVerificationBanner";
 import SwipeNavigation from "@/components/layout/SwipeNavigation";
 import Toaster from "@/components/ui/Toast";
@@ -65,6 +65,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   // no debe competir visualmente con la navegación general de CoFlow.
   const isImmersiveOwnerFlow = pathname === "/propietarios/pisos/nuevo";
   const hidesAppChrome = isImmersiveOwnerFlow;
+  const hidesBottomNav = hidesBottomNavigation(pathname);
 
   useEffect(() => {
     if (!isOwnerMode) return;
@@ -227,7 +228,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       {!hidesAppChrome && (
         <a
           href="#main-content"
-          className="fixed left-4 top-3 z-[9999] -translate-y-20 rounded-full bg-brand-dark px-4 py-3 text-sm font-bold text-white shadow-xl transition-transform focus:translate-y-0"
+          className="pointer-events-none fixed left-4 top-3 z-[9999] -translate-y-20 rounded-full bg-brand-dark px-4 py-3 text-sm font-bold text-white opacity-0 shadow-xl transition-[transform,opacity] focus-visible:pointer-events-auto focus-visible:translate-y-0 focus-visible:opacity-100"
         >
           Saltar al contenido
         </a>
@@ -248,7 +249,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
             hidesAppChrome ? "pb-0" : "md:ml-66 md:pb-8",
             // Con un chat a pantalla completa activo en móvil, BottomNavigation
             // se oculta: reservarle espacio dejaría un hueco vacío debajo.
-            isChatActive
+            // Sin BottomNavigation (chat a pantalla completa o perfil
+            // publico) reservar su altura dejaria un hueco vacio.
+            isChatActive || hidesBottomNav
               ? "pb-0"
               : "pb-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))]"
           )}

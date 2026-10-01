@@ -461,6 +461,19 @@ export default function Landing() {
         </div>
       </section>
 
+      <section className="esn-section" aria-labelledby="esn-title">
+        <div className="esn-logo-slot" data-sr aria-label="Espacio reservado para el logo oficial de ESN Málaga">
+          <span>ESN Málaga</span>
+          <small>Logo oficial</small>
+        </div>
+        <div className="esn-copy">
+          <span className="kicker kicker-esn" data-sr>Comunidad internacional en Málaga</span>
+          <h2 id="esn-title" data-sr="words"><SplitWords text="Colaboramos con ESN Málaga para que llegar también sea encontrar tu gente." /></h2>
+          <p data-sr>Ayudamos a estudiantes internacionales a conocer personas con hábitos, presupuesto y una forma de convivir compatibles antes de compartir hogar.</p>
+          <Link className="esn-cta" href="/erasmus" data-sr>Descubrir CoFlow para Erasmus <ArrowIcon /></Link>
+        </div>
+      </section>
+
       <section className="owners-band" id="propietarios" aria-labelledby="owners-title">
         <div className="owners-copy">
           <span className="kicker kicker-warm" data-sr>Para propietarios</span>
