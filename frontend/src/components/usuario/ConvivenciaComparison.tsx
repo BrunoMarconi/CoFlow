@@ -21,7 +21,7 @@ const WEAK_MATCH = 50;
 function matchTone(score: number) {
   if (score >= GOOD_MATCH) return "bg-primary/10 text-primary-dark";
   if (score >= WEAK_MATCH) return "bg-amber-100 text-amber-800";
-  return "bg-red-100 text-red-700";
+  return "bg-red-100 text-red-800";
 }
 
 export default function ConvivenciaComparison({
@@ -43,21 +43,26 @@ export default function ConvivenciaComparison({
 }) {
   const prefersReducedMotion = useReducedMotion();
   const name = firstName || "esta persona";
+  const hasComparison = Boolean(mine && mine.length > 0);
 
   return (
     <section className={cn("rounded-[2rem] bg-[#f1f3ed] p-6 sm:p-8", className)} aria-labelledby="convivencia-comparison-title">
       <div className="max-w-2xl">
-        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">Comparación</p>
+        <p className="text-xs font-semibold text-primary">Comparación</p>
         <h2 id="convivencia-comparison-title" className="mt-1 text-2xl font-semibold tracking-[-0.035em] text-brand-dark">
-          {name} y tú, eje a eje
+          {/* Sin tus puntuaciones no hay comparación que prometer: la
+              tarjeta pasa a describir solo su estilo. */}
+          {hasComparison ? `${name} y tú, eje a eje` : `Cómo convive ${name}`}
         </h2>
         <p className="mt-2 text-sm leading-6 text-secondary">
-          Dónde coincidís y dónde no. Las diferencias no son un problema: son lo que conviene hablar antes de vivir juntos.
+          {hasComparison
+            ? "Dónde coincidís y dónde no. Las diferencias no son un problema: son lo que conviene hablar antes de vivir juntos."
+            : "Su estilo personal en cada aspecto de la convivencia."}
         </p>
       </div>
 
       {/* Leyenda: sin ella, el círculo blanco no se entiende. */}
-      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-semibold text-secondary">
+      {hasComparison && <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-semibold text-secondary">
         <span className="inline-flex items-center gap-2">
           <span className="h-2.5 w-6 rounded-full bg-primary" aria-hidden="true" />
           {name}
@@ -66,7 +71,7 @@ export default function ConvivenciaComparison({
           <span className="h-4 w-4 rounded-full border-2 border-primary-dark bg-white" aria-hidden="true" />
           Tú
         </span>
-      </div>
+      </div>}
 
       <ul className="mt-6 space-y-6">
         {categories.map((category, index) => {
@@ -78,7 +83,7 @@ export default function ConvivenciaComparison({
               <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
                 {/* Minúsculas normales: el eje es una palabra corriente
                     ("limpieza"), no una etiqueta de sistema. */}
-                <h3 className="text-sm font-bold lowercase text-brand-dark">{category.label}</h3>
+                <h3 className="text-sm font-bold text-brand-dark">{category.label}</h3>
                 {match && (
                   <span className={cn("rounded-full px-2.5 py-1 text-2xs font-bold", matchTone(match.score))}>
                     {match.description}
@@ -88,7 +93,20 @@ export default function ConvivenciaComparison({
 
               <p className="mt-1 text-xs leading-5 text-secondary">{category.description}</p>
 
-              <div className="relative mt-3 h-2.5 rounded-full bg-white/80">
+              {/* role="img" + aria-label: la barra y el círculo son
+                  geometría pura, así que un lector de pantalla necesita
+                  que alguien le lea las dos cifras y la coincidencia. */}
+              <div
+                role="img"
+                aria-label={[
+                  `${name}: ${category.score} sobre 100`,
+                  myScore !== undefined ? `tú: ${myScore} sobre 100` : null,
+                  match ? `coincidencia: ${match.description}` : null,
+                ]
+                  .filter(Boolean)
+                  .join(". ")}
+                className="relative mt-3 h-2 rounded-full bg-white"
+              >
                 <motion.span
                   className="absolute inset-y-0 left-0 rounded-full bg-primary"
                   initial={prefersReducedMotion ? false : { width: 0 }}
@@ -101,17 +119,16 @@ export default function ConvivenciaComparison({
                 />
                 {myScore !== undefined && (
                   <span
-                    // El círculo va sobre la misma escala que la barra, así
-                    // que la distancia horizontal entre ambos ES la diferencia.
-                    className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary-dark bg-white shadow-soft"
+                    // Sobre la misma escala que la barra, así que la
+                    // distancia horizontal ES la diferencia entre ambos.
+                    className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-brand-dark bg-white shadow-soft"
                     style={{ left: `${myScore}%` }}
                     aria-hidden="true"
                   />
                 )}
               </div>
 
-              {/* El dato numérico, para quien no interprete la barra. */}
-              <p className="mt-2 text-2xs font-semibold text-muted">
+              <p className="mt-2 text-xs font-semibold text-muted" aria-hidden="true">
                 {name}: {category.score}
                 {myScore !== undefined && ` · Tú: ${myScore}`}
               </p>
@@ -120,7 +137,7 @@ export default function ConvivenciaComparison({
         })}
       </ul>
 
-      <p className="mt-6 text-2xs text-muted">Cada eje va de 0 a 100.</p>
+      <p className="mt-6 text-xs text-muted">Cada eje va de 0 a 100 según las respuestas al test de convivencia.</p>
     </section>
   );
 }

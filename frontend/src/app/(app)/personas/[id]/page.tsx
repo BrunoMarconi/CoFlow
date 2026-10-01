@@ -59,7 +59,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
   const { data: myCompatibility } = useQuery({
     queryKey: ["compatibility-score", "me"],
     queryFn: getMyCompatibilityScore,
-    enabled: Boolean(user?.onboarding_completed),
+    enabled: Boolean(user?.onboarding_completed) && Boolean(profile.compatibility),
     staleTime: 60_000,
   });
   const {
@@ -127,7 +127,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
                   aria-label={saved ? "Quitar de guardados" : "Guardar perfil"}
                   className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-neutral-strong shadow-raised backdrop-blur-md transition hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-wait disabled:opacity-60 sm:hidden"
                 >
-                  <HeartIcon filled={saved} className="h-5 w-5" />
+                  <HeartIcon filled={saved} className={cn("h-5 w-5", saved && "text-red-500")} />
                 </button>
                 <button type="button" onClick={() => setSafetyOpen(true)} aria-label="Más opciones" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-neutral-strong shadow-raised backdrop-blur-md transition hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"><MoreIcon /></button>
               </div>
@@ -169,6 +169,12 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
             <CompatibilityExplanation
               score={profile.match_score}
               breakdown={profile.match_breakdown}
+              firstName={profile.first_name}
+              theirs={profile.compatibility?.categories}
+              mine={myCompatibility?.categories}
+              // Con la conexión aceptada la idea de conversación deja de
+              // ser un consejo y pasa a ser un enlace al chat.
+              conversationHref={connectionStatus === "ACCEPTED" && connectionId !== null ? `/mensajes/${connectionId}` : null}
               actions={
                 <div className="hidden min-w-[20rem] grid-cols-[.85fr_1.15fr] gap-2 sm:grid">
                   <SaveButton saved={saved} saving={savingToggle} onToggle={toggleSave} inverse />
@@ -179,7 +185,7 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
           ) : (
             <section className="grid gap-5 rounded-[1.75rem] bg-brand-dark p-5 text-white shadow-modal sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-7">
               <div>
-                <p className="text-2xs font-bold uppercase tracking-[0.14em] text-white/55">Compatibilidad</p>
+                <p className="text-xs font-semibold text-white/70">Compatibilidad contigo</p>
                 <h2 className="mt-1 text-xl font-semibold tracking-[-0.025em]">Conocerse empieza por una conversación</h2>
                 <p className="mt-2 max-w-xl text-sm leading-6 text-white/65">La comparación aparecerá cuando ambos perfiles tengan completo su test de convivencia.</p>
               </div>
@@ -198,16 +204,16 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
           columna derecha y el resto se autocoloca en la izquierda. */}
       <div className="mt-12 grid items-start gap-10 sm:mt-14 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14">
         {profile.bio && (
-          <section className="relative max-w-3xl pl-6 sm:pl-8">
+          <section className="relative max-w-3xl pl-6 lg:col-start-1 sm:pl-8">
             <span className="absolute inset-y-0 left-0 w-1 rounded-full bg-primary" aria-hidden="true" />
-            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">Sobre {profile.first_name || "esta persona"}</p>
+            <p className="text-xs font-semibold text-primary">Sobre {profile.first_name || "esta persona"}</p>
             <p className="mt-3 text-lg font-medium leading-8 tracking-[-0.018em] text-brand-dark sm:text-xl sm:leading-9">“{profile.bio}”</p>
           </section>
         )}
 
         <aside className="lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1 lg:row-span-4">
           <section aria-labelledby="practical-title">
-            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">En resumen</p>
+            <p className="text-xs font-semibold text-primary">En resumen</p>
             <h2 id="practical-title" className="mt-1 text-2xl font-semibold tracking-[-0.035em] text-brand-dark">Datos prácticos</h2>
 
             <dl className="mt-4 grid grid-cols-2 gap-3">
@@ -237,10 +243,10 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
         </aside>
 
         {preferenceChips.length > 0 && (
-          <section className="relative overflow-hidden rounded-[2rem] bg-[#e8f0eb] p-6 sm:p-8">
+          <section className="relative overflow-hidden rounded-[2rem] bg-[#e8f0eb] p-6 lg:col-start-1 sm:p-8">
             <span className="pointer-events-none absolute -right-14 -top-16 h-44 w-44 rounded-full border-[34px] border-white/35" aria-hidden="true" />
             <div className="relative max-w-2xl">
-              <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">Convivencia cotidiana</p>
+              <p className="text-xs font-semibold text-primary">Convivencia cotidiana</p>
               <h2 className="mt-1 text-2xl font-semibold tracking-[-0.035em] text-brand-dark">Así le gusta compartir casa</h2>
               <p className="mt-2 text-sm leading-6 text-secondary">Hábitos y preferencias que ayudan a imaginar el día a día juntos.</p>
             </div>
@@ -261,12 +267,13 @@ function PublicProfile({ profile }: { profile: UserPublicProfile }) {
             mine={myCompatibility?.categories}
             breakdown={profile.match_breakdown?.categories}
             firstName={profile.first_name}
+            className="lg:col-start-1"
           />
         )}
 
         {profile.interests.length > 0 && (
-          <section>
-            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-primary">Fuera de casa</p>
+          <section className="lg:col-start-1">
+            <p className="text-xs font-semibold text-primary">Fuera de casa</p>
             <h2 className="mt-1 text-2xl font-semibold tracking-[-0.035em] text-brand-dark">Gustos e intereses</h2>
             <div className="mt-4 flex flex-wrap gap-x-2 gap-y-2.5">
               {profile.interests.map((interest) => <span key={interest} className="rounded-full border border-primary/15 bg-surface px-3.5 py-2 text-xs font-semibold text-[#31453a] shadow-soft">{interest}</span>)}
@@ -325,11 +332,12 @@ function PrimaryConnectionAction({ profile, status, connectionId, connecting, on
 function budgetComparison(theirs: number | null, mine: number | null): string | null {
   if (theirs === null || mine === null || mine <= 0) return null;
 
-  // Un 20% de margen: por debajo de esa diferencia, dos presupuestos
-  // compiten por los mismos pisos y decir "parecido" es honesto.
-  const tolerance = mine * 0.2;
-  if (Math.abs(theirs - mine) <= tolerance) return "Parecido al tuyo";
-  return theirs < mine ? "Por debajo del tuyo" : "Por encima del tuyo";
+  // Entre el 80% y el 125% del tuyo compiten por los mismos pisos, así
+  // que llamarlo "parecido" es honesto. La banda es asimétrica a
+  // propósito: 0.8 y 1.25 son el mismo salto, uno en cada dirección.
+  const ratio = theirs / mine;
+  if (ratio >= 0.8 && ratio <= 1.25) return "Parecido al tuyo";
+  return ratio < 0.8 ? "Por debajo del tuyo" : "Por encima del tuyo";
 }
 
 function SaveButton({ saved, saving, onToggle, inverse = false }: { saved: boolean; saving: boolean; onToggle: () => void; inverse?: boolean }) {
