@@ -14,12 +14,15 @@ const COLLAPSED_SHADOW = "0 0 0 0 rgba(0,0,0,0)";
 const EXPANDED_SHADOW = "0 6px 16px -8px rgba(13,59,42,0.18)";
 
 /** Barra de búsqueda de dos estados (trigger colapsado <-> header
- * expandido) compartida por Personas y Comunidades — el corazón
- * visual de "Search Mode". Misma barra física en todo momento vía
- * layoutId (nunca se sustituye por otra): al pulsarla se "despega"
- * (tap + sombra + z-index) y luego layoutId anima su transformación
- * completa en anchura/posición usando el spring controlado ya
- * existente en CoFlow (MOTION_SPRING.gentle, sin rebote). */
+ * expandido). Hoy solo la usa Explorar, como trigger colapsado que
+ * lleva a Personas/Comunidades — esas dos pantallas usan
+ * DiscoveryToolbar, que se escribe en el sitio.
+ *
+ * Misma barra física en todo momento vía layoutId (nunca se sustituye
+ * por otra): al pulsarla se "despega" (tap + sombra + z-index) y luego
+ * layoutId anima su transformación completa en anchura/posición usando
+ * el spring controlado ya existente en CoFlow (MOTION_SPRING.gentle,
+ * sin rebote). */
 export default function ExplorerSearchBar({
   layoutIdBar,
   layoutIdIcon,

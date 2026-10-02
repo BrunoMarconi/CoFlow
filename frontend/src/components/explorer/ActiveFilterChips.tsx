@@ -34,9 +34,12 @@ export default function ActiveFilterChips({ chips }: { chips: ActiveChip[] }) {
               whileTap={{ scale: 0.95 }}
               transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
               onClick={chip.onRemove}
-              className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-surface px-3 py-1.5 text-xs font-bold text-primary-dark shadow-soft"
+              className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-surface px-3 py-1.5 text-primary-dark shadow-soft"
             >
-              {chip.label}
+              {/* La letra en el span: `button { font: inherit }`
+                  (globals.css, fuera de capa) anula las utilidades
+                  puestas en el botón. */}
+              <span className="text-xs font-bold">{chip.label}</span>
               <CloseIcon />
             </motion.button>
           ))}

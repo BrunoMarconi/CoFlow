@@ -1601,9 +1601,15 @@ summary::-webkit-details-marker {
    de 1px corta la página en dos. Un degradado corto en el punto de
    encuentro dice lo mismo — "aquí hay una capa por encima" — sin
    partir nada. Se dibuja fuera del elemento (top: 100%), así que no
-   ocupa alto ni desplaza el contenido. */
-.scroll-edge {
-  position: relative;
+   ocupa alto ni desplaza el contenido.
+
+   El `relative` va en la capa base: solo es el valor por defecto para
+   anclar el ::after. Fuera de capa ganaba a cualquier utilidad de
+   Tailwind y anulaba el `sticky` de la Navbar, que dejaba de ser fija. */
+@layer base {
+  .scroll-edge {
+    position: relative;
+  }
 }
 
 .scroll-edge::after {

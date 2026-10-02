@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { AnimatePresence, motion, MotionConfig, useDragControls } from "framer-motion";
+import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 
 import { useCommunities } from "@/hooks/useCommunities";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,8 +18,12 @@ import CommunityFilters, {
   type CommunityFilterState,
 } from "@/components/comunidad/CommunityFilters";
 import { COMMUNITY_PROFILE_TYPE_LABELS } from "@/lib/communityProfileType";
-import ExplorerSearchBar from "@/components/explorer/ExplorerSearchBar";
-import ExplorerFilterToggle from "@/components/explorer/ExplorerFilterToggle";
+import DiscoveryToolbar, {
+  ChipDivider,
+  CityChip,
+  QuickChip,
+} from "@/components/explorer/DiscoveryToolbar";
+import FilterSheet from "@/components/explorer/FilterSheet";
 import ActiveFilterChips, {
   type ActiveChip,
 } from "@/components/explorer/ActiveFilterChips";
@@ -29,37 +32,20 @@ import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import ErrorState from "@/components/ui/ErrorState";
 import HomeFab from "@/components/explorer/HomeFab";
-import CountUp from "@/components/ui/CountUp";
-import {
-  MOTION_DURATION,
-  MOTION_EASE,
-  MOTION_SPRING,
-  projectMomentum,
-} from "@/lib/motionTokens";
+import { MOTION_DURATION, MOTION_EASE } from "@/lib/motionTokens";
 import { seoCities } from "@/lib/seoCities";
 
-/* El panel de filtros ocupa la pantalla entera, así que su umbral de
- * cierre no puede ser el mismo que el de un sheet bajito: hay que
- * proyectar un 30% de la altura del viewport (o llegar ahí con
- * inercia) para descartarlo. */
-const FILTERS_DISMISS_RATIO = 0.3;
-
-const SEARCH_BAR_LAYOUT_ID = "community-search-bar";
-const SEARCH_ICON_LAYOUT_ID = "community-search-icon";
-
-const CITY_FILTER_OPTIONS = ["Todas", ...seoCities.map((city) => city.name)];
+const CITY_FILTER_OPTIONS = seoCities.map((city) => city.name);
 const QUICK_PROFILE_FILTERS = ["STUDENTS", "YOUNG_PROFESSIONALS", "MIXED"] as const;
 
 export default function ComunidadesPage() {
   const [search, setSearch] = useState("");
-  const [cityFilter, setCityFilter] = useState("Todas");
+  // "" = todas las ciudades.
+  const [cityFilter, setCityFilter] = useState("");
   const [filters, setFilters] = useState<CommunityFilterState>(
     defaultCommunityFilters
   );
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [portalReady, setPortalReady] = useState(false);
-  const filterDragControls = useDragControls();
 
   const searchParams = useSearchParams();
   const justLeft = searchParams.get("left") === "1";
@@ -75,7 +61,7 @@ export default function ComunidadesPage() {
     loadingMore,
     loadMore,
   } = useCommunities({
-    city: cityFilter !== "Todas" ? cityFilter : undefined,
+    city: cityFilter || undefined,
     profile_type:
       filters.profileType !== "ALL" ? filters.profileType : undefined,
     join_type: filters.joinType !== "ALL" ? filters.joinType : undefined,
@@ -102,9 +88,17 @@ export default function ComunidadesPage() {
   }, [communities, search]);
 
   const hasQuery = search.trim().length > 0;
-  const showFiltersPanel = filtersOpen;
+  const hasActiveFilters = isCommunityFiltersActive(filters);
   const resultCount = visibleCommunities.length;
-  const activeCityLabel = cityFilter === "Todas" ? "Málaga" : cityFilter;
+  const activeCityLabel = cityFilter || "Málaga";
+  const sheetFilterCount = [
+    filters.maxBudget !== "",
+    filters.moveInBefore !== "",
+    filters.joinType !== "ALL",
+    filters.urgency !== "ALL",
+    filters.profileType !== "ALL",
+    filters.showNoSpots,
+  ].filter(Boolean).length;
 
   const activeChips = useMemo<ActiveChip[]>(() => {
     const chips: ActiveChip[] = [];
@@ -157,7 +151,11 @@ export default function ComunidadesPage() {
       }
     }
 
-    if (filters.profileType !== "ALL") {
+    // Los perfiles con atajo en la barra ya se ven marcados allí.
+    if (
+      filters.profileType !== "ALL" &&
+      !(QUICK_PROFILE_FILTERS as readonly string[]).includes(filters.profileType)
+    ) {
       chips.push({
         key: "profileType",
         label: COMMUNITY_PROFILE_TYPE_LABELS[filters.profileType],
@@ -178,58 +176,6 @@ export default function ComunidadesPage() {
     return chips;
   }, [filters]);
 
-  function closeSearch() {
-    setSearchOpen(false);
-  }
-
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => setPortalReady(true));
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
-
-  useEffect(() => {
-    if (!filtersOpen) return;
-
-    const scrollY = window.scrollY;
-    const previousBodyPosition = document.body.style.position;
-    const previousBodyTop = document.body.style.top;
-    const previousBodyWidth = document.body.style.width;
-    const previousBodyOverflow = document.body.style.overflow;
-
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = "100%";
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.position = previousBodyPosition;
-      document.body.style.top = previousBodyTop;
-      document.body.style.width = previousBodyWidth;
-      document.body.style.overflow = previousBodyOverflow;
-      window.scrollTo(0, scrollY);
-    };
-  }, [filtersOpen]);
-
-  useEffect(() => {
-    if (!searchOpen) return;
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key !== "Escape") return;
-
-      if (filtersOpen) {
-        setFiltersOpen(false);
-        return;
-      }
-
-      closeSearch();
-    }
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [searchOpen, filtersOpen]);
-
-  // Mismo bloque de resultados en la vista normal y dentro del modo
-  // búsqueda: se reutiliza tal cual, nunca se duplica.
   // El esqueleto y el contenido se funden en vez de reemplazarse de
   // golpe: sin esto, cada carga termina con un salto brusco.
   const resultsState = loading ? "loading" : error ? "error" : "results";
@@ -296,216 +242,113 @@ export default function ComunidadesPage() {
   return (
     <MotionConfig reducedMotion="user">
     <div className="community-discovery-page -mx-2 min-h-dvh bg-white px-2 sm:-mx-8 sm:px-8 md:mx-0 md:min-h-0 md:bg-transparent md:px-0">
-      {!searchOpen && (
-        <motion.header
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
-          className="mt-6 flex items-end justify-between gap-6 border-b border-black/[0.07] pb-6 sm:mt-8 sm:pb-8"
-        >
-          <div>
-            <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-[#66736c]">
-              Comunidades · {activeCityLabel}
-            </p>
-            <h1 className="mt-2 max-w-2xl font-rounded text-4xl font-semibold leading-[1.02] tracking-[-0.05em] text-brand-dark sm:text-5xl">
-              Encuentra un grupo en el que empezar a sentirte en casa.
-            </h1>
-          </div>
-          <p className="hidden max-w-xs text-right text-sm leading-6 text-[#6b7771] lg:block">
-            Compara ambiente, presupuesto, plazas disponibles y forma de acceso antes de solicitar unirte.
+      <motion.header
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.out }}
+        className="mt-6 flex items-end justify-between gap-6 border-b border-black/[0.07] pb-6 sm:mt-8 sm:pb-8"
+      >
+        <div>
+          <p className="text-2xs font-semibold uppercase tracking-[0.16em] text-[#66736c]">
+            Comunidades · {activeCityLabel}
           </p>
-        </motion.header>
+          <h1 className="mt-2 max-w-2xl font-rounded text-4xl font-semibold leading-[1.02] tracking-[-0.05em] text-brand-dark sm:text-5xl">
+            Encuentra un grupo en el que empezar a sentirte en casa.
+          </h1>
+        </div>
+        <p className="hidden max-w-xs text-right text-sm leading-6 text-[#6b7771] lg:block">
+          Compara ambiente, presupuesto, plazas disponibles y forma de acceso antes de solicitar unirte.
+        </p>
+      </motion.header>
+
+      <DiscoveryToolbar
+        value={search}
+        onChange={setSearch}
+        onClear={() => setSearch("")}
+        placeholder="Nombre, barrio o ciudad..."
+        searchLabel="Buscar comunidades"
+        activeFilterCount={sheetFilterCount}
+        filtersOpen={filtersOpen}
+        onOpenFilters={() => setFiltersOpen(true)}
+      >
+        <CityChip
+          value={cityFilter}
+          options={CITY_FILTER_OPTIONS}
+          onChange={setCityFilter}
+        />
+        <ChipDivider />
+        {QUICK_PROFILE_FILTERS.map((profileType) => {
+          const active = filters.profileType === profileType;
+
+          return (
+            <QuickChip
+              key={profileType}
+              active={active}
+              onClick={() =>
+                setFilters((current) => ({
+                  ...current,
+                  profileType: active ? "ALL" : profileType,
+                }))
+              }
+            >
+              {COMMUNITY_PROFILE_TYPE_LABELS[profileType]}
+            </QuickChip>
+          );
+        })}
+      </DiscoveryToolbar>
+
+      {justLeft && (
+        <p className="mt-4 rounded-14 border border-primary/30 bg-mint-50 px-5 py-4 text-sm font-semibold text-primary-dark">
+          Has abandonado la comunidad correctamente.
+        </p>
       )}
 
-      <div className="sticky top-[calc(var(--safe-top)+.5rem)] z-(--z-sticky-header) -mx-2 mt-4 rounded-card border border-black/[0.06] bg-[#f8faf8]/95 px-3 pb-3 pt-3 shadow-card backdrop-blur-xl sm:mx-0 sm:px-4">
-        <ExplorerSearchBar
-          layoutIdBar={SEARCH_BAR_LAYOUT_ID}
-          layoutIdIcon={SEARCH_ICON_LAYOUT_ID}
-          searchOpen={searchOpen}
-          onOpen={() => setSearchOpen(true)}
-          onBack={closeSearch}
-          value={search}
-          onChange={setSearch}
-          onClear={() => setSearch("")}
-          collapsedPlaceholder="Barrio, nombre o estilo de vida..."
-          placeholder="Barrio, nombre o estilo de vida..."
-          compact
-          collapsedRightSlot={<ExplorerFilterToggle compact active={filtersOpen || isCommunityFiltersActive(filters)} onClick={() => { setSearchOpen(true); setFiltersOpen(true); }} />}
-          rightSlot={
-            (
-              <ExplorerFilterToggle
-                animateEntrance
-                compact
-                active={filtersOpen || isCommunityFiltersActive(filters)}
-                onClick={() => setFiltersOpen((current) => !current)}
-              />
-            )
-          }
-        />
-
-        <div className="-mx-1 mt-2 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {CITY_FILTER_OPTIONS.map((city) => {
-            const active = cityFilter === city;
-            return (
-              <button
-                key={city}
-                type="button"
-                onClick={() => setCityFilter(city)}
-                aria-pressed={active}
-                className={`flex h-10 shrink-0 items-center rounded-full px-4 text-sm font-bold transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
-                  active
-                    ? "bg-brand-dark text-white"
-                    : "bg-flat text-foreground hover:bg-flat-strong"
-                }`}
-              >
-                {city}
-              </button>
-            );
-          })}
-          {QUICK_PROFILE_FILTERS.map((profileType) => {
-            const active = filters.profileType === profileType;
-            return <button key={profileType} type="button" onClick={() => setFilters((current) => ({ ...current, profileType: active ? "ALL" : profileType }))} aria-pressed={active} className={`flex h-10 shrink-0 items-center rounded-full px-4 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${active ? "bg-brand-dark text-white" : "bg-flat text-foreground hover:bg-flat-strong"}`}>{COMMUNITY_PROFILE_TYPE_LABELS[profileType]}</button>;
-          })}
-        </div>
-
-        {searchOpen && hasQuery && !filtersOpen && (
-          <ActiveFilterChips chips={activeChips} />
-        )}
-      </div>
-
       <AnimatePresence initial={false}>
-        {!searchOpen && (
+        {activeChips.length > 0 && (
           <motion.div
-            key="header"
-            initial={{ opacity: 0, y: -12, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -12, scale: 0.98 }}
+            key="active-filters"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
             transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-            className="mt-4"
+            className="flex flex-wrap items-center gap-x-3"
           >
-            {justLeft && (
-              <p className="mt-5 rounded-14 border border-primary/30 bg-mint-50 px-5 py-4 text-sm font-semibold text-primary-dark">
-                Has abandonado la comunidad correctamente.
-              </p>
-            )}
-
-            {isCommunityFiltersActive(filters) && (
-              <div className="mt-4">
-                <ActiveFilterChips chips={activeChips} />
-                <button
-                  type="button"
-                  onClick={() => setFilters(defaultCommunityFilters)}
-                  className="mt-1 text-xs font-bold text-primary-dark underline underline-offset-2"
-                >
-                  Quitar filtros
-                </button>
-              </div>
-            )}
+            <ActiveFilterChips chips={activeChips} />
+            <button
+              type="button"
+              onClick={() => setFilters(defaultCommunityFilters)}
+              className="mt-3 min-h-8 text-primary-dark underline underline-offset-2"
+            >
+              <span className="text-xs font-bold">Quitar filtros</span>
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {portalReady && createPortal(<AnimatePresence initial={false}>
-        {searchOpen && showFiltersPanel && <motion.div key="filters-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .24 }} className="fixed inset-0 z-[90] flex items-end justify-center bg-black/50 backdrop-blur-[3px]" onClick={() => setFiltersOpen(false)}>
-          <motion.section
-            initial={{ y: "100%", scale: .97 }}
-            animate={{ y: 0, scale: 1 }}
-            exit={{ y: "105%", scale: .98 }}
-            transition={{ type: "spring", stiffness: 330, damping: 34, mass: .9 }}
-            drag="y"
-            dragListener={false}
-            dragControls={filterDragControls}
-            dragConstraints={{ top: 0, bottom: 0 }}
-            /* bottom: 1 = el panel sigue al dedo 1:1. Antes cedía un 35%
-               del recorrido, así que el dedo bajaba tres veces más que
-               el panel y el gesto se sentía "pegajoso". */
-            dragElastic={{ top: 0.06, bottom: 1 }}
-            dragMomentum={false}
-            dragTransition={{ bounceStiffness: 438, bounceDamping: 33 }}
-            /* Se decide por dónde IBA el gesto, no por dónde se soltó.
-               Antes bastaban 90px de recorrido — un 11% de la pantalla —
-               para cerrar un panel a pantalla completa: se cerraba solo
-               al intentar hacer scroll dentro de él. Ahora hay que
-               proyectar un 30% de su alto, o traer inercia suficiente
-               para llegar ahí. */
-            onDragEnd={(_, info) => {
-              const projected = info.offset.y + projectMomentum(info.velocity.y);
-              if (projected > window.innerHeight * FILTERS_DISMISS_RATIO) {
-                setFiltersOpen(false);
-              }
-            }}
-            onClick={(event) => event.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="community-filter-title"
-            className="flex h-dvh max-h-none w-full max-w-none flex-col overflow-hidden border-0 bg-white shadow-[0_-18px_60px_rgba(98,125,112,.18)]"
+      <AnimatePresence>
+        {filtersOpen && (
+          <FilterSheet
+            onClose={() => setFiltersOpen(false)}
+            canReset={hasActiveFilters}
+            onReset={() => setFilters(defaultCommunityFilters)}
+            resultCount={resultCount}
+            resultNoun={["comunidad afín", "comunidades afines"]}
           >
-            <div
-              onPointerDown={(event) => filterDragControls.start(event)}
-              className="cursor-grab touch-none active:cursor-grabbing"
-            >
-              <div className="flex justify-center pb-2 pt-[calc(.75rem+var(--safe-top))]"><span className="h-1.5 w-11 rounded-full bg-black/15" /></div>
-              <header className="grid grid-cols-[1fr_auto_1fr] items-center border-b border-border px-5 pb-4 pt-1">
-                {/* "Restablecer" solo existe cuando hay algo que restablecer:
-                    en un panel recién abierto era un botón muerto. */}
-                <AnimatePresence initial={false}>
-                  {isCommunityFiltersActive(filters) ? (
-                    <motion.button
-                      key="reset"
-                      type="button"
-                      initial={{ opacity: 0, x: -6 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -6 }}
-                      transition={{ duration: MOTION_DURATION.fast }}
-                      onClick={() => setFilters(defaultCommunityFilters)}
-                      className="justify-self-start text-xs font-semibold text-muted transition hover:text-foreground"
-                    >
-                      Restablecer
-                    </motion.button>
-                  ) : (
-                    <span key="reset-placeholder" />
-                  )}
-                </AnimatePresence>
-                <div className="text-center"><h2 id="community-filter-title" className="font-rounded text-lg font-bold tracking-[-.035em] text-foreground">Filtros de Convivencia</h2><p className="mt-0.5 flex items-center justify-center gap-1 text-3xs text-primary"><span className="h-1.5 w-1.5 rounded-full bg-primary" />Algoritmo CoFlow</p></div>
-                <button type="button" onClick={() => setFiltersOpen(false)} className="flex h-9 w-9 items-center justify-center justify-self-end rounded-full bg-surface-soft text-secondary transition hover:bg-border" aria-label="Cerrar filtros"><CloseIcon /></button>
-              </header>
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-surface-soft pb-2">
-              <CommunityFilters filters={filters} onChange={setFilters} onClear={() => setFilters(defaultCommunityFilters)} resultCount={resultCount} sheet />
-            </div>
-            <div className="border-t border-border bg-surface p-4 pb-[calc(1rem+var(--safe-bottom))]">
-              <motion.button
-                type="button"
-                onClick={() => setFiltersOpen(false)}
-                disabled={resultCount === 0}
-                whileTap={{ scale: 0.98 }}
-                transition={MOTION_SPRING.snappy}
-                className="flex h-14 w-full items-center justify-between rounded-field bg-primary px-5 text-white shadow-modal transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-muted"
-              >
-                {/* El recuento cuenta en vivo mientras se tocan los filtros:
-                    es la respuesta a "¿me estoy quedando sin resultados?"
-                    sin tener que cerrar el panel para comprobarlo. */}
-                <span className="text-sm font-bold">
-                  {resultCount === 0 ? (
-                    "Sin resultados"
-                  ) : (
-                    <>
-                      Ver <CountUp value={resultCount} durationSeconds={0.4} />{" "}
-                      {resultCount === 1 ? "comunidad afín" : "comunidades afines"}
-                    </>
-                  )}
-                </span>
-                <span className="flex items-center gap-1.5 text-xs font-medium text-white/75">Aplicar filtros <ArrowIcon /></span>
-              </motion.button>
-            </div>
-          </motion.section>
-        </motion.div>}
-      </AnimatePresence>, document.body)}
+            <CommunityFilters
+              filters={filters}
+              onChange={setFilters}
+              onClear={() => setFilters(defaultCommunityFilters)}
+              resultCount={resultCount}
+              sheet
+            />
+          </FilterSheet>
+        )}
+      </AnimatePresence>
 
-      <div className={`mt-5 ${searchOpen ? "" : "lg:grid lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-8"}`}>
+      <div className="mt-5 lg:grid lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-8">
         <section className="min-w-0">
           <SectionHeader
-            title={searchOpen ? "Resultados" : "Comunidades recomendadas"}
+            title={hasQuery || hasActiveFilters ? "Resultados" : "Comunidades recomendadas"}
             subtitle={resultsCounter}
             className="mb-5"
           />
@@ -513,92 +356,90 @@ export default function ComunidadesPage() {
           {resultsBlock}
         </section>
 
-        {!searchOpen && (
-          <aside className="mt-8 space-y-4 lg:sticky lg:top-36 lg:mt-0" aria-label="Información útil">
-            {myCommunity ? (
-              <Link
-                href="/mi-comunidad"
-                className="group block rounded-24 border border-primary/20 bg-mint-50 p-5 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:border-primary/35"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-primary-dark/65">
-                      Tu comunidad
-                    </p>
-                    <h2 className="mt-2 font-rounded text-xl font-semibold text-brand-dark">
-                      {myCommunity.name}
-                    </h2>
-                  </div>
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-dark text-white transition-transform duration-200 group-hover:translate-x-0.5">
-                    <ArrowIcon />
-                  </span>
+        <aside className="mt-8 space-y-4 lg:sticky lg:top-50 lg:mt-0" aria-label="Información útil">
+          {myCommunity ? (
+            <Link
+              href="/mi-comunidad"
+              className="group block rounded-24 border border-primary/20 bg-mint-50 p-5 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:border-primary/35"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-primary-dark/65">
+                    Tu comunidad
+                  </p>
+                  <h2 className="mt-2 font-rounded text-xl font-semibold text-brand-dark">
+                    {myCommunity.name}
+                  </h2>
                 </div>
-                <div className="mt-5 grid grid-cols-2 gap-2">
-                  <div className="rounded-14 bg-white/80 p-3">
-                    <p className="text-lg font-bold text-brand-dark">{myCommunity.member_count}</p>
-                    <p className="text-xs font-medium text-secondary">miembros</p>
-                  </div>
-                  <div className="rounded-14 bg-white/80 p-3">
-                    <p className="text-lg font-bold text-brand-dark">{myCommunity.open_spots}</p>
-                    <p className="text-xs font-medium text-secondary">plazas libres</p>
-                  </div>
-                </div>
-              </Link>
-            ) : (
-              <div className="rounded-24 border border-primary/20 bg-mint-50 p-5 shadow-soft">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-dark text-white">
-                  <PeopleIcon />
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-dark text-white transition-transform duration-200 group-hover:translate-x-0.5">
+                  <ArrowIcon />
                 </span>
-                <h2 className="mt-4 font-rounded text-lg font-semibold text-brand-dark">
-                  ¿No encuentras tu piso ideal?
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-secondary">
-                  Crea una comunidad y reúne a las personas con las que quieres convivir.
-                </p>
-                <Link
-                  href="/crear/comunidad"
-                  className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-14 bg-brand-dark px-4 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
-                >
-                  Crear una comunidad
-                </Link>
               </div>
-            )}
-
-            <div className="hidden rounded-24 border border-border bg-surface p-5 shadow-soft lg:block">
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted">
-                Explorar por ciudad
+              <div className="mt-5 grid grid-cols-2 gap-2">
+                <div className="rounded-14 bg-white/80 p-3">
+                  <p className="text-lg font-bold text-brand-dark">{myCommunity.member_count}</p>
+                  <p className="text-xs font-medium text-secondary">miembros</p>
+                </div>
+                <div className="rounded-14 bg-white/80 p-3">
+                  <p className="text-lg font-bold text-brand-dark">{myCommunity.open_spots}</p>
+                  <p className="text-xs font-medium text-secondary">plazas libres</p>
+                </div>
+              </div>
+            </Link>
+          ) : (
+            <div className="rounded-24 border border-primary/20 bg-mint-50 p-5 shadow-soft">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-dark text-white">
+                <PeopleIcon />
+              </span>
+              <h2 className="mt-4 font-rounded text-lg font-semibold text-brand-dark">
+                ¿No encuentras tu piso ideal?
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-secondary">
+                Crea una comunidad y reúne a las personas con las que quieres convivir.
               </p>
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                {seoCities.slice(0, 4).map((city) => (
-                  <button
-                    key={city.slug}
-                    type="button"
-                    onClick={() => setCityFilter(city.name)}
-                    aria-pressed={cityFilter === city.name}
-                    className={`relative min-h-20 overflow-hidden rounded-14 text-left transition duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
-                      cityFilter === city.name ? "ring-2 ring-primary ring-offset-2" : ""
-                    }`}
-                  >
-                    <Image src={city.image} alt="" fill sizes="150px" className="object-cover" />
-                    <span className="absolute inset-0 bg-gradient-to-t from-black/75 to-black/10" />
-                    <span className="absolute inset-x-0 bottom-0 p-3 text-xs font-bold text-white">
-                      {city.name}
-                    </span>
-                  </button>
-                ))}
-              </div>
-              {cityFilter !== "Todas" && (
-                <button
-                  type="button"
-                  onClick={() => setCityFilter("Todas")}
-                  className="mt-4 min-h-11 text-sm font-bold text-primary-dark underline decoration-primary/30 underline-offset-4"
-                >
-                  Ver todas las ciudades
-                </button>
-              )}
+              <Link
+                href="/crear/comunidad"
+                className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-14 bg-brand-dark px-4 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
+              >
+                Crear una comunidad
+              </Link>
             </div>
-          </aside>
-        )}
+          )}
+
+          <div className="hidden rounded-24 border border-border bg-surface p-5 shadow-soft lg:block">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted">
+              Explorar por ciudad
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {seoCities.slice(0, 4).map((city) => (
+                <button
+                  key={city.slug}
+                  type="button"
+                  onClick={() => setCityFilter(city.name)}
+                  aria-pressed={cityFilter === city.name}
+                  className={`relative min-h-20 overflow-hidden rounded-14 text-left transition duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                    cityFilter === city.name ? "ring-2 ring-primary ring-offset-2" : ""
+                  }`}
+                >
+                  <Image src={city.image} alt="" fill sizes="150px" className="object-cover" />
+                  <span className="absolute inset-0 bg-gradient-to-t from-black/75 to-black/10" />
+                  <span className="absolute inset-x-0 bottom-0 p-3 text-xs font-bold text-white">
+                    {city.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+            {cityFilter !== "" && (
+              <button
+                type="button"
+                onClick={() => setCityFilter("")}
+                className="mt-4 min-h-11 text-sm font-bold text-primary-dark underline decoration-primary/30 underline-offset-4"
+              >
+                Ver todas las ciudades
+              </button>
+            )}
+          </div>
+        </aside>
       </div>
 
       <CommunityPageFooter />
@@ -648,4 +489,4 @@ function FooterGroup({ title, links }: { title: string; links: readonly (readonl
 }
 
 function HomeIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5" aria-hidden="true"><path d="m4 10 8-6 8 6v9H4Z" /><path d="M9 19v-5h6v5" /></svg>; }
-function CloseIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-4 w-4" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>; }
+

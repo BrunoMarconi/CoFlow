@@ -10,11 +10,20 @@ import { useMobilePageTitle } from "@/hooks/useMobilePageTitle";
 import UserGrid from "@/components/usuario/UserGrid";
 import PullToRefresh from "@/components/interaction/PullToRefresh";
 import UserFilters, {
+  COMMUNITY_STATUS_OPTIONS,
   defaultUserFilters,
   isUserFiltersActive,
   type UserFilterState,
 } from "@/components/usuario/UserFilters";
-import SearchInput from "@/components/ui/SearchInput";
+import DiscoveryToolbar, {
+  ChipDivider,
+  CityChip,
+  QuickChip,
+} from "@/components/explorer/DiscoveryToolbar";
+import FilterSheet from "@/components/explorer/FilterSheet";
+import ActiveFilterChips, {
+  type ActiveChip,
+} from "@/components/explorer/ActiveFilterChips";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import SkeletonCard from "@/components/ui/SkeletonCard";
 import EmptyState from "@/components/ui/EmptyState";
@@ -25,7 +34,7 @@ import {
 } from "@/lib/profileCompletion";
 import { seoCities } from "@/lib/seoCities";
 
-const CITY_OPTIONS = ["Málaga"];
+const CITY_OPTIONS = seoCities.map((city) => city.name);
 
 export default function UsuariosPage() {
   const router = useRouter();
@@ -76,6 +85,9 @@ export default function UsuariosPage() {
 
   const hasQuery = search.trim().length > 0;
   const hasActiveFilters = isUserFiltersActive(filters);
+  // Solo lo que vive dentro del panel: la ciudad tiene su propio chip.
+  const sheetFilterCount =
+    (filters.maxBudget ? 1 : 0) + (filters.communityStatus !== "ALL" ? 1 : 0);
   const resultCount = visibleUsers.length;
   const profileIncomplete = Boolean(
     currentUser &&
@@ -87,11 +99,21 @@ export default function UsuariosPage() {
   const featuredCity =
     seoCities.find((city) => city.name === filters.city) ?? seoCities[0];
 
-  function selectCity(city: string) {
-    setFilters((current) => ({
-      ...current,
-      city: current.city === city ? "" : city,
-    }));
+  // La situación ya está a la vista en los atajos de la barra; aquí
+  // solo entra lo que de otro modo quedaría escondido en el panel.
+  const activeChips: ActiveChip[] = filters.maxBudget
+    ? [
+        {
+          key: "maxBudget",
+          label: `Hasta ${filters.maxBudget} €`,
+          onRemove: () =>
+            setFilters((current) => ({ ...current, maxBudget: "" })),
+        },
+      ]
+    : [];
+
+  function resetSheetFilters() {
+    setFilters((current) => ({ ...defaultUserFilters, city: current.city }));
   }
 
   return (
@@ -106,73 +128,57 @@ export default function UsuariosPage() {
           <p className="hidden max-w-xs text-right text-sm leading-6 text-[#6b7771] lg:block">Hábitos, presupuesto y preferencias visibles antes de conectar.</p>
         </header>
 
-        <div className="sticky top-[calc(var(--safe-top)+.5rem)] z-(--z-sticky-header) -mx-2 mt-4 rounded-card border border-black/[0.06] bg-[#f8faf8]/95 p-2.5 shadow-card backdrop-blur-xl sm:mx-0 sm:p-3">
-          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
-            <div className="flex h-13 min-w-0 flex-1 items-center rounded-control bg-white px-4 ring-1 ring-black/[0.06] transition focus-within:ring-2 focus-within:ring-brand-mid/25 sm:h-12">
-              <SearchInput
-                bare
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                onClear={() => setSearch("")}
-                placeholder="Buscar por nombre, ciudad o intereses..."
-              />
-            </div>
-
-            <div className="-mx-0.5 flex gap-2 overflow-x-auto px-0.5 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0">
-            {CITY_OPTIONS.map((city) => {
-              const active = filters.city === city;
+        <DiscoveryToolbar
+          value={search}
+          onChange={setSearch}
+          onClear={() => setSearch("")}
+          placeholder="Nombre, ocupación o intereses..."
+          searchLabel="Buscar personas"
+          activeFilterCount={sheetFilterCount}
+          filtersOpen={filtersOpen}
+          onOpenFilters={() => setFiltersOpen(true)}
+        >
+          <CityChip
+            value={filters.city}
+            options={CITY_OPTIONS}
+            onChange={(city) => setFilters((current) => ({ ...current, city }))}
+          />
+          <ChipDivider />
+          {COMMUNITY_STATUS_OPTIONS.filter((option) => option.value !== "ALL").map(
+            (option) => {
+              const active = filters.communityStatus === option.value;
 
               return (
-                <button
-                  key={city}
-                  type="button"
-                  onClick={() => selectCity(city)}
-                  aria-pressed={active}
-                  className={`flex h-11 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
-                    active
-                      ? "bg-brand-dark text-white"
-                      : "bg-[#edf1ee] text-[#34463c] hover:bg-[#e4ebe7]"
-                  }`}
+                <QuickChip
+                  key={option.value}
+                  active={active}
+                  onClick={() =>
+                    setFilters((current) => ({
+                      ...current,
+                      communityStatus: active ? "ALL" : option.value,
+                    }))
+                  }
                 >
-                  {active && <LocationIcon />}
-                  {city}
-                </button>
+                  {option.label}
+                </QuickChip>
               );
-            })}
+            }
+          )}
+        </DiscoveryToolbar>
 
-            <button
-              type="button"
-              onClick={() => setFiltersOpen((current) => !current)}
-              aria-expanded={filtersOpen}
-              className={`flex h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-bold transition-colors duration-200 ${
-                filtersOpen || filters.maxBudget || filters.communityStatus !== "ALL"
-                  ? "bg-brand-dark text-white"
-                  : "bg-[#edf1ee] text-[#34463c] hover:bg-[#e4ebe7]"
-              }`}
-            >
-              <FilterIcon />
-              Más filtros
-            </button>
-            </div>
-          </div>
-        </div>
+        <ActiveFilterChips chips={activeChips} />
 
-        <AnimatePresence initial={false}>
+        <AnimatePresence>
           {filtersOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -6, scale: 0.99 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -6, scale: 0.99 }}
-              transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE.out }}
-              className="mt-4"
+            <FilterSheet
+              onClose={() => setFiltersOpen(false)}
+              canReset={sheetFilterCount > 0}
+              onReset={resetSheetFilters}
+              resultCount={resultCount}
+              resultNoun={["persona afín", "personas afines"]}
             >
-              <UserFilters
-                filters={filters}
-                onChange={setFilters}
-                onClear={() => setFilters(defaultUserFilters)}
-                resultCount={resultCount}
-              />
-            </motion.div>
+              <UserFilters filters={filters} onChange={setFilters} />
+            </FilterSheet>
           )}
         </AnimatePresence>
 
@@ -232,7 +238,7 @@ export default function UsuariosPage() {
           </AnimatePresence>
         </section>
 
-        <aside className="mt-8 lg:sticky lg:top-28 lg:mt-0" aria-label="Mejora tu búsqueda">
+        <aside className="mt-8 lg:sticky lg:top-50 lg:mt-0" aria-label="Mejora tu búsqueda">
           {profileIncomplete && (
             <div className="rounded-card border border-primary/15 bg-[#f2f7f4] p-4 shadow-soft sm:p-5">
               <div className="flex items-center gap-3">
@@ -263,23 +269,6 @@ export default function UsuariosPage() {
 
       </div>
     </MotionConfig>
-  );
-}
-
-function LocationIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4" aria-hidden="true">
-      <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-      <circle cx="12" cy="10" r="2.5" />
-    </svg>
-  );
-}
-
-function FilterIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-4 w-4" aria-hidden="true">
-      <path d="M4 6h16M7 12h10M10 18h4" />
-    </svg>
   );
 }
 

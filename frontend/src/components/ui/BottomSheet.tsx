@@ -84,6 +84,7 @@ export default function BottomSheet({
   closeOnOutsideClick = true,
   lockBodyScroll = true,
   showDragHandle = true,
+  desktopPlacement = "center",
 }: {
   onClose: () => void;
   children: ReactNode;
@@ -96,7 +97,13 @@ export default function BottomSheet({
   closeOnOutsideClick?: boolean;
   lockBodyScroll?: boolean;
   showDragHandle?: boolean;
+  /** En escritorio: diálogo centrado (por defecto) o panel pegado al
+   * borde derecho a toda altura — para contenido largo que se consulta
+   * junto a la pantalla de detrás, como un panel de filtros. En móvil
+   * no cambia nada: siempre es un sheet que sube desde abajo. */
+  desktopPlacement?: "center" | "side";
 }) {
+  const isSide = desktopPlacement === "side";
   const prefersReducedMotion = useReducedMotion();
   const isDesktop = useMediaQuery("(min-width: 640px)");
   const panelRef = useRef<HTMLDivElement>(null);
@@ -239,16 +246,22 @@ export default function BottomSheet({
       ? MOTION_SPRING.standard
       : MOTION_SPRING.sheet;
 
+  /* El panel lateral entra desde su propio borde: escalarlo desde el
+   * centro lo haría parecer un diálogo que no sabe dónde vive. */
   const sheetInitial = prefersReducedMotion
     ? { opacity: 0 }
     : isDesktop
-      ? { opacity: 0, scale: 0.96 }
+      ? isSide
+        ? { opacity: 0, x: 48 }
+        : { opacity: 0, scale: 0.96 }
       : { y: 40, opacity: 0, scale: 0.98 };
 
   const sheetAnimate = prefersReducedMotion
     ? { opacity: 1 }
     : isDesktop
-      ? { opacity: 1, scale: 1 }
+      ? isSide
+        ? { opacity: 1, x: 0 }
+        : { opacity: 1, scale: 1 }
       : { y: 0, opacity: 1, scale: 1 };
 
   const canDrag = !prefersReducedMotion && !isDesktop;
@@ -299,7 +312,12 @@ export default function BottomSheet({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-(--z-modal) flex items-end justify-center sm:items-center">
+    <div
+      className={cn(
+        "fixed inset-0 z-(--z-modal) flex items-end justify-center",
+        isSide ? "sm:items-stretch sm:justify-end" : "sm:items-center"
+      )}
+    >
       <motion.button
         type="button"
         aria-label="Cerrar"
@@ -358,7 +376,10 @@ export default function BottomSheet({
           // focus:outline-none — el panel recibe el foco solo para que el
           // lector de pantalla anuncie el diálogo; no es un control, y un
           // aro alrededor de todo el sheet solo sería ruido visual.
-          "relative flex max-h-[85dvh] w-full flex-col overflow-hidden rounded-t-24 bg-surface shadow-modal focus:outline-none sm:max-w-lg sm:rounded-24",
+          "relative flex max-h-[85dvh] w-full flex-col overflow-hidden rounded-t-24 bg-surface shadow-modal focus:outline-none",
+          isSide
+            ? "sm:max-h-none sm:max-w-md sm:rounded-none sm:rounded-l-24"
+            : "sm:max-w-lg sm:rounded-24",
           className
         )}
       >

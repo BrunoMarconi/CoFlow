@@ -19,6 +19,11 @@ interface MobileChromeContextValue {
   /** El título grande ya se ha desplazado fuera de vista. */
   isTitleCollapsed: boolean;
   setTitleCollapsed: (collapsed: boolean) => void;
+  /** La barra superior se ha retirado al hacer scroll (solo móvil). Lo
+   * publica la propia Navbar para que lo que se pega debajo de ella
+   * (buscadores fijos) suba y baje a la vez, sin duplicar su lógica. */
+  isNavHidden: boolean;
+  setNavHidden: (hidden: boolean) => void;
 }
 
 const MobileChromeContext = createContext<MobileChromeContextValue | undefined>(
@@ -33,6 +38,7 @@ export default function MobileChromeProvider({
   const [isChatActive, setIsChatActive] = useState(false);
   const [pageTitle, setPageTitleState] = useState<string | null>(null);
   const [isTitleCollapsed, setIsTitleCollapsed] = useState(false);
+  const [isNavHidden, setIsNavHidden] = useState(false);
 
   const setChatActive = useCallback((active: boolean) => {
     setIsChatActive(active);
@@ -50,6 +56,10 @@ export default function MobileChromeProvider({
     setIsTitleCollapsed(collapsed);
   }, []);
 
+  const setNavHidden = useCallback((hidden: boolean) => {
+    setIsNavHidden(hidden);
+  }, []);
+
   const value = useMemo(
     () => ({
       isChatActive,
@@ -58,6 +68,8 @@ export default function MobileChromeProvider({
       setPageTitle,
       isTitleCollapsed,
       setTitleCollapsed,
+      isNavHidden,
+      setNavHidden,
     }),
     [
       isChatActive,
@@ -66,6 +78,8 @@ export default function MobileChromeProvider({
       setPageTitle,
       isTitleCollapsed,
       setTitleCollapsed,
+      isNavHidden,
+      setNavHidden,
     ]
   );
 

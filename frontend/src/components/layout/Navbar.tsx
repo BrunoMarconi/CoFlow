@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,12 +18,16 @@ import { MOTION_DURATION, MOTION_EASE, MOTION_SPRING } from "@/lib/motionTokens"
 export default function Navbar() {
   const { user } = useAuth();
   const { isOwnerMode } = useOwnerMode();
-  const { pageTitle, isTitleCollapsed } = useMobileChrome();
+  const { pageTitle, isTitleCollapsed, setNavHidden } = useMobileChrome();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const prefersReducedMotion = useReducedMotion();
   // En escritorio la barra convive con el sidebar y hay altura de sobra:
   // retraerla solo aportaría desconcierto.
   const hidden = useHideOnScroll(!isDesktop && !prefersReducedMotion);
+
+  useEffect(() => {
+    setNavHidden(hidden);
+  }, [hidden, setNavHidden]);
   const homeHref = isOwnerMode ? "/propietarios/pisos" : "/explorar";
   const profileCompletion = user ? computeProfileCompletion(user) : 100;
   const showProfileProgress = !isOwnerMode && profileCompletion < 100;
