@@ -12,24 +12,26 @@ import PathScene from "./PathScene";
 
 const REGISTER_URL = "/register?utm_source=esn_malaga&utm_medium=partner&utm_campaign=erasmus_2026";
 
+// Landing pensada para estudiantes internacionales: todo el texto visible
+// va en inglés (el resto de la web sigue en español).
 const journeySteps = [
-  { title: "Encuentra personas compatibles", text: "Conoce hábitos, presupuesto, zonas y fechas antes de decidir con quién compartir." },
-  { title: "Formad una comunidad", text: "Hablad, comprobad que queréis una convivencia parecida y cread vuestro grupo." },
-  { title: "Buscad un hogar", text: "Organizad la búsqueda pensando en las necesidades del grupo completo." },
+  { title: "Find compatible people", text: "See habits, budget, neighbourhoods and dates before deciding who to live with." },
+  { title: "Form a community", text: "Talk, check you want a similar way of living together and create your group." },
+  { title: "Find a home together", text: "Plan the search around what the whole group needs." },
 ];
 
 const safetyPoints = [
-  { title: "Correo verificado", text: "Cada cuenta confirma su correo antes de poder escribir a otras personas." },
-  { title: "Bloqueo y reporte", text: "Si algo no encaja, puedes cortar el contacto y reportarlo desde CoFlow." },
-  { title: "Tú decides qué se ve", text: "Controlas la visibilidad de tu perfil y la información que compartes." },
+  { title: "Verified email", text: "Every account confirms its email before it can message anyone." },
+  { title: "Block and report", text: "If something doesn't feel right, you can cut contact and report it from CoFlow." },
+  { title: "You decide what's visible", text: "You control who can see your profile and what information you share." },
 ];
 
 const erasmusFaqs = [
-  ["¿Necesito tener ya un piso?", "No. En CoFlow el punto de partida son las personas: puedes conocer posibles compañeros y formar un grupo antes de buscar vivienda."],
-  ["¿Puedo empezar antes de llegar a Málaga?", "Sí. Puedes crear tu perfil y empezar a conocer personas mientras preparas tu llegada."],
-  ["¿Crear mi perfil es gratis?", "Sí. Crear tu perfil en CoFlow es gratis."],
-  ["¿CoFlow alquila directamente las viviendas?", "CoFlow te ayuda a encontrar personas compatibles y a organizar una búsqueda compartida. No actúa como propietario ni garantiza una vivienda."],
-  ["¿Qué ocurre con mis respuestas del test?", "Se guardan únicamente en tu navegador como borrador para ayudarte a empezar. No crean una cuenta ni se publican por sí solas."],
+  ["Do I need to have a flat already?", "No. On CoFlow, people come first: you can meet potential flatmates and form a group before you start looking for a place."],
+  ["Can I start before I arrive in Málaga?", "Yes. You can create your profile and start meeting people while you prepare for your arrival."],
+  ["Is creating a profile free?", "Yes. Creating your CoFlow profile is free."],
+  ["Does CoFlow rent out homes directly?", "CoFlow helps you find compatible people and organise a shared search. It doesn't act as a landlord or guarantee you a home."],
+  ["What happens to my quiz answers?", "They're saved only in your browser, as a draft to help you get started. They don't create an account and are never published on their own."],
 ] as const;
 
 function ArrowIcon() {
@@ -58,20 +60,20 @@ export default function ErasmusLanding() {
   useAccordion(rootRef);
 
   return (
-    <main ref={rootRef} className={`${s.root} ${styles.root}`}>
+    <main ref={rootRef} lang="en" className={`${s.root} ${styles.root}`}>
       <header className="site-header">
-        <a className="brand" href="#inicio" aria-label="CoFlow, volver al inicio">
+        <a className="brand" href="#inicio" aria-label="CoFlow, back to top">
           <PastelBrandMark />
           <span>CoFlow</span>
         </a>
-        <nav aria-label="Navegación principal">
+        <nav aria-label="Main navigation">
           <span className="nav-indicator" aria-hidden="true" />
-          <a href="#como-funciona">Cómo funciona</a>
-          <a href="#convivencia">Tu convivencia</a>
-          <a href="#seguridad">Seguridad</a>
+          <a href="#como-funciona">How it works</a>
+          <a href="#convivencia">Living together</a>
+          <a href="#seguridad">Safety</a>
         </nav>
         <Link className="header-cta" href={REGISTER_URL}>
-          Crear perfil <ArrowIcon />
+          Create profile <ArrowIcon />
         </Link>
       </header>
 
@@ -93,47 +95,47 @@ export default function ErasmusLanding() {
           <div className={styles.heroCopy}>
             <span className={styles.partnerLabel}>
               <i className={styles.colorDots} aria-hidden="true"><b /><b /><b /><b /><b /></i>
-              CoFlow para estudiantes ESN Málaga
+              CoFlow for ESN Málaga students
             </span>
             <h1 id="erasmus-title">
-              <span>Tu Erasmus</span>
-              <span>empieza</span>
-              <span className={styles.heroAccent}>aquí.</span>
+              <span>Your Erasmus</span>
+              <span>starts</span>
+              <span className={styles.heroAccent}>here.</span>
             </h1>
-            <p>Encuentra personas con las que compartir hábitos, presupuesto y una forma parecida de vivir Málaga.</p>
+            <p>Find people who share your habits, your budget and a similar way of enjoying Málaga.</p>
             <div className={styles.heroActions}>
-              <Link className={styles.primaryCta} href={REGISTER_URL}>Crear mi perfil gratis <ArrowIcon /></Link>
-              <a className={styles.secondaryCta} href="#como-funciona">Descubrir cómo funciona</a>
+              <Link className={styles.primaryCta} href={REGISTER_URL}>Create my free profile <ArrowIcon /></Link>
+              <a className={styles.secondaryCta} href="#como-funciona">See how it works</a>
             </div>
-            <p className={styles.heroNote}>Personas · Comunidad · Hogar</p>
+            <p className={styles.heroNote}>People · Community · Home</p>
           </div>
         </div>
-        <a className={styles.scrollCue} href="#llegar" aria-label="Continuar leyendo">
-          <span>Descubre tu recorrido</span><i aria-hidden="true" />
+        <a className={styles.scrollCue} href="#llegar" aria-label="Keep reading">
+          <span>Discover your journey</span><i aria-hidden="true" />
         </a>
       </section>
 
       <section className={styles.arrival} id="llegar" aria-labelledby="arrival-title">
         <div className={styles.arrivalLead}>
-          <span className="kicker" data-sr>Una ciudad nueva</span>
-          <h2 id="arrival-title" data-sr="words"><SplitWords text="Llegar solo no significa empezar solo." /></h2>
-          <p data-sr>La vivienda importa. Pero antes están las personas con las que vas a desayunar, estudiar, descansar y descubrir la ciudad.</p>
+          <span className="kicker" data-sr>A new city</span>
+          <h2 id="arrival-title" data-sr="words"><SplitWords text="Arriving alone doesn't mean starting alone." /></h2>
+          <p data-sr>Housing matters. But first come the people you&apos;ll have breakfast with, study with, unwind with and discover the city with.</p>
         </div>
         <div className={styles.arrivalGrid}>
-          <article data-sr><span>01</span><strong>Fechas compatibles</strong><p>Conecta con personas que estén preparando una estancia parecida.</p></article>
-          <article data-sr><span>02</span><strong>Presupuesto realista</strong><p>Hablad de dinero y zonas antes de organizar la búsqueda.</p></article>
-          <article data-sr><span>03</span><strong>Convivencia hablada</strong><p>Horarios, limpieza, visitas y ambiente sobre la mesa desde el principio.</p></article>
+          <article data-sr><span>01</span><strong>Matching dates</strong><p>Connect with people planning a similar stay.</p></article>
+          <article data-sr><span>02</span><strong>A realistic budget</strong><p>Talk about money and neighbourhoods before you start searching.</p></article>
+          <article data-sr><span>03</span><strong>House rules, out in the open</strong><p>Schedules, cleaning, guests and vibe on the table from day one.</p></article>
         </div>
       </section>
 
       <section className={`path-section ${styles.journeyBand}`} id="como-funciona" aria-labelledby="journey-title">
         <div className="path-aside">
           <div className="path-intro">
-            <span className="kicker" data-sr>Cómo funciona</span>
-            <h2 id="journey-title" data-sr="words"><SplitWords text="Primero las personas. Después, la casa." /></h2>
-            <p data-sr>CoFlow cambia el orden: conocéis cómo queréis vivir, formáis vuestro grupo y después buscáis con un criterio común.</p>
+            <span className="kicker" data-sr>How it works</span>
+            <h2 id="journey-title" data-sr="words"><SplitWords text="People first. Then, the home." /></h2>
+            <p data-sr>CoFlow flips the order: you work out how you want to live, form your group and then search with shared criteria.</p>
           </div>
-          <PathScene palette="pastel" />
+          <PathScene palette="pastel" steps={["People", "Community", "Home"]} />
         </div>
         <div className="path-grid">
           {journeySteps.map((step, index) => (
@@ -153,22 +155,22 @@ export default function ErasmusLanding() {
       <section className={styles.malaga} id="malaga" aria-labelledby="malaga-title">
         <span className={styles.malagaBackdropWord} aria-hidden="true">MÁLAGA</span>
         <div className={styles.malagaCopy}>
-          <span data-sr>Málaga será nueva.</span>
-          <h2 id="malaga-title" data-sr="words"><SplitWords text="Tu gente no tiene por qué serlo durante mucho tiempo." /></h2>
-          <p data-sr>Empieza a conocer cómo vive cada persona antes de compartir llaves.</p>
-          <div className={styles.placeNames} data-sr aria-label="Zonas de Málaga">Teatinos <i /> Centro <i /> El Ejido</div>
+          <span data-sr>Málaga will be new.</span>
+          <h2 id="malaga-title" data-sr="words"><SplitWords text="Your people don't have to be new for long." /></h2>
+          <p data-sr>Get to know how each person lives before you share keys.</p>
+          <div className={styles.placeNames} data-sr aria-label="Areas of Málaga">Teatinos <i /> Centro <i /> El Ejido</div>
         </div>
         <div className={styles.malagaPhoto} data-sr>
-          <Image className={styles.malagaImage} src="/images/cities/malaga.webp" alt="Vista de Málaga al atardecer" fill sizes="(max-width: 900px) 100vw, 52vw" />
-          <span aria-hidden="true">Tu nueva ciudad</span>
+          <Image className={styles.malagaImage} src="/images/cities/malaga.webp" alt="View of Málaga at sunset" fill sizes="(max-width: 900px) 100vw, 52vw" />
+          <span aria-hidden="true">Your new city</span>
         </div>
       </section>
 
       <section className={`safety-section ${styles.safetyBand}`} id="seguridad" aria-labelledby="safety-title">
         <div className="safety-copy">
-          <span className="kicker kicker-on-dark" data-sr>Seguridad y confianza</span>
-          <h2 id="safety-title" data-sr="words"><SplitWords text="Conocerse antes, con red de seguridad." /></h2>
-          <p data-sr>Compartir casa es una decisión importante. Tú controlas qué enseñas, con quién hablas y cuándo cortar el contacto.</p>
+          <span className="kicker kicker-on-dark" data-sr>Safety and trust</span>
+          <h2 id="safety-title" data-sr="words"><SplitWords text="Get to know each other first, with a safety net." /></h2>
+          <p data-sr>Sharing a home is a big decision. You control what you show, who you talk to and when to cut contact.</p>
         </div>
         <div className="safety-grid">
           {safetyPoints.map((point, index) => (
@@ -183,8 +185,8 @@ export default function ErasmusLanding() {
 
       <section className={`faq-section ${styles.faqBand}`} id="preguntas" aria-labelledby="faq-title">
         <div className="faq-intro">
-          <span className="kicker" data-sr>Antes de empezar</span>
-          <h2 id="faq-title" data-sr="words"><SplitWords text="Lo que querrás saber antes de llegar." /></h2>
+          <span className="kicker" data-sr>Before you start</span>
+          <h2 id="faq-title" data-sr="words"><SplitWords text="What you'll want to know before you arrive." /></h2>
         </div>
         <div className="faq-list">
           {erasmusFaqs.map(([question, answer]) => (
@@ -198,16 +200,16 @@ export default function ErasmusLanding() {
 
       <section className={`final-section ${styles.finalBand}`} id="empezar" aria-labelledby="final-title">
         <div className="final-mark" aria-hidden="true"><i className="is-b" /><i className="is-a" /><i className="is-lens"><i /></i></div>
-        <span className="eyebrow eyebrow-dark" data-sr><i /> Tu experiencia empieza aquí</span>
-        <h2 id="final-title" data-sr="words"><SplitWords text="Encuentra tu gente en Málaga." /></h2>
-        <p data-sr>Crear tu perfil es gratis. Empieza por contar cómo te gusta convivir.</p>
-        <Link className="final-link" href={REGISTER_URL} data-sr>Crear mi perfil gratis <ArrowIcon /></Link>
+        <span className="eyebrow eyebrow-dark" data-sr><i /> Your experience starts here</span>
+        <h2 id="final-title" data-sr="words"><SplitWords text="Find your people in Málaga." /></h2>
+        <p data-sr>Creating your profile is free. Start by telling us how you like to live.</p>
+        <Link className="final-link" href={REGISTER_URL} data-sr>Create my free profile <ArrowIcon /></Link>
       </section>
 
       <footer className={styles.footer}>
         <a className="brand brand-footer" href="#inicio"><Image className="brand-logo" src="/logo-coflow.png" alt="" aria-hidden="true" width={34} height={34} /><span>CoFlow</span></a>
-        <p>La forma más humana de encontrar un hogar compartido.</p>
-        <div><a href="#como-funciona">Cómo funciona</a><a href="#convivencia">Tu convivencia</a><span>© 2026 CoFlow</span></div>
+        <p>The most human way to find a shared home.</p>
+        <div><a href="#como-funciona">How it works</a><a href="#convivencia">Living together</a><span>© 2026 CoFlow</span></div>
       </footer>
     </main>
   );

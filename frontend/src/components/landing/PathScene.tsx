@@ -50,7 +50,16 @@ function personStyle(person: Person) {
   return style as CSSProperties;
 }
 
-export default function PathScene({ palette = "default" }: { palette?: "default" | "pastel" }) {
+const DEFAULT_STEPS = ["Personas", "Comunidad", "Hogar"] as const;
+
+export default function PathScene({
+  palette = "default",
+  steps = DEFAULT_STEPS,
+}: {
+  palette?: "default" | "pastel";
+  /** Rótulos de las tres etapas (la landing de Erasmus los pasa en inglés). */
+  steps?: readonly [string, string, string];
+}) {
   return (
     <div className="path-scene" data-step="0" data-sr aria-hidden="true">
       <div className="path-stage">
@@ -70,9 +79,9 @@ export default function PathScene({ palette = "default" }: { palette?: "default"
         ))}
       </div>
       <ol className="path-scene-steps">
-        <li>Personas</li>
-        <li>Comunidad</li>
-        <li>Hogar</li>
+        {steps.map((step) => (
+          <li key={step}>{step}</li>
+        ))}
       </ol>
     </div>
   );

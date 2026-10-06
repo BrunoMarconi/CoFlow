@@ -461,7 +461,9 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="esn-section" aria-labelledby="esn-title">
+      {/* En inglés, como la landing de /erasmus a la que lleva: es la
+          puerta de entrada para estudiantes internacionales. */}
+      <section className="esn-section" lang="en" aria-labelledby="esn-title">
         <div className="esn-paper" aria-hidden="true" />
         <svg className="esn-pastel-fan" viewBox="0 0 1440 720" preserveAspectRatio="none" aria-hidden="true">
           <path className="esn-arc esn-arc-coral" pathLength="1" d="M800 760 C690 575 720 170 860 -80" />
@@ -475,11 +477,11 @@ export default function Landing() {
         <div className="esn-copy">
           <span className="esn-partner-label" data-sr>
             <i className="esn-color-dots" aria-hidden="true"><b /><b /><b /><b /><b /></i>
-            Comunidad internacional en Málaga
+            International community in Málaga
           </span>
-          <h2 id="esn-title" data-sr="words"><SplitWords text="Colaboramos con ESN Málaga para que llegar también sea encontrar tu gente." /></h2>
-          <p data-sr>Ayudamos a estudiantes internacionales a conocer personas con hábitos, presupuesto y una forma de convivir compatibles antes de compartir hogar.</p>
-          <Link className="esn-cta" href="/erasmus" data-sr>Descubrir CoFlow para Erasmus <ArrowIcon /></Link>
+          <h2 id="esn-title" data-sr="words"><SplitWords text="We've partnered with ESN Málaga so that arriving also means finding your people." /></h2>
+          <p data-sr>We help international students meet people with compatible habits, budgets and ways of living before they share a home.</p>
+          <Link className="esn-cta" href="/erasmus" data-sr>Discover CoFlow for Erasmus <ArrowIcon /></Link>
         </div>
         <div className="esn-logo-card" data-sr>
           <Image className="esn-logo" src="/images/partners/esn-malaga.jpg" alt="ESN Málaga, Erasmus Student Network" width={474} height={474} sizes="(max-width: 560px) calc(100vw - 64px), (max-width: 900px) 34vw, 390px" />

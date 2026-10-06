@@ -7,8 +7,59 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Settings2, X } from "lucide-react";
 import { getCookieConsent, saveCookieConsent } from "@/lib/cookieNotice";
 
+/* /erasmus es una landing en inglés para estudiantes internacionales: el
+ * aviso es lo primero que ven, así que allí también va en inglés. La
+ * política de cookies enlazada solo existe en español y el enlace lo dice. */
+const COPY = {
+  es: {
+    reopenLabel: "Gestionar preferencias de cookies",
+    title: "Tu privacidad, bajo tu control",
+    description: "Usamos almacenamiento necesario para iniciar sesión y proteger la web. Con tu permiso medimos visitas de forma agregada para saber qué funciona. No hacemos publicidad ni perfilado. Puedes aceptar, rechazar o configurar las preferencias opcionales.",
+    beforeChoice: "No activaremos tecnologías opcionales antes de tu elección.",
+    policy: "Política de cookies",
+    reject: "Rechazar",
+    accept: "Aceptar",
+    configure: "Configurar",
+    centre: "Centro de privacidad",
+    settingsTitle: "Configurar cookies",
+    backLabel: "Volver al aviso",
+    settingsIntro: "Las opciones no necesarias permanecen desactivadas salvo que las aceptes expresamente.",
+    necessaryTitle: "Necesarias",
+    necessaryText: "Sesión, seguridad y funciones solicitadas. No pueden desactivarse.",
+    analyticsTitle: "Analítica",
+    analyticsText: "Eventos propios, visitas agregadas con Vercel Web Analytics y el origen de tu primera visita. Sin publicidad ni contenido de mensajes.",
+    preferencesTitle: "Preferencias opcionales",
+    preferencesText: "No utilizadas actualmente.",
+    rejectOptional: "Rechazar opcionales",
+    save: "Guardar y continuar",
+  },
+  en: {
+    reopenLabel: "Manage cookie preferences",
+    title: "Your privacy, under your control",
+    description: "We use necessary storage to keep you signed in and protect the site. With your permission, we measure visits in aggregate to learn what works. No advertising and no profiling. You can accept, reject or configure the optional preferences.",
+    beforeChoice: "We won't turn on optional technologies until you choose.",
+    policy: "Cookie policy (in Spanish)",
+    reject: "Reject",
+    accept: "Accept",
+    configure: "Configure",
+    centre: "Privacy centre",
+    settingsTitle: "Cookie settings",
+    backLabel: "Back to the notice",
+    settingsIntro: "Non-essential options stay off unless you expressly accept them.",
+    necessaryTitle: "Necessary",
+    necessaryText: "Session, security and features you ask for. These can't be turned off.",
+    analyticsTitle: "Analytics",
+    analyticsText: "Our own events, aggregated visits with Vercel Web Analytics and where your first visit came from. No advertising and no message content.",
+    preferencesTitle: "Optional preferences",
+    preferencesText: "Not currently used.",
+    rejectOptional: "Reject optional",
+    save: "Save and continue",
+  },
+} as const;
+
 export default function CookieBanner() {
   const pathname = usePathname();
+  const t = pathname.startsWith("/erasmus") ? COPY.en : COPY.es;
   const [visible, setVisible] = useState(false);
   const [panel, setPanel] = useState(false);
   const [analytics, setAnalytics] = useState(false);
@@ -38,23 +89,23 @@ export default function CookieBanner() {
   if (!showOnPublicSite) return null;
 
   return <>
-    {!visible && <button type="button" onClick={reopen} className="fixed bottom-[calc(1rem+var(--safe-bottom))] left-4 z-(--z-modal) flex items-center gap-2 rounded-full border border-black/10 bg-white/95 px-3.5 py-2.5 text-xs font-bold text-[#294a3b] shadow-lg backdrop-blur transition hover:-translate-y-0.5" aria-label="Gestionar preferencias de cookies"><Settings2 size={14} />Cookies</button>}
+    {!visible && <button type="button" onClick={reopen} className="fixed bottom-[calc(1rem+var(--safe-bottom))] left-4 z-(--z-modal) flex items-center gap-2 rounded-full border border-black/10 bg-white/95 px-3.5 py-2.5 text-xs font-bold text-[#294a3b] shadow-lg backdrop-blur transition hover:-translate-y-0.5" aria-label={t.reopenLabel}><Settings2 size={14} />Cookies</button>}
 
     <AnimatePresence>{visible && !panel && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-(--z-modal) flex items-end justify-center bg-black/20 p-3 backdrop-blur-[2px] sm:p-6">
       <motion.section initial={{ y: 28, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} role="dialog" aria-modal="true" aria-labelledby="cookie-title" aria-describedby="cookie-description" className="w-full max-w-[1040px] rounded-panel border border-black/8 bg-white p-5 shadow-modal sm:p-7 lg:p-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
-          <div className="flex max-w-[690px] items-start gap-4"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eaf3ee] text-brand-mid"><CookieIcon /></span><div><h2 id="cookie-title" className="text-lg font-extrabold tracking-[-.02em] text-[#183126]">Tu privacidad, bajo tu control</h2><p id="cookie-description" className="mt-2 text-sm leading-6 text-[#64716b]">Usamos almacenamiento necesario para iniciar sesión y proteger la web. Con tu permiso medimos visitas de forma agregada para saber qué funciona. No hacemos publicidad ni perfilado. Puedes aceptar, rechazar o configurar las preferencias opcionales.</p><p className="mt-2 text-xs text-[#76817c]">No activaremos tecnologías opcionales antes de tu elección. <Link href="/legal/cookies" className="font-bold text-brand-mid underline underline-offset-4">Política de cookies</Link></p></div></div>
-          <div className="grid grid-cols-2 gap-2 sm:flex"><ConsentButton onClick={() => decide(false, false)} secondary>Rechazar</ConsentButton><ConsentButton onClick={() => decide(true, false)} secondary>Aceptar</ConsentButton><ConsentButton onClick={() => setPanel(true)} className="col-span-2">Configurar</ConsentButton></div>
+          <div className="flex max-w-[690px] items-start gap-4"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eaf3ee] text-brand-mid"><CookieIcon /></span><div><h2 id="cookie-title" className="text-lg font-extrabold tracking-[-.02em] text-[#183126]">{t.title}</h2><p id="cookie-description" className="mt-2 text-sm leading-6 text-[#64716b]">{t.description}</p><p className="mt-2 text-xs text-[#76817c]">{t.beforeChoice} <Link href="/legal/cookies" className="font-bold text-brand-mid underline underline-offset-4">{t.policy}</Link></p></div></div>
+          <div className="grid grid-cols-2 gap-2 sm:flex"><ConsentButton onClick={() => decide(false, false)} secondary>{t.reject}</ConsentButton><ConsentButton onClick={() => decide(true, false)} secondary>{t.accept}</ConsentButton><ConsentButton onClick={() => setPanel(true)} className="col-span-2">{t.configure}</ConsentButton></div>
         </div>
       </motion.section>
     </motion.div>}</AnimatePresence>
 
     <AnimatePresence>{visible && panel && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[calc(var(--z-modal)+1)] grid place-items-center bg-black/35 p-4 backdrop-blur-sm">
       <motion.section initial={{ y: 20, opacity: 0, scale: .98 }} animate={{ y: 0, opacity: 1, scale: 1 }} role="dialog" aria-modal="true" aria-labelledby="cookie-settings-title" className="w-full max-w-xl rounded-panel bg-white p-5 shadow-2xl sm:p-7">
-        <div className="flex items-start justify-between"><div><p className="text-3xs font-bold uppercase tracking-[.16em] text-[#64716b]">Centro de privacidad</p><h2 id="cookie-settings-title" className="mt-2 text-2xl font-extrabold tracking-[-.035em] text-[#183126]">Configurar cookies</h2></div><button type="button" onClick={() => setPanel(false)} className="rounded-full bg-[#eff4f1] p-2.5 text-brand-mid" aria-label="Volver al aviso"><X size={17} /></button></div>
-        <p className="mt-3 text-sm leading-6 text-[#68746e]">Las opciones no necesarias permanecen desactivadas salvo que las aceptes expresamente.</p>
-        <div className="mt-6 space-y-3"><Preference title="Necesarias" text="Sesión, seguridad y funciones solicitadas. No pueden desactivarse." checked disabled onChange={() => undefined} /><Preference title="Analítica" text="Eventos propios, visitas agregadas con Vercel Web Analytics y el origen de tu primera visita. Sin publicidad ni contenido de mensajes." checked={analytics} onChange={setAnalytics} /><Preference title="Preferencias opcionales" text="No utilizadas actualmente." checked={preferences} disabled onChange={setPreferences} /></div>
-        <div className="mt-7 grid gap-2 sm:grid-cols-2"><ConsentButton onClick={() => decide(false, false)} secondary>Rechazar opcionales</ConsentButton><ConsentButton onClick={() => decide(analytics, false)}>Guardar y continuar</ConsentButton></div>
+        <div className="flex items-start justify-between"><div><p className="text-3xs font-bold uppercase tracking-[.16em] text-[#64716b]">{t.centre}</p><h2 id="cookie-settings-title" className="mt-2 text-2xl font-extrabold tracking-[-.035em] text-[#183126]">{t.settingsTitle}</h2></div><button type="button" onClick={() => setPanel(false)} className="rounded-full bg-[#eff4f1] p-2.5 text-brand-mid" aria-label={t.backLabel}><X size={17} /></button></div>
+        <p className="mt-3 text-sm leading-6 text-[#68746e]">{t.settingsIntro}</p>
+        <div className="mt-6 space-y-3"><Preference title={t.necessaryTitle} text={t.necessaryText} checked disabled onChange={() => undefined} /><Preference title={t.analyticsTitle} text={t.analyticsText} checked={analytics} onChange={setAnalytics} /><Preference title={t.preferencesTitle} text={t.preferencesText} checked={preferences} disabled onChange={setPreferences} /></div>
+        <div className="mt-7 grid gap-2 sm:grid-cols-2"><ConsentButton onClick={() => decide(false, false)} secondary>{t.rejectOptional}</ConsentButton><ConsentButton onClick={() => decide(analytics, false)}>{t.save}</ConsentButton></div>
       </motion.section>
     </motion.div>}</AnimatePresence>
   </>;

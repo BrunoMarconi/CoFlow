@@ -51,11 +51,11 @@ export default function ConvivenciaTest() {
   return (
     <section className={s.section} id="convivencia" aria-labelledby="convivencia-title">
       <div className={s.head}>
-        <span className="kicker">Tu perfil, en tres respuestas</span>
-        <h2 id="convivencia-title">¿Cómo te imaginas tu convivencia?</h2>
+        <span className="kicker">Your profile, in three answers</span>
+        <h2 id="convivencia-title">How do you picture sharing a home?</h2>
         <p>
-          Nadie elige con quién vive por una foto. Responde tres preguntas y mira
-          cómo empieza a tomar forma tu perfil.
+          Nobody chooses who to live with from a photo. Answer three questions
+          and watch your profile start to take shape.
         </p>
       </div>
 
@@ -92,9 +92,9 @@ export default function ConvivenciaTest() {
           <div className={s.card} aria-live="polite">
             <div className={s.cardHead}>
               <span className={s.cardAvatar} aria-hidden="true">
-                Tú
+                You
               </span>
-              <span>Tu perfil CoFlow</span>
+              <span>Your CoFlow profile</span>
             </div>
 
             <dl className={s.rows}>
@@ -119,9 +119,9 @@ export default function ConvivenciaTest() {
 
             {complete && (
               <div className={s.done}>
-                <p>Este es solo el principio de tu perfil CoFlow.</p>
+                <p>This is just the beginning of your CoFlow profile.</p>
                 <Link className={s.cta} href={REGISTER_URL}>
-                  Encontrar personas compatibles <ArrowIcon />
+                  Find compatible people <ArrowIcon />
                 </Link>
               </div>
             )}

@@ -9,18 +9,18 @@ import ErasmusLanding from "@/components/landing/ErasmusLanding";
 // solo envia event_id, session_id, name, path y source — y ahora la propia
 // ruta /erasmus identifica la campana en el campo path de cada evento.
 export const metadata: Metadata = {
-  title: "Compartir piso en tu Erasmus en Málaga",
-  description: "Llegas a Málaga de Erasmus y no conoces a nadie. Responde tres preguntas sobre cómo quieres convivir y empieza a encontrar personas compatibles.",
+  title: "Find flatmates for your Erasmus in Málaga",
+  description: "Coming to Málaga on Erasmus and don't know anyone yet? Answer three questions about how you want to live and start finding compatible people.",
   alternates: { canonical: "/erasmus" },
   openGraph: {
-    title: "CoFlow | Tu Erasmus empieza por encontrar a tu gente",
-    description: "Conoce cómo vive cada persona antes de compartir piso en Málaga.",
+    title: "CoFlow | Your Erasmus starts with finding your people",
+    description: "Get to know how each person lives before sharing a flat in Málaga.",
     url: "/erasmus",
     type: "website",
-    locale: "es_ES",
+    locale: "en_GB",
     siteName: "CoFlow",
   },
-  twitter: { card: "summary_large_image", title: "CoFlow para tu Erasmus en Málaga", description: "Primero las personas. Después, la casa." },
+  twitter: { card: "summary_large_image", title: "CoFlow for your Erasmus in Málaga", description: "People first. Then, the home." },
   robots: { index: true, follow: true },
 };
 

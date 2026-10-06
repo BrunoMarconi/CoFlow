@@ -10,7 +10,10 @@
  * El test NO escribe nada en la base de datos: todas las columnas de
  * CompatibilityProfile son NOT NULL, asi que un perfil de tres respuestas
  * no es un registro valido. Las respuestas viven en localStorage y sirven
- * para prellenar el onboarding cuando la persona se registre. */
+ * para prellenar el onboarding cuando la persona se registre.
+ *
+ * Los textos van en inglés (la landing de Erasmus es en inglés); los
+ * `value` siguen en español porque son lo que se guarda en el borrador. */
 
 export type ConvivenciaQuestionId = "ambiente" | "horario" | "zona";
 
@@ -36,33 +39,33 @@ export type ConvivenciaQuestion = {
 export const CONVIVENCIA_QUESTIONS: ConvivenciaQuestion[] = [
   {
     id: "ambiente",
-    legend: "¿Casa tranquila o ambiente social?",
-    shortLabel: "Ambiente",
+    legend: "Quiet home or social vibe?",
+    shortLabel: "Vibe",
     profileField: "lifestyle",
     options: [
-      { value: "tranquilo", label: "Tranquila", cardLabel: "Casa tranquila" },
-      { value: "social", label: "Social", cardLabel: "Ambiente social" },
+      { value: "tranquilo", label: "Quiet", cardLabel: "Quiet home" },
+      { value: "social", label: "Social", cardLabel: "Social vibe" },
     ],
   },
   {
     id: "horario",
-    legend: "¿Madrugas o eres más nocturno?",
-    shortLabel: "Horario",
+    legend: "Early bird or night owl?",
+    shortLabel: "Schedule",
     profileField: "wake_up",
     options: [
-      { value: "madrugador", label: "Madrugo", cardLabel: "Madrugo" },
-      { value: "nocturno", label: "Nocturno", cardLabel: "Más de noche" },
+      { value: "madrugador", label: "Early bird", cardLabel: "Early bird" },
+      { value: "nocturno", label: "Night owl", cardLabel: "Night owl" },
     ],
   },
   {
     id: "zona",
-    legend: "¿Centro, Teatinos o sin preferencia?",
-    shortLabel: "Zona",
+    legend: "City centre, Teatinos or no preference?",
+    shortLabel: "Area",
     profileField: null,
     options: [
-      { value: "centro", label: "Centro", cardLabel: "Centro" },
+      { value: "centro", label: "City centre", cardLabel: "City centre" },
       { value: "teatinos", label: "Teatinos", cardLabel: "Teatinos" },
-      { value: "indiferente", label: "Sin preferencia", cardLabel: "Cualquier zona" },
+      { value: "indiferente", label: "No preference", cardLabel: "Any area" },
     ],
   },
 ];
