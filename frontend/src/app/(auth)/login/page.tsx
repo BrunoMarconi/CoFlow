@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
@@ -22,6 +22,14 @@ export default function LoginPage() {
   // Sube en cada intento fallido: dos veces la misma contraseña mal
   // también tiene que sacudir la tarjeta.
   const [shake, setShake] = useState(0);
+  const [loginRole, setLoginRole] = useState<"user" | "owner">("user");
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("role") === "owner") {
+      const timeout = window.setTimeout(() => setLoginRole("owner"), 0);
+      return () => window.clearTimeout(timeout);
+    }
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -55,17 +63,21 @@ export default function LoginPage() {
     }
   }
 
+  const isOwner = loginRole === "owner";
+
   return (
     <AuthSplit
-      kicker="Bienvenido de vuelta"
-      headline="Tu gente sigue donde la dejaste."
-      text="Entra para seguir hablando con tu comunidad y retomar la búsqueda donde la dejaste."
-      points={["Tus conversaciones y comunidades", "Las personas que guardaste", "Tus preferencias de convivencia"]}
+      kicker={isOwner ? "Acceso para propietarios" : "Bienvenido de vuelta"}
+      headline={isOwner ? "Tu espacio de propietario te espera." : "Tu gente sigue donde la dejaste."}
+      text={isOwner ? "Entra para gestionar tus viviendas y revisar las solicitudes recibidas." : "Entra para seguir hablando con tu comunidad y retomar la búsqueda donde la dejaste."}
+      points={isOwner
+        ? ["Tus viviendas publicadas", "Solicitudes con contexto", "Control sobre cada anuncio"]
+        : ["Tus conversaciones y comunidades", "Las personas que guardaste", "Tus preferencias de convivencia"]}
       foot="Disponible en Málaga"
       shake={shake}
     >
       <h1 className={s.title}>Inicia sesión</h1>
-      <p className={s.subtitle}>Vuelve a tu comunidad CoFlow.</p>
+      <p className={s.subtitle}>{isOwner ? "Accede a tu panel de propietario." : "Vuelve a tu comunidad CoFlow."}</p>
 
       <form onSubmit={submit} className={s.form}>
         <label className={s.field}>
@@ -108,7 +120,9 @@ export default function LoginPage() {
 
         {error && <p role="alert" className={s.error}>{error}</p>}
 
-        <p className={s.formNote}>Retoma tu búsqueda y tus conversaciones exactamente donde las dejaste.</p>
+        <p className={s.formNote}>{isOwner
+          ? "Al entrar, te llevaremos directamente a la gestión de tus viviendas."
+          : "Retoma tu búsqueda y tus conversaciones exactamente donde las dejaste."}</p>
 
         <div className={s.actions}>
           <SubmitButton state={state}>Iniciar sesión</SubmitButton>
@@ -116,7 +130,7 @@ export default function LoginPage() {
       </form>
 
       <p className={s.foot}>
-        ¿No tienes cuenta? <Link href="/register">Regístrate</Link>
+        ¿No tienes cuenta? <Link href={isOwner ? "/register?role=owner" : "/register"}>Regístrate</Link>
       </p>
     </AuthSplit>
   );

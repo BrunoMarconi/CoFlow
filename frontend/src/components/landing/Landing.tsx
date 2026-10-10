@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Building2, Users2, X } from "lucide-react";
 import { Fragment, useRef, useState } from "react";
 
 import { springEasing } from "@/lib/motionTokens";
+import BottomSheet from "@/components/ui/BottomSheet";
 
 import { faqs } from "./faqs";
 import s from "./Landing.module.css";
@@ -24,6 +26,36 @@ function ArrowIcon() {
     <svg viewBox="0 0 20 20" aria-hidden="true">
       <path d="M4 10h11M11 6l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
+  );
+}
+
+function LoginRoleDialog({ onClose }: { onClose: () => void }) {
+  return (
+    <BottomSheet onClose={onClose} ariaLabel="Elige cómo quieres iniciar sesión" className="sm:max-w-xl">
+      <div className="px-5 pb-[calc(1.5rem+var(--safe-bottom))] pt-3 sm:p-7">
+        <div className="flex items-start justify-between gap-5">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-primary-dark">Iniciar sesión</p>
+            <h2 className="mt-2 text-2xl font-bold tracking-[-0.035em] text-brand-dark sm:text-3xl">¿Cómo usas CoFlow?</h2>
+            <p className="mt-2 max-w-md text-sm leading-6 text-secondary">Elige tu tipo de cuenta para llevarte al acceso adecuado.</p>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Cerrar" className="press-control flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-black/[0.05] text-brand-dark transition-colors hover:bg-black/[0.09]">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="mt-7 grid gap-3 sm:grid-cols-2">
+          <Link href="/login?role=user" className="group flex min-h-28 items-center gap-4 rounded-24 border border-black/[0.09] bg-white p-5 text-left shadow-[0_8px_24px_rgba(20,41,31,0.06)] transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-[0_14px_32px_rgba(20,41,31,0.1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-16 bg-primary/10 text-primary-dark transition-colors group-hover:bg-primary/15"><Users2 className="h-6 w-6" /></span>
+            <span><strong className="block text-base font-bold text-brand-dark">Soy usuario</strong><small className="mt-1 block text-sm leading-5 text-secondary">Busco piso o compañeros</small></span>
+          </Link>
+          <Link href="/login?role=owner" className="group flex min-h-28 items-center gap-4 rounded-24 border border-black/[0.09] bg-white p-5 text-left shadow-[0_8px_24px_rgba(20,41,31,0.06)] transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-[0_14px_32px_rgba(20,41,31,0.1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-16 bg-brand-dark text-white transition-colors group-hover:bg-primary-dark"><Building2 className="h-6 w-6" /></span>
+            <span><strong className="block text-base font-bold text-brand-dark">Soy propietario</strong><small className="mt-1 block text-sm leading-5 text-secondary">Gestiono mis viviendas</small></span>
+          </Link>
+        </div>
+      </div>
+    </BottomSheet>
   );
 }
 
@@ -358,6 +390,7 @@ const heroTitle = "Tu próxima casa empieza por tu gente.";
 
 export default function Landing() {
   const rootRef = useRef<HTMLElement>(null);
+  const [loginDialogOpen, setLoginDialogOpen] = useState(false);
   useLandingIntro(rootRef);
   useScrollReveal(rootRef);
   useFloatingHeader(rootRef);
@@ -378,10 +411,13 @@ export default function Landing() {
           <a href="#como-funciona">Cómo funciona</a>
           <a href="#compatibilidad">Compatibilidad</a>
           <a href="#vivienda">Vivienda</a>
-          <Link href="/login">Entrar</Link>
         </nav>
-        <Link className="header-cta" href="/register" data-reveal>Crear perfil <ArrowIcon /></Link>
+        <div className="header-actions" data-reveal>
+          <button type="button" className="header-login" onClick={() => setLoginDialogOpen(true)}>Iniciar sesión</button>
+          <Link className="header-cta" href="/register">Crear perfil <ArrowIcon /></Link>
+        </div>
       </header>
+      {loginDialogOpen && <LoginRoleDialog onClose={() => setLoginDialogOpen(false)} />}
 
       <section className="hero-cover" id="inicio" aria-labelledby="hero-title">
         <div className="hero-cover-media">
